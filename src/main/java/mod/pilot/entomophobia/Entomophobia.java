@@ -1,0 +1,35 @@
+package mod.pilot.entomophobia;
+
+import com.mojang.logging.LogUtils;
+import mod.pilot.entomophobia.blocks.EntomoBlocks;
+import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
+import mod.pilot.entomophobia.effects.EntomoMobEffects;
+import mod.pilot.entomophobia.entity.EntomoEntities;
+import mod.pilot.entomophobia.items.EntomoItems;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.slf4j.Logger;
+
+@Mod(Entomophobia.MOD_ID)
+public class Entomophobia
+{
+    public static final String MOD_ID = "entomophobia";
+    private static final Logger LOGGER = LogUtils.getLogger();
+
+    public Entomophobia()
+    {
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        MinecraftForge.EVENT_BUS.register(this);
+        EntomoItems.register(modEventBus);
+        EntomoBlocks.register(modEventBus);
+        EntomoEntities.register(modEventBus);
+        EntomoMobEffects.register(modEventBus);
+
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SERVER_SPEC);
+    }
+}
