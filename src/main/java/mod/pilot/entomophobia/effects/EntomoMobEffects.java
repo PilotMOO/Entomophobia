@@ -16,6 +16,7 @@ public class EntomoMobEffects {
     public static final RegistryObject<MobEffect> PREY = MOB_EFFECTS.register("prey",
             PheromonePrey::new);
 
+
     public static void register(IEventBus eventBus) {
         MOB_EFFECTS.register(eventBus);
     }

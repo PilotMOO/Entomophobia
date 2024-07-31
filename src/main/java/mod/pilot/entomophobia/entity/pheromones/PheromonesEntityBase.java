@@ -69,14 +69,14 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
 
         for (LivingEntity entity : this.level().getEntitiesOfClass(MyiaticBase.class, MyiaticAABB)){
             if (!entity.hasEffect(MyiaticPheromoneType)){
-                if (entity.addEffect(new MobEffectInstance(MyiaticPheromoneType,  (int)(EffectBaseTimer * (EffectBaseTimer - entity.distanceToSqr(this)) / EffectBaseTimer), EffectAmp))){
+                if (entity.addEffect(new MobEffectInstance(MyiaticPheromoneType,  (int)(EffectBaseTimer * (MyiaticSpreadAOE - entity.distanceToSqr(this)) / MyiaticSpreadAOE), EffectAmp))){
                     AddLife(20);
                 }
             }
         }
         for (LivingEntity entity : this.level().getEntitiesOfClass(LivingEntity.class, NonMyiaticAABB)){
             if (!(entity instanceof MyiaticBase) && !entity.hasEffect(BasePheromoneType) && entity != this){
-                if (entity.addEffect(new MobEffectInstance(BasePheromoneType,  (int)(EffectBaseTimer * (EffectBaseTimer - entity.distanceToSqr(this)) / EffectBaseTimer), EffectAmp))){
+                if (entity.addEffect(new MobEffectInstance(BasePheromoneType,  (int)(EffectBaseTimer * (BaseSpreadAOE - entity.distanceToSqr(this)) / BaseSpreadAOE), EffectAmp))){
                     AddLife(20);
                 }
             }

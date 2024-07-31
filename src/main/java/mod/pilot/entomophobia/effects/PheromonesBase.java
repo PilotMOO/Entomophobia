@@ -28,7 +28,6 @@ public abstract class PheromonesBase extends MobEffect {
 
     @Override
     public void applyEffectTick(LivingEntity pLivingEntity, int pAmplifier) {
-        System.out.println("I'm going to hurt you");
         if (pLivingEntity instanceof MyiaticBase){
             if (!ApplicableToMyiatic){
                 pLivingEntity.removeEffect(this);
@@ -47,31 +46,54 @@ public abstract class PheromonesBase extends MobEffect {
         }
 
         if (CanSpread){
-            AttemptToSpreadToNearbyTargets(pLivingEntity.blockPosition(), pAmplifier, pLivingEntity);
+            AttemptToSpreadToNearbyTargets(pLivingEntity, pAmplifier, pLivingEntity);
         }
     }
 
     protected void MyiaticEffectTick(LivingEntity target, int amp) {}
     protected void BaseEffectTick(LivingEntity target, int amp) {}
 
-    protected void AttemptToSpreadToNearbyTargets(BlockPos blockPos, int pAmplifier, LivingEntity origin) {
+    protected void AttemptToSpreadToNearbyTargets(LivingEntity parent, int pAmplifier, LivingEntity origin) {
+        System.out.println("Attempting to spread!");
+
+        BlockPos blockPos = parent.blockPosition();
         AABB MyiaticAABB = new AABB(blockPos).inflate(MyiaticSpreadAOE);
         AABB NonMyiaticAABB = new AABB(blockPos).inflate(BaseSpreadAOE);
+        System.out.println("MyiaticAABB's size is: " + MyiaticAABB.getSize());
+        System.out.println("NonMyiaticAABB's size is: " + NonMyiaticAABB.getSize());
 
         MobEffectInstance originEffect = origin.getEffect(this);
         if (originEffect != null){
             for (LivingEntity entity : origin.level().getEntitiesOfClass(MyiaticBase.class, MyiaticAABB)){
-                double duration = originEffect.getDuration();
-                duration = duration * (((MyiaticSpreadAOE - entity.distanceToSqr(blockPos.getCenter())) / MyiaticSpreadAOE) * Falloff);
-                entity.addEffect(new MobEffectInstance(this, (int)duration, pAmplifier));
+                System.out.println("Attempting to spread to " + entity);
+                if (entity != parent && !entity.hasEffect(this)){
+                    double duration = originEffect.getDuration();
+                    duration = duration * (((MyiaticSpreadAOE - entity.distanceToSqr(blockPos.getCenter())) / MyiaticSpreadAOE) * Falloff);
+                    if (duration > 20){
+                        entity.addEffect(new MobEffectInstance(this, (int)duration, pAmplifier));
+                        System.out.println("spread to " + entity + " with duration " + duration);
+                    }
+                }
             }
             for (LivingEntity entity : origin.level().getEntitiesOfClass(LivingEntity.class, NonMyiaticAABB)){
-                if (!(entity instanceof MyiaticBase)){
+                System.out.println("Attempting to spread to " + entity);
+                if (entity != parent && !entity.hasEffect(this) && !(entity instanceof MyiaticBase)){
                     double duration = originEffect.getDuration();
                     duration = duration * (((BaseSpreadAOE - entity.distanceToSqr(blockPos.getCenter())) / BaseSpreadAOE) * Falloff);
-                    entity.addEffect(new MobEffectInstance(this, (int)duration, pAmplifier));
+                    if (duration > 20){
+                        entity.addEffect(new MobEffectInstance(this, (int)duration, pAmplifier));
+                        System.out.println("spread to " + entity + " with duration " + duration);
+                    }
                 }
             }
         }
+        else{
+            System.out.println("originEffect was null!");
+        }
+    }
+
+    @Override
+    public boolean isDurationEffectTick(int pDuration, int pAmplifier) {
+        return pDuration > 0;
     }
 }

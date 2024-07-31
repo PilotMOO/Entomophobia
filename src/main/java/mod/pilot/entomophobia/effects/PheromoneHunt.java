@@ -7,13 +7,12 @@ import net.minecraft.world.entity.LivingEntity;
 
 public class PheromoneHunt extends PheromonesBase{
     public PheromoneHunt() {
-        super(19708, true, false, true, 10, 0, 1);
+        super(3186700, true, false, true, 10, 0, 1);
     }
 
     //TEMPORARY
     @Override
     protected void MyiaticEffectTick(LivingEntity target, int amp) {
-        System.out.println("MyiaticEffectTick was called!");
-        target.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20), target);
+        target.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20));
     }
 }

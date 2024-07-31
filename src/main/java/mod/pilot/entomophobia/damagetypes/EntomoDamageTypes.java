@@ -26,6 +26,6 @@ public class EntomoDamageTypes {
     public static final ResourceKey<DamageType> MYIATIC_BASIC = create("myiatic_basic");
 
     public static DamageSource myiatic_basic(LivingEntity entity){
-        return damageSource(entity, MYIATIC_BASIC);
+        return damageSource(entity, MYIATIC_BASIC, entity);
     }
 }

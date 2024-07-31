@@ -4,11 +4,15 @@ import mod.azure.azurelib.animatable.GeoEntity;
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,8 +23,14 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.AbstractFish;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
@@ -84,16 +94,13 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         final int AnimLength;
         boolean CurrentlyAttacking;
         int AttackTicker = 0;
-        final ArrayList<AttackAnimationDamageType> StrikeDetails;
-        int AttackCD = 0;
-        final int CDMax;
+        final int StrikePos;
         final MyiaticBase mob;
-        public AttackWithAnimationGoal(MyiaticBase pMob, double pSpeedModifier, boolean pFollowingTargetEvenIfNotSeen, ArrayList<AttackAnimationDamageType> strikeDetails, int SwingAnimationLength, int CD) {
+        public AttackWithAnimationGoal(MyiaticBase pMob, double pSpeedModifier, boolean pFollowingTargetEvenIfNotSeen, int strikePos, int SwingAnimationLength) {
             super(pMob, pSpeedModifier, pFollowingTargetEvenIfNotSeen);
             mob = pMob;
-            StrikeDetails = strikeDetails;
+            StrikePos = strikePos;
             AnimLength = SwingAnimationLength;
-            CDMax = CD;
         }
 
         @Override
@@ -108,35 +115,34 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
 
         @Override
         protected void checkAndPerformAttack(LivingEntity pEnemy, double pDistToEnemySqr) {
-            double d0 = this.getAttackReachSqr(pEnemy);
-            if (pDistToEnemySqr <= d0 && !CurrentlyAttacking && AttackCD <= 0) {
-                this.resetAttackCooldown();
-                CurrentlyAttacking = true;
-            }
+
         }
 
         @Override
         public void tick() {
             super.tick();
+            LivingEntity target = mob.getTarget();
+            if (target != null) {
+                if(mob.distanceTo(target) <= getAttackReachSqr(target)){
+                    CurrentlyAttacking = true;
+                }
+            }
             if (CurrentlyAttacking){
                 mob.setAIState(state.attacking.ordinal());
                 AttackTicker++;
-                if (mob.getTarget() != null){
-                    for (AttackAnimationDamageType AADT : StrikeDetails){
-                        if (AADT.Pos == AttackTicker){
-                            if (mob.getPerceivedTargetDistanceSquareForMeleeAttack(mob.getTarget()) <= mob.getReach()){
-                                mob.MyiaticHurtTarget(mob.getTarget(), AADT.Knockback, AADT.Iframes);
-                            }
-                        }
-                    }
+                if (StrikePos == AttackTicker){
+                    mob.doHurtTarget(target);
+                    mob.setDeltaMovement(mob.getDeltaMovement().add(getForward().multiply(1.1, 0, 1.1)));
                 }
                 if (AttackTicker >= AnimLength){
                     FinalizeAttack();
                 }
             }
-            if (AttackCD > 0){
-                AttackCD--;
-            }
+        }
+
+        @Override
+        protected double getAttackReachSqr(LivingEntity pAttackTarget) {
+            return super.getAttackReachSqr(pAttackTarget) + getReach();
         }
 
         @Override
@@ -185,42 +191,13 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         setAIState(StateManager());
     }
 
-    public boolean MyiaticHurtTarget(Entity entity, boolean knockback, boolean Iframes){
-        float f = (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE);
-        float f1 = knockback ? (float) this.getAttributeValue(Attributes.ATTACK_KNOCKBACK) : 0;
-
-        boolean flag = entity.hurt(EntomoDamageTypes.myiatic_basic(this), f);
-        if (flag) {
-            if (f1 > 0.0F && entity instanceof LivingEntity livingEntity) {
-                livingEntity.knockback((double) (f1 * 0.5F), (double) Mth.sin(this.getYRot() * ((float) Math.PI / 180F)), (double) (-Mth.cos(this.getYRot() * ((float) Math.PI / 180F))));
-                this.setDeltaMovement(this.getDeltaMovement().multiply(0.6D, 1.0D, 0.6D));
-            }
-
-            this.doEnchantDamageEffects(this, entity);
-            this.setLastHurtMob(entity);
-            if (Iframes){
-                entity.invulnerableTime = 0;
-            }
+    @Override
+    public boolean doHurtTarget(@Nullable Entity pEntity) {
+        if (pEntity != null){
+            return super.doHurtTarget(pEntity);
         }
-        return flag;
+        return false;
     }
-    /**/
 
-    //Nested Classes
-    protected class AttackAnimationDamageType{
-        public final int Pos;
-        public final boolean Knockback;
-        public final boolean Iframes;
-        public AttackAnimationDamageType(int pos, boolean knockback, boolean iframes){
-            Pos = pos;
-            Knockback = knockback;
-            Iframes = iframes;
-        }
-        public AttackAnimationDamageType(boolean Combo, int pos){
-            Knockback = !Combo;
-            Iframes = !Combo;
-            Pos = pos;
-        }
-    }
     /**/
 }

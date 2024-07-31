@@ -18,10 +18,6 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public class MyiaticZombieEntity extends MyiaticBase {
     public MyiaticZombieEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -61,7 +57,7 @@ public class MyiaticZombieEntity extends MyiaticBase {
                 .add(Attributes.MAX_HEALTH, 20D)
                 .add(Attributes.ARMOR, 4)
                 .add(Attributes.FOLLOW_RANGE, 64)
-                .add(Attributes.MOVEMENT_SPEED, 0.25D)
+                .add(Attributes.MOVEMENT_SPEED, 0.3D)
                 .add(Attributes.ATTACK_DAMAGE, 6D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0.5D)
                 .add(Attributes.ATTACK_SPEED, 2D);
@@ -70,7 +66,7 @@ public class MyiaticZombieEntity extends MyiaticBase {
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(1, new AttackWithAnimationGoal(this, 1.0D, false, new ArrayList<>(Arrays.asList(new AttackAnimationDamageType(true, 10), new AttackAnimationDamageType(false, 12))), 15, 20));
+        this.goalSelector.addGoal(1, new AttackWithAnimationGoal(this, 1.0D, false, 10, 15));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>
                 (this, LivingEntity.class,  true, livingEntity -> { return livingEntity instanceof Player;}));
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>
