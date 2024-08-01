@@ -46,6 +46,8 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
     public void SubtractLife(int count){entityData.set(Life, getLife() - count);}
     public void AddLife(int count){entityData.set(Life, getLife() + count);}
 
+    private static int test = 0;
+
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
@@ -69,18 +71,22 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
 
         for (LivingEntity entity : this.level().getEntitiesOfClass(MyiaticBase.class, MyiaticAABB)){
             if (!entity.hasEffect(MyiaticPheromoneType)){
-                if (entity.addEffect(new MobEffectInstance(MyiaticPheromoneType,  (int)(EffectBaseTimer * (MyiaticSpreadAOE - entity.distanceToSqr(this)) / MyiaticSpreadAOE), EffectAmp))){
+                if (entity.addEffect(new MobEffectInstance(MyiaticPheromoneType,  (int)(EffectBaseTimer * (MyiaticSpreadAOE - entity.distanceTo(this)) / MyiaticSpreadAOE), EffectAmp))){
                     AddLife(20);
+                    test++;
                 }
             }
         }
         for (LivingEntity entity : this.level().getEntitiesOfClass(LivingEntity.class, NonMyiaticAABB)){
-            if (!(entity instanceof MyiaticBase) && !entity.hasEffect(BasePheromoneType) && entity != this){
-                if (entity.addEffect(new MobEffectInstance(BasePheromoneType,  (int)(EffectBaseTimer * (BaseSpreadAOE - entity.distanceToSqr(this)) / BaseSpreadAOE), EffectAmp))){
+            if (!(entity instanceof MyiaticBase) && !(entity instanceof PheromonesEntityBase) && !entity.hasEffect(BasePheromoneType)){
+                if (entity.addEffect(new MobEffectInstance(BasePheromoneType,  (int)(EffectBaseTimer * (BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE), EffectAmp))){
                     AddLife(20);
+                    test++;
                 }
             }
         }
+
+        //System.out.println("Affected " + test + " mobs");
     }
 
     //Stolen from Harbinger, thanks harby :]
@@ -89,13 +95,28 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
         int j = Mth.floor(this.getY());
         int k = Mth.floor(this.getZ());
         Level world = this.level();
+        int Mcolor = MyiaticPheromoneType.getColor();
+        double m1 = (float)(Mcolor >> 16 & 255) / 255.0F;
+        double m2 = (float)(Mcolor >> 8 & 255) / 255.0F;
+        double m3 = (float)(Mcolor & 255) / 255.0F;
+        int Bcolor = BasePheromoneType.getColor();
+        double b1 = (float)(Bcolor >> 16 & 255) / 255.0F;
+        double b2 = (float)(Bcolor >> 8 & 255) / 255.0F;
+        double b3 = (float)(Bcolor & 255) / 255.0F;
         RandomSource randomSource = this.random;
         BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
-        for (int l = 0; l < 4; ++l) {
-            blockpos$mutableblockpos.set(i + Mth.nextInt(randomSource, -6, 6), j + Mth.nextInt(randomSource, -6, 6), k + Mth.nextInt(randomSource, -6, 6));
+        for (int l = 0; l < MyiaticSpreadAOE / 4; ++l) {
+            blockpos$mutableblockpos.set(i + Mth.nextInt(randomSource, -MyiaticSpreadAOE, MyiaticSpreadAOE), j + Mth.nextInt(randomSource, -MyiaticSpreadAOE, MyiaticSpreadAOE), k + Mth.nextInt(randomSource, -MyiaticSpreadAOE, MyiaticSpreadAOE));
             BlockState blockstate = world.getBlockState(blockpos$mutableblockpos);
             if (!blockstate.isSolidRender(world, blockpos$mutableblockpos)) {
-                world.addParticle(ParticleTypes.ENTITY_EFFECT, (double) blockpos$mutableblockpos.getX() + randomSource.nextDouble(), (double) blockpos$mutableblockpos.getY() + randomSource.nextDouble(), (double) blockpos$mutableblockpos.getZ() + randomSource.nextDouble(), 0.0D, 0.1D, 0.0D);
+                world.addParticle(ParticleTypes.ENTITY_EFFECT, (double) blockpos$mutableblockpos.getX() + randomSource.nextDouble(), (double) blockpos$mutableblockpos.getY() + randomSource.nextDouble(), (double) blockpos$mutableblockpos.getZ() + randomSource.nextDouble(), m1, m2, m3);
+            }
+        }
+        for (int l = 0; l < BaseSpreadAOE / 4; ++l) {
+            blockpos$mutableblockpos.set(i + Mth.nextInt(randomSource, -BaseSpreadAOE, BaseSpreadAOE), j + Mth.nextInt(randomSource, -BaseSpreadAOE, BaseSpreadAOE), k + Mth.nextInt(randomSource, -BaseSpreadAOE, BaseSpreadAOE));
+            BlockState blockstate = world.getBlockState(blockpos$mutableblockpos);
+            if (!blockstate.isSolidRender(world, blockpos$mutableblockpos)) {
+                world.addParticle(ParticleTypes.ENTITY_EFFECT, (double) blockpos$mutableblockpos.getX() + randomSource.nextDouble(), (double) blockpos$mutableblockpos.getY() + randomSource.nextDouble(), (double) blockpos$mutableblockpos.getZ() + randomSource.nextDouble(), b1, b2, b3);
             }
         }
     }
@@ -112,7 +133,7 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
         else{
             AddLife(1);
         }
-        System.out.println("Life is " + getLife());
+        //System.out.println("Life is " + getLife());
     }
 
     @Override

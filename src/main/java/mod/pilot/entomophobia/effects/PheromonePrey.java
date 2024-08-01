@@ -6,7 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 
 public class PheromonePrey extends PheromonesBase {
     public PheromonePrey() {
-        super(3186700, true, true, false, 0, 10, 1);
+        super(255255255, true, true, false, 0, 10, 1);
     }
 
     //  temp

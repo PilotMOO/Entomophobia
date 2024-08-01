@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia.effects;
 
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
+import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -54,41 +55,36 @@ public abstract class PheromonesBase extends MobEffect {
     protected void BaseEffectTick(LivingEntity target, int amp) {}
 
     protected void AttemptToSpreadToNearbyTargets(LivingEntity parent, int pAmplifier, LivingEntity origin) {
-        System.out.println("Attempting to spread!");
-
         BlockPos blockPos = parent.blockPosition();
         AABB MyiaticAABB = new AABB(blockPos).inflate(MyiaticSpreadAOE);
         AABB NonMyiaticAABB = new AABB(blockPos).inflate(BaseSpreadAOE);
-        System.out.println("MyiaticAABB's size is: " + MyiaticAABB.getSize());
-        System.out.println("NonMyiaticAABB's size is: " + NonMyiaticAABB.getSize());
+        //System.out.println("MyiaticAABB's size is: " + MyiaticAABB.getSize());
+        //System.out.println("NonMyiaticAABB's size is: " + NonMyiaticAABB.getSize());
 
         MobEffectInstance originEffect = origin.getEffect(this);
         if (originEffect != null){
             for (LivingEntity entity : origin.level().getEntitiesOfClass(MyiaticBase.class, MyiaticAABB)){
-                System.out.println("Attempting to spread to " + entity);
+                //System.out.println("Attempting to spread to " + entity);
                 if (entity != parent && !entity.hasEffect(this)){
                     double duration = originEffect.getDuration();
                     duration = duration * (((MyiaticSpreadAOE - entity.distanceToSqr(blockPos.getCenter())) / MyiaticSpreadAOE) * Falloff);
                     if (duration > 20){
                         entity.addEffect(new MobEffectInstance(this, (int)duration, pAmplifier));
-                        System.out.println("spread to " + entity + " with duration " + duration);
+                        //System.out.println("spread to " + entity + " with duration " + duration);
                     }
                 }
             }
             for (LivingEntity entity : origin.level().getEntitiesOfClass(LivingEntity.class, NonMyiaticAABB)){
-                System.out.println("Attempting to spread to " + entity);
-                if (entity != parent && !entity.hasEffect(this) && !(entity instanceof MyiaticBase)){
+                //System.out.println("Attempting to spread to " + entity);
+                if (entity != parent && !entity.hasEffect(this) && !(entity instanceof MyiaticBase) && !(entity instanceof PheromonesEntityBase)){
                     double duration = originEffect.getDuration();
                     duration = duration * (((BaseSpreadAOE - entity.distanceToSqr(blockPos.getCenter())) / BaseSpreadAOE) * Falloff);
                     if (duration > 20){
                         entity.addEffect(new MobEffectInstance(this, (int)duration, pAmplifier));
-                        System.out.println("spread to " + entity + " with duration " + duration);
+                        //System.out.println("spread to " + entity + " with duration " + duration);
                     }
                 }
             }
-        }
-        else{
-            System.out.println("originEffect was null!");
         }
     }
 
