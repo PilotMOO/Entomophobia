@@ -18,10 +18,10 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
-public class MyiaticZombieEntity extends MyiaticBase {
+public class MyiaticZombieEntity extends MyiaticBase{
     public MyiaticZombieEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
-        setReach(2f);
+        setReach(0.5f);
     }
 
     @Override
@@ -71,5 +71,11 @@ public class MyiaticZombieEntity extends MyiaticBase {
                 (this, LivingEntity.class,  true, livingEntity -> { return livingEntity instanceof Player;}));
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>
                 (this, LivingEntity.class,  true,livingEntity -> { return !Config.SERVER.blacklisted_targets.get().contains(livingEntity.getEncodeId()) && !(livingEntity instanceof AbstractFish) && !(livingEntity instanceof MyiaticBase) && !(livingEntity instanceof PheromonesEntityBase);}));
+        registerFlightGoals();
+    }
+
+    @Override
+    protected void registerFlightGoals() {
+        this.targetSelector.addGoal(1, new FlyToHostileTarget(this,100, 40, 100, 5, 0.5, 0.5));
     }
 }

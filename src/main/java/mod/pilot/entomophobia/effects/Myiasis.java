@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia.effects;
 
 import mod.pilot.entomophobia.Config;
+import mod.pilot.entomophobia.EntomoDataManager;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
 import net.minecraft.resources.ResourceLocation;
@@ -39,7 +40,7 @@ public class Myiasis extends MobEffect {
 
     @Override
     public void applyEffectTick(@NotNull LivingEntity target, int amp) {
-        if (!(target instanceof MyiaticBase || target instanceof PheromonesEntityBase || target instanceof Player) && GetConvert(target) != null){
+        if (!(target instanceof MyiaticBase || target instanceof PheromonesEntityBase || target instanceof Player) && EntomoDataManager.GetConvertedFor(target) != null){
             if (infectedDuration(target) == -1){
                 StartRot(target);
             }
@@ -56,6 +57,7 @@ public class Myiasis extends MobEffect {
                         ((Mob)target).setNoAi(true);
                     }
                     RotFor(target);
+                    target.aiStep();
                 }
             }
             else{
@@ -70,18 +72,8 @@ public class Myiasis extends MobEffect {
         }
     }
 
-    public static EntityType<?> GetConvert(LivingEntity target) {
-        for (String configged : Config.SERVER.myiatic_conversion_list.get()){
-            String[] split = configged.split(">");
-            if (split[0].equals(target.getEncodeId())){
-                return ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(split[1]));
-            }
-        }
-        return null;
-    }
-
     private void ConvertMob(LivingEntity target) {
-        EntityType<?> EType = GetConvert(target);
+        EntityType<?> EType = EntomoDataManager.GetConvertedFor(target);
 
         assert EType != null;
         Entity newEntity = EType.create(target.level());

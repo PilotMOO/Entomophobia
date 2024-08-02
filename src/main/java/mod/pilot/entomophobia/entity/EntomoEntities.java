@@ -14,6 +14,7 @@ public class EntomoEntities {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
             DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, Entomophobia.MOD_ID);
 
+    //Myiatic Entities
     public static final RegistryObject<EntityType<MyiaticZombieEntity>> MYIATIC_ZOMBIE =
             ENTITY_TYPES.register("myiatic_zombie", () -> EntityType.Builder.of(MyiaticZombieEntity::new, MobCategory.MONSTER)
                     .sized(0.75f, 2f).build("myiatic_zombie"));
