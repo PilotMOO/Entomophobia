@@ -31,6 +31,8 @@ public class Config
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> myiatic_conversion_list;
         public final ForgeConfigSpec.ConfigValue<Integer> myiatic_convert_timer;
 
+        public final ForgeConfigSpec.ConfigValue<Integer> hunt_bonus_range;
+
         public Server(ForgeConfigSpec.Builder builder){
             builder.push("General knowledge");
             builder.pop();
@@ -43,7 +45,7 @@ public class Config
                 "Myiatics:",
                     "myiatic_zombie",
                     "-",
-                "Evolved Forms:",
+                "Festereds:",
                     "-",
                 "Pheromones:",
                     "pheromone_prey/hunt"
@@ -62,6 +64,10 @@ public class Config
             builder.push("General Infection values");
             this.myiatic_convert_timer = builder.define("Time (in ticks) for Myiasis to convert mobs",
                     4000);
+            builder.pop();
+
+            builder.push("Pheromone values");
+            this.hunt_bonus_range = builder.defineInRange("Pheromone Prey/Hunt bonus searchrange", 64, 1, Integer.MAX_VALUE);
         }
     }
 

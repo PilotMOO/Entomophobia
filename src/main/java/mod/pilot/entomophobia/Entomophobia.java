@@ -5,6 +5,7 @@ import mod.pilot.entomophobia.blocks.EntomoBlocks;
 import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.EntomoEntities;
+import mod.pilot.entomophobia.items.EntomoCreativeTabs;
 import mod.pilot.entomophobia.items.EntomoItems;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -26,6 +27,7 @@ public class Entomophobia
 
         MinecraftForge.EVENT_BUS.register(this);
         EntomoItems.register(modEventBus);
+        EntomoCreativeTabs.register(modEventBus);
         EntomoBlocks.register(modEventBus);
         EntomoEntities.register(modEventBus);
         EntomoMobEffects.register(modEventBus);

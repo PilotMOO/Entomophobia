@@ -5,17 +5,13 @@ import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.util.AzureLibUtil;
-import mod.pilot.entomophobia.Config;
-import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.animal.AbstractFish;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 public class MyiaticZombieEntity extends MyiaticBase{
@@ -67,15 +63,15 @@ public class MyiaticZombieEntity extends MyiaticBase{
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new AttackWithAnimationGoal(this, 1.0D, false, 10, 15));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>
-                (this, LivingEntity.class,  true, livingEntity -> { return livingEntity instanceof Player;}));
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>
-                (this, LivingEntity.class,  true,livingEntity -> { return !Config.SERVER.blacklisted_targets.get().contains(livingEntity.getEncodeId()) && !(livingEntity instanceof AbstractFish) && !(livingEntity instanceof MyiaticBase) && !(livingEntity instanceof PheromonesEntityBase);}));
+        this.goalSelector.addGoal(1, new NearestAttackableTargetGoal(this, LivingEntity.class, false, livingEntity ->
+                TestValidEntity((LivingEntity)livingEntity)));
         registerFlightGoals();
     }
 
     @Override
     protected void registerFlightGoals() {
         this.targetSelector.addGoal(1, new FlyToHostileTarget(this,100, 40, 100, 5, 0.5, 0.5));
+        this.targetSelector.addGoal(1, new PleaseDontBreakMyLegs(this, 100, 5, 0.5, 0.5));
+        this.targetSelector.addGoal(2, new GlideDownToFoes(this, 100, 5, 0.5, 0.5));
     }
 }

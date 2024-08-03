@@ -2,7 +2,9 @@ package mod.pilot.entomophobia.entity.myiatic;
 
 import mod.azure.azurelib.animatable.GeoEntity;
 import mod.pilot.entomophobia.Config;
+import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -12,6 +14,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
@@ -20,11 +23,11 @@ import net.minecraft.world.entity.animal.AbstractFish;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Objects;
 
 public abstract class MyiaticBase extends Monster implements GeoEntity {
     protected MyiaticBase(EntityType<? extends Monster> pEntityType, Level pLevel) {
@@ -70,10 +73,8 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.0D, false));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>
-                (this, LivingEntity.class,  true, livingEntity -> { return livingEntity instanceof Player;}));
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>
-                (this, LivingEntity.class,  true,livingEntity -> { return !Config.SERVER.blacklisted_targets.get().contains(livingEntity.getEncodeId()) && !(livingEntity instanceof AbstractFish) && !(livingEntity instanceof MyiaticBase) && !(livingEntity instanceof PheromonesEntityBase);}));
+        this.goalSelector.addGoal(1, new NearestAttackableTargetGoal(this, LivingEntity.class, false, livingEntity ->
+                TestValidEntity((LivingEntity)livingEntity)));
         registerFlightGoals();
     }
 
@@ -121,7 +122,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             if (CurrentlyAttacking){
                 mob.setAIState(state.attacking.ordinal());
                 AttackTicker++;
-                if (StrikePos == AttackTicker && mob.distanceTo(target) < getAttackReachSqr(target)){
+                if (StrikePos == AttackTicker && mob.distanceTo(target) < getAttackReachSqr(target) && mob.hasLineOfSight(mob.getTarget())){
                     mob.doHurtTarget(target);
                     mob.setDeltaMovement(mob.getDeltaMovement().add(getForward().multiply(1.05, 0, 1.05)));
                 }
@@ -173,6 +174,19 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         }
         return getAIState();
     }
+    public boolean IsThereABlockUnderMe(int VerticalSearchRange){
+        BlockPos pos = blockPosition();
+        for (int i = 1; i < VerticalSearchRange + 1; i++){
+            Level world = level();
+            BlockPos newPos = new BlockPos(pos.getX(), pos.getY() - i, pos.getZ());
+            BlockState state = world.getBlockState(newPos);
+            if (!state.isAir() && state.entityCanStandOn(world.getChunkForCollisions((int)this.position().x / 16, (int)this.position().z / 16),
+            newPos, this)){
+                return true;
+            }
+        }
+        return false;
+    }
     /**/
 
     //Overridden Methods
@@ -186,10 +200,10 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     public boolean hurt(DamageSource pSource, float pAmount) {
         Entity sourceEntity = pSource.getEntity();
         if (sourceEntity instanceof LivingEntity){
-            //TestValidEntity(sourceEntity);
-            setTarget((LivingEntity)sourceEntity);
+            if (TestValidEntity((LivingEntity)sourceEntity)){
+                setTarget((LivingEntity)sourceEntity);
+            }
         }
-
         return super.hurt(pSource, pAmount);
     }
 
@@ -199,6 +213,57 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             return super.doHurtTarget(pEntity);
         }
         return false;
+    }
+    /**/
+
+    //Better Targeting
+    public boolean TestValidEntity(LivingEntity e) {
+        if (e instanceof Player && ((Player)e).isCreative() || e.isSpectator()){
+            return false;
+        }
+        else if (e instanceof MyiaticBase || e instanceof PheromonesEntityBase){
+            return false;
+        }
+        else if (Config.SERVER.blacklisted_targets.get().contains(e.getEncodeId())){
+            return false;
+        }
+        else if (e instanceof AbstractFish){
+            return false;
+        }
+        return true;
+    }
+
+    public LivingEntity FindValidTarget(){
+        LivingEntity BestValidTarget = null;
+
+        if (this.hasEffect(EntomoMobEffects.HUNT.get())){
+            AABB PreySearchaabb = new AABB(this.blockPosition()).inflate(this.getAttributeValue(Attributes.FOLLOW_RANGE) + Config.SERVER.hunt_bonus_range.get());
+
+            for (LivingEntity target : this.level().getEntitiesOfClass(LivingEntity.class, PreySearchaabb, this::TestValidEntity)){
+                if (target.hasEffect(EntomoMobEffects.PREY.get())){
+                    if (BestValidTarget == null){
+                        BestValidTarget = target;
+                    }
+                    else if (BestValidTarget.distanceTo(this) > target.distanceTo(this)){
+                        BestValidTarget = target;
+                    }
+                }
+            }
+        }
+        if (BestValidTarget == null){
+            AABB BaseSearchaabb = new AABB(this.blockPosition()).inflate(this.getAttributeValue(Attributes.FOLLOW_RANGE));
+
+            for (LivingEntity target : this.level().getEntitiesOfClass(LivingEntity.class, BaseSearchaabb, this::TestValidEntity)){
+                if (BestValidTarget == null){
+                    BestValidTarget = target;
+                }
+                else if (BestValidTarget.distanceTo(this) > target.distanceTo(this)){
+                    BestValidTarget = target;
+                }
+            }
+        }
+
+        return BestValidTarget;
     }
     /**/
 
@@ -281,7 +346,9 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         @Override
         public void tick() {
             parent.getNavigation().moveTo(finalPos.x, finalPos.y, finalPos.z, 1);
-            parent.getLookControl().setLookAt(finalPos);
+            if (FlightState != FlightStates.Gliding.ordinal()){
+                parent.getLookControl().setLookAt(finalPos);
+            }
             if (FlightCD > 0){
                 FlightCD--;
             }
@@ -347,6 +414,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
                         IsFlying = false;
                         FlightState = 4;
                         ActiveFlightTime = -1;
+                        FlightCD = MaxFlightCD;
                         parent.setAIState(state.flying.ordinal());
                         parent.setNoGravity(false);
                     }
@@ -402,7 +470,6 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             else{
                 resetFallDistance();
             }
-            System.out.println("AAANNNDDDD touchdown!");
         }
 
         protected double CalculateSpeed(){
@@ -429,8 +496,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         }
         @Override
         boolean WantsToTakeOff() {
-            System.out.println("WhereTheFuckIsHim");
-            return IsMyTargetTooHigh(parent.getTarget());
+            return IsMyTargetTooHigh(parent.getTarget()) || parent.distanceTo(parent.getTarget()) > 20;
         }
         @Override
         boolean CheckFly(){
@@ -448,7 +514,9 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         @Override
         public void tick() {
             parent.getNavigation().moveTo(parent.getTarget(), 1);
-            parent.getLookControl().setLookAt(parent.getTarget());
+            if (FlightState != FlightStates.Gliding.ordinal()){
+                parent.getLookControl().setLookAt(parent.getTarget());
+            }
             if (FlightCD > 0){
                 FlightCD--;
             }
@@ -462,6 +530,12 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         }
 
         @Override
+        protected void HandleLand(int priorState) {
+            super.HandleLand(priorState);
+            parent.getNavigation().moveTo(parent.getTarget(), 1.0d);
+        }
+
+        @Override
         protected void Ascend() {
             super.Ascend();
             CheckThenDropIfClear(parent.getTarget());
@@ -471,6 +545,13 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         protected void Glide() {
             super.Glide();
             CheckThenDropIfClear(parent.getTarget());
+        }
+        @Override
+        protected double CalculateSpeed() {
+            if (IsMyTargetTooHigh(parent.getTarget())){
+                return super.CalculateSpeed();
+            }
+            return HFlightSpeed * 1.25;
         }
 
         //Subclass-Specific Methods
@@ -494,7 +575,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
                 double distanceV = parent.position().y - target.position().y;
                 if (distanceV > 0 && distanceV < TargetHeightThreshold){
                     float distance2d = new Vec2((float)parent.position().x, (float)parent.position().z).distanceToSqr(new Vec2((float)target.position().x, (float)target.position().z));
-                    if (Mth.sqrt(distance2d) < 3){
+                    if ((Mth.sqrt(distance2d) < 1.5) || IsThereABlockUnderMe(TargetHeightThreshold) && Mth.sqrt(distance2d) < 3){
                         ManageStateSwitch(FlightStates.NotFlying);
                         parent.setNoGravity(false);
                         parent.setDeltaMovement(0, 0, 0);
@@ -503,6 +584,80 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
                 }
             }
             return false;
+        }
+    }
+    protected class PleaseDontBreakMyLegs extends FlyToGoal{
+        public PleaseDontBreakMyLegs(MyiaticBase parent, int maxGlideTime, int targetHeightThreshold, double vFlightSpeed, double hFlightSpeed) {
+            super(parent, parent.position().add(parent.getForward().multiply(hFlightSpeed, 0, hFlightSpeed)), 0, 0, maxGlideTime, targetHeightThreshold, vFlightSpeed, hFlightSpeed);
+        }
+
+        @Override
+        public boolean canUse() {
+            return !IsFlying && FlightState != FlightStates.Falling.ordinal() && parent.fallDistance > parent.getMaxFallDistance();
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return FlightState != FlightStates.NotFlying.ordinal();
+        }
+
+        @Override
+        boolean WantsToTakeOff() {
+            return FlightState == FlightStates.NotFlying.ordinal() && parent.fallDistance > parent.getMaxFallDistance();
+        }
+
+        @Override
+        protected void StartFlyCycle() {
+            parent.getLookControl().setLookAt(finalPos);
+            ManageStateSwitch(FlightStates.Gliding);
+        }
+
+        @Override
+        protected void Glide() {
+            if (!verticalCollisionBelow){
+                if (ActiveFlightTime > 0){
+                    double hSpeed = CalculateSpeed();
+                    Vec3 forwards = parent.getForward().multiply(hSpeed, 0, hSpeed);
+                    double xSpeedMax = Mth.abs((float)parent.getDeltaMovement().x) > Mth.abs((float)forwards.x) ? parent.getDeltaMovement().x : forwards.x;
+                    double ySpeedMax = Math.min(parent.getDeltaMovement().y / 2, -VFlightSpeed * 4);
+                    double zSpeedMax = Mth.abs((float)parent.getDeltaMovement().z) > Mth.abs((float)forwards.z) ? parent.getDeltaMovement().z : forwards.z;
+                    parent.setDeltaMovement(xSpeedMax, ySpeedMax, zSpeedMax);
+                    ActiveFlightTime--;
+                    parent.resetFallDistance();
+                }
+                else{
+                    ManageStateSwitch(FlightStates.Falling);
+                }
+            }
+            else{
+                ManageStateSwitch(FlightStates.NotFlying);
+            }
+        }
+
+        @Override
+        protected double CalculateSpeed() {
+            return HFlightSpeed;
+        }
+    }
+    protected class GlideDownToFoes extends FlyToHostileTarget{
+        public GlideDownToFoes(MyiaticBase parent, int maxGlideTime, int targetHeightThreshold, double vFlightSpeed, double hFlightSpeed) {
+            super(parent, 0, 0, maxGlideTime, targetHeightThreshold, vFlightSpeed, hFlightSpeed);
+        }
+
+        @Override
+        boolean WantsToTakeOff() {
+            return FlightState != FlightStates.Disabled.ordinal() && parent.getTarget().position().y < parent.position().y && !IsFlying && FlightCD == 0;
+        }
+
+        @Override
+        public boolean canUse() {
+            return super.canUse();
+        }
+
+        @Override
+        protected void StartFlyCycle() {
+            parent.getLookControl().setLookAt(parent.getTarget());
+            ManageStateSwitch(FlightStates.Gliding);
         }
     }
     /**/

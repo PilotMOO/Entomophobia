@@ -58,19 +58,15 @@ public abstract class PheromonesBase extends MobEffect {
         BlockPos blockPos = parent.blockPosition();
         AABB MyiaticAABB = new AABB(blockPos).inflate(MyiaticSpreadAOE);
         AABB NonMyiaticAABB = new AABB(blockPos).inflate(BaseSpreadAOE);
-        //System.out.println("MyiaticAABB's size is: " + MyiaticAABB.getSize());
-        //System.out.println("NonMyiaticAABB's size is: " + NonMyiaticAABB.getSize());
 
         MobEffectInstance originEffect = origin.getEffect(this);
         if (originEffect != null){
             for (LivingEntity entity : origin.level().getEntitiesOfClass(MyiaticBase.class, MyiaticAABB)){
-                //System.out.println("Attempting to spread to " + entity);
                 if (entity != parent && !entity.hasEffect(this)){
                     double duration = originEffect.getDuration();
                     duration = duration * (((MyiaticSpreadAOE - entity.distanceToSqr(blockPos.getCenter())) / MyiaticSpreadAOE) * Falloff);
                     if (duration > 20){
                         entity.addEffect(new MobEffectInstance(this, (int)duration, pAmplifier));
-                        //System.out.println("spread to " + entity + " with duration " + duration);
                     }
                 }
             }

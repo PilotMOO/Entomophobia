@@ -1,3 +1,11 @@
 {
+  "item.entomophobia.myiatic_zombie_spawnegg": "Myiatic Zombie Spawn",
 
+  "entity.entomophobia.myiatic_zombie": "Myiatic Zombie",
+
+  "mobeffect.entomophobia.myiasis": "Myiasis",
+  "mobeffect.entomophobia.prey": "Prey",
+  "mobeffect.entomophobia.Hunt": "Hunt",
+
+  "creativetab.entomophobia_tab": "Entomophobia"
 }
