@@ -17,7 +17,7 @@ import net.minecraft.world.level.Level;
 public class MyiaticZombieEntity extends MyiaticBase{
     public MyiaticZombieEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
-        setReach(0.5f);
+        setReach(0.25f);
     }
 
     @Override
@@ -49,10 +49,10 @@ public class MyiaticZombieEntity extends MyiaticBase{
     }
 
     public static AttributeSupplier.Builder createAttributes(){
-        return MyiaticBase.createLivingAttributes()
+        return MyiaticZombieEntity.createLivingAttributes()
                 .add(Attributes.MAX_HEALTH, 20D)
                 .add(Attributes.ARMOR, 4)
-                .add(Attributes.FOLLOW_RANGE, 64)
+                .add(Attributes.FOLLOW_RANGE, 32)
                 .add(Attributes.MOVEMENT_SPEED, 0.3D)
                 .add(Attributes.ATTACK_DAMAGE, 6D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0.5D)
@@ -63,8 +63,7 @@ public class MyiaticZombieEntity extends MyiaticBase{
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new AttackWithAnimationGoal(this, 1.0D, false, 10, 15));
-        this.goalSelector.addGoal(1, new NearestAttackableTargetGoal(this, LivingEntity.class, false, livingEntity ->
-                TestValidEntity((LivingEntity)livingEntity)));
+        this.goalSelector.addGoal(1, new PreyPriorityNearestAttackable(this, true));
         registerFlightGoals();
     }
 
@@ -73,5 +72,10 @@ public class MyiaticZombieEntity extends MyiaticBase{
         this.targetSelector.addGoal(1, new FlyToHostileTarget(this,100, 40, 100, 5, 0.5, 0.5));
         this.targetSelector.addGoal(1, new PleaseDontBreakMyLegs(this, 100, 5, 0.5, 0.5));
         this.targetSelector.addGoal(2, new GlideDownToFoes(this, 100, 5, 0.5, 0.5));
+    }
+
+    @Override
+    protected boolean CanDodge() {
+        return true;
     }
 }

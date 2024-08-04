@@ -1,6 +1,9 @@
 package mod.pilot.entomophobia.entity.pheromones;
 
+import mod.pilot.entomophobia.EntomoWorldManager;
+import mod.pilot.entomophobia.effects.PheromonesBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
+import mod.pilot.entomophobia.entity.myiatic.MyiaticZombieEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -15,12 +18,14 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 public abstract class PheromonesEntityBase extends PathfinderMob {
-    public PheromonesEntityBase(EntityType<? extends PathfinderMob> pEntityType, Level pLevel, MobEffect BaseEffect, MobEffect MyiaticEffect,
+    public PheromonesEntityBase(EntityType<? extends PathfinderMob> pEntityType, Level pLevel, PheromonesBase BaseEffect, PheromonesBase MyiaticEffect,
                                 int MSpread, int BSpread, int Timer, int amp, int life) {
         super(pEntityType, pLevel);
         MyiaticPheromoneType = MyiaticEffect;
@@ -33,8 +38,8 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
     }
 
     //NBT and Variables
-    public static MobEffect MyiaticPheromoneType;
-    public static MobEffect BasePheromoneType;
+    public static PheromonesBase MyiaticPheromoneType;
+    public static PheromonesBase BasePheromoneType;
     public int MyiaticSpreadAOE = 0;
     public int BaseSpreadAOE = 0;
     public static int EffectBaseTimer = 0;
@@ -45,8 +50,6 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
     public void setLife(Integer count) {entityData.set(Life, count);}
     public void SubtractLife(int count){entityData.set(Life, getLife() - count);}
     public void AddLife(int count){entityData.set(Life, getLife() + count);}
-
-    private static int test = 0;
 
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
@@ -71,22 +74,16 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
 
         for (LivingEntity entity : this.level().getEntitiesOfClass(MyiaticBase.class, MyiaticAABB)){
             if (!entity.hasEffect(MyiaticPheromoneType)){
-                if (entity.addEffect(new MobEffectInstance(MyiaticPheromoneType,  (int)(EffectBaseTimer * (MyiaticSpreadAOE - entity.distanceTo(this)) / MyiaticSpreadAOE), EffectAmp))){
-                    AddLife(20);
-                    test++;
-                }
+                EntomoWorldManager.ApplyPheromoneTo(MyiaticPheromoneType, entity, (int)(EffectBaseTimer * (BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE), EffectAmp);
+                AddLife(20);
             }
         }
         for (LivingEntity entity : this.level().getEntitiesOfClass(LivingEntity.class, NonMyiaticAABB)){
             if (!(entity instanceof MyiaticBase) && !(entity instanceof PheromonesEntityBase) && !entity.hasEffect(BasePheromoneType)){
-                if (entity.addEffect(new MobEffectInstance(BasePheromoneType,  (int)(EffectBaseTimer * (BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE), EffectAmp))){
-                    AddLife(20);
-                    test++;
-                }
+                EntomoWorldManager.ApplyPheromoneTo(BasePheromoneType, entity, (int)(EffectBaseTimer * (BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE), EffectAmp);
+                AddLife(20);
             }
         }
-
-        //System.out.println("Affected " + test + " mobs");
     }
 
     //Stolen from Harbinger, thanks harby :]
@@ -141,4 +138,15 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
         return false;
     }
     /**/
+
+    public static AttributeSupplier.Builder createAttributes(){
+        return PheromonesEntityBase.createLivingAttributes()
+                .add(Attributes.MAX_HEALTH, 5D)
+                .add(Attributes.ARMOR, 0)
+                .add(Attributes.FOLLOW_RANGE, 0)
+                .add(Attributes.MOVEMENT_SPEED, 0D)
+                .add(Attributes.ATTACK_DAMAGE, 0D)
+                .add(Attributes.ATTACK_KNOCKBACK, 0D)
+                .add(Attributes.ATTACK_SPEED, 0D);
+    }
 }

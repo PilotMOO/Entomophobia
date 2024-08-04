@@ -2,18 +2,23 @@ package mod.pilot.entomophobia.entity.myiatic;
 
 import mod.azure.azurelib.animatable.GeoEntity;
 import mod.pilot.entomophobia.Config;
+import mod.pilot.entomophobia.EntomoWorldManager;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
+import mod.pilot.entomophobia.effects.Myiasis;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -28,6 +33,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Predicate;
 
 public abstract class MyiaticBase extends Monster implements GeoEntity {
     protected MyiaticBase(EntityType<? extends Monster> pEntityType, Level pLevel) {
@@ -73,8 +80,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.0D, false));
-        this.goalSelector.addGoal(1, new NearestAttackableTargetGoal(this, LivingEntity.class, false, livingEntity ->
-                TestValidEntity((LivingEntity)livingEntity)));
+        this.goalSelector.addGoal(1, new PreyPriorityNearestAttackable(this, true));
         registerFlightGoals();
     }
 
@@ -122,9 +128,11 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             if (CurrentlyAttacking){
                 mob.setAIState(state.attacking.ordinal());
                 AttackTicker++;
-                if (StrikePos == AttackTicker && mob.distanceTo(target) < getAttackReachSqr(target) && mob.hasLineOfSight(mob.getTarget())){
-                    mob.doHurtTarget(target);
-                    mob.setDeltaMovement(mob.getDeltaMovement().add(getForward().multiply(1.05, 0, 1.05)));
+                if (target != null) {
+                    if (StrikePos == AttackTicker && mob.distanceTo(target) < getAttackReachSqr(target) /*&& mob.hasLineOfSight(mob.getTarget())*/){
+                        mob.doHurtTarget(target);
+                        mob.setDeltaMovement(mob.getDeltaMovement().add(getForward().multiply(1.05, 0, 1.05)));
+                    }
                 }
                 if (AttackTicker >= AnimLength){
                     FinalizeAttack();
@@ -134,7 +142,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
 
         @Override
         protected double getAttackReachSqr(LivingEntity pAttackTarget) {
-            return super.getAttackReachSqr(pAttackTarget);
+            return super.getAttackReachSqr(pAttackTarget) + getReach();
         }
 
         @Override
@@ -147,6 +155,41 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             AttackTicker = 0;
             CurrentlyAttacking = false;
             mob.setAIState(state.idle.ordinal());
+        }
+    }
+    protected class PreyPriorityNearestAttackable extends NearestAttackableTargetGoal<LivingEntity> {
+        final MyiaticBase mob;
+        boolean wasPrey = false;
+        public PreyPriorityNearestAttackable(MyiaticBase parent, boolean pMustSee) {
+            super(parent, LivingEntity.class, pMustSee, parent::TestValidEntity);
+            mob = parent;
+        }
+
+        @Override
+        public void tick() {
+            super.tick();
+            if (wasPrey && !target.hasEffect(EntomoMobEffects.PREY.get())){
+                findTarget();
+                this.mob.setTarget(this.target);
+            }
+        }
+
+        @Override
+        protected void findTarget() {
+            LivingEntity prey = EntomoWorldManager.GetNearbyPrey(mob);
+            if (prey != null && mob.hasEffect(EntomoMobEffects.HUNT.get()) && mob.TestValidEntity(prey)){
+                this.target = prey;
+                wasPrey = true;
+            }
+            else{
+                this.target = this.mob.level().getNearestPlayer(this.targetConditions, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
+                if (this.target == null) {
+                    this.target = this.mob.level().getNearestEntity(this.mob.level().getEntitiesOfClass(this.targetType,
+                            this.getTargetSearchArea(this.getFollowDistance()), mob::TestValidEntity),
+                            this.targetConditions, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
+                    wasPrey = false;
+                }
+            }
         }
     }
     /**/
@@ -187,6 +230,17 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         }
         return false;
     }
+    protected boolean TryToDodge() {
+        if (CanDodge() && verticalCollisionBelow){
+            int Direction = getRandom().nextIntBetweenInclusive(0, 1) != 0 ? -1 : 1;
+            setDeltaMovement(getDeltaMovement().add(Vec3.directionFromRotation(new Vec2 (getRotationVector().x, getRotationVector().y + 90 * Direction)).multiply(1.1, 0, 1.1)));
+            return true;
+        }
+        return false;
+    }
+    protected boolean CanDodge(){
+        return false;
+    }
     /**/
 
     //Overridden Methods
@@ -198,18 +252,33 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
 
     @Override
     public boolean hurt(DamageSource pSource, float pAmount) {
+        boolean superFlag = true;
         Entity sourceEntity = pSource.getEntity();
         if (sourceEntity instanceof LivingEntity){
             if (TestValidEntity((LivingEntity)sourceEntity)){
                 setTarget((LivingEntity)sourceEntity);
             }
+            if (sourceEntity instanceof MyiaticBase){
+                superFlag = false;
+            }
+            if (sourceEntity == getTarget()){
+                if (getRandom().nextIntBetweenInclusive(0, 10) <= 3){
+                    superFlag = !TryToDodge();
+                }
+            }
         }
-        return super.hurt(pSource, pAmount);
+        if (superFlag){
+            return super.hurt(pSource, pAmount);
+        }
+        return false;
     }
 
     @Override
     public boolean doHurtTarget(@Nullable Entity pEntity) {
         if (pEntity != null){
+            if (pEntity instanceof LivingEntity){
+                ((LivingEntity) pEntity).addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 1200));
+            }
             return super.doHurtTarget(pEntity);
         }
         return false;
@@ -218,19 +287,22 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
 
     //Better Targeting
     public boolean TestValidEntity(LivingEntity e) {
-        if (e instanceof Player && ((Player)e).isCreative() || e.isSpectator()){
-            return false;
+        if (e instanceof LivingEntity){
+            if (e instanceof Player && ((Player)e).isCreative() || e.isSpectator()){
+                return false;
+            }
+            else if (e instanceof MyiaticBase || e instanceof PheromonesEntityBase){
+                return false;
+            }
+            else if (Config.SERVER.blacklisted_targets.get().contains((e.getEncodeId()))){
+                return false;
+            }
+            else if (e instanceof AbstractFish){
+                return false;
+            }
+            return true;
         }
-        else if (e instanceof MyiaticBase || e instanceof PheromonesEntityBase){
-            return false;
-        }
-        else if (Config.SERVER.blacklisted_targets.get().contains(e.getEncodeId())){
-            return false;
-        }
-        else if (e instanceof AbstractFish){
-            return false;
-        }
-        return true;
+        return false;
     }
 
     public LivingEntity FindValidTarget(){
@@ -532,7 +604,9 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         @Override
         protected void HandleLand(int priorState) {
             super.HandleLand(priorState);
-            parent.getNavigation().moveTo(parent.getTarget(), 1.0d);
+            if (parent.getTarget() != null){
+                parent.getNavigation().moveTo(parent.getTarget(), 1.0d);
+            }
         }
 
         @Override
@@ -646,12 +720,12 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
 
         @Override
         boolean WantsToTakeOff() {
-            return FlightState != FlightStates.Disabled.ordinal() && parent.getTarget().position().y < parent.position().y && !IsFlying && FlightCD == 0;
+            return FlightState != FlightStates.Disabled.ordinal() && parent.getTarget().blockPosition().getY() + 3 < parent.blockPosition().getY() && !IsFlying && FlightCD == 0;
         }
 
         @Override
         public boolean canUse() {
-            return super.canUse();
+            return super.canUse() && parent.distanceTo(parent.getTarget()) < 10;
         }
 
         @Override

@@ -1,5 +1,6 @@
 package mod.pilot.entomophobia.effects;
 
+import mod.pilot.entomophobia.EntomoWorldManager;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
 import net.minecraft.core.BlockPos;
@@ -54,7 +55,7 @@ public abstract class PheromonesBase extends MobEffect {
     protected void MyiaticEffectTick(LivingEntity target, int amp) {}
     protected void BaseEffectTick(LivingEntity target, int amp) {}
 
-    protected void AttemptToSpreadToNearbyTargets(LivingEntity parent, int pAmplifier, LivingEntity origin) {
+    protected void AttemptToSpreadToNearbyTargets(LivingEntity parent, int amp, LivingEntity origin) {
         BlockPos blockPos = parent.blockPosition();
         AABB MyiaticAABB = new AABB(blockPos).inflate(MyiaticSpreadAOE);
         AABB NonMyiaticAABB = new AABB(blockPos).inflate(BaseSpreadAOE);
@@ -66,18 +67,16 @@ public abstract class PheromonesBase extends MobEffect {
                     double duration = originEffect.getDuration();
                     duration = duration * (((MyiaticSpreadAOE - entity.distanceToSqr(blockPos.getCenter())) / MyiaticSpreadAOE) * Falloff);
                     if (duration > 20){
-                        entity.addEffect(new MobEffectInstance(this, (int)duration, pAmplifier));
+                        EntomoWorldManager.ApplyPheromoneTo(this, entity, (int)duration, amp);
                     }
                 }
             }
             for (LivingEntity entity : origin.level().getEntitiesOfClass(LivingEntity.class, NonMyiaticAABB)){
-                //System.out.println("Attempting to spread to " + entity);
                 if (entity != parent && !entity.hasEffect(this) && !(entity instanceof MyiaticBase) && !(entity instanceof PheromonesEntityBase)){
                     double duration = originEffect.getDuration();
                     duration = duration * (((BaseSpreadAOE - entity.distanceToSqr(blockPos.getCenter())) / BaseSpreadAOE) * Falloff);
                     if (duration > 20){
-                        entity.addEffect(new MobEffectInstance(this, (int)duration, pAmplifier));
-                        //System.out.println("spread to " + entity + " with duration " + duration);
+                        EntomoWorldManager.ApplyPheromoneTo(this, entity, (int)duration, amp);
                     }
                 }
             }
