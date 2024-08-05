@@ -11,7 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 
 public abstract class PheromonesBase extends MobEffect {
-    public PheromonesBase(int color, boolean spread, boolean nonApplic, boolean myiaticApplic, int MyiaticSpread, int BaseSpread, int falloff) {
+    public PheromonesBase(int color, boolean spread, boolean nonApplic, boolean myiaticApplic, int MyiaticSpread, int BaseSpread, float falloff) {
         super(MobEffectCategory.HARMFUL, color);
         CanSpread = spread;
         ApplicableToNon = nonApplic;
@@ -26,7 +26,7 @@ public abstract class PheromonesBase extends MobEffect {
     public boolean ApplicableToMyiatic;
     public int MyiaticSpreadAOE;
     public int BaseSpreadAOE;
-    public int Falloff;
+    public float Falloff;
 
     @Override
     public void applyEffectTick(LivingEntity pLivingEntity, int pAmplifier) {

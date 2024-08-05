@@ -14,5 +14,6 @@ public class EntomoEventBusEvents {
     public static void registerAttributes(EntityAttributeCreationEvent event){
         event.put(EntomoEntities.MYIATIC_ZOMBIE.get(), MyiaticZombieEntity.createAttributes().build());
         event.put(EntomoEntities.PREYHUNT.get(), PheromonePreyHuntEntity.createAttributes().build());
+        event.put(EntomoEntities.FRENZY.get(), PheromonePreyHuntEntity.createAttributes().build());
     }
 }

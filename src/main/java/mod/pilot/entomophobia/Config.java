@@ -56,7 +56,7 @@ public class Config
 
             builder.push("General Infection values");
             this.myiatic_convert_timer = builder.define("Time (in ticks) for Myiasis to convert mobs",
-                    400);
+                    200);
             builder.pop();
 
             builder.push("Pheromone values");

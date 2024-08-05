@@ -2,10 +2,19 @@
   "item.entomophobia.myiatic_zombie_spawnegg": "Myiatic Zombie Spawn",
 
   "entity.entomophobia.myiatic_zombie": "Myiatic Zombie",
+  "entity.entomophobia.pheromone_prey/hunt": "Pheromone: Prey/Hunt",
 
   "mobeffect.entomophobia.myiasis": "Myiasis",
   "mobeffect.entomophobia.prey": "Prey",
   "mobeffect.entomophobia.Hunt": "Hunt",
 
-  "creativetab.entomophobia_tab": "Entomophobia"
+  "creativetab.entomophobia_tab": "Entomophobia",
+
+  "death.attack.myiatic_basic_damage1": "%1$s got got real good by %2$s",
+  "death.attack.myiatic_basic_damage2": "%1$s learned the definition of \"Entomophobia\"",
+  "death.attack.myiatic_basic_damage3": "%1$s was consumed by the hive",
+
+  "death.attack.myiasis_damage1": "%1$s rotted away",
+  "death.attack.myiasis_damage2": "%1$s got maggot'd",
+  "death.attack.myiasis_damage3": "%1$s didn't take a shower"
 }

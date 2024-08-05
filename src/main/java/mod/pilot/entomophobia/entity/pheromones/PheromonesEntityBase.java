@@ -40,10 +40,10 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
     //NBT and Variables
     public static PheromonesBase MyiaticPheromoneType;
     public static PheromonesBase BasePheromoneType;
-    public int MyiaticSpreadAOE = 0;
-    public int BaseSpreadAOE = 0;
+    public int MyiaticSpreadAOE;
+    public int BaseSpreadAOE;
     public static int EffectBaseTimer = 0;
-    public int EffectAmp = 0;
+    public int EffectAmp;
     public int LifeMax;
     public static final EntityDataAccessor<Integer> Life = SynchedEntityData.defineId(PheromonesEntityBase.class, EntityDataSerializers.INT);
     public int getLife(){return entityData.get(Life);}

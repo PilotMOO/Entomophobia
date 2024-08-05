@@ -5,29 +5,135 @@ import mod.pilot.entomophobia.effects.PheromonePrey;
 import mod.pilot.entomophobia.effects.PheromonesBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
-import net.minecraft.world.effect.MobEffect;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.function.Predicate;
 
 public class EntomoWorldManager {
-    public static PheromonesEntityBase CreateNewPheromoneAt(EntityType<? extends PheromonesEntityBase> pheroType, Vec3 pos, Level world){
-        PheromonesEntityBase phero = pheroType.create(world);
-        assert phero != null;
-        phero.setPos(pos);
 
-        world.addFreshEntity(phero);
+    // MOB MANAGEMENT
 
-        return phero;
+    private static final ArrayList<MyiaticBase> AllMyiatics = new ArrayList<>();
+    public static boolean AddThisToAllMyiatics(MyiaticBase target){
+        for (MyiaticBase M : AllMyiatics){
+            if (target == M){
+                return false;
+            }
+        }
+        AllMyiatics.add(target);
+        return true;
     }
-    public static PheromonesEntityBase CreateNewPheromoneAt(EntityType<? extends PheromonesEntityBase> pheroType, LivingEntity parent){
-        return CreateNewPheromoneAt(pheroType, parent.position(), parent.level());
+    public static boolean RemoveThisFromAllMyiatics(MyiaticBase target){
+        for (MyiaticBase M : AllMyiatics){
+            if (target == M){
+                AllMyiatics.remove(target);
+                return true;
+            }
+        }
+        return false;
     }
+    public static boolean IsThisInsideOfAllMyiatics(MyiaticBase target){
+        for (MyiaticBase M : AllMyiatics){
+            if (target == M){
+                return true;
+            }
+        }
+        return false;
+    }
+    public static ArrayList<MyiaticBase> GetNearbyMyiatics(Vec3 pos, int searchRange, Predicate<MyiaticBase> MyiaticPredic){
+        ArrayList<MyiaticBase> NearbyMyiatics = new ArrayList<>();
+
+        for (MyiaticBase M : AllMyiatics){
+            if (Mth.sqrt((float)M.distanceToSqr(pos)) < searchRange){
+                if (MyiaticPredic.test(M)){
+                    NearbyMyiatics.add(M);
+                }
+            }
+        }
+        return NearbyMyiatics;
+    }
+    public static ArrayList<MyiaticBase> GetNearbyMyiatics(Vec3 pos, int searchRange){
+        return GetNearbyMyiatics(pos, searchRange, (E) -> true);
+    }
+    public static ArrayList<MyiaticBase> GetNearbyMyiatics(LivingEntity target, int searchRange, Predicate<MyiaticBase> MyiaticPredic){
+        return GetNearbyMyiatics(target.position(), searchRange, MyiaticPredic);
+    }
+    public static ArrayList<MyiaticBase> GetNearbyMyiatics(LivingEntity target, Predicate<MyiaticBase> MyiaticPredic){
+        return GetNearbyMyiatics(target.position(), (int)target.getAttribute(Attributes.FOLLOW_RANGE).getValue(), MyiaticPredic);
+    }
+    public static ArrayList<MyiaticBase> GetNearbyMyiatics(LivingEntity target, int searchRange){
+        return GetNearbyMyiatics(target.position(), searchRange, (E) -> true);
+    }
+    public static ArrayList<MyiaticBase> GetNearbyMyiatics(LivingEntity target){
+        return GetNearbyMyiatics(target.position(), (int)target.getAttribute(Attributes.FOLLOW_RANGE).getValue(), (E) -> true);
+    }
+
+    public static ArrayList<LivingEntity> GetValidTargetsFor(MyiaticBase target){
+        AABB nearby = target.getBoundingBox().inflate(target.getAttributeValue(Attributes.FOLLOW_RANGE));
+        return new ArrayList<>(target.level().getEntitiesOfClass(LivingEntity.class, nearby, target::TestValidEntity));
+    }
+
+
+    public static LivingEntity CreateNewEntityAt(EntityType<? extends LivingEntity> entityType, Vec3 pos, Level world){
+        LivingEntity newEntity = entityType.create(world);
+        assert newEntity != null;
+        newEntity.setPos(pos);
+
+        world.addFreshEntity(newEntity);
+        return newEntity;
+    }
+    public static LivingEntity CreateNewEntityAt(EntityType<? extends LivingEntity> entityType, LivingEntity parent){
+        return CreateNewEntityAt(entityType, parent.position(), parent.level());
+    }
+
+
+
+    //  PHEROMONE MANAGEMENT
+
+    private static final ArrayList<PheromonesEntityBase> AllPheromones = new ArrayList<>();
+    public static boolean AddThisToAllPheromones(PheromonesEntityBase target){
+        for (PheromonesEntityBase P : AllPheromones){
+            if (P == target){
+                return false;
+            }
+        }
+        AllPheromones.add(target);
+        return true;
+    }
+    public static boolean RemoveThisFromAllPheromones(PheromonesEntityBase target){
+        for (PheromonesEntityBase P : AllPheromones){
+            if (P == target){
+                AllPheromones.remove(target);
+                return true;
+            }
+        }
+        return false;
+    }
+    public static boolean IsThereAPheromoneOfTypeXNearby(EntityType<? extends PheromonesEntityBase> type, int searchRange, Vec3 pos, Level world){
+        String instance = type.create(world).getEncodeId();
+        for (PheromonesEntityBase phero : AllPheromones){
+            if (Objects.equals(phero.getEncodeId(), instance) && Mth.sqrt((float)phero.distanceToSqr(pos)) < searchRange){
+                return true;
+            }
+        }
+        return false;
+    }
+    public static boolean IsThereAPheromoneOfTypeXNearby(EntityType<? extends PheromonesEntityBase> type, int searchRange, LivingEntity parent){
+        return IsThereAPheromoneOfTypeXNearby(type, searchRange, parent.position(), parent.level());
+    }
+    public static boolean IsThereAPheromoneOfTypeXNearby(EntityType<? extends PheromonesEntityBase> type, LivingEntity parent){
+        return IsThereAPheromoneOfTypeXNearby(type, (int)parent.getAttribute(Attributes.FOLLOW_RANGE).getValue(), parent.position(), parent.level());
+    }
+
 
     private static final ArrayList<LivingEntity> AllPrey = new ArrayList<>();
     public static boolean IsThisPrey(LivingEntity target){

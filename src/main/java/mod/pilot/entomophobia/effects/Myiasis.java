@@ -2,8 +2,10 @@ package mod.pilot.entomophobia.effects;
 
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.EntomoDataManager;
+import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -59,17 +61,24 @@ public class Myiasis extends MobEffect {
                     RotFor(target);
                     target.aiStep();
                 }
+                else{
+                    TickDamage(target, amp);
+                }
             }
             else{
                 ConvertMob(target);
             }
         }
         else if(target instanceof Player){
-
+            TickDamage(target, amp);
         }
         else{
             target.removeEffect(this);
         }
+    }
+
+    private void TickDamage(LivingEntity target, int amp) {
+        target.hurt(EntomoDamageTypes.myiasis(target), amp);
     }
 
     private void ConvertMob(LivingEntity target) {

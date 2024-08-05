@@ -5,14 +5,15 @@ import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.util.AzureLibUtil;
+import mod.pilot.entomophobia.entity.AI.AttackWithAnimationGoal;
+import mod.pilot.entomophobia.entity.AI.PreyPriorityNearestAttackable;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
+import mod.pilot.entomophobia.entity.AI.Flight.*;
 
 public class MyiaticZombieEntity extends MyiaticBase{
     public MyiaticZombieEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
@@ -53,25 +54,23 @@ public class MyiaticZombieEntity extends MyiaticBase{
                 .add(Attributes.MAX_HEALTH, 20D)
                 .add(Attributes.ARMOR, 4)
                 .add(Attributes.FOLLOW_RANGE, 32)
-                .add(Attributes.MOVEMENT_SPEED, 0.3D)
+                .add(Attributes.MOVEMENT_SPEED, 0.35D)
                 .add(Attributes.ATTACK_DAMAGE, 6D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0.5D)
                 .add(Attributes.ATTACK_SPEED, 2D);
     }
 
-    @Override
-    protected void registerGoals() {
-        this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(1, new AttackWithAnimationGoal(this, 1.0D, false, 10, 15));
-        this.goalSelector.addGoal(1, new PreyPriorityNearestAttackable(this, true));
-        registerFlightGoals();
-    }
 
     @Override
+    protected void registerBasicGoals() {
+        super.registerBasicGoals();
+        this.targetSelector.addGoal(1, new AttackWithAnimationGoal(this, 1.0D, true, 10, 15));
+    }
+    @Override
     protected void registerFlightGoals() {
-        this.targetSelector.addGoal(1, new FlyToHostileTarget(this,100, 40, 100, 5, 0.5, 0.5));
-        this.targetSelector.addGoal(1, new PleaseDontBreakMyLegs(this, 100, 5, 0.5, 0.5));
-        this.targetSelector.addGoal(2, new GlideDownToFoes(this, 100, 5, 0.5, 0.5));
+        this.targetSelector.addGoal(1, new FlyToHostileTargetGoal(this,100, 40, 100, 4, 0.5, 0.5));
+        this.targetSelector.addGoal(1, new PleaseDontBreakMyLegsGoal(this, 100, 5, 0.5, 0.5));
+        this.targetSelector.addGoal(2, new GlideDownToFoesGoal(this, 100, 5, 0.5, 0.5));
     }
 
     @Override

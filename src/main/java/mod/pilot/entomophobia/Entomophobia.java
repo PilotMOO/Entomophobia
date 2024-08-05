@@ -2,6 +2,7 @@ package mod.pilot.entomophobia;
 
 import com.mojang.logging.LogUtils;
 import mod.pilot.entomophobia.blocks.EntomoBlocks;
+import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.items.EntomoCreativeTabs;
@@ -21,8 +22,7 @@ public class Entomophobia
     public static final String MOD_ID = "entomophobia";
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public Entomophobia()
-    {
+    public Entomophobia() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         MinecraftForge.EVENT_BUS.register(this);
@@ -32,10 +32,11 @@ public class Entomophobia
         EntomoEntities.register(modEventBus);
         EntomoMobEffects.register(modEventBus);
 
+        System.out.println("Color: " + getIntFromColor(14, 0, 0));
+
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SERVER_SPEC);
     }
 
-    /*
     public int getIntFromColor(int Red, int Green, int Blue){
         Red = (Red << 16) & 0x00FF0000;
         Green = (Green << 8) & 0x0000FF00;
@@ -43,5 +44,4 @@ public class Entomophobia
 
         return 0xFF000000 | Red | Green | Blue;
     }
-     */
 }

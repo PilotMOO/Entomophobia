@@ -6,17 +6,14 @@ import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.util.AzureLibUtil;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.effects.PheromonesBase;
-import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 
-public class PheromonePreyHuntEntity extends PheromonesEntityBase implements GeoAnimatable{
-    public PheromonePreyHuntEntity(EntityType<? extends PathfinderMob> pEntityType, Level pLevel) {
-        super(pEntityType, pLevel, (PheromonesBase)EntomoMobEffects.PREY.get(), (PheromonesBase)EntomoMobEffects.HUNT.get(),
-                120, 24, 2000, 0, 4000);
+public class PheromoneFrenzyEntity extends PheromonesEntityBase implements GeoAnimatable{
+    public PheromoneFrenzyEntity(EntityType<? extends PathfinderMob> pEntityType, Level pLevel) {
+        super(pEntityType, pLevel, (PheromonesBase)EntomoMobEffects.FRENZY.get(), (PheromonesBase)EntomoMobEffects.FRENZY.get(),
+                32, 0, 400, 0, 1500);
     }
 
     @Override
