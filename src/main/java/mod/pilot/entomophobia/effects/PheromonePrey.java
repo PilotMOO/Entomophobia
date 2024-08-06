@@ -9,14 +9,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class PheromonePrey extends PheromonesBase {
     public PheromonePrey() {
-        super(-5763570, true, true, false, 0, 10, 1);
-    }
-
-    //  temp
-    @Override
-    protected void BaseEffectTick(LivingEntity target, int amp) {
-        if (target.isDeadOrDying()){
-            EntomoWorldManager.RemoveThisAsPrey(target);
-        }
+        super(-15826930, true, true, false, 0, 10, 1);
     }
 }

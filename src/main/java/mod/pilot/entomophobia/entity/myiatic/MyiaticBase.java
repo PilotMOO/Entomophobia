@@ -2,7 +2,6 @@ package mod.pilot.entomophobia.entity.myiatic;
 
 import mod.azure.azurelib.animatable.GeoEntity;
 import mod.pilot.entomophobia.Config;
-import mod.pilot.entomophobia.EntomoWorldManager;
 import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.AI.*;
@@ -34,6 +33,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.function.Predicate;
 
 public abstract class MyiaticBase extends Monster implements GeoEntity {
     protected MyiaticBase(EntityType<? extends Monster> pEntityType, Level pLevel) {
@@ -73,6 +76,8 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         this.entityData.define(AIState, -1);
         this.entityData.define(Reach, 1f);
     }
+
+    public static int DodgeChance = 0;
     /**/
 
     //Goals
@@ -134,10 +139,90 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         }
         return false;
     }
+    public ArrayList<LivingEntity> GetValidTargets(int searchRange){
+        AABB nearby = getBoundingBox().inflate(searchRange);
+        return new ArrayList<>(level().getEntitiesOfClass(LivingEntity.class, nearby, this::TestValidEntity));
+    }
+    public ArrayList<LivingEntity> GetValidTargets(){
+        return GetValidTargets((int)getAttributeValue(Attributes.FOLLOW_RANGE));
+    }
+    public ArrayList<LivingEntity> GetNearbyPrey(){
+        AABB nearby = getBoundingBox().inflate((int)getAttributeValue(Attributes.FOLLOW_RANGE));
+        return new ArrayList<>(level().getEntitiesOfClass(LivingEntity.class, nearby, (P) -> TestValidEntity(P) && P.hasEffect(EntomoMobEffects.PREY.get())));
+    }
+    public LivingEntity GetClosestPrey(){
+        LivingEntity closest = null;
+        double distance = Double.MAX_VALUE;
+
+        for (LivingEntity L : GetNearbyPrey()){
+            if (closest != null){
+                if (L.distanceTo(this) < distance){
+                    closest = L;
+                    distance = L.distanceTo(this);
+                }
+            }
+            else{
+                closest = L;
+                distance = L.distanceTo(this);
+            }
+        }
+        return closest;
+    }
+    public ArrayList<MyiaticBase> GetNearbyMyiatics(int searchRange, Predicate<MyiaticBase> myiaticPredicate){
+        AABB nearby = getBoundingBox().inflate(searchRange);
+        return new ArrayList<>(level().getEntitiesOfClass(MyiaticBase.class, nearby, myiaticPredicate));
+    }
+    public ArrayList<MyiaticBase> GetNearbyMyiatics(Predicate<MyiaticBase> myiaticPredicate){
+        return GetNearbyMyiatics((int)getAttributeValue(Attributes.FOLLOW_RANGE), myiaticPredicate);
+    }
+    public ArrayList<MyiaticBase> GetNearbyMyiatics(int searchRange){
+        return GetNearbyMyiatics(searchRange, (M) -> true);
+    }
+    public ArrayList<MyiaticBase> GetNearbyMyiatics(){
+        return GetNearbyMyiatics((int)getAttributeValue(Attributes.FOLLOW_RANGE));
+    }
+    public MyiaticBase GetClosestMyiatic(int searchRange){
+        MyiaticBase closest = null;
+        double distance = Double.MAX_VALUE;
+
+        for (MyiaticBase M : GetNearbyMyiatics(searchRange)){
+            if (closest != null){
+                if (M.distanceTo(this) < distance){
+                    closest = M;
+                    distance = M.distanceTo(this);
+                }
+            }
+            else{
+                closest = M;
+                distance = M.distanceTo(this);
+            }
+        }
+        return closest;
+    }
+    public MyiaticBase GetClosestMyiatic(){
+        return GetClosestMyiatic((int)getAttributeValue(Attributes.FOLLOW_RANGE));
+    }
+    public boolean IsThereAPheromoneOfTypeXNearby(EntityType<? extends PheromonesEntityBase> type, int searchRange){
+        String instance = type.create(level()).getEncodeId();
+
+        AABB nearby = getBoundingBox().inflate(searchRange);
+        ArrayList<PheromonesEntityBase> AllPheromones = new ArrayList<>(level().getEntitiesOfClass(PheromonesEntityBase.class, nearby));
+
+        for (PheromonesEntityBase P : AllPheromones){
+            if (P != null && Objects.equals(P.getEncodeId(), instance)){
+                return true;
+            }
+        }
+        return false;
+    }
+    public boolean IsThereAPheromoneOfTypeXNearby(EntityType<? extends PheromonesEntityBase> type){
+        return IsThereAPheromoneOfTypeXNearby(type, (int)getAttributeValue(Attributes.FOLLOW_RANGE));
+    }
+
     protected boolean TryToDodge() {
-        if (CanDodge() && verticalCollisionBelow){
+        if (CanDodge() && verticalCollisionBelow && !horizontalCollision){
             int Direction = getRandom().nextIntBetweenInclusive(0, 1) != 0 ? -1 : 1;
-            setDeltaMovement(getDeltaMovement().add(Vec3.directionFromRotation(new Vec2 (getRotationVector().x, getRotationVector().y + 90 * Direction)).multiply(1.1, 0, 1.1)));
+            setDeltaMovement(getDeltaMovement().add(Vec3.directionFromRotation(new Vec2 (getRotationVector().x, getRotationVector().y + 135 * Direction)).multiply(1.25, 0, 1.25)));
             return true;
         }
         return false;
@@ -146,7 +231,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         return false;
     }
     protected boolean PreyHuntPredicate(MyiaticBase parent){
-        return EntomoWorldManager.GetNearbyMyiatics(parent, 120).size() > 5 && EntomoWorldManager.GetValidTargetsFor(this).size() > 3;
+        return GetNearbyMyiatics(120).size() > 5 && GetValidTargets().size() > 3;
     }
     /**/
 
@@ -163,8 +248,10 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         Entity sourceEntity = pSource.getEntity();
         if (sourceEntity instanceof LivingEntity){
             if (TestValidEntity((LivingEntity)sourceEntity)){
-                for (MyiaticBase M : EntomoWorldManager.GetNearbyMyiatics(this, (E) -> E.getTarget() == null)){
-                    M.setTarget((LivingEntity)sourceEntity);
+                for (MyiaticBase M : GetNearbyMyiatics()){
+                    if (M.getTarget() == null){
+                        M.setTarget((LivingEntity)sourceEntity);
+                    }
                 }
                 setTarget((LivingEntity)sourceEntity);
             }
@@ -172,7 +259,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
                 superFlag = false;
             }
             if (sourceEntity == getTarget()){
-                if (getRandom().nextIntBetweenInclusive(0, 10) <= 3){
+                if (getRandom().nextIntBetweenInclusive(0, 10) <= DodgeChance){
                     superFlag = !TryToDodge();
                 }
             }

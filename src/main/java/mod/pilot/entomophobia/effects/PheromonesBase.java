@@ -67,7 +67,7 @@ public abstract class PheromonesBase extends MobEffect {
                     double duration = originEffect.getDuration();
                     duration = duration * (((MyiaticSpreadAOE - entity.distanceToSqr(blockPos.getCenter())) / MyiaticSpreadAOE) * Falloff);
                     if (duration > 20){
-                        EntomoWorldManager.ApplyPheromoneTo(this, entity, (int)duration, amp);
+                        entity.addEffect(new MobEffectInstance(this, (int)duration, amp));
                     }
                 }
             }
@@ -76,7 +76,7 @@ public abstract class PheromonesBase extends MobEffect {
                     double duration = originEffect.getDuration();
                     duration = duration * (((BaseSpreadAOE - entity.distanceToSqr(blockPos.getCenter())) / BaseSpreadAOE) * Falloff);
                     if (duration > 20){
-                        EntomoWorldManager.ApplyPheromoneTo(this, entity, (int)duration, amp);
+                        entity.addEffect(new MobEffectInstance(this, (int)duration, amp));
                     }
                 }
             }

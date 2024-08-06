@@ -72,15 +72,15 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
         AABB MyiaticAABB = new AABB(blockPosition()).inflate(MyiaticSpreadAOE);
         AABB NonMyiaticAABB = new AABB(blockPosition()).inflate(BaseSpreadAOE);
 
-        for (LivingEntity entity : this.level().getEntitiesOfClass(MyiaticBase.class, MyiaticAABB)){
-            if (!entity.hasEffect(MyiaticPheromoneType)){
-                EntomoWorldManager.ApplyPheromoneTo(MyiaticPheromoneType, entity, (int)(EffectBaseTimer * (BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE), EffectAmp);
+        if (MyiaticPheromoneType != null){
+            for (LivingEntity entity : this.level().getEntitiesOfClass(MyiaticBase.class, MyiaticAABB, (M) -> !M.hasEffect(MyiaticPheromoneType))){
+                entity.addEffect(new MobEffectInstance(MyiaticPheromoneType, (int)(EffectBaseTimer * (BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE), EffectAmp));
                 AddLife(20);
             }
         }
-        for (LivingEntity entity : this.level().getEntitiesOfClass(LivingEntity.class, NonMyiaticAABB)){
-            if (!(entity instanceof MyiaticBase) && !(entity instanceof PheromonesEntityBase) && !entity.hasEffect(BasePheromoneType)){
-                EntomoWorldManager.ApplyPheromoneTo(BasePheromoneType, entity, (int)(EffectBaseTimer * (BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE), EffectAmp);
+        if (BasePheromoneType != null){
+            for (LivingEntity entity : this.level().getEntitiesOfClass(LivingEntity.class, NonMyiaticAABB, (E) -> {return !(E instanceof MyiaticBase) && !(E instanceof PheromonesEntityBase) && !E.hasEffect(BasePheromoneType);})){
+                entity.addEffect(new MobEffectInstance(BasePheromoneType, (int)(EffectBaseTimer * (BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE), EffectAmp));
                 AddLife(20);
             }
         }
@@ -92,36 +92,48 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
         int j = Mth.floor(this.getY());
         int k = Mth.floor(this.getZ());
         Level world = this.level();
-        int Mcolor = MyiaticPheromoneType.getColor();
+        int Mcolor = 0;
+        if (MyiaticPheromoneType != null){
+            Mcolor = MyiaticPheromoneType.getColor();
+        }
         double m1 = (float)(Mcolor >> 16 & 255) / 255.0F;
         double m2 = (float)(Mcolor >> 8 & 255) / 255.0F;
         double m3 = (float)(Mcolor & 255) / 255.0F;
-        int Bcolor = BasePheromoneType.getColor();
+        int Bcolor = 0;
+        if (BasePheromoneType != null){
+            Bcolor = BasePheromoneType.getColor();
+        }
         double b1 = (float)(Bcolor >> 16 & 255) / 255.0F;
         double b2 = (float)(Bcolor >> 8 & 255) / 255.0F;
         double b3 = (float)(Bcolor & 255) / 255.0F;
         RandomSource randomSource = this.random;
         BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
-        for (int l = 0; l < MyiaticSpreadAOE / 4; ++l) {
-            blockpos$mutableblockpos.set(i + Mth.nextInt(randomSource, -MyiaticSpreadAOE, MyiaticSpreadAOE), j + Mth.nextInt(randomSource, -MyiaticSpreadAOE, MyiaticSpreadAOE), k + Mth.nextInt(randomSource, -MyiaticSpreadAOE, MyiaticSpreadAOE));
-            BlockState blockstate = world.getBlockState(blockpos$mutableblockpos);
-            if (!blockstate.isSolidRender(world, blockpos$mutableblockpos)) {
-                world.addParticle(ParticleTypes.ENTITY_EFFECT, (double) blockpos$mutableblockpos.getX() + randomSource.nextDouble(), (double) blockpos$mutableblockpos.getY() + randomSource.nextDouble(), (double) blockpos$mutableblockpos.getZ() + randomSource.nextDouble(), m1, m2, m3);
+        if (Mcolor != 0){
+            for (int l = 0; l < MyiaticSpreadAOE / 2; ++l) {
+                blockpos$mutableblockpos.set(i + Mth.nextInt(randomSource, -MyiaticSpreadAOE, MyiaticSpreadAOE), j + Mth.nextInt(randomSource, -MyiaticSpreadAOE, MyiaticSpreadAOE), k + Mth.nextInt(randomSource, -MyiaticSpreadAOE, MyiaticSpreadAOE));
+                BlockState blockstate = world.getBlockState(blockpos$mutableblockpos);
+                if (!blockstate.isSolidRender(world, blockpos$mutableblockpos)) {
+                    world.addParticle(ParticleTypes.ENTITY_EFFECT, (double) blockpos$mutableblockpos.getX() + randomSource.nextDouble(), (double) blockpos$mutableblockpos.getY() + randomSource.nextDouble(), (double) blockpos$mutableblockpos.getZ() + randomSource.nextDouble(), m1, m2, m3);
+                }
             }
         }
-        for (int l = 0; l < BaseSpreadAOE / 4; ++l) {
-            blockpos$mutableblockpos.set(i + Mth.nextInt(randomSource, -BaseSpreadAOE, BaseSpreadAOE), j + Mth.nextInt(randomSource, -BaseSpreadAOE, BaseSpreadAOE), k + Mth.nextInt(randomSource, -BaseSpreadAOE, BaseSpreadAOE));
-            BlockState blockstate = world.getBlockState(blockpos$mutableblockpos);
-            if (!blockstate.isSolidRender(world, blockpos$mutableblockpos)) {
-                world.addParticle(ParticleTypes.ENTITY_EFFECT, (double) blockpos$mutableblockpos.getX() + randomSource.nextDouble(), (double) blockpos$mutableblockpos.getY() + randomSource.nextDouble(), (double) blockpos$mutableblockpos.getZ() + randomSource.nextDouble(), b1, b2, b3);
+        if (Bcolor != 0){
+            for (int l = 0; l < BaseSpreadAOE / 2; ++l) {
+                blockpos$mutableblockpos.set(i + Mth.nextInt(randomSource, -BaseSpreadAOE, BaseSpreadAOE), j + Mth.nextInt(randomSource, -BaseSpreadAOE, BaseSpreadAOE), k + Mth.nextInt(randomSource, -BaseSpreadAOE, BaseSpreadAOE));
+                BlockState blockstate = world.getBlockState(blockpos$mutableblockpos);
+                if (!blockstate.isSolidRender(world, blockpos$mutableblockpos)) {
+                    world.addParticle(ParticleTypes.ENTITY_EFFECT, (double) blockpos$mutableblockpos.getX() + randomSource.nextDouble(), (double) blockpos$mutableblockpos.getY() + randomSource.nextDouble(), (double) blockpos$mutableblockpos.getZ() + randomSource.nextDouble(), b1, b2, b3);
+                }
             }
         }
     }
     /**/
 
     //Overridden Methods
+
     @Override
-    public void aiStep() {
+    public void tick() {
+        super.tick();
         SpawnParticles();
         AttemptToSpread();
         if (getLife() >= LifeMax){
@@ -130,7 +142,6 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
         else{
             AddLife(1);
         }
-        //System.out.println("Life is " + getLife());
     }
 
     @Override

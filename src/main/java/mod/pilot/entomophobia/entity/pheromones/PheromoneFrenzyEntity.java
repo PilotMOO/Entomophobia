@@ -12,8 +12,8 @@ import net.minecraft.world.level.Level;
 
 public class PheromoneFrenzyEntity extends PheromonesEntityBase implements GeoAnimatable{
     public PheromoneFrenzyEntity(EntityType<? extends PathfinderMob> pEntityType, Level pLevel) {
-        super(pEntityType, pLevel, (PheromonesBase)EntomoMobEffects.FRENZY.get(), (PheromonesBase)EntomoMobEffects.FRENZY.get(),
-                32, 0, 400, 0, 1500);
+        super(pEntityType, pLevel, null, (PheromonesBase)EntomoMobEffects.FRENZY.get(),
+                32, 0, 400, 0, 2500);
     }
 
     @Override

@@ -49,7 +49,7 @@ public class SpawnPheromonesGoal extends Goal {
     }
 
     private boolean CanSpawnPheromone() {
-        return CD <= 0 && !EntomoWorldManager.IsThereAPheromoneOfTypeXNearby(PheroType, SearchRange, parent);
+        return CD <= 0 && !parent.IsThereAPheromoneOfTypeXNearby(PheroType, SearchRange);
     }
 
     private void SpawnPheromone() {

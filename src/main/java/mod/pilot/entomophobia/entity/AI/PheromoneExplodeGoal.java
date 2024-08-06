@@ -7,13 +7,9 @@ import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticCreeperEntity;
-import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageSources;
-import net.minecraft.world.damagesource.DamageType;
-import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.Explosion;
@@ -82,7 +78,7 @@ public class PheromoneExplodeGoal extends Goal {
             }
         }
         else{
-            MyiaticBase closestMyiatic = EntomoWorldManager.GetClosestMyiaticInRange(parent);
+            MyiaticBase closestMyiatic = parent.GetClosestMyiatic();
             if (closestMyiatic != null){
                 parent.getNavigation().moveTo(closestMyiatic, 1.25D);
                 if (parent.distanceTo(closestMyiatic) < 3){
@@ -100,11 +96,17 @@ public class PheromoneExplodeGoal extends Goal {
         FuseTimer++;
         parent.getNavigation().moveTo(parent, 0.0D);
         if (FuseTimer >= MaxFuseTimer){
-            Explosion resultingExplosion = parent.level().explode(parent, EntomoDamageTypes.myiatic_explode(parent), new ExplosionDamageCalculator(), parent.position(),
+            parent.level().explode(parent, EntomoDamageTypes.myiatic_explode(parent), new ExplosionDamageCalculator(), parent.position(),
                     Config.SERVER.myiatic_creeper_explode_radius.get(), false, Level.ExplosionInteraction.MOB);
             EntomoWorldManager.CreateNewEntityAt(EntomoEntities.FRENZY.get(), parent);
-            parent.die(parent.level().damageSources().explosion(resultingExplosion));
-            isExploding = false;
+            parent.remove(Entity.RemovalReason.KILLED);
+            stop();
         }
+    }
+
+    @Override
+    public void stop() {
+        FuseTimer = 0;
+        isExploding = false;
     }
 }

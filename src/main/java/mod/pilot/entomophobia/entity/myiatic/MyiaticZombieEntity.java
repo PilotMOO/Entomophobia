@@ -16,7 +16,8 @@ import mod.pilot.entomophobia.entity.AI.Flight.*;
 public class MyiaticZombieEntity extends MyiaticBase{
     public MyiaticZombieEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
-        setReach(0.25f);
+        setReach(0.15f);
+        DodgeChance = 3;
     }
 
     @Override
@@ -49,11 +50,11 @@ public class MyiaticZombieEntity extends MyiaticBase{
 
     public static AttributeSupplier.Builder createAttributes(){
         return MyiaticZombieEntity.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 20D)
-                .add(Attributes.ARMOR, 4)
+                .add(Attributes.MAX_HEALTH, 15D)
+                .add(Attributes.ARMOR, 3)
                 .add(Attributes.FOLLOW_RANGE, 32)
                 .add(Attributes.MOVEMENT_SPEED, 0.35D)
-                .add(Attributes.ATTACK_DAMAGE, 6D)
+                .add(Attributes.ATTACK_DAMAGE, 4D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0.5D)
                 .add(Attributes.ATTACK_SPEED, 2D);
     }
@@ -62,7 +63,7 @@ public class MyiaticZombieEntity extends MyiaticBase{
     @Override
     protected void registerBasicGoals() {
         super.registerBasicGoals();
-        this.targetSelector.addGoal(1, new DashAttackWithAnimationGoal(this, 1.0D, true, 10, 15, 1.05));
+        this.targetSelector.addGoal(1, new DashAttackWithAnimationGoal(this, 1.0D, true, 10, 15, 1.025));
     }
     @Override
     protected void registerFlightGoals() {

@@ -6,6 +6,6 @@ import net.minecraft.world.entity.LivingEntity;
 
 public class PheromoneHunt extends PheromonesBase{
     public PheromoneHunt() {
-        super(-5947071, true, false, true, 10, 0, 1);
+        super(-14899172, true, false, true, 10, 0, 1);
     }
 }

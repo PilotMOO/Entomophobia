@@ -78,7 +78,9 @@ public class Myiasis extends MobEffect {
     }
 
     private void TickDamage(LivingEntity target, int amp) {
-        target.hurt(EntomoDamageTypes.myiasis(target), amp);
+        if (amp > 0){
+            target.hurt(EntomoDamageTypes.myiasis(target), amp);
+        }
     }
 
     private void ConvertMob(LivingEntity target) {

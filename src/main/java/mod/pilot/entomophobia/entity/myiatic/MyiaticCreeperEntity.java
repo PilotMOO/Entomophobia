@@ -12,11 +12,14 @@ import mod.pilot.entomophobia.entity.AI.Flight.GlideDownToFoesGoal;
 import mod.pilot.entomophobia.entity.AI.Flight.PleaseDontBreakMyLegsGoal;
 import mod.pilot.entomophobia.entity.AI.PheromoneExplodeGoal;
 import mod.pilot.entomophobia.entity.EntomoEntities;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 public class MyiaticCreeperEntity extends MyiaticBase{
@@ -27,7 +30,7 @@ public class MyiaticCreeperEntity extends MyiaticBase{
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "MovementManager", 2, event ->
+        controllers.add(new AnimationController<>(this, "MovementManager", 1, event ->
         {
             if (getAIState() == state.other.ordinal()){
                 return event.setAndContinue(RawAnimation.begin().thenLoop("explode"));
@@ -56,7 +59,7 @@ public class MyiaticCreeperEntity extends MyiaticBase{
                 .add(Attributes.ARMOR, 4)
                 .add(Attributes.FOLLOW_RANGE, 32)
                 .add(Attributes.MOVEMENT_SPEED, 0.3D)
-                .add(Attributes.ATTACK_DAMAGE, 3D)
+                .add(Attributes.ATTACK_DAMAGE, 2D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0.5D)
                 .add(Attributes.ATTACK_SPEED, 2D);
     }
@@ -67,33 +70,33 @@ public class MyiaticCreeperEntity extends MyiaticBase{
     protected void registerBasicGoals() {
         super.registerBasicGoals();
         this.targetSelector.addGoal(1, new AttackWithAnimationGoal(this, 1.0D, true, 15, 20));
-        this.targetSelector.addGoal(1, new PheromoneExplodeGoal(this, 48, 32, 10, 30));
+        this.targetSelector.addGoal(1, new PheromoneExplodeGoal(this, 48, 32, 10, 15));
     }
     /**/
 
     //Unique Methods
     public boolean WantsToExplode(int pheromoneSearchRange, int myiaticSearchRange, int targetSearchRange){
-        if (!EntomoWorldManager.IsThereAPheromoneOfTypeXNearby(EntomoEntities.FRENZY.get(), pheromoneSearchRange, this)){
+        if (!IsThereAPheromoneOfTypeXNearby(EntomoEntities.FRENZY.get(), pheromoneSearchRange)){
             double healthPercent = (getHealth() / getAttributeValue(Attributes.MAX_HEALTH)) * 100;
-            int NearbyMyiatics = EntomoWorldManager.GetNearbyMyiatics(this, myiaticSearchRange).size();
-            int NearbyTargets = EntomoWorldManager.GetValidTargetsFor(this, targetSearchRange).size();
+            int NearbyMyiaticsCount = GetNearbyMyiatics(myiaticSearchRange).size();
+            int NearbyTargetsCount = GetValidTargets(targetSearchRange).size();
             if (healthPercent == 100){
-                return NearbyMyiatics > 6 && NearbyTargets > 4;
+                return NearbyMyiaticsCount > 6 && NearbyTargetsCount > 8 || getTarget() instanceof Player && NearbyMyiaticsCount > 6;
             }
             else if (healthPercent > 75){
-                return NearbyMyiatics > 4 && NearbyTargets > 2;
+                return NearbyMyiaticsCount > 4 && NearbyTargetsCount > 4 || getTarget() instanceof Player && NearbyMyiaticsCount > 4;
             }
             else if (healthPercent > 50){
-                return NearbyMyiatics > 3 && NearbyTargets > 1;
+                return NearbyMyiaticsCount > 3 && NearbyTargetsCount > 1 || getTarget() instanceof Player;
             }
             else if (healthPercent < 15){
-                for (MyiaticBase M : EntomoWorldManager.GetNearbyMyiatics(this, myiaticSearchRange)){
+                for (MyiaticBase M : GetNearbyMyiatics(myiaticSearchRange)){
                     if (M.getTarget() != null){
                         continue;
                     }
                     return false;
                 }
-                return NearbyMyiatics > 0 || NearbyTargets > 0;
+                return NearbyMyiaticsCount > 0 || NearbyTargetsCount > 0 || getTarget() instanceof Player;
             }
         }
         return false;
@@ -104,7 +107,7 @@ public class MyiaticCreeperEntity extends MyiaticBase{
     @Override
     protected int StateManager() {
         if (getAIState() == state.other.ordinal()){
-            return getAIState();
+            return state.other.ordinal();
         }
         else if (getAIState() == state.attacking.ordinal()){
             return state.attacking.ordinal();
@@ -117,4 +120,32 @@ public class MyiaticCreeperEntity extends MyiaticBase{
         }
     }
     /**/
+
+    @Override
+    public boolean hurt(DamageSource pSource, float pAmount) {
+        boolean superFlag = true;
+        Entity sourceEntity = pSource.getEntity();
+        if (sourceEntity instanceof LivingEntity){
+            if (TestValidEntity((LivingEntity)sourceEntity)){
+                for (MyiaticBase M : GetNearbyMyiatics()){
+                    if (M.getTarget() == null){
+                        M.setTarget((LivingEntity)sourceEntity);
+                    }
+                }
+                setTarget((LivingEntity)sourceEntity);
+            }
+            if (sourceEntity instanceof MyiaticBase && sourceEntity != this){
+                superFlag = false;
+            }
+            if (sourceEntity == getTarget()){
+                if (getRandom().nextIntBetweenInclusive(0, 10) <= 3){
+                    superFlag = !TryToDodge();
+                }
+            }
+        }
+        if (superFlag){
+            return super.hurt(pSource, pAmount);
+        }
+        return false;
+    }
 }
