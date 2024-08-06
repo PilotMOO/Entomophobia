@@ -26,6 +26,8 @@ public class Config
 
         public final ForgeConfigSpec.ConfigValue<Integer> hunt_bonus_range;
 
+        public final ForgeConfigSpec.ConfigValue<Integer> myiatic_creeper_explode_radius;
+
         public Server(ForgeConfigSpec.Builder builder){
             builder.push("General knowledge");
             builder.pop();
@@ -51,7 +53,7 @@ public class Config
                             "minecraft:creeper","minecraft:squid","minecraft:bat","minecraft:armor_stand") , o -> o instanceof String);            builder.push("Mob Targeting");
             this.myiatic_conversion_list = builder.defineList("Mobs and their Myiatic forms [key = \"Base>Myiatic\"",
                     Lists.newArrayList(
-                            "minecraft:zombie>entomophobia:myiatic_zombie") , o -> o instanceof String);
+                            "minecraft:zombie>entomophobia:myiatic_zombie", "minecraft:creeper>entomophobia:myiatic_creeper") , o -> o instanceof String);
             builder.pop();
 
             builder.push("General Infection values");
@@ -61,6 +63,10 @@ public class Config
 
             builder.push("Pheromone values");
             this.hunt_bonus_range = builder.defineInRange("Pheromone Prey/Hunt bonus searchrange", 64, 1, Integer.MAX_VALUE);
+            builder.pop();
+
+            builder.push("Myiatic Stats");
+            this.myiatic_creeper_explode_radius = builder.defineInRange("Myiatic Creeper explosion range", 3, 1, Integer.MAX_VALUE);
         }
     }
 

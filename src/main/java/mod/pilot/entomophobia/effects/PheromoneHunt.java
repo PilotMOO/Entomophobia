@@ -8,10 +8,4 @@ public class PheromoneHunt extends PheromonesBase{
     public PheromoneHunt() {
         super(-5947071, true, false, true, 10, 0, 1);
     }
-
-    //TEMPORARY
-    @Override
-    protected void MyiaticEffectTick(LivingEntity target, int amp) {
-        target.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20));
-    }
 }

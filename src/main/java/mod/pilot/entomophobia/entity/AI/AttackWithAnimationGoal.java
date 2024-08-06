@@ -45,9 +45,8 @@ public class AttackWithAnimationGoal extends MeleeAttackGoal {
             mob.setAIState(MyiaticBase.state.attacking.ordinal());
             AttackTicker++;
             if (target != null) {
-                if (StrikePos == AttackTicker && mob.distanceTo(target) < getAttackReachSqr(target) /*&& mob.hasLineOfSight(mob.getTarget())*/){
+                if (StrikePos == AttackTicker && mob.distanceTo(target) < getAttackReachSqr(target)){
                     mob.doHurtTarget(target);
-                    mob.setDeltaMovement(mob.getDeltaMovement().add(mob.getForward().multiply(1.05, 0, 1.05)));
                 }
             }
             if (AttackTicker >= AnimLength){
@@ -67,7 +66,7 @@ public class AttackWithAnimationGoal extends MeleeAttackGoal {
         super.stop();
     }
 
-    private void FinalizeAttack(){
+    void FinalizeAttack(){
         AttackTicker = 0;
         CurrentlyAttacking = false;
         mob.setAIState(MyiaticBase.state.idle.ordinal());

@@ -23,6 +23,7 @@ public class EntomoWorldManager {
     // MOB MANAGEMENT
 
     private static final ArrayList<MyiaticBase> AllMyiatics = new ArrayList<>();
+
     public static boolean AddThisToAllMyiatics(MyiaticBase target){
         for (MyiaticBase M : AllMyiatics){
             if (target == M){
@@ -64,21 +65,47 @@ public class EntomoWorldManager {
     public static ArrayList<MyiaticBase> GetNearbyMyiatics(Vec3 pos, int searchRange){
         return GetNearbyMyiatics(pos, searchRange, (E) -> true);
     }
-    public static ArrayList<MyiaticBase> GetNearbyMyiatics(LivingEntity target, int searchRange, Predicate<MyiaticBase> MyiaticPredic){
-        return GetNearbyMyiatics(target.position(), searchRange, MyiaticPredic);
+    public static ArrayList<MyiaticBase> GetNearbyMyiatics(LivingEntity parent, int searchRange, Predicate<MyiaticBase> MyiaticPredic){
+        return GetNearbyMyiatics(parent.position(), searchRange, MyiaticPredic);
     }
-    public static ArrayList<MyiaticBase> GetNearbyMyiatics(LivingEntity target, Predicate<MyiaticBase> MyiaticPredic){
-        return GetNearbyMyiatics(target.position(), (int)target.getAttribute(Attributes.FOLLOW_RANGE).getValue(), MyiaticPredic);
+    public static ArrayList<MyiaticBase> GetNearbyMyiatics(LivingEntity parent, Predicate<MyiaticBase> MyiaticPredic){
+        return GetNearbyMyiatics(parent.position(), (int)parent.getAttribute(Attributes.FOLLOW_RANGE).getValue(), MyiaticPredic);
     }
-    public static ArrayList<MyiaticBase> GetNearbyMyiatics(LivingEntity target, int searchRange){
-        return GetNearbyMyiatics(target.position(), searchRange, (E) -> true);
+    public static ArrayList<MyiaticBase> GetNearbyMyiatics(LivingEntity parent, int searchRange){
+        return GetNearbyMyiatics(parent.position(), searchRange, (E) -> true);
     }
     public static ArrayList<MyiaticBase> GetNearbyMyiatics(LivingEntity target){
         return GetNearbyMyiatics(target.position(), (int)target.getAttribute(Attributes.FOLLOW_RANGE).getValue(), (E) -> true);
     }
+    public static MyiaticBase GetClosestMyiaticInRange(LivingEntity parent, int searchRange){
+        MyiaticBase NearbyMyiatic = null;
+
+        for (MyiaticBase M : AllMyiatics){
+            if (M.distanceTo(parent) < searchRange){
+                if (NearbyMyiatic != null){
+                    if (M.distanceTo(parent) < NearbyMyiatic.distanceTo(parent)){
+                        NearbyMyiatic = M;
+                    }
+                }
+                else{
+                    NearbyMyiatic = M;
+                }
+            }
+        }
+        return NearbyMyiatic;
+    }
+    public static MyiaticBase GetClosestMyiaticInRange(LivingEntity parent){
+        return GetClosestMyiaticInRange(parent, (int)parent.getAttributeValue(Attributes.FOLLOW_RANGE));
+    }
+
+
 
     public static ArrayList<LivingEntity> GetValidTargetsFor(MyiaticBase target){
         AABB nearby = target.getBoundingBox().inflate(target.getAttributeValue(Attributes.FOLLOW_RANGE));
+        return new ArrayList<>(target.level().getEntitiesOfClass(LivingEntity.class, nearby, target::TestValidEntity));
+    }
+    public static ArrayList<LivingEntity> GetValidTargetsFor(MyiaticBase target, int SearchRange){
+        AABB nearby = target.getBoundingBox().inflate(SearchRange);
         return new ArrayList<>(target.level().getEntitiesOfClass(LivingEntity.class, nearby, target::TestValidEntity));
     }
 
@@ -120,8 +147,9 @@ public class EntomoWorldManager {
     }
     public static boolean IsThereAPheromoneOfTypeXNearby(EntityType<? extends PheromonesEntityBase> type, int searchRange, Vec3 pos, Level world){
         String instance = type.create(world).getEncodeId();
-        for (PheromonesEntityBase phero : AllPheromones){
-            if (Objects.equals(phero.getEncodeId(), instance) && Mth.sqrt((float)phero.distanceToSqr(pos)) < searchRange){
+
+        for (PheromonesEntityBase P : AllPheromones){
+            if (P != null && Objects.equals(P.getEncodeId(), instance) && Mth.sqrt((float)P.distanceToSqr(pos)) < searchRange){
                 return true;
             }
         }
@@ -137,17 +165,12 @@ public class EntomoWorldManager {
 
     private static final ArrayList<LivingEntity> AllPrey = new ArrayList<>();
     public static boolean IsThisPrey(LivingEntity target){
-        PruneAllPrey();
         for (LivingEntity LE : AllPrey){
             if (LE == target){
                 return true;
             }
         }
         return false;
-    }
-
-    private static void PruneAllPrey() {
-        AllPrey.removeIf(target -> !target.hasEffect(EntomoMobEffects.PREY.get()) || target.isDeadOrDying());
     }
 
     public static boolean AddThisAsPrey(LivingEntity target){
@@ -165,19 +188,20 @@ public class EntomoWorldManager {
         return false;
     }
     public static LivingEntity GetNearbyPrey(MyiaticBase parent){
-        PruneAllPrey();
         double PreySearchRange = parent.getAttribute(Attributes.FOLLOW_RANGE).getValue() + Config.SERVER.hunt_bonus_range.get();
         LivingEntity closestPrey = null;
 
         for (LivingEntity target : AllPrey){
-            if (parent.TestValidEntity(target) && target.distanceTo(parent) < PreySearchRange){
-                if (closestPrey != null){
-                    if (target.distanceTo(parent) < closestPrey.distanceTo(parent)){
+            if (!target.isDeadOrDying() && target.hasEffect(EntomoMobEffects.PREY.get())){
+                if (parent.TestValidEntity(target) && target.distanceTo(parent) < PreySearchRange){
+                    if (closestPrey != null){
+                        if (target.distanceTo(parent) < closestPrey.distanceTo(parent)){
+                            closestPrey = target;
+                        }
+                    }
+                    else{
                         closestPrey = target;
                     }
-                }
-                else{
-                    closestPrey = target;
                 }
             }
         }

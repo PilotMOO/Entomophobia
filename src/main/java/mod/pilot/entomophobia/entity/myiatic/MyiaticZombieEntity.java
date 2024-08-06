@@ -5,12 +5,10 @@ import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.util.AzureLibUtil;
-import mod.pilot.entomophobia.entity.AI.AttackWithAnimationGoal;
-import mod.pilot.entomophobia.entity.AI.PreyPriorityNearestAttackable;
+import mod.pilot.entomophobia.entity.AI.DashAttackWithAnimationGoal;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import mod.pilot.entomophobia.entity.AI.Flight.*;
@@ -64,7 +62,7 @@ public class MyiaticZombieEntity extends MyiaticBase{
     @Override
     protected void registerBasicGoals() {
         super.registerBasicGoals();
-        this.targetSelector.addGoal(1, new AttackWithAnimationGoal(this, 1.0D, true, 10, 15));
+        this.targetSelector.addGoal(1, new DashAttackWithAnimationGoal(this, 1.0D, true, 10, 15, 1.05));
     }
     @Override
     protected void registerFlightGoals() {

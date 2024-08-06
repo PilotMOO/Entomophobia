@@ -24,6 +24,7 @@ import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.animal.AbstractFish;
+import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -45,7 +46,8 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         walking,
         running,
         flying,
-        attacking
+        attacking,
+        other
     }
     public static final EntityDataAccessor<Integer> AIState = SynchedEntityData.defineId(MyiaticBase.class, EntityDataSerializers.INT);
     public int getAIState(){return entityData.get(AIState);}
@@ -94,6 +96,9 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     /**/
 
     //Custom Methods
+    public DamageSource GetDamageSource(){
+        return EntomoDamageTypes.myiatic_basic(this);
+    }
     public boolean isChasing(){
         return this.isAggressive() && this.getDeltaMovement().x != 0 || this.getDeltaMovement().z != 0;
     }
@@ -195,7 +200,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
                 pEntity.setSecondsOnFire(i * 4);
             }
 
-            boolean flag = pEntity.hurt(EntomoDamageTypes.myiatic_basic(this), f);
+            boolean flag = pEntity.hurt(GetDamageSource(), f);
             if (flag) {
                 if (f1 > 0.0F && pEntity instanceof LivingEntity) {
                     ((LivingEntity)pEntity).knockback((double)(f1 * 0.5F), (double)Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), (double)(-Mth.cos(this.getYRot() * ((float)Math.PI / 180F))));
@@ -221,44 +226,11 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
                 return false;
             }
             else if (Config.SERVER.blacklisted_targets.get().contains((e.getEncodeId()))){
-                return false;
+                return e instanceof Creeper && hasEffect(EntomoMobEffects.FRENZY.get());
             }
             else return !(e instanceof AbstractFish);
         }
         return false;
-    }
-
-    public LivingEntity FindValidTarget(){
-        LivingEntity BestValidTarget = null;
-
-        if (this.hasEffect(EntomoMobEffects.HUNT.get())){
-            AABB PreySearchaabb = new AABB(this.blockPosition()).inflate(this.getAttributeValue(Attributes.FOLLOW_RANGE) + Config.SERVER.hunt_bonus_range.get());
-
-            for (LivingEntity target : this.level().getEntitiesOfClass(LivingEntity.class, PreySearchaabb, this::TestValidEntity)){
-                if (target.hasEffect(EntomoMobEffects.PREY.get())){
-                    if (BestValidTarget == null){
-                        BestValidTarget = target;
-                    }
-                    else if (BestValidTarget.distanceTo(this) > target.distanceTo(this)){
-                        BestValidTarget = target;
-                    }
-                }
-            }
-        }
-        if (BestValidTarget == null){
-            AABB BaseSearchaabb = new AABB(this.blockPosition()).inflate(this.getAttributeValue(Attributes.FOLLOW_RANGE));
-
-            for (LivingEntity target : this.level().getEntitiesOfClass(LivingEntity.class, BaseSearchaabb, this::TestValidEntity)){
-                if (BestValidTarget == null){
-                    BestValidTarget = target;
-                }
-                else if (BestValidTarget.distanceTo(this) > target.distanceTo(this)){
-                    BestValidTarget = target;
-                }
-            }
-        }
-
-        return BestValidTarget;
     }
     /**/
 }

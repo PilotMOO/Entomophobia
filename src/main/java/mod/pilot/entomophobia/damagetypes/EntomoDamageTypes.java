@@ -32,6 +32,9 @@ public class EntomoDamageTypes {
     public static final ResourceKey<DamageType> MYAISIS_2 = create("myiasis_2");
     public static final ResourceKey<DamageType> MYAISIS_3 = create("myiasis_3");
 
+
+    public static final ResourceKey<DamageType> MYIATIC_EXPLODE = create("myiatic_explode");
+
     public static DamageSource myiatic_basic(LivingEntity entity){
         switch (entity.getRandom().nextIntBetweenInclusive(1, 3)){
             default -> {
@@ -57,5 +60,8 @@ public class EntomoDamageTypes {
                 return damageSource(entity, MYAISIS_3);
             }
         }
+    }
+    public static DamageSource myiatic_explode(LivingEntity entity){
+        return damageSource(entity, MYIATIC_EXPLODE, entity);
     }
 }

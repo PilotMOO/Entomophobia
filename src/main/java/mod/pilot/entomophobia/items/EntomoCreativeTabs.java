@@ -21,6 +21,7 @@ public class EntomoCreativeTabs {
                     .title(Component.translatable("creativetab.entomophobia_tab"))
                     .displayItems((something, register) ->{
                         register.accept(EntomoItems.MYIATIC_ZOMBIE_SPAWNEGG.get());
+                        register.accept(EntomoItems.MYIATIC_CREEPER_SPAWNEGG.get());
                     })
                     .build());
 }

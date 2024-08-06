@@ -1,12 +1,16 @@
 {
   "item.entomophobia.myiatic_zombie_spawnegg": "Myiatic Zombie Spawn",
+  "item.entomophobia.myiatic_creeper_spawnegg": "Myiatic Creeper Spawn",
 
   "entity.entomophobia.myiatic_zombie": "Myiatic Zombie",
+  "entity.entomophobia.myiatic_creeper": "Myiatic Creeper",
   "entity.entomophobia.pheromone_prey/hunt": "Pheromone: Prey/Hunt",
+  "entity.entomophobia.pheromone_null/frenzy": "Pheromone: Frenzy",
 
-  "mobeffect.entomophobia.myiasis": "Myiasis",
-  "mobeffect.entomophobia.prey": "Prey",
-  "mobeffect.entomophobia.Hunt": "Hunt",
+  "effect.entomophobia.myiasis": "Myiasis",
+  "effect.entomophobia.prey": "Prey",
+  "effect.entomophobia.hunt": "Hunt",
+  "effect.entomophobia.frenzy": "Frenzy",
 
   "creativetab.entomophobia_tab": "Entomophobia",
 
@@ -16,5 +20,7 @@
 
   "death.attack.myiasis_damage1": "%1$s rotted away",
   "death.attack.myiasis_damage2": "%1$s got maggot'd",
-  "death.attack.myiasis_damage3": "%1$s didn't take a shower"
+  "death.attack.myiasis_damage3": "%1$s didn't take a shower",
+
+  "death.attack.myiatic_explode": "%1$s was blown to smithereens by %2$s"
 }
