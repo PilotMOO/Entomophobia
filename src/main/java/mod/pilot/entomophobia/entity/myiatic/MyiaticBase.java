@@ -7,11 +7,13 @@ import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.AI.*;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
+import mod.pilot.entomophobia.worlddata.WorldSaveData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -299,6 +301,21 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             }
 
             return flag;        }
+        return false;
+    }
+
+    @Override
+    public void checkDespawn() {
+        super.checkDespawn();
+    }
+
+    @Override
+    public boolean removeWhenFarAway(double pDistanceToClosestPlayer) {
+        if (level() instanceof ServerLevel server){
+            if (WorldSaveData.GetMyiaticCount(server) > Config.SERVER.mob_cap.get()){
+                return true;
+            }
+        }
         return false;
     }
     /**/

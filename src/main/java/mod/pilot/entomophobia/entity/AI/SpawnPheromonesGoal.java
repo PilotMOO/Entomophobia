@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.entity.AI;
 
-import mod.pilot.entomophobia.EntomoWorldManager;
+import mod.pilot.entomophobia.worlddata.EntomoWorldManager;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
 import net.minecraft.world.entity.EntityType;

@@ -20,6 +20,8 @@ public class Config
     public static final ForgeConfigSpec SERVER_SPEC;
 
     public static class Server{
+        public final ForgeConfigSpec.ConfigValue<Integer> mob_cap;
+
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> blacklisted_targets;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> myiatic_conversion_list;
         public final ForgeConfigSpec.ConfigValue<Integer> myiatic_convert_timer;
@@ -57,6 +59,7 @@ public class Config
             builder.pop();
 
             builder.push("General Infection values");
+            this.mob_cap = builder.defineInRange("Max amount of mobs allowed in the world at once", 50, 0, Integer.MAX_VALUE);
             this.myiatic_convert_timer = builder.define("Time (in ticks) for Myiasis to convert mobs",
                     200);
             builder.pop();

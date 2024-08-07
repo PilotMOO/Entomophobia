@@ -6,8 +6,8 @@ import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 
 public class DashAttackWithAnimationGoal extends AttackWithAnimationGoal {
     final double DashVelocity;
-    public DashAttackWithAnimationGoal(MyiaticBase parent, double pSpeedModifier, boolean pFollowingTargetEvenIfNotSeen, int strikePos, int SwingAnimationLength, double dashVelocity) {
-        super(parent, pSpeedModifier, pFollowingTargetEvenIfNotSeen, strikePos, SwingAnimationLength);
+    public DashAttackWithAnimationGoal(MyiaticBase parent, double pSpeedModifier, boolean pFollowingTargetEvenIfNotSeen, int CD, int strikePos, int SwingAnimationLength, double dashVelocity) {
+        super(parent, pSpeedModifier, pFollowingTargetEvenIfNotSeen, CD, strikePos, SwingAnimationLength);
         DashVelocity = dashVelocity;
     }
 

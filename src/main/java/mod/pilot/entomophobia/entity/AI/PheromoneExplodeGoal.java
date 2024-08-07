@@ -1,7 +1,7 @@
 package mod.pilot.entomophobia.entity.AI;
 
 import mod.pilot.entomophobia.Config;
-import mod.pilot.entomophobia.EntomoWorldManager;
+import mod.pilot.entomophobia.worlddata.EntomoWorldManager;
 import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.EntomoEntities;
@@ -12,7 +12,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 

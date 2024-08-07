@@ -5,11 +5,7 @@ import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.util.AzureLibUtil;
-import mod.pilot.entomophobia.EntomoWorldManager;
 import mod.pilot.entomophobia.entity.AI.AttackWithAnimationGoal;
-import mod.pilot.entomophobia.entity.AI.Flight.FlyToHostileTargetGoal;
-import mod.pilot.entomophobia.entity.AI.Flight.GlideDownToFoesGoal;
-import mod.pilot.entomophobia.entity.AI.Flight.PleaseDontBreakMyLegsGoal;
 import mod.pilot.entomophobia.entity.AI.PheromoneExplodeGoal;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import net.minecraft.world.damagesource.DamageSource;
@@ -69,7 +65,7 @@ public class MyiaticCreeperEntity extends MyiaticBase{
     @Override
     protected void registerBasicGoals() {
         super.registerBasicGoals();
-        this.targetSelector.addGoal(1, new AttackWithAnimationGoal(this, 1.0D, true, 15, 20));
+        this.targetSelector.addGoal(1, new AttackWithAnimationGoal(this, 1.0D, true, 20,  15, 20));
         this.targetSelector.addGoal(1, new PheromoneExplodeGoal(this, 48, 32, 10, 15));
     }
     /**/

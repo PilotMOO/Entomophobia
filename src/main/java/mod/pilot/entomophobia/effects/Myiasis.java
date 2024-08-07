@@ -1,12 +1,10 @@
 package mod.pilot.entomophobia.effects;
 
 import mod.pilot.entomophobia.Config;
-import mod.pilot.entomophobia.EntomoDataManager;
+import mod.pilot.entomophobia.worlddata.EntomoDataManager;
 import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffect;
@@ -14,7 +12,6 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;

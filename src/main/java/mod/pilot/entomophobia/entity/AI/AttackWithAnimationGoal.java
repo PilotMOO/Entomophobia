@@ -1,5 +1,6 @@
 package mod.pilot.entomophobia.entity.AI;
 
+import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
@@ -10,11 +11,15 @@ public class AttackWithAnimationGoal extends MeleeAttackGoal {
     int AttackTicker = 0;
     final int StrikePos;
     final MyiaticBase mob;
-    public AttackWithAnimationGoal(MyiaticBase pMob, double pSpeedModifier, boolean pFollowingTargetEvenIfNotSeen, int strikePos, int SwingAnimationLength) {
+    final int MaxCD;
+    int CD;
+    public AttackWithAnimationGoal(MyiaticBase pMob, double pSpeedModifier, boolean pFollowingTargetEvenIfNotSeen, int CD, int strikePos, int SwingAnimationLength) {
         super(pMob, pSpeedModifier, pFollowingTargetEvenIfNotSeen);
         mob = pMob;
         StrikePos = strikePos;
         AnimLength = SwingAnimationLength;
+        MaxCD = CD;
+        this.CD = 0;
     }
 
     @Override
@@ -36,8 +41,9 @@ public class AttackWithAnimationGoal extends MeleeAttackGoal {
     public void tick() {
         super.tick();
         LivingEntity target = mob.getTarget();
+        CD = CD > 0 ? CD - 1 : 0;
         if (target != null) {
-            if(mob.distanceTo(target) <= getAttackReachSqr(target)){
+            if(mob.distanceTo(target) <= getAttackReachSqr(target) && CD <= 0){
                 CurrentlyAttacking = true;
             }
         }
@@ -68,6 +74,7 @@ public class AttackWithAnimationGoal extends MeleeAttackGoal {
 
     void FinalizeAttack(){
         AttackTicker = 0;
+        CD = mob.hasEffect(EntomoMobEffects.FRENZY.get()) ? MaxCD / 2 : MaxCD;
         CurrentlyAttacking = false;
         mob.setAIState(MyiaticBase.state.idle.ordinal());
     }

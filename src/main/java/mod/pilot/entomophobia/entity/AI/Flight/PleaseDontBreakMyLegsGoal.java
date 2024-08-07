@@ -11,17 +11,17 @@ public class PleaseDontBreakMyLegsGoal extends FlyToGoal{
 
     @Override
     public boolean canUse() {
-        return !IsFlying && FlightState != FlightStates.Falling.ordinal() && parent.fallDistance > parent.getMaxFallDistance();
+        return !IsFlying && FlightState != FlightStates.Falling.ordinal() && parent.fallDistance > 5;
     }
 
     @Override
     public boolean canContinueToUse() {
-        return FlightState != FlightStates.NotFlying.ordinal();
+        return FlightState != FlightStates.Landed.ordinal();
     }
 
     @Override
     boolean WantsToTakeOff() {
-        return FlightState == FlightStates.NotFlying.ordinal() && parent.fallDistance > parent.getMaxFallDistance();
+        return FlightState == FlightStates.Landed.ordinal() && parent.fallDistance > parent.getMaxFallDistance();
     }
 
     @Override
@@ -48,7 +48,7 @@ public class PleaseDontBreakMyLegsGoal extends FlyToGoal{
             }
         }
         else{
-            ManageStateSwitch(FlightStates.NotFlying);
+            ManageStateSwitch(FlightStates.Landed);
         }
         if (parent.horizontalCollision){
             ManageStateSwitch(FlightStates.Falling);

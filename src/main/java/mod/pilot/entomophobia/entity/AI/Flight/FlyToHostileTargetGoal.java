@@ -44,6 +44,9 @@ public class FlyToHostileTargetGoal extends FlyToGoal{
             FlightManager();
             StrikeWhileGliding(parent.getTarget());
         }
+        if (FlightState == FlightStates.Falling.ordinal() && parent.verticalCollisionBelow){
+            ManageStateSwitch(FlightStates.Landed);
+        }
     }
 
     @Override
@@ -94,7 +97,7 @@ public class FlyToHostileTargetGoal extends FlyToGoal{
             if (distanceV > 0 && distanceV < TargetHeightThreshold){
                 float distance2d = new Vec2((float)parent.position().x, (float)parent.position().z).distanceToSqr(new Vec2((float)target.position().x, (float)target.position().z));
                 if ((Mth.sqrt(distance2d) < 1.5) || parent.IsThereABlockUnderMe(TargetHeightThreshold) && Mth.sqrt(distance2d) < 3){
-                    ManageStateSwitch(FlightStates.NotFlying);
+                    ManageStateSwitch(FlightStates.Landed);
                     parent.setNoGravity(false);
                     parent.setDeltaMovement(0, 0, 0);
                     return true;

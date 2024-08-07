@@ -1,9 +1,7 @@
 package mod.pilot.entomophobia.entity.pheromones;
 
-import mod.pilot.entomophobia.EntomoWorldManager;
 import mod.pilot.entomophobia.effects.PheromonesBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
-import mod.pilot.entomophobia.entity.myiatic.MyiaticZombieEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -13,7 +11,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;

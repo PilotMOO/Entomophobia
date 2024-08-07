@@ -1,6 +1,5 @@
 package mod.pilot.entomophobia.effects;
 
-import mod.pilot.entomophobia.EntomoWorldManager;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
 import net.minecraft.core.BlockPos;

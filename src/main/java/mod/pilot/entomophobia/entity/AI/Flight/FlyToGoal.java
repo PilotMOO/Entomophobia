@@ -22,7 +22,7 @@ public class FlyToGoal extends Goal {
     double HFlightSpeed;
     enum FlightStates{
         Disabled,
-        NotFlying,
+        Landed,
         Ascending,
         Gliding,
         Falling
@@ -97,11 +97,14 @@ public class FlyToGoal extends Goal {
         if (IsFlying){
             FlightManager();
         }
+        if (FlightState == FlightStates.Falling.ordinal() && parent.verticalCollisionBelow){
+            ManageStateSwitch(FlightStates.Landed);
+        }
     }
 
     @Override
     public void stop() {
-        ManageStateSwitch(FlightStates.NotFlying);
+        ManageStateSwitch(FlightStates.Landed);
     }
     /**/
 
@@ -113,7 +116,7 @@ public class FlyToGoal extends Goal {
             case 3 -> Glide();
             case 4 ->{
                 if (parent.verticalCollisionBelow){
-                    ManageStateSwitch(FlightStates.NotFlying);
+                    ManageStateSwitch(FlightStates.Landed);
                 }
             }
         }
@@ -191,7 +194,7 @@ public class FlyToGoal extends Goal {
             }
         }
         else{
-            ManageStateSwitch(FlightStates.NotFlying);
+            ManageStateSwitch(FlightStates.Landed);
         }
         if (parent.horizontalCollision){
             ManageStateSwitch(FlightStates.Falling);

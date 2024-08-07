@@ -63,7 +63,7 @@ public class MyiaticZombieEntity extends MyiaticBase{
     @Override
     protected void registerBasicGoals() {
         super.registerBasicGoals();
-        this.targetSelector.addGoal(1, new DashAttackWithAnimationGoal(this, 1.0D, true, 10, 15, 1.025));
+        this.targetSelector.addGoal(1, new DashAttackWithAnimationGoal(this, 1.0D, true, 10, 10, 15, 1.025));
     }
     @Override
     protected void registerFlightGoals() {
@@ -75,5 +75,10 @@ public class MyiaticZombieEntity extends MyiaticBase{
     @Override
     protected boolean CanDodge() {
         return true;
+    }
+
+    @Override
+    public int getMaxFallDistance() {
+        return Integer.MAX_VALUE;
     }
 }
