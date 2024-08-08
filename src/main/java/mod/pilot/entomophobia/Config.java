@@ -21,6 +21,7 @@ public class Config
 
     public static class Server{
         public final ForgeConfigSpec.ConfigValue<Integer> mob_cap;
+        public final ForgeConfigSpec.ConfigValue<Integer> distance_to_player_until_despawn;
 
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> blacklisted_targets;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> myiatic_conversion_list;
@@ -41,11 +42,13 @@ public class Config
             builder.push(new ArrayList<>(Arrays.asList(
                 "Myiatics:",
                     "myiatic_zombie",
+                    "myiatic_creeper",
                     "-",
                 "Festereds:",
                     "-",
                 "Pheromones:",
-                    "pheromone_prey/hunt"
+                    "pheromone_prey/hunt",
+                    "pheromone_null/frenzy"
             )));
             builder.pop(2);
 
@@ -59,7 +62,8 @@ public class Config
             builder.pop();
 
             builder.push("General Infection values");
-            this.mob_cap = builder.defineInRange("Max amount of mobs allowed in the world at once", 50, 0, Integer.MAX_VALUE);
+            this.mob_cap = builder.defineInRange("Max amount of mobs allowed in the world at once until encouraged despawning", 50, 0, Integer.MAX_VALUE);
+            this.distance_to_player_until_despawn = builder.defineInRange("Distance from the closest player until despawing is encouraged", 128, 0, Integer.MAX_VALUE);
             this.myiatic_convert_timer = builder.define("Time (in ticks) for Myiasis to convert mobs",
                     200);
             builder.pop();

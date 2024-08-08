@@ -2,6 +2,7 @@ package mod.pilot.entomophobia.entity.myiatic;
 
 import mod.azure.azurelib.animatable.GeoEntity;
 import mod.pilot.entomophobia.Config;
+import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.AI.*;
@@ -34,6 +35,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -243,14 +245,13 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         super.tick();
         setAIState(StateManager());
     }
-
     @Override
     public boolean hurt(DamageSource pSource, float pAmount) {
         boolean superFlag = true;
         Entity sourceEntity = pSource.getEntity();
         if (sourceEntity instanceof LivingEntity){
             if (TestValidEntity((LivingEntity)sourceEntity)){
-                for (MyiaticBase M : GetNearbyMyiatics()){
+                for (MyiaticBase M : GetNearbyMyiatics((int)(getAttributeValue(Attributes.FOLLOW_RANGE) * 2))){
                     if (M.getTarget() == null){
                         M.setTarget((LivingEntity)sourceEntity);
                     }
@@ -304,19 +305,27 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         return false;
     }
 
-    @Override
-    public void checkDespawn() {
-        super.checkDespawn();
-    }
 
     @Override
+    public void checkDespawn() {
+        Entity player = this.level().getNearestPlayer(this, -1.0D);
+        if (player != null && player.distanceTo(this) < Config.SERVER.distance_to_player_until_despawn.get()){
+            super.checkDespawn();
+        }
+        else if (Entomophobia.activeData.GetMyiaticCount() < Config.SERVER.mob_cap.get()){
+            this.discard();
+        }
+    }
+    @Override
     public boolean removeWhenFarAway(double pDistanceToClosestPlayer) {
-        if (level() instanceof ServerLevel server){
-            if (WorldSaveData.GetMyiaticCount(server) > Config.SERVER.mob_cap.get()){
-                return true;
-            }
+        if (Entomophobia.activeData.GetMyiaticCount() > Config.SERVER.mob_cap.get() && getTarget() == null){
+            return true;
         }
         return false;
+    }
+    @Override
+    public boolean isPersistenceRequired() {
+        return Entomophobia.activeData.GetMyiaticCount() < Config.SERVER.mob_cap.get() && getTarget() != null;
     }
     /**/
 

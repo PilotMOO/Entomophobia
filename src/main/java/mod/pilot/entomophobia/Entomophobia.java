@@ -7,6 +7,8 @@ import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.items.EntomoCreativeTabs;
 import mod.pilot.entomophobia.items.EntomoItems;
+import mod.pilot.entomophobia.sound.EntomoSounds;
+import mod.pilot.entomophobia.worlddata.WorldSaveData;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -21,6 +23,7 @@ public class Entomophobia
 {
     public static final String MOD_ID = "entomophobia";
     private static final Logger LOGGER = LogUtils.getLogger();
+    public static WorldSaveData activeData;
 
     public Entomophobia() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -29,6 +32,7 @@ public class Entomophobia
         EntomoItems.register(modEventBus);
         EntomoCreativeTabs.register(modEventBus);
         EntomoBlocks.register(modEventBus);
+        EntomoSounds.register(modEventBus);
         EntomoEntities.register(modEventBus);
         EntomoMobEffects.register(modEventBus);
 

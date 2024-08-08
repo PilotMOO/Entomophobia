@@ -1,3 +1,14 @@
 {
-
+  "myiatic_zombie_idle": {
+    "subtitles": "sounds.entomophobia:myiatic_zombie_idle",
+    "sounds": [
+      "entomophobia:myiatic_zombie_idle"
+    ]
+  },
+  "myiatic_flying": {
+    "subtitles": "sounds.entomophobia:myiatic_flying",
+    "sounds": [
+      "entomophobia:myiatic_flying"
+    ]
+  }
 }

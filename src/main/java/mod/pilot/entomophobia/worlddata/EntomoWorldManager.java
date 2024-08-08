@@ -1,7 +1,9 @@
 package mod.pilot.entomophobia.worlddata;
 
+import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
@@ -9,6 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class EntomoWorldManager {
 
@@ -26,12 +29,10 @@ public class EntomoWorldManager {
     }
 
     public static MyiaticBase SpawnFromStorage(EntityType<? extends MyiaticBase> myiaticType, Vec3 pos, Level world){
-        if (world instanceof ServerLevel server){
-            String ID = myiaticType.create(world).getEncodeId();
-            if (WorldSaveData.GetQuantityOf(server, ID) > 0){
-                WorldSaveData.RemoveFromStorage(server, ID);
-                return (MyiaticBase)CreateNewEntityAt(myiaticType, pos, world);
-            }
+        String ID = myiaticType.create(world).getEncodeId();
+        if (Entomophobia.activeData.GetQuantityOf( ID) > 0){
+            Entomophobia.activeData.RemoveFromStorage(ID);
+            return (MyiaticBase)CreateNewEntityAt(myiaticType, pos, world);
         }
         return null;
     }
@@ -39,6 +40,24 @@ public class EntomoWorldManager {
         RandomSource rand = RandomSource.create();
         return SpawnFromStorage(myiaticType, GetValidPosFor(originPos.add(rand.nextIntBetweenInclusive(-Magnitude, Magnitude), 0, rand.nextIntBetweenInclusive(-Magnitude, Magnitude)), world, myiaticType.create(world)), world);
     }
+    public static MyiaticBase SpawnAnythingFromStorage(Vec3 pos, Level world){
+        if (Entomophobia.activeData.GetTotalInStorage() > 0){
+            EntityType<? extends LivingEntity> type = (EntityType<? extends LivingEntity>)Entomophobia.activeData.GetFirstFromStorage();
+            if (type != null){
+                return (MyiaticBase)CreateNewEntityAt(type, pos, world);
+            }
+        }
+        return null;
+    }
+    public static MyiaticBase SpawnAnythingFromStorageWithRandomPos(Vec3 pos, Level world, int Magnitude){
+        EntityType<? extends LivingEntity> type = (EntityType<? extends LivingEntity>)Entomophobia.activeData.GetFirstFromStorage();
+        if (type != null){
+            RandomSource rand = RandomSource.create();
+            return (MyiaticBase)CreateNewEntityAt(type, GetValidPosFor(pos.add(rand.nextIntBetweenInclusive(-Magnitude, Magnitude), 0, rand.nextIntBetweenInclusive(-Magnitude, Magnitude)), world, (MyiaticBase) type.create(world)), world);
+        }
+        return null;
+    }
+
 
 
     public static Vec3 GetValidPosFor(Vec3 pos, Level world, MyiaticBase target){

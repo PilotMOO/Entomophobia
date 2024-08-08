@@ -22,5 +22,8 @@
   "death.attack.myiasis_damage2": "%1$s got maggot'd",
   "death.attack.myiasis_damage3": "%1$s didn't take a shower",
 
-  "death.attack.myiatic_explode": "%1$s was blown to smithereens by %2$s"
+  "death.attack.myiatic_explode": "%1$s was blown to smithereens by %2$s",
+
+  "sounds.entomophobia:myiatic_zombie_idle": "Myiatic Zombie groans",
+  "sounds.entomophobia:myiatic_flying": "Myiatic takes flight"
 }

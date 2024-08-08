@@ -6,12 +6,15 @@ import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.util.AzureLibUtil;
 import mod.pilot.entomophobia.entity.AI.DashAttackWithAnimationGoal;
+import mod.pilot.entomophobia.sound.EntomoSounds;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import mod.pilot.entomophobia.entity.AI.Flight.*;
+import org.jetbrains.annotations.Nullable;
 
 public class MyiaticZombieEntity extends MyiaticBase{
     public MyiaticZombieEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
@@ -80,5 +83,11 @@ public class MyiaticZombieEntity extends MyiaticBase{
     @Override
     public int getMaxFallDistance() {
         return Integer.MAX_VALUE;
+    }
+
+    @Nullable
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return EntomoSounds.MYIATIC_ZOMBIE_IDLE.get();
     }
 }

@@ -1,7 +1,10 @@
 package mod.pilot.entomophobia.entity.AI.Flight;
 
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
+import mod.pilot.entomophobia.sound.EntomoSounds;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
@@ -125,6 +128,7 @@ public class FlyToGoal extends Goal {
     protected void StartFlyCycle(){
         parent.getLookControl().setLookAt(finalPos);
         ManageStateSwitch(FlightStates.Ascending);
+        PlayFlySound();
     }
     protected void ManageStateSwitch(FlightStates flightStates){
         if (flightStates.ordinal() != FlightState){
@@ -229,6 +233,9 @@ public class FlyToGoal extends Goal {
         double Mulitplier = Math.min(1, DividedDifference);
         //Multiplies the multiper by the speed and returns it
         return HFlightSpeed * Mulitplier;
+    }
+    protected void PlayFlySound(){
+        parent.level().playSound(parent, parent.blockPosition(), EntomoSounds.MYIATIC_FLYING.get(), SoundSource.HOSTILE, 1.0f, 1.0f);
     }
     /**/
 }

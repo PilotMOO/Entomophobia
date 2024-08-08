@@ -4,11 +4,14 @@ import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.util.AzureLibUtil;
+import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.effects.PheromonesBase;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.worlddata.EntomoWorldManager;
+import mod.pilot.entomophobia.worlddata.WorldSaveData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -44,7 +47,9 @@ public class PheromonePreyHuntEntity extends PheromonesEntityBase implements Geo
         super.tick();
         AABB nearby = getBoundingBox().inflate(64);
         if (level().getEntitiesOfClass(MyiaticBase.class, nearby).size() < 8){
-            EntomoWorldManager.SpawnFromStorageWithRandomPos(EntomoEntities.MYIATIC_ZOMBIE.get(), position(), level(), 20);
+            for (int i = 0; i <= 8 - level().getEntitiesOfClass(MyiaticBase.class, nearby).size(); i++){
+                EntomoWorldManager.SpawnAnythingFromStorageWithRandomPos(position(), level(), 20);
+            }
         }
     }
 }
