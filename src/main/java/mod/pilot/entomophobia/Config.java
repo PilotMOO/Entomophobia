@@ -43,6 +43,7 @@ public class Config
                 "Myiatics:",
                     "myiatic_zombie",
                     "myiatic_creeper",
+                    "myiatic_spider",
                     "-",
                 "Festereds:",
                     "-",
@@ -58,7 +59,8 @@ public class Config
                             "minecraft:creeper","minecraft:squid","minecraft:bat","minecraft:armor_stand") , o -> o instanceof String);            builder.push("Mob Targeting");
             this.myiatic_conversion_list = builder.defineList("Mobs and their Myiatic forms [key = \"Base>Myiatic\"",
                     Lists.newArrayList(
-                            "minecraft:zombie>entomophobia:myiatic_zombie", "minecraft:creeper>entomophobia:myiatic_creeper") , o -> o instanceof String);
+                            "minecraft:zombie>entomophobia:myiatic_zombie", "minecraft:creeper>entomophobia:myiatic_creeper",
+                            "minecraft:spider>entomophobia:myiatic_spider") , o -> o instanceof String);
             builder.pop();
 
             builder.push("General Infection values");

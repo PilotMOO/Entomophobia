@@ -77,8 +77,8 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     }
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(AIState, -1);
-        this.entityData.define(Reach, 1f);
+        this.entityData.define(AIState, 0);
+        this.entityData.define(Reach, 0f);
     }
 
     public static int DodgeChance = 0;
@@ -235,7 +235,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         return false;
     }
     protected boolean PreyHuntPredicate(MyiaticBase parent){
-        return GetNearbyMyiatics(120).size() > 5 && GetValidTargets().size() > 3;
+        return GetNearbyMyiatics(128).size() > 5 && GetValidTargets().size() > 3;
     }
     /**/
 
@@ -304,7 +304,6 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             return flag;        }
         return false;
     }
-
 
     @Override
     public void checkDespawn() {

@@ -24,7 +24,7 @@ import java.util.ArrayList;
 public class PheromonePreyHuntEntity extends PheromonesEntityBase implements GeoAnimatable{
     public PheromonePreyHuntEntity(EntityType<? extends PathfinderMob> pEntityType, Level pLevel) {
         super(pEntityType, pLevel, (PheromonesBase)EntomoMobEffects.PREY.get(), (PheromonesBase)EntomoMobEffects.HUNT.get(),
-                120, 24, 2000, 0, 4000);
+                120, 24, 2000, 0, 4000, 1);
     }
 
     @Override

@@ -18,6 +18,8 @@ public class EntomoItems {
             () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_ZOMBIE, 10112885, 1386338, new Item.Properties()));
     public static final RegistryObject<Item> MYIATIC_CREEPER_SPAWNEGG = ITEMS.register("myiatic_creeper_spawnegg",
             () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_CREEPER, 10112885, 1386338, new Item.Properties()));
+    public static final RegistryObject<Item> MYIATIC_SPIDER_SPAWNEGG = ITEMS.register("myiatic_spider_spawnegg",
+            () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_SPIDER, 10112885, 1386338, new Item.Properties()));
 
     public static void register(IEventBus eventBus){
         ITEMS.register(eventBus);

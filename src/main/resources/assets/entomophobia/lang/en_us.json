@@ -1,9 +1,11 @@
 {
   "item.entomophobia.myiatic_zombie_spawnegg": "Myiatic Zombie Spawn",
   "item.entomophobia.myiatic_creeper_spawnegg": "Myiatic Creeper Spawn",
+  "item.entomophobia.myiatic_spider_spawnegg": "Myiatic Spider Spawn",
 
   "entity.entomophobia.myiatic_zombie": "Myiatic Zombie",
   "entity.entomophobia.myiatic_creeper": "Myiatic Creeper",
+  "entity.entomophobia.myiatic_spider": "Myiatic Spider",
   "entity.entomophobia.pheromone_prey/hunt": "Pheromone: Prey/Hunt",
   "entity.entomophobia.pheromone_null/frenzy": "Pheromone: Frenzy",
 

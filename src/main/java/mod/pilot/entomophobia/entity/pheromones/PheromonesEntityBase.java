@@ -23,7 +23,7 @@ import net.minecraft.world.phys.AABB;
 
 public abstract class PheromonesEntityBase extends PathfinderMob {
     public PheromonesEntityBase(EntityType<? extends PathfinderMob> pEntityType, Level pLevel, PheromonesBase BaseEffect, PheromonesBase MyiaticEffect,
-                                int MSpread, int BSpread, int Timer, int amp, int life) {
+                                int MSpread, int BSpread, int Timer, int amp, int life, double falloff) {
         super(pEntityType, pLevel);
         MyiaticPheromoneType = MyiaticEffect;
         BasePheromoneType = BaseEffect;
@@ -32,6 +32,7 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
         EffectBaseTimer = Timer;
         EffectAmp = amp;
         LifeMax = life;
+        Falloff = falloff;
     }
 
     //NBT and Variables
@@ -42,6 +43,7 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
     public static int EffectBaseTimer = 0;
     public int EffectAmp;
     public int LifeMax;
+    public double Falloff;
     public static final EntityDataAccessor<Integer> Life = SynchedEntityData.defineId(PheromonesEntityBase.class, EntityDataSerializers.INT);
     public int getLife(){return entityData.get(Life);}
     public void setLife(Integer count) {entityData.set(Life, count);}
@@ -71,13 +73,13 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
 
         if (MyiaticPheromoneType != null){
             for (LivingEntity entity : this.level().getEntitiesOfClass(MyiaticBase.class, MyiaticAABB, (M) -> !M.hasEffect(MyiaticPheromoneType))){
-                entity.addEffect(new MobEffectInstance(MyiaticPheromoneType, (int)(EffectBaseTimer * (BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE), EffectAmp));
+                entity.addEffect(new MobEffectInstance(MyiaticPheromoneType, (int)(EffectBaseTimer * ((BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE) * Falloff), EffectAmp));
                 AddLife(20);
             }
         }
         if (BasePheromoneType != null){
             for (LivingEntity entity : this.level().getEntitiesOfClass(LivingEntity.class, NonMyiaticAABB, (E) -> {return !(E instanceof MyiaticBase) && !(E instanceof PheromonesEntityBase) && !E.hasEffect(BasePheromoneType);})){
-                entity.addEffect(new MobEffectInstance(BasePheromoneType, (int)(EffectBaseTimer * (BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE), EffectAmp));
+                entity.addEffect(new MobEffectInstance(BasePheromoneType, (int)(EffectBaseTimer * ((BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE) * Falloff), EffectAmp));
                 AddLife(20);
             }
         }

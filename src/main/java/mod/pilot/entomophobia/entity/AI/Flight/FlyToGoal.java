@@ -225,7 +225,7 @@ public class FlyToGoal extends Goal {
         double AvgDistance2d = Mth.abs((float)((parent.position().x - finalPos.x) * (parent.position().z - finalPos.z))) / 2;
         //Gets the absolute distance between the target and the mob
         double YDistance = Mth.abs((float)(parent.position().y - finalPos.y));
-        //Tan = Opposite over Adjacent. Geometry!
+        //Tan = Opposite over Adjacent. Trigonometry!
         double TanOfParentPoint = AvgDistance2d / YDistance;
         // Divides the Tangent by 100-- turning it into a decimal multipier to be used to convert the final output
         double DividedDifference = 100 / TanOfParentPoint;

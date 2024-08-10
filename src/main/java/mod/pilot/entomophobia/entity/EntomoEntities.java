@@ -2,6 +2,7 @@ package mod.pilot.entomophobia.entity;
 
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticCreeperEntity;
+import mod.pilot.entomophobia.entity.myiatic.MyiaticSpiderEntity;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticZombieEntity;
 import mod.pilot.entomophobia.entity.pheromones.PheromoneFrenzyEntity;
 import mod.pilot.entomophobia.entity.pheromones.PheromonePreyHuntEntity;
@@ -22,7 +23,10 @@ public class EntomoEntities {
                     .sized(0.75f, 2f).build("myiatic_zombie"));
     public static final RegistryObject<EntityType<MyiaticCreeperEntity>> MYIATIC_CREEPER =
             ENTITY_TYPES.register("myiatic_creeper", () -> EntityType.Builder.of(MyiaticCreeperEntity::new, MobCategory.MONSTER)
-                    .sized(0.75f, 2f).build("myiatic_creeper"));
+                    .sized(0.75f, 1.5f).build("myiatic_creeper"));
+    public static final RegistryObject<EntityType<MyiaticSpiderEntity>> MYIATIC_SPIDER =
+            ENTITY_TYPES.register("myiatic_spider", () -> EntityType.Builder.of(MyiaticSpiderEntity::new, MobCategory.MONSTER)
+                    .sized(1f, 0.5f).build("myiatic_spider"));
 
     //Pheromone Entities
     public static final RegistryObject<EntityType<PheromonePreyHuntEntity>> PREYHUNT =
