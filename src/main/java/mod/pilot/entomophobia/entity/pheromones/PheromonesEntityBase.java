@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.entity.pheromones;
 
-import mod.pilot.entomophobia.effects.PheromonesBase;
+import mod.pilot.entomophobia.effects.pheromones.PheromonesBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -73,14 +73,18 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
 
         if (MyiaticPheromoneType != null){
             for (LivingEntity entity : this.level().getEntitiesOfClass(MyiaticBase.class, MyiaticAABB, (M) -> !M.hasEffect(MyiaticPheromoneType))){
-                entity.addEffect(new MobEffectInstance(MyiaticPheromoneType, (int)(EffectBaseTimer * ((BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE) * Falloff), EffectAmp));
-                AddLife(20);
+                if (entity.isAlive()){
+                    entity.addEffect(new MobEffectInstance(MyiaticPheromoneType, (int)(EffectBaseTimer * ((BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE) * Falloff), EffectAmp));
+                    AddLife(20);
+                }
             }
         }
         if (BasePheromoneType != null){
             for (LivingEntity entity : this.level().getEntitiesOfClass(LivingEntity.class, NonMyiaticAABB, (E) -> {return !(E instanceof MyiaticBase) && !(E instanceof PheromonesEntityBase) && !E.hasEffect(BasePheromoneType);})){
-                entity.addEffect(new MobEffectInstance(BasePheromoneType, (int)(EffectBaseTimer * ((BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE) * Falloff), EffectAmp));
-                AddLife(20);
+                if (entity.isAlive()){
+                    entity.addEffect(new MobEffectInstance(BasePheromoneType, (int)(EffectBaseTimer * ((BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE) * Falloff), EffectAmp));
+                    AddLife(20);
+                }
             }
         }
     }
@@ -129,10 +133,9 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
     /**/
 
     //Overridden Methods
-
     @Override
-    public void tick() {
-        super.tick();
+    public void aiStep() {
+        super.aiStep();
         SpawnParticles();
         AttemptToSpread();
         if (getLife() >= LifeMax){

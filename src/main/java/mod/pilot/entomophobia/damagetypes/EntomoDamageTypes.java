@@ -27,10 +27,18 @@ public class EntomoDamageTypes {
     public static final ResourceKey<DamageType> MYIATIC_BASIC2 = create("myiatic_basic2");
     public static final ResourceKey<DamageType> MYIATIC_BASIC3 = create("myiatic_basic3");
 
+    public static final ResourceKey<DamageType> LATCH_1 = create("latch_1");
+    public static final ResourceKey<DamageType> LATCH_2 = create("latch_2");
+    public static final ResourceKey<DamageType> LATCH_3 = create("latch_3");
+
 
     public static final ResourceKey<DamageType> MYAISIS_1 = create("myiasis_1");
     public static final ResourceKey<DamageType> MYAISIS_2 = create("myiasis_2");
     public static final ResourceKey<DamageType> MYAISIS_3 = create("myiasis_3");
+
+    public static final ResourceKey<DamageType> NEURO_1 = create("neuro_1");
+    public static final ResourceKey<DamageType> NEURO_2 = create("neuro_2");
+    public static final ResourceKey<DamageType> NEURO_3 = create("neuro_3");
 
 
     public static final ResourceKey<DamageType> MYIATIC_EXPLODE = create("myiatic_explode");
@@ -48,6 +56,24 @@ public class EntomoDamageTypes {
             }
         }
     }
+    public static DamageSource latch(LivingEntity entity){
+        switch (entity.getRandom().nextIntBetweenInclusive(1, 3)){
+            default -> {
+                return damageSource(entity, LATCH_1, entity);
+            }
+            case 2 -> {
+                return damageSource(entity, LATCH_2, entity);
+            }
+            case 3 -> {
+                return damageSource(entity, LATCH_3, entity);
+            }
+        }
+    }
+    public static DamageSource myiatic_explode(LivingEntity entity){
+        return damageSource(entity, MYIATIC_EXPLODE, entity);
+    }
+
+
     public static DamageSource myiasis(LivingEntity entity){
         switch (entity.getRandom().nextIntBetweenInclusive(1, 3)){
             default -> {
@@ -61,7 +87,18 @@ public class EntomoDamageTypes {
             }
         }
     }
-    public static DamageSource myiatic_explode(LivingEntity entity){
-        return damageSource(entity, MYIATIC_EXPLODE, entity);
+    public static DamageSource neuro(LivingEntity entity){
+        switch (entity.getRandom().nextIntBetweenInclusive(1, 3)){
+            default -> {
+                return damageSource(entity, NEURO_1);
+            }
+            case 2 -> {
+                return damageSource(entity, NEURO_2);
+            }
+            case 3 -> {
+                return damageSource(entity, NEURO_3);
+            }
+        }
     }
+
 }

@@ -1,4 +1,4 @@
-package mod.pilot.entomophobia.effects;
+package mod.pilot.entomophobia.effects.pheromones;
 
 public class PheromonePrey extends PheromonesBase {
     public PheromonePrey() {

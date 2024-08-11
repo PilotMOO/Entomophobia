@@ -1,13 +1,18 @@
 package mod.pilot.entomophobia.event;
 
 import mod.pilot.entomophobia.Entomophobia;
+import mod.pilot.entomophobia.effects.StackingEffectBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.worlddata.WorldSaveData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -43,5 +48,19 @@ public class EntomoHandlerEvents {
     @SubscribeEvent
     public static void ServerStart(ServerStartedEvent event){
         WorldSaveData.SetActiveData(event.getServer().overworld());
+    }
+
+    @SubscribeEvent
+    public static void PotionApplication(MobEffectEvent.Added event){
+        MobEffectInstance oldEffect = event.getOldEffectInstance();
+        MobEffectInstance newEffect = event.getEffectInstance();
+        if (oldEffect != null && oldEffect.getEffect() instanceof StackingEffectBase stacking){
+            LivingEntity target = event.getEntity();
+            int CumulativeDuration = oldEffect.getDuration() + newEffect.getDuration();
+            int amp = (int)Mth.absMax(oldEffect.getAmplifier(), newEffect.getAmplifier());
+
+            target.removeEffect(oldEffect.getEffect());
+            target.addEffect(new MobEffectInstance(oldEffect.getEffect(), CumulativeDuration, amp));
+        }
     }
 }

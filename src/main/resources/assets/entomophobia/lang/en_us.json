@@ -10,6 +10,7 @@
   "entity.entomophobia.pheromone_null/frenzy": "Pheromone: Frenzy",
 
   "effect.entomophobia.myiasis": "Myiasis",
+  "effect.entomophobia.neurointoxication": "Neurointoxication",
   "effect.entomophobia.prey": "Prey",
   "effect.entomophobia.hunt": "Hunt",
   "effect.entomophobia.frenzy": "Frenzy",
@@ -20,9 +21,17 @@
   "death.attack.myiatic_basic_damage2": "%1$s learned the definition of \"Entomophobia\"",
   "death.attack.myiatic_basic_damage3": "%1$s was consumed by the hive",
 
+  "death.attack.latch_damage1": "%1$s got a nice warm hug from %2$s",
+  "death.attack.latch_damage2": "%2$s got a bit too clingy, and %1$s didn't like it",
+  "death.attack.latch_damage3": "%2$s enjoyed chewing on %1$s's face",
+
   "death.attack.myiasis_damage1": "%1$s rotted away",
   "death.attack.myiasis_damage2": "%1$s got maggot'd",
   "death.attack.myiasis_damage3": "%1$s didn't take a shower",
+
+  "death.attack.neuro_damage1": "%1$s couldn't feel their toes",
+  "death.attack.neuro_damage2": "%1$s lost the final braincell",
+  "death.attack.neuro_damage3": "%1$s grew (even more) brain dead",
 
   "death.attack.myiatic_explode": "%1$s was blown to smithereens by %2$s",
 

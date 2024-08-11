@@ -96,7 +96,7 @@ public class FlyToHostileTargetGoal extends FlyToGoal{
             double distanceV = parent.position().y - target.position().y;
             if (distanceV > 0 && distanceV < TargetHeightThreshold){
                 float distance2d = new Vec2((float)parent.position().x, (float)parent.position().z).distanceToSqr(new Vec2((float)target.position().x, (float)target.position().z));
-                if ((Mth.sqrt(distance2d) < 1.5) || parent.IsThereABlockUnderMe(TargetHeightThreshold) && Mth.sqrt(distance2d) < 3){
+                if ((Mth.sqrt(distance2d) < 1.5) || parent.isThereABlockUnderMe(TargetHeightThreshold) && Mth.sqrt(distance2d) < 3){
                     ManageStateSwitch(FlightStates.Landed);
                     parent.setNoGravity(false);
                     parent.setDeltaMovement(0, 0, 0);

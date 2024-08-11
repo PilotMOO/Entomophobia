@@ -170,7 +170,7 @@ public class FlyToGoal extends Goal {
     protected void Ascend(){
         if (ActiveFlightTime > 0 && !AmITooHigh(parent.getTarget())){
             double hSpeed = CalculateSpeed();
-            Vec3 forwards = parent.getForward().multiply(hSpeed, 0, hSpeed);
+            Vec3 forwards = parent.getDirectionTo(finalPos).multiply(hSpeed, 0, hSpeed);
             double xSpeedMax = Mth.abs((float)parent.getDeltaMovement().x) > Mth.abs((float)forwards.x) ? parent.getDeltaMovement().x : forwards.x;
             double ySpeedMax = Mth.abs((float)parent.getDeltaMovement().y) > VFlightSpeed ? parent.getDeltaMovement().y : VFlightSpeed;
             double zSpeedMax = Mth.abs((float)parent.getDeltaMovement().z) > Mth.abs((float)forwards.z) ? parent.getDeltaMovement().z : forwards.z;
@@ -185,7 +185,7 @@ public class FlyToGoal extends Goal {
         if (!parent.verticalCollisionBelow){
             if (ActiveFlightTime > 0){
                 double hSpeed = CalculateSpeed();
-                Vec3 forwards = parent.getForward().multiply(hSpeed, 0, hSpeed);
+                Vec3 forwards = parent.getDirectionTo(finalPos).multiply(hSpeed, 0, hSpeed);
                 double xSpeedMax = Mth.abs((float)parent.getDeltaMovement().x) > Mth.abs((float)forwards.x) ? parent.getDeltaMovement().x : forwards.x;
                 double ySpeedMax = -VFlightSpeed / 2;
                 double zSpeedMax = Mth.abs((float)parent.getDeltaMovement().z) > Mth.abs((float)forwards.z) ? parent.getDeltaMovement().z : forwards.z;

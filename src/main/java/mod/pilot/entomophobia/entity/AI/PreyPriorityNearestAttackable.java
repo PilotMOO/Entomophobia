@@ -24,7 +24,7 @@ public class PreyPriorityNearestAttackable extends NearestAttackableTargetGoal<L
 
     @Override
     protected void findTarget() {
-        LivingEntity prey = mob.GetClosestPrey();
+        LivingEntity prey = mob.getClosestPrey();
         if (prey != null && mob.hasEffect(EntomoMobEffects.HUNT.get())){
             this.target = prey;
             wasPrey = true;

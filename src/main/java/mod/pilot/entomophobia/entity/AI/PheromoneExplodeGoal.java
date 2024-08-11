@@ -45,9 +45,15 @@ public class PheromoneExplodeGoal extends Goal {
         FuseTimer = 0;
         WantsToExplodePredicate = wantsToExplodePredicate;
     }
+
+    @Override
+    public boolean requiresUpdateEveryTick() {
+        return true;
+    }
+
     @Override
     public boolean canUse() {
-        return !parent.hasEffect(EntomoMobEffects.FRENZY.get());
+        return !parent.hasEffect(EntomoMobEffects.FRENZY.get()) && !parent.isThereAPheromoneOfTypeXNearby(EntomoEntities.FRENZY.get(), 128);
     }
 
     @Override
@@ -77,7 +83,7 @@ public class PheromoneExplodeGoal extends Goal {
             }
         }
         else{
-            MyiaticBase closestMyiatic = parent.GetClosestMyiatic();
+            MyiaticBase closestMyiatic = parent.getClosestMyiatic();
             if (closestMyiatic != null){
                 parent.getNavigation().moveTo(closestMyiatic, 1.25D);
                 if (parent.distanceTo(closestMyiatic) < 3){
@@ -89,7 +95,6 @@ public class PheromoneExplodeGoal extends Goal {
     }
 
     protected void AttemptToExplode(){
-        System.out.println("I'm aboutta blow!");
         isExploding = true;
         parent.setAIState(MyiaticBase.state.other.ordinal());
         FuseTimer++;

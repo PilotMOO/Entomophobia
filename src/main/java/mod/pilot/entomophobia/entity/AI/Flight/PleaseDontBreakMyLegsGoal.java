@@ -35,7 +35,7 @@ public class PleaseDontBreakMyLegsGoal extends FlyToGoal{
         if (!parent.verticalCollisionBelow){
             if (ActiveFlightTime > 0){
                 double hSpeed = CalculateSpeed();
-                Vec3 forwards = parent.getForward().multiply(hSpeed, 0, hSpeed);
+                Vec3 forwards = parent.getDirectionTo(finalPos).multiply(hSpeed, 0, hSpeed);
                 double xSpeedMax = Mth.abs((float)parent.getDeltaMovement().x) > Mth.abs((float)forwards.x) ? parent.getDeltaMovement().x : forwards.x;
                 double ySpeedMax = Math.min(parent.getDeltaMovement().y / 2, -VFlightSpeed * 4);
                 double zSpeedMax = Mth.abs((float)parent.getDeltaMovement().z) > Mth.abs((float)forwards.z) ? parent.getDeltaMovement().z : forwards.z;

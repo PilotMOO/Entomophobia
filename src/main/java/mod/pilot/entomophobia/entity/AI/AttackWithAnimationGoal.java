@@ -2,6 +2,7 @@ package mod.pilot.entomophobia.entity.AI;
 
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 
@@ -24,12 +25,7 @@ public class AttackWithAnimationGoal extends MeleeAttackGoal {
 
     @Override
     public boolean canUse() {
-        return super.canUse();
-    }
-
-    @Override
-    public boolean canContinueToUse() {
-        return super.canContinueToUse();
+        return super.canUse() && mob.getAIState() != MyiaticBase.state.flying.ordinal() && mob.getAIState() != MyiaticBase.state.other.ordinal();
     }
 
     @Override
@@ -43,7 +39,7 @@ public class AttackWithAnimationGoal extends MeleeAttackGoal {
         LivingEntity target = mob.getTarget();
         CD = CD > 0 ? CD - 1 : 0;
         if (target != null) {
-            if(mob.distanceTo(target) <= getAttackReachSqr(target) && CD <= 0){
+            if(mob.distanceTo(target) <= getAttackReach(target) && CD <= 0){
                 CurrentlyAttacking = true;
             }
         }
@@ -51,7 +47,7 @@ public class AttackWithAnimationGoal extends MeleeAttackGoal {
             mob.setAIState(MyiaticBase.state.attacking.ordinal());
             AttackTicker++;
             if (target != null) {
-                if (StrikePos == AttackTicker && mob.distanceTo(target) < getAttackReachSqr(target)){
+                if (StrikePos == AttackTicker && mob.distanceTo(target) < getAttackReach(target)){
                     mob.doHurtTarget(target);
                 }
             }
@@ -61,9 +57,8 @@ public class AttackWithAnimationGoal extends MeleeAttackGoal {
         }
     }
 
-    @Override
-    protected double getAttackReachSqr(LivingEntity pAttackTarget) {
-        return super.getAttackReachSqr(pAttackTarget) + mob.getReach();
+    protected double getAttackReach(LivingEntity pAttackTarget) {
+        return Mth.sqrt((float)getAttackReachSqr(pAttackTarget)) + mob.getReach();
     }
 
     @Override

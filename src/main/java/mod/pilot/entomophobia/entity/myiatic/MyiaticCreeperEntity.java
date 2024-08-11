@@ -66,16 +66,16 @@ public class MyiaticCreeperEntity extends MyiaticBase{
     protected void registerBasicGoals() {
         super.registerBasicGoals();
         this.targetSelector.addGoal(1, new AttackWithAnimationGoal(this, 1.0D, true, 20,  15, 20));
-        this.targetSelector.addGoal(1, new PheromoneExplodeGoal(this, 48, 32, 10, 15));
+        this.targetSelector.addGoal(1, new PheromoneExplodeGoal(this, 48, 32, 10, 30));
     }
     /**/
 
     //Unique Methods
     public boolean WantsToExplode(int pheromoneSearchRange, int myiaticSearchRange, int targetSearchRange){
-        if (!IsThereAPheromoneOfTypeXNearby(EntomoEntities.FRENZY.get(), pheromoneSearchRange)){
+        if (!isThereAPheromoneOfTypeXNearby(EntomoEntities.FRENZY.get(), pheromoneSearchRange)){
             double healthPercent = (getHealth() / getAttributeValue(Attributes.MAX_HEALTH)) * 100;
-            int NearbyMyiaticsCount = GetNearbyMyiatics(myiaticSearchRange).size();
-            int NearbyTargetsCount = GetValidTargets(targetSearchRange).size();
+            int NearbyMyiaticsCount = getNearbyMyiatics(myiaticSearchRange).size();
+            int NearbyTargetsCount = getValidTargets(targetSearchRange).size();
             if (healthPercent == 100){
                 return NearbyMyiaticsCount > 6 && NearbyTargetsCount > 8 || getTarget() instanceof Player && NearbyMyiaticsCount > 6;
             }
@@ -86,7 +86,7 @@ public class MyiaticCreeperEntity extends MyiaticBase{
                 return NearbyMyiaticsCount > 3 && NearbyTargetsCount > 1 || getTarget() instanceof Player;
             }
             else if (healthPercent < 15){
-                for (MyiaticBase M : GetNearbyMyiatics(myiaticSearchRange)){
+                for (MyiaticBase M : getNearbyMyiatics(myiaticSearchRange)){
                     if (M.getTarget() != null){
                         continue;
                     }
@@ -99,7 +99,7 @@ public class MyiaticCreeperEntity extends MyiaticBase{
     }
     /**/
 
-    //Overridden inherited methods
+    //Overridden methods
     @Override
     protected int StateManager() {
         if (getAIState() == state.other.ordinal()){
@@ -115,20 +115,19 @@ public class MyiaticCreeperEntity extends MyiaticBase{
             return state.idle.ordinal();
         }
     }
-    /**/
 
     @Override
     public boolean hurt(DamageSource pSource, float pAmount) {
         boolean superFlag = true;
         Entity sourceEntity = pSource.getEntity();
-        if (sourceEntity instanceof LivingEntity){
-            if (TestValidEntity((LivingEntity)sourceEntity)){
-                for (MyiaticBase M : GetNearbyMyiatics()){
+        if (sourceEntity instanceof LivingEntity LEntity){
+            if (TestValidEntity(LEntity)){
+                for (MyiaticBase M : getNearbyMyiatics()){
                     if (M.getTarget() == null){
-                        M.setTarget((LivingEntity)sourceEntity);
+                        M.setTarget(LEntity);
                     }
                 }
-                setTarget((LivingEntity)sourceEntity);
+                setTarget(LEntity);
             }
             if (sourceEntity instanceof MyiaticBase && sourceEntity != this){
                 superFlag = false;
@@ -144,4 +143,5 @@ public class MyiaticCreeperEntity extends MyiaticBase{
         }
         return false;
     }
+    /**/
 }

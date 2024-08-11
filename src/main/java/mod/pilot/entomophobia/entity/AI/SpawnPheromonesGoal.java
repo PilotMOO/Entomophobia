@@ -49,7 +49,7 @@ public class SpawnPheromonesGoal extends Goal {
     }
 
     private boolean CanSpawnPheromone() {
-        return CD <= 0 && !parent.IsThereAPheromoneOfTypeXNearby(PheroType, SearchRange);
+        return CD <= 0 && !parent.isThereAPheromoneOfTypeXNearby(PheroType, SearchRange);
     }
 
     private void SpawnPheromone() {

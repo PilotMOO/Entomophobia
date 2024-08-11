@@ -9,7 +9,9 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 
 import java.util.List;
@@ -49,9 +51,9 @@ public class LocateAndEatFoodOffTheFloorGoal extends Goal {
 
     private void EatFood() {
         ItemStack foodItem = targetItem.getItem();
-        if (foodItem.isEdible()){
-            int foodAmount = foodItem.getCount();
-            int healAmount = foodItem.getFoodProperties(parent).getNutrition() * 40;
+        FoodProperties properties = foodItem.getFoodProperties(parent);
+        if (foodItem.isEdible() && properties != null){
+            int healAmount = properties.getNutrition() * 80;
             int amp = 0;
             if (parent.hasEffect(MobEffects.HUNGER)){
                 healAmount /= 4;
@@ -60,13 +62,12 @@ public class LocateAndEatFoodOffTheFloorGoal extends Goal {
                 healAmount /= 2;
                 amp++;
             }
-            if (foodAmount > 0){
-                targetItem.getItem().setCount(foodAmount - 1);
+            if (foodItem.getCount() > 0){
+                foodItem.shrink(1);
                 parent.addEffect(new MobEffectInstance(MobEffects.REGENERATION, healAmount, amp));
-                if (foodItem.getFoodProperties(parent) != null){
-                    for (Pair<MobEffectInstance, Float> foodEffect : foodItem.getFoodProperties(parent).getEffects()) {
-                        parent.addEffect(foodEffect.getFirst());
-                    }
+                parent.gameEvent(GameEvent.EAT);
+                for (Pair<MobEffectInstance, Float> effectPair : properties.getEffects()) {
+                    parent.addEffect(effectPair.getFirst());
                 }
             }
             parent.level().playSound(parent, parent.blockPosition(), SoundEvents.GENERIC_EAT, SoundSource.HOSTILE, 2.0f, 0.75f);

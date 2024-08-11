@@ -1,4 +1,4 @@
-package mod.pilot.entomophobia.effects;
+package mod.pilot.entomophobia.effects.pheromones;
 
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;

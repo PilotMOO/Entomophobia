@@ -1,12 +1,17 @@
 package mod.pilot.entomophobia.entity.AI;
 
+import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticSpiderEntity;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.phys.Vec3;
 
 public class PounceOnTargetGoal extends Goal {
@@ -20,10 +25,11 @@ public class PounceOnTargetGoal extends Goal {
     int HitTicker;
     final int HitAnimLength;
     int PounceState;
-    final int PounceAnimLength;
-    int PounceTimer;
     double PounceHSpeed;
-    public PounceOnTargetGoal(MyiaticBase parent, double distance, int CD, int HitCD, int hitAnimPos, int hitAnimLength, int pounceAnimLength, double pounceHSpeed){
+    double PounceVSpeed;
+    float PriorRot;
+    LivingEntity latchedTarget = null;
+    public PounceOnTargetGoal(MyiaticBase parent, double distance, int CD, int HitCD, int hitAnimPos, int hitAnimLength, double pounceHSpeed, double pounceVSpeed){
         this.parent = parent;
         Distance = distance;
         CDMax = CD;
@@ -32,9 +38,8 @@ public class PounceOnTargetGoal extends Goal {
         this.HitCD = HitCD;
         HitAnimPos = hitAnimPos;
         HitAnimLength = hitAnimLength;
-        PounceAnimLength = pounceAnimLength;
         PounceHSpeed = pounceHSpeed;
-        PounceTimer = 0;
+        PounceVSpeed = pounceVSpeed;
         PounceState = 0;
         HitTicker = 0;
     }
@@ -50,6 +55,7 @@ public class PounceOnTargetGoal extends Goal {
 
     @Override
     public void tick() {
+        PriorRot = parent.getYRot();
         if (parent.getTarget() != null){
             switch (PounceState){
                 case 2 -> Pounce();
@@ -69,17 +75,7 @@ public class PounceOnTargetGoal extends Goal {
         if (parent.distanceTo(target) < Distance){
             CD = CD > 0 ? CD - 1 : 0;
             if (CD == 0){
-                parent.setYBodyRot((float)parent.getLookControl().getWantedY());
-                parent.getNavigation().moveTo(parent, 1.0);
-                PounceState = 1;
-                parent.setAIState(MyiaticBase.state.other.ordinal());
-                if (parent instanceof MyiaticSpiderEntity){
-                    ((MyiaticSpiderEntity)parent).setPounceState(MyiaticSpiderEntity.PounceStates.GettingReady.ordinal());
-                }
-                PounceTimer++;
-                if (PounceTimer >= PounceAnimLength){
-                    PounceState = 2;
-                }
+                PounceState = 2;
             }
         }
         else{
@@ -87,34 +83,50 @@ public class PounceOnTargetGoal extends Goal {
             CD = CDMax;
         }
     }
+    protected void Pounce(){
+        parent.setDeltaMovement(parent.getDeltaMovement().add(parent.getDirectionToTarget().multiply(PounceHSpeed, 0, PounceHSpeed)).add(0, CalculateVSpeed(), 0));
+        CD = CDMax;
+        PounceState = 3;
+    }
     protected void MidAirChecks() {
-        if (parent.distanceTo(parent.getTarget()) < 1.5){
-            PounceState = 4;
-            if (parent instanceof MyiaticSpiderEntity){
-                ((MyiaticSpiderEntity)parent).setPounceState(MyiaticSpiderEntity.PounceStates.Attached.ordinal());
+        LivingEntity target = parent.getTarget();
+        if (parent.distanceTo(target) < 1.5){
+            if (target instanceof Player player){
+                if (player.isBlocking()/* && Mth.abs(parent.getYRot() - player.getYRot()) < 180*/){
+                    if (player.getOffhandItem().getItem() instanceof ShieldItem shield){
+                        player.getCooldowns().addCooldown(shield, 100);
+                    }
+                    if (player.getMainHandItem().getItem() instanceof ShieldItem shield){
+                        player.getCooldowns().addCooldown(shield, 100);
+                    }
+                    parent.setDeltaMovement(parent.getDeltaMovement().reverse());
+                    stop();
+                }
+                else{
+                    latchedTarget = player;
+                    PounceState = 4;
+                }
+            }
+            else{
+                latchedTarget = target;
+                PounceState = 4;
             }
         }
         else if (parent.verticalCollision || parent.horizontalCollision || parent.isInWater()){
             stop();
         }
     }
-    protected void Pounce(){
-        parent.setDeltaMovement(parent.getDeltaMovement().add(parent.getForward().multiply(PounceHSpeed, CalculateVSpeed(), PounceHSpeed)));
-        parent.setAIState(MyiaticBase.state.other.ordinal());
-        if (parent instanceof MyiaticSpiderEntity){
-            ((MyiaticSpiderEntity)parent).setPounceState(MyiaticSpiderEntity.PounceStates.Midair.ordinal());
-        }
-        CD = CDMax;
-        PounceState = 3;
-    }
     protected void GrabOntoPrey() {
-        parent.getLookControl().setLookAt(parent.getTarget());
-        parent.setPos(GetTargetLatchPos());
-        parent.resetFallDistance();
-        if (parent instanceof MyiaticSpiderEntity){
-            ((MyiaticSpiderEntity)parent).setPounceState(MyiaticSpiderEntity.PounceStates.Attached.ordinal());
+        if (latchedTarget == parent.getTarget()){
+            parent.getLookControl().setLookAt(parent.getDirectionFromTarget());
+            parent.setPos(GetTargetLatchPos());
+            parent.resetFallDistance();
+            parent.setAIState(MyiaticBase.state.other.ordinal());
+            StrikeAttachedTarget();
         }
-        StrikeAttachedTarget();
+        else{
+            stop();
+        }
     }
     protected void StrikeAttachedTarget() {
         HitCD = HitCD > 0 ? HitCD - 1 : 0;
@@ -122,7 +134,6 @@ public class PounceOnTargetGoal extends Goal {
             HitTicker++;
             if (HitTicker == HitAnimPos){
                 LivingEntity target = parent.getTarget();
-                target.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20));
                 parent.doHurtTarget(target);
             }
             else if (HitTicker >= HitAnimLength){
@@ -135,13 +146,11 @@ public class PounceOnTargetGoal extends Goal {
     @Override
     public void stop() {
         PounceState = 1;
-        CD = 0;
-        HitCD = -1;
+        CD = CDMax;
+        HitCD = HitCDMax;
         HitTicker = 0;
+        latchedTarget = null;
         parent.setAIState(MyiaticBase.state.idle.ordinal());
-        if (parent instanceof MyiaticSpiderEntity){
-            ((MyiaticSpiderEntity)parent).setPounceState(MyiaticSpiderEntity.PounceStates.NotPouncing.ordinal());
-        }
     }
 
     protected double CalculateVSpeed(){
@@ -159,9 +168,9 @@ public class PounceOnTargetGoal extends Goal {
         //Returns the smaller number-- if Tan was 90, DividedDifference would return 1.111...1 which is not exactly needed
         double Mulitplier = Math.min(1, DividedDifference);
         //Multiplies the multiper by the speed and returns it
-        return 3 /* Mulitplier*/;
+        return PounceVSpeed * Mulitplier;
     }
     protected Vec3 GetTargetLatchPos(){
-        return parent.getTarget().position().add(parent.getForward().reverse().multiply(parent.getTarget().getBbWidth() / 2, 0, parent.getTarget().getBbWidth() / 2)).add(0, parent.getTarget().getBbHeight() / 2, 0);
+        return parent.getTarget().position().add(parent.getForward().reverse().multiply(parent.getTarget().getBbWidth() / 2, 0, parent.getTarget().getBbWidth() / 2)).add(0, parent.getTarget().getBbHeight() * 0.75, 0);
     }
 }

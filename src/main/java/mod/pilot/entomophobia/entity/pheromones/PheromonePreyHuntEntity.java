@@ -4,22 +4,14 @@ import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.util.AzureLibUtil;
-import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
-import mod.pilot.entomophobia.effects.PheromonesBase;
-import mod.pilot.entomophobia.entity.EntomoEntities;
+import mod.pilot.entomophobia.effects.pheromones.PheromonesBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.worlddata.EntomoWorldManager;
-import mod.pilot.entomophobia.worlddata.WorldSaveData;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-
-import java.util.ArrayList;
 
 public class PheromonePreyHuntEntity extends PheromonesEntityBase implements GeoAnimatable{
     public PheromonePreyHuntEntity(EntityType<? extends PathfinderMob> pEntityType, Level pLevel) {

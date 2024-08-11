@@ -5,7 +5,7 @@ import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.util.AzureLibUtil;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
-import mod.pilot.entomophobia.effects.PheromonesBase;
+import mod.pilot.entomophobia.effects.pheromones.PheromonesBase;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.level.Level;

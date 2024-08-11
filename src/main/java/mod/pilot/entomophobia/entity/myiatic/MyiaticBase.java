@@ -8,13 +8,13 @@ import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.AI.*;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
-import mod.pilot.entomophobia.worlddata.WorldSaveData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -31,11 +31,12 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -45,6 +46,10 @@ import java.util.function.Predicate;
 public abstract class MyiaticBase extends Monster implements GeoEntity {
     protected MyiaticBase(EntityType<? extends Monster> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
+        this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, -3.0f);
+        this.setPathfindingMalus(BlockPathTypes.WATER_BORDER, -2.0f);
+        this.setPathfindingMalus(BlockPathTypes.WATER, -1.0f);
+        this.setPathfindingMalus(BlockPathTypes.LEAVES, 4.0f);
     }
 
     //NBT
@@ -97,6 +102,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         this.goalSelector.addGoal(3, new RandomStrollGoal(this, 0.75D, 80));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(3, new LocateAndEatFoodOffTheFloorGoal(this, 20));
+        this.goalSelector.addGoal(1, new BreakBlocksInMyWayGoal(this));
     }
     protected void registerFlightGoals(){}
     protected void registerPheromoneGoals(){
@@ -108,13 +114,6 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     public DamageSource GetDamageSource(){
         return EntomoDamageTypes.myiatic_basic(this);
     }
-    public boolean isChasing(){
-        return this.isAggressive() && this.getDeltaMovement().x != 0 || this.getDeltaMovement().z != 0;
-    }
-    public boolean isMoving(){
-        return this.getDeltaMovement().x != 0 || this.getDeltaMovement().z != 0;
-    }
-
     protected int StateManager(){
         if (getAIState() == state.flying.ordinal()){
             return getAIState();
@@ -130,7 +129,18 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         }
         return getAIState();
     }
-    public boolean IsThereABlockUnderMe(int VerticalSearchRange){
+    protected boolean PreyHuntPredicate(MyiaticBase parent){
+        return getNearbyMyiatics(128).size() > 5 && getValidTargets().size() > 3;
+    }
+
+
+    public boolean isChasing(){
+        return getTarget() != null && this.getDeltaMovement().x != 0 || this.getDeltaMovement().z != 0;
+    }
+    public boolean isMoving(){
+        return this.getDeltaMovement().x != 0 || this.getDeltaMovement().z != 0;
+    }
+    public boolean isThereABlockUnderMe(int VerticalSearchRange){
         BlockPos pos = blockPosition();
         for (int i = 1; i < VerticalSearchRange + 1; i++){
             Level world = level();
@@ -143,22 +153,22 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         }
         return false;
     }
-    public ArrayList<LivingEntity> GetValidTargets(int searchRange){
+    public ArrayList<LivingEntity> getValidTargets(int searchRange){
         AABB nearby = getBoundingBox().inflate(searchRange);
         return new ArrayList<>(level().getEntitiesOfClass(LivingEntity.class, nearby, this::TestValidEntity));
     }
-    public ArrayList<LivingEntity> GetValidTargets(){
-        return GetValidTargets((int)getAttributeValue(Attributes.FOLLOW_RANGE));
+    public ArrayList<LivingEntity> getValidTargets(){
+        return getValidTargets((int)getAttributeValue(Attributes.FOLLOW_RANGE));
     }
-    public ArrayList<LivingEntity> GetNearbyPrey(){
+    public ArrayList<LivingEntity> getNearbyPrey(){
         AABB nearby = getBoundingBox().inflate((int)getAttributeValue(Attributes.FOLLOW_RANGE));
         return new ArrayList<>(level().getEntitiesOfClass(LivingEntity.class, nearby, (P) -> TestValidEntity(P) && P.hasEffect(EntomoMobEffects.PREY.get())));
     }
-    public LivingEntity GetClosestPrey(){
+    public LivingEntity getClosestPrey(){
         LivingEntity closest = null;
         double distance = Double.MAX_VALUE;
 
-        for (LivingEntity L : GetNearbyPrey()){
+        for (LivingEntity L : getNearbyPrey()){
             if (closest != null){
                 if (L.distanceTo(this) < distance){
                     closest = L;
@@ -172,24 +182,24 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         }
         return closest;
     }
-    public ArrayList<MyiaticBase> GetNearbyMyiatics(int searchRange, Predicate<MyiaticBase> myiaticPredicate){
+    public ArrayList<MyiaticBase> getNearbyMyiatics(int searchRange, Predicate<MyiaticBase> myiaticPredicate){
         AABB nearby = getBoundingBox().inflate(searchRange);
         return new ArrayList<>(level().getEntitiesOfClass(MyiaticBase.class, nearby, myiaticPredicate));
     }
-    public ArrayList<MyiaticBase> GetNearbyMyiatics(Predicate<MyiaticBase> myiaticPredicate){
-        return GetNearbyMyiatics((int)getAttributeValue(Attributes.FOLLOW_RANGE), myiaticPredicate);
+    public ArrayList<MyiaticBase> getNearbyMyiatics(Predicate<MyiaticBase> myiaticPredicate){
+        return getNearbyMyiatics((int)getAttributeValue(Attributes.FOLLOW_RANGE), myiaticPredicate);
     }
-    public ArrayList<MyiaticBase> GetNearbyMyiatics(int searchRange){
-        return GetNearbyMyiatics(searchRange, (M) -> true);
+    public ArrayList<MyiaticBase> getNearbyMyiatics(int searchRange){
+        return getNearbyMyiatics(searchRange, (M) -> true);
     }
-    public ArrayList<MyiaticBase> GetNearbyMyiatics(){
-        return GetNearbyMyiatics((int)getAttributeValue(Attributes.FOLLOW_RANGE));
+    public ArrayList<MyiaticBase> getNearbyMyiatics(){
+        return getNearbyMyiatics((int)getAttributeValue(Attributes.FOLLOW_RANGE));
     }
-    public MyiaticBase GetClosestMyiatic(int searchRange){
+    public MyiaticBase getClosestMyiatic(int searchRange){
         MyiaticBase closest = null;
         double distance = Double.MAX_VALUE;
 
-        for (MyiaticBase M : GetNearbyMyiatics(searchRange)){
+        for (MyiaticBase M : getNearbyMyiatics(searchRange)){
             if (closest != null){
                 if (M.distanceTo(this) < distance){
                     closest = M;
@@ -203,10 +213,10 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         }
         return closest;
     }
-    public MyiaticBase GetClosestMyiatic(){
-        return GetClosestMyiatic((int)getAttributeValue(Attributes.FOLLOW_RANGE));
+    public MyiaticBase getClosestMyiatic(){
+        return getClosestMyiatic((int)getAttributeValue(Attributes.FOLLOW_RANGE));
     }
-    public boolean IsThereAPheromoneOfTypeXNearby(EntityType<? extends PheromonesEntityBase> type, int searchRange){
+    public boolean isThereAPheromoneOfTypeXNearby(EntityType<? extends PheromonesEntityBase> type, int searchRange){
         String instance = type.create(level()).getEncodeId();
 
         AABB nearby = getBoundingBox().inflate(searchRange);
@@ -219,8 +229,32 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         }
         return false;
     }
-    public boolean IsThereAPheromoneOfTypeXNearby(EntityType<? extends PheromonesEntityBase> type){
-        return IsThereAPheromoneOfTypeXNearby(type, (int)getAttributeValue(Attributes.FOLLOW_RANGE));
+    public boolean isThereAPheromoneOfTypeXNearby(EntityType<? extends PheromonesEntityBase> type){
+        return isThereAPheromoneOfTypeXNearby(type, (int)getAttributeValue(Attributes.FOLLOW_RANGE));
+    }
+    public Vec3 getDirectionTo(Vec3 pos){
+        if (pos != null){
+            return pos.subtract(position()).normalize();
+        }
+        return null;
+    }
+    public Vec3 getDirectionFrom(Vec3 pos){
+        if (pos != null){
+            return position().subtract(pos).normalize();
+        }
+        return null;
+    }
+    public Vec3 getDirectionToTarget(){
+        if (getTarget() != null){
+            return getDirectionTo(getTarget().position());
+        }
+        return null;
+    }
+    public Vec3 getDirectionFromTarget(){
+        if (getTarget() != null){
+            return getDirectionFrom(getTarget().position());
+        }
+        return null;
     }
 
     protected boolean TryToDodge() {
@@ -234,8 +268,20 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     protected boolean CanDodge(){
         return false;
     }
-    protected boolean PreyHuntPredicate(MyiaticBase parent){
-        return GetNearbyMyiatics(128).size() > 5 && GetValidTargets().size() > 3;
+    public void BreakBlocksInMyWay(){
+        AABB breakBox = getBoundingBox().inflate(1.2);
+        for (BlockPos pos : BlockPos.betweenClosed((int)breakBox.minX, (int)breakBox.minY, (int)breakBox.minZ, (int)breakBox.maxX, (int)breakBox.maxY, (int)breakBox.maxZ)){
+            BlockState state = level().getBlockState(pos);
+            if (state.is(BlockTags.LEAVES) || isThisGlass(state) || state.getBlock() instanceof BambooStalkBlock){
+                level().removeBlock(pos, false);
+                level().levelEvent(2001, pos, Block.getId(level().getBlockState(pos)));
+                level().playSound(this, pos, state.getSoundType().getBreakSound(), SoundSource.BLOCKS, 0.5f, 1.25f);
+            }
+        }
+    }
+    protected boolean isThisGlass(BlockState state){
+        Block block = state.getBlock();
+        return block instanceof GlassBlock || block instanceof StainedGlassBlock || block instanceof StainedGlassPaneBlock || state.is(Blocks.GLASS_PANE);
     }
     /**/
 
@@ -249,14 +295,14 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     public boolean hurt(DamageSource pSource, float pAmount) {
         boolean superFlag = true;
         Entity sourceEntity = pSource.getEntity();
-        if (sourceEntity instanceof LivingEntity){
-            if (TestValidEntity((LivingEntity)sourceEntity)){
-                for (MyiaticBase M : GetNearbyMyiatics((int)(getAttributeValue(Attributes.FOLLOW_RANGE) * 2))){
+        if (sourceEntity instanceof LivingEntity LEntity){
+            if (TestValidEntity(LEntity)){
+                for (MyiaticBase M : getNearbyMyiatics((int)(getAttributeValue(Attributes.FOLLOW_RANGE) * 2))){
                     if (M.getTarget() == null){
-                        M.setTarget((LivingEntity)sourceEntity);
+                        M.setTarget(LEntity);
                     }
                 }
-                setTarget((LivingEntity)sourceEntity);
+                setTarget(LEntity);
             }
             if (sourceEntity instanceof MyiaticBase){
                 superFlag = false;
@@ -301,7 +347,8 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
                 this.setLastHurtMob(pEntity);
             }
 
-            return flag;        }
+            return flag;
+        }
         return false;
     }
 
@@ -311,7 +358,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         if (player != null && player.distanceTo(this) < Config.SERVER.distance_to_player_until_despawn.get()){
             super.checkDespawn();
         }
-        else if (Entomophobia.activeData.GetMyiaticCount() < Config.SERVER.mob_cap.get()){
+        else if (Entomophobia.activeData.GetMyiaticCount() > Config.SERVER.mob_cap.get()){
             this.discard();
         }
     }
@@ -324,7 +371,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     }
     @Override
     public boolean isPersistenceRequired() {
-        return Entomophobia.activeData.GetMyiaticCount() < Config.SERVER.mob_cap.get() && getTarget() != null;
+        return Entomophobia.activeData.GetMyiaticCount() < Config.SERVER.mob_cap.get() || getTarget() != null;
     }
     /**/
 
