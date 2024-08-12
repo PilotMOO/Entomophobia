@@ -1,20 +1,14 @@
 package mod.pilot.entomophobia.entity.AI;
 
-import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
-import mod.pilot.entomophobia.entity.myiatic.MyiaticSpiderEntity;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.phys.Vec3;
 
-public class PounceOnTargetGoal extends Goal {
+public class LatchOntoTargetGoal extends Goal {
     final MyiaticBase parent;
     final double Distance;
     final int CDMax;
@@ -29,7 +23,7 @@ public class PounceOnTargetGoal extends Goal {
     double PounceVSpeed;
     float PriorRot;
     LivingEntity latchedTarget = null;
-    public PounceOnTargetGoal(MyiaticBase parent, double distance, int CD, int HitCD, int hitAnimPos, int hitAnimLength, double pounceHSpeed, double pounceVSpeed){
+    public LatchOntoTargetGoal(MyiaticBase parent, double distance, int CD, int HitCD, int hitAnimPos, int hitAnimLength, double pounceHSpeed, double pounceVSpeed){
         this.parent = parent;
         Distance = distance;
         CDMax = CD;
@@ -72,7 +66,7 @@ public class PounceOnTargetGoal extends Goal {
     protected void PrePounceCheck() {
         LivingEntity target = parent.getTarget();
         parent.getLookControl().setLookAt(target);
-        if (parent.distanceTo(target) < Distance){
+        if (parent.distanceTo(target) < Distance && Mth.abs((float)(parent.position().y - target.position().y)) < 3){
             CD = CD > 0 ? CD - 1 : 0;
             if (CD == 0){
                 PounceState = 2;
@@ -92,12 +86,9 @@ public class PounceOnTargetGoal extends Goal {
         LivingEntity target = parent.getTarget();
         if (parent.distanceTo(target) < 1.5){
             if (target instanceof Player player){
-                if (player.isBlocking()/* && Mth.abs(parent.getYRot() - player.getYRot()) < 180*/){
-                    if (player.getOffhandItem().getItem() instanceof ShieldItem shield){
-                        player.getCooldowns().addCooldown(shield, 100);
-                    }
-                    if (player.getMainHandItem().getItem() instanceof ShieldItem shield){
-                        player.getCooldowns().addCooldown(shield, 100);
+                if (player.isBlocking()){
+                    if (player.getOffhandItem().getItem() instanceof ShieldItem || player.getMainHandItem().getItem() instanceof ShieldItem){
+                        player.disableShield(false);
                     }
                     parent.setDeltaMovement(parent.getDeltaMovement().reverse());
                     stop();

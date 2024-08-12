@@ -143,5 +143,9 @@ public class MyiaticCreeperEntity extends MyiaticBase{
         }
         return false;
     }
+    @Override
+    public int getExperienceReward() {
+        return 30;
+    }
     /**/
 }

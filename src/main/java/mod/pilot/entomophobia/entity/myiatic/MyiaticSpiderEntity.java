@@ -8,7 +8,7 @@ import mod.azure.azurelib.util.AzureLibUtil;
 import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.AI.AttackWithAnimationGoal;
-import mod.pilot.entomophobia.entity.AI.PounceOnTargetGoal;
+import mod.pilot.entomophobia.entity.AI.LatchOntoTargetGoal;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -17,7 +17,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
@@ -78,7 +77,7 @@ public class MyiaticSpiderEntity extends MyiaticBase{
     protected void registerBasicGoals() {
         super.registerBasicGoals();
         this.targetSelector.addGoal(1, new AttackWithAnimationGoal(this, 1.0D, true, 10, 15, 20));
-        this.targetSelector.addGoal(2, new PounceOnTargetGoal(this, 10, 60, 0, 15, 20, 1.5D, 0.5D));
+        this.targetSelector.addGoal(2, new LatchOntoTargetGoal(this, 10, 60, 0, 15, 20, 1.5D, 0.5D));
     }
     @Override
     protected int StateManager() {
@@ -160,6 +159,11 @@ public class MyiaticSpiderEntity extends MyiaticBase{
         if (!pState.is(Blocks.COBWEB)) {
             super.makeStuckInBlock(pState, pMotionMultiplier);
         }
+    }
+
+    @Override
+    public int getExperienceReward() {
+        return 7;
     }
     /**/
 }

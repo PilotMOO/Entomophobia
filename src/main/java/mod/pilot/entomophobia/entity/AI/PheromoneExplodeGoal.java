@@ -57,6 +57,11 @@ public class PheromoneExplodeGoal extends Goal {
     }
 
     @Override
+    public boolean canContinueToUse() {
+        return super.canContinueToUse() || isExploding;
+    }
+
+    @Override
     public void tick() {
         if (!isExploding){
             if (parent instanceof MyiaticCreeperEntity){

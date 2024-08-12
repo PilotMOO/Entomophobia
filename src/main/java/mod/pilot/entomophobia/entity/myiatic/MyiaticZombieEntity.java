@@ -53,11 +53,11 @@ public class MyiaticZombieEntity extends MyiaticBase{
 
     public static AttributeSupplier.Builder createAttributes(){
         return MyiaticZombieEntity.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 15D)
-                .add(Attributes.ARMOR, 3)
+                .add(Attributes.MAX_HEALTH, 20D)
+                .add(Attributes.ARMOR, 4)
                 .add(Attributes.FOLLOW_RANGE, 32)
                 .add(Attributes.MOVEMENT_SPEED, 0.35D)
-                .add(Attributes.ATTACK_DAMAGE, 4D)
+                .add(Attributes.ATTACK_DAMAGE, 5D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0.5D)
                 .add(Attributes.ATTACK_SPEED, 2D);
     }
@@ -80,14 +80,14 @@ public class MyiaticZombieEntity extends MyiaticBase{
         return true;
     }
 
-    @Override
-    public int getMaxFallDistance() {
-        return Integer.MAX_VALUE;
-    }
-
     @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
         return EntomoSounds.MYIATIC_ZOMBIE_IDLE.get();
+    }
+
+    @Override
+    public int getExperienceReward() {
+        return 10;
     }
 }

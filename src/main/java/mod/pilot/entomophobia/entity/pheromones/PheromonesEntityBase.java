@@ -73,17 +73,23 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
 
         if (MyiaticPheromoneType != null){
             for (LivingEntity entity : this.level().getEntitiesOfClass(MyiaticBase.class, MyiaticAABB, (M) -> !M.hasEffect(MyiaticPheromoneType))){
-                if (entity.isAlive()){
-                    entity.addEffect(new MobEffectInstance(MyiaticPheromoneType, (int)(EffectBaseTimer * ((BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE) * Falloff), EffectAmp));
-                    AddLife(20);
+                if (entity.isAlive() && hasLineOfSight(entity)){
+                    int duration = (int)(EffectBaseTimer * ((BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE) * Falloff);
+                    if (duration > 100){
+                        entity.addEffect(new MobEffectInstance(MyiaticPheromoneType, duration, EffectAmp));
+                        AddLife(20);
+                    }
                 }
             }
         }
         if (BasePheromoneType != null){
             for (LivingEntity entity : this.level().getEntitiesOfClass(LivingEntity.class, NonMyiaticAABB, (E) -> {return !(E instanceof MyiaticBase) && !(E instanceof PheromonesEntityBase) && !E.hasEffect(BasePheromoneType);})){
-                if (entity.isAlive()){
-                    entity.addEffect(new MobEffectInstance(BasePheromoneType, (int)(EffectBaseTimer * ((BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE) * Falloff), EffectAmp));
-                    AddLife(20);
+                if (entity.isAlive() && hasLineOfSight(entity)){
+                    int duration = (int)(EffectBaseTimer * ((BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE) * Falloff);
+                    if (duration > 100){
+                        entity.addEffect(new MobEffectInstance(BasePheromoneType, (int)(EffectBaseTimer * ((BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE) * Falloff), EffectAmp));
+                        AddLife(20);
+                    }
                 }
             }
         }
