@@ -3,7 +3,10 @@ package mod.pilot.entomophobia.items;
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticZombieEntity;
+import mod.pilot.entomophobia.items.custom.DangerousMilk;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.MilkBucketItem;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -20,6 +23,11 @@ public class EntomoItems {
             () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_CREEPER, 10112885, 1386338, new Item.Properties()));
     public static final RegistryObject<Item> MYIATIC_SPIDER_SPAWNEGG = ITEMS.register("myiatic_spider_spawnegg",
             () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_SPIDER, 10112885, 1386338, new Item.Properties()));
+    public static final RegistryObject<Item> MYIATIC_COW_SPAWNEGG = ITEMS.register("myiatic_cow_spawnegg",
+            () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_COW, 10112885, 1386338, new Item.Properties()));
+
+    public static final RegistryObject<Item> POISONOUS_MILK = ITEMS.register("milk_bucket",
+            () -> new DangerousMilk(new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1)));
 
     public static void register(IEventBus eventBus){
         ITEMS.register(eventBus);

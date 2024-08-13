@@ -23,6 +23,9 @@ public class EntomoCreativeTabs {
                         register.accept(EntomoItems.MYIATIC_ZOMBIE_SPAWNEGG.get());
                         register.accept(EntomoItems.MYIATIC_CREEPER_SPAWNEGG.get());
                         register.accept(EntomoItems.MYIATIC_SPIDER_SPAWNEGG.get());
+                        register.accept(EntomoItems.MYIATIC_COW_SPAWNEGG.get());
+
+                        register.accept(EntomoItems.POISONOUS_MILK.get());
                     })
                     .build());
 }

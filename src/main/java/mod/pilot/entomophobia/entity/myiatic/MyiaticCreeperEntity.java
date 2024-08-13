@@ -8,6 +8,8 @@ import mod.azure.azurelib.util.AzureLibUtil;
 import mod.pilot.entomophobia.entity.AI.AttackWithAnimationGoal;
 import mod.pilot.entomophobia.entity.AI.PheromoneExplodeGoal;
 import mod.pilot.entomophobia.entity.EntomoEntities;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -17,6 +19,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 public class MyiaticCreeperEntity extends MyiaticBase{
     public MyiaticCreeperEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
@@ -146,6 +149,15 @@ public class MyiaticCreeperEntity extends MyiaticBase{
     @Override
     public int getExperienceReward() {
         return 30;
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return SoundEvents.CREEPER_DEATH;
+    }
+    @Override
+    protected SoundEvent getHurtSound(DamageSource pDamageSource) {
+        return SoundEvents.CREEPER_HURT;
     }
     /**/
 }

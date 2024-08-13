@@ -8,6 +8,8 @@ import mod.azure.azurelib.util.AzureLibUtil;
 import mod.pilot.entomophobia.entity.AI.DashAttackWithAnimationGoal;
 import mod.pilot.entomophobia.sound.EntomoSounds;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -80,14 +82,22 @@ public class MyiaticZombieEntity extends MyiaticBase{
         return true;
     }
 
+    @Override
+    public int getExperienceReward() {
+        return 10;
+    }
+
     @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
         return EntomoSounds.MYIATIC_ZOMBIE_IDLE.get();
     }
-
     @Override
-    public int getExperienceReward() {
-        return 10;
+    protected SoundEvent getDeathSound() {
+        return SoundEvents.ZOMBIE_DEATH;
+    }
+    @Override
+    protected SoundEvent getHurtSound(DamageSource pDamageSource) {
+        return SoundEvents.ZOMBIE_HURT;
     }
 }

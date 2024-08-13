@@ -289,6 +289,9 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     @Override
     public void tick() {
         super.tick();
+        if (getTarget() != null && getTarget().isDeadOrDying()){
+            setTarget(null);
+        }
         setAIState(StateManager());
     }
     @Override
@@ -321,9 +324,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     @Override
     public boolean doHurtTarget(@Nullable Entity pEntity) {
         if (pEntity != null){
-            if (pEntity instanceof LivingEntity){
-                ((LivingEntity) pEntity).addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 1200));
-            }
+
             float f = (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE);
             float f1 = (float)this.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
             if (pEntity instanceof LivingEntity) {
@@ -338,9 +339,13 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
 
             boolean flag = pEntity.hurt(GetDamageSource(), f);
             if (flag) {
-                if (f1 > 0.0F && pEntity instanceof LivingEntity) {
-                    ((LivingEntity)pEntity).knockback((double)(f1 * 0.5F), (double)Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), (double)(-Mth.cos(this.getYRot() * ((float)Math.PI / 180F))));
-                    this.setDeltaMovement(this.getDeltaMovement().multiply(0.6D, 1.0D, 0.6D));
+                if (pEntity instanceof LivingEntity LEntity){
+                    LEntity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 1200));
+
+                    if (f1 > 0.0F) {
+                        ((LivingEntity)pEntity).knockback((double)(f1 * 0.5F), (double)Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), (double)(-Mth.cos(this.getYRot() * ((float)Math.PI / 180F))));
+                        this.setDeltaMovement(this.getDeltaMovement().multiply(0.6D, 1.0D, 0.6D));
+                    }
                 }
 
                 this.doEnchantDamageEffects(this, pEntity);

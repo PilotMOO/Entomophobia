@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia;
 
 import mod.pilot.entomophobia.entity.EntomoEntities;
+import mod.pilot.entomophobia.entity.client.myiatic.MyiaticCowRenderer;
 import mod.pilot.entomophobia.entity.client.myiatic.MyiaticCreeperRenderer;
 import mod.pilot.entomophobia.entity.client.myiatic.MyiaticSpiderRenderer;
 import mod.pilot.entomophobia.entity.client.myiatic.MyiaticZombieRenderer;
@@ -20,6 +21,7 @@ public class CilentManager {
         event.registerEntityRenderer(EntomoEntities.MYIATIC_ZOMBIE.get(), MyiaticZombieRenderer::new);
         event.registerEntityRenderer(EntomoEntities.MYIATIC_CREEPER.get(), MyiaticCreeperRenderer::new);
         event.registerEntityRenderer(EntomoEntities.MYIATIC_SPIDER.get(), MyiaticSpiderRenderer::new);
+        event.registerEntityRenderer(EntomoEntities.MYIATIC_COW.get(), MyiaticCowRenderer::new);
         event.registerEntityRenderer(EntomoEntities.PREYHUNT.get(), PheromonePreyHuntRenderer::new);
         event.registerEntityRenderer(EntomoEntities.FRENZY.get(), PheromoneFrenzyRenderer::new);
 

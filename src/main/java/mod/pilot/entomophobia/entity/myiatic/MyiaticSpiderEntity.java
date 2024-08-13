@@ -9,6 +9,8 @@ import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.AI.AttackWithAnimationGoal;
 import mod.pilot.entomophobia.entity.AI.LatchOntoTargetGoal;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -165,5 +167,19 @@ public class MyiaticSpiderEntity extends MyiaticBase{
     public int getExperienceReward() {
         return 7;
     }
+    @Nullable
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return SoundEvents.SPIDER_AMBIENT;
+    }
+    @Override
+    protected SoundEvent getDeathSound() {
+        return SoundEvents.SPIDER_DEATH;
+    }
+    @Override
+    protected SoundEvent getHurtSound(DamageSource pDamageSource) {
+        return SoundEvents.SPIDER_HURT;
+    }
+
     /**/
 }

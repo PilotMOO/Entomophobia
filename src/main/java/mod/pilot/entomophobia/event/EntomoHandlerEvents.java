@@ -3,16 +3,24 @@ package mod.pilot.entomophobia.event;
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.effects.StackingEffectBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
+import mod.pilot.entomophobia.entity.myiatic.MyiaticCowEntity;
+import mod.pilot.entomophobia.items.EntomoItems;
 import mod.pilot.entomophobia.worlddata.WorldSaveData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -61,6 +69,18 @@ public class EntomoHandlerEvents {
 
             target.removeEffect(oldEffect.getEffect());
             target.addEffect(new MobEffectInstance(oldEffect.getEffect(), CumulativeDuration, amp));
+        }
+    }
+
+    @SubscribeEvent
+    public static void MilkTheEvilCow(PlayerInteractEvent.EntityInteract event){
+        if (event.getTarget() instanceof MyiaticCowEntity MCow){
+            Player player = event.getEntity();
+            if (player.getMainHandItem().is(Items.BUCKET)){
+                player.level().playSound(MCow, MCow.blockPosition(), SoundEvents.COW_MILK, SoundSource.PLAYERS, 1.0f, 1.0f);
+                player.getMainHandItem().shrink(1);
+                player.getInventory().add(new ItemStack(EntomoItems.POISONOUS_MILK.get()));
+            }
         }
     }
 }
