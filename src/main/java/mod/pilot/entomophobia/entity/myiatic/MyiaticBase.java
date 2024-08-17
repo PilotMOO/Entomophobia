@@ -64,6 +64,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     public static final EntityDataAccessor<Integer> AIState = SynchedEntityData.defineId(MyiaticBase.class, EntityDataSerializers.INT);
     public int getAIState(){return entityData.get(AIState);}
     public void setAIState(Integer count) {entityData.set(AIState, count);}
+    public void setAIState(state ordinal) {entityData.set(AIState, ordinal.ordinal());}
     public static final EntityDataAccessor<Float> Reach = SynchedEntityData.defineId(MyiaticBase.class, EntityDataSerializers.FLOAT);
     public float getReach(){return entityData.get(Reach);}
     public void setReach(Float count) {entityData.set(Reach, count);}
@@ -115,7 +116,10 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         return EntomoDamageTypes.myiatic_basic(this);
     }
     protected int StateManager(){
-        if (getAIState() == state.flying.ordinal()){
+        if (getAIState() == state.other.ordinal()){
+            return state.other.ordinal();
+        }
+        else if (getAIState() == state.flying.ordinal()){
             return getAIState();
         }
         else if (isChasing() && getAIState() != state.attacking.ordinal()){

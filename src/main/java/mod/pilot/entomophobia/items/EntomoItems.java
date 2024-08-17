@@ -25,6 +25,13 @@ public class EntomoItems {
             () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_SPIDER, 10112885, 1386338, new Item.Properties()));
     public static final RegistryObject<Item> MYIATIC_COW_SPAWNEGG = ITEMS.register("myiatic_cow_spawnegg",
             () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_COW, 10112885, 1386338, new Item.Properties()));
+    public static final RegistryObject<Item> MYIATIC_SHEEP_SPAWNEGG = ITEMS.register("myiatic_sheep_spawnegg",
+            () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_SHEEP, 10112885, 1386338, new Item.Properties()));
+    public static final RegistryObject<Item> MYIATIC_PIG_SPAWNEGG = ITEMS.register("myiatic_pig_spawnegg",
+            () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_PIG, 10112885, 1386338, new Item.Properties()));
+    public static final RegistryObject<Item> MYIATIC_CHICKEN_SPAWNEGG = ITEMS.register("myiatic_chicken_spawnegg",
+            () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_CHICKEN, 10112885, 1386338, new Item.Properties()));
+
 
     public static final RegistryObject<Item> POISONOUS_MILK = ITEMS.register("milk_bucket",
             () -> new DangerousMilk(new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1)));

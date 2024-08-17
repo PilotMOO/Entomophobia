@@ -44,6 +44,10 @@ public class Config
                     "myiatic_zombie",
                     "myiatic_creeper",
                     "myiatic_spider",
+                    "myiatic_cow",
+                    "myiatic_sheep",
+                    "myiatic_pig",
+                    "myiatic_chicken",
                     "-",
                 "Festereds:",
                     "-",
@@ -60,7 +64,9 @@ public class Config
             this.myiatic_conversion_list = builder.defineList("Mobs and their Myiatic forms [key = \"Base>Myiatic\"",
                     Lists.newArrayList(
                             "minecraft:zombie>entomophobia:myiatic_zombie", "minecraft:creeper>entomophobia:myiatic_creeper",
-                            "minecraft:spider>entomophobia:myiatic_spider") , o -> o instanceof String);
+                            "minecraft:spider>entomophobia:myiatic_spider", "minecraft:cow>entomophobia:myiatic_cow",
+                            "minecraft:sheep>entomophobia:myiatic_sheep", "minecraft:pig>entomophobia:myiatic_pig",
+                            "minecraft:chicken>entomophobia:myiatic_chicken") , o -> o instanceof String);
             builder.pop();
 
             builder.push("General Infection values");

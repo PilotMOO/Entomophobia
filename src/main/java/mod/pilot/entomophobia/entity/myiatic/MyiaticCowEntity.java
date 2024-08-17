@@ -62,12 +62,12 @@ public class MyiaticCowEntity extends MyiaticBase{
 
     public static AttributeSupplier.Builder createAttributes(){
         return MyiaticCowEntity.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 25D)
+                .add(Attributes.MAX_HEALTH, 20D)
                 .add(Attributes.ARMOR, 4)
                 .add(Attributes.FOLLOW_RANGE, 32)
                 .add(Attributes.MOVEMENT_SPEED, 0.4D)
-                .add(Attributes.ATTACK_DAMAGE, 7D)
-                .add(Attributes.ATTACK_KNOCKBACK, 1.0D)
+                .add(Attributes.ATTACK_DAMAGE, 6D)
+                .add(Attributes.ATTACK_KNOCKBACK, 1.4D)
                 .add(Attributes.ATTACK_SPEED, 2D);
     }
 

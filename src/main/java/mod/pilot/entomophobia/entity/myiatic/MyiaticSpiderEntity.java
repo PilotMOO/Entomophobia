@@ -19,6 +19,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.ai.navigation.WallClimberNavigation;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
@@ -72,6 +74,10 @@ public class MyiaticSpiderEntity extends MyiaticBase{
                 .add(Attributes.ATTACK_SPEED, 2D);
     }
 
+    protected PathNavigation createNavigation(Level pLevel) {
+        return new WallClimberNavigation(this, pLevel);
+    }
+
 
 
     //Overridden methods
@@ -122,14 +128,22 @@ public class MyiaticSpiderEntity extends MyiaticBase{
                     pEntity.setSecondsOnFire(i * 4);
                 }
 
+                pEntity.invulnerableTime = 0;
                 boolean flag = pEntity.hurt(EntomoDamageTypes.latch(this), f);
                 if (flag) {
-                    if (pEntity instanceof LivingEntity){
-                        ((LivingEntity) pEntity).addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 1200));
-                        ((LivingEntity) pEntity).addEffect(new MobEffectInstance(EntomoMobEffects.NEUROINTOXICATION.get(), 100));
-                        ((LivingEntity) pEntity).addEffect(new MobEffectInstance(MobEffects.POISON, 200));
+                    if (pEntity instanceof LivingEntity LEntity){
+                        LEntity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 1200));
+                        LEntity.addEffect(new MobEffectInstance(EntomoMobEffects.NEUROINTOXICATION.get(), 100));
+                        int duration = 100;
+                        int amp = 0;
+                        if (LEntity.hasEffect(MobEffects.POISON)){
+                            MobEffectInstance poisonInstance = LEntity.getEffect(MobEffects.POISON);
+                            duration += poisonInstance.getDuration();
+                            amp = Math.max(amp, poisonInstance.getAmplifier());
+                            LEntity.removeEffect(MobEffects.POISON);
+                        }
+                        LEntity.addEffect(new MobEffectInstance(MobEffects.POISON, duration, amp));
                     }
-                    pEntity.invulnerableTime = 0;
                     this.doEnchantDamageEffects(this, pEntity);
                     this.setLastHurtMob(pEntity);
                 }
@@ -180,6 +194,5 @@ public class MyiaticSpiderEntity extends MyiaticBase{
     protected SoundEvent getHurtSound(DamageSource pDamageSource) {
         return SoundEvents.SPIDER_HURT;
     }
-
     /**/
 }

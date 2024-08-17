@@ -2,10 +2,7 @@ package mod.pilot.entomophobia.event;
 
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.entity.EntomoEntities;
-import mod.pilot.entomophobia.entity.myiatic.MyiaticCowEntity;
-import mod.pilot.entomophobia.entity.myiatic.MyiaticCreeperEntity;
-import mod.pilot.entomophobia.entity.myiatic.MyiaticSpiderEntity;
-import mod.pilot.entomophobia.entity.myiatic.MyiaticZombieEntity;
+import mod.pilot.entomophobia.entity.myiatic.*;
 import mod.pilot.entomophobia.entity.pheromones.PheromonePreyHuntEntity;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -19,6 +16,9 @@ public class EntomoEventBusEvents {
         event.put(EntomoEntities.MYIATIC_CREEPER.get(), MyiaticCreeperEntity.createAttributes().build());
         event.put(EntomoEntities.MYIATIC_SPIDER.get(), MyiaticSpiderEntity.createAttributes().build());
         event.put(EntomoEntities.MYIATIC_COW.get(), MyiaticCowEntity.createAttributes().build());
+        event.put(EntomoEntities.MYIATIC_SHEEP.get(), MyiaticSheepEntity.createAttributes().build());
+        event.put(EntomoEntities.MYIATIC_PIG.get(), MyiaticPigEntity.createAttributes().build());
+        event.put(EntomoEntities.MYIATIC_CHICKEN.get(), MyiaticChickenEntity.createAttributes().build());
         event.put(EntomoEntities.PREYHUNT.get(), PheromonePreyHuntEntity.createAttributes().build());
         event.put(EntomoEntities.FRENZY.get(), PheromonePreyHuntEntity.createAttributes().build());
     }
