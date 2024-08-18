@@ -11,7 +11,7 @@ import net.minecraft.world.level.Level;
 
 public class StringGrappleProjectile extends AbstractGrappleProjectile implements GeoAnimatable {
     public StringGrappleProjectile(EntityType<? extends AbstractArrow> pEntityType, Level pLevel) {
-        super(pEntityType, pLevel);
+        super(pEntityType, pLevel, true, true);
     }
 
     @Override

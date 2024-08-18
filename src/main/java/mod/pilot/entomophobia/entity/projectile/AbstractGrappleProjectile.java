@@ -1,12 +1,15 @@
 package mod.pilot.entomophobia.entity.projectile;
 
+import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.worlddata.EntomoDataManager;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -22,8 +25,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 public abstract class AbstractGrappleProjectile extends AbstractArrow {
-    protected AbstractGrappleProjectile(EntityType<? extends AbstractArrow> pEntityType, Level pLevel) {
+    protected AbstractGrappleProjectile(EntityType<? extends AbstractArrow> pEntityType, Level pLevel, boolean canGrappleEntities, boolean canGrappleBlocks) {
         super(pEntityType, pLevel);
+        this.canGrappleEntities = canGrappleEntities;
+        this.canGrappleBlocks = canGrappleBlocks;
     }
 
     public enum GrappledTypes{
@@ -106,6 +111,8 @@ public abstract class AbstractGrappleProjectile extends AbstractArrow {
     }
 
     public double Strength = 1;
+    public final boolean canGrappleEntities;
+    public final boolean canGrappleBlocks;
 
     @Override
     protected void defineSynchedData() {
@@ -170,7 +177,14 @@ public abstract class AbstractGrappleProjectile extends AbstractArrow {
         setGrappledPos(target.position().add(0, target.getBbHeight() / 2, 0));
         setTarget(target);
         if (parent instanceof Mob mob && target instanceof LivingEntity LTarget){
-            mob.setTarget(LTarget);
+            if (mob instanceof MyiaticBase MBase){
+                if (MBase.TestValidEntity(LTarget)){
+                    mob.setTarget(LTarget);
+                }
+            }
+            else{
+                mob.setTarget(LTarget);
+            }
         }
         setDeltaMovement(0, 0, 0);
         setPosToGrapple();
@@ -184,7 +198,7 @@ public abstract class AbstractGrappleProjectile extends AbstractArrow {
     }
     @Override
     protected boolean canHitEntity(@NotNull Entity target) {
-        return !isGrappled() &&target != getOwner();
+        return !isGrappled() && target != getOwner();
     }
 
     @Override
@@ -200,19 +214,24 @@ public abstract class AbstractGrappleProjectile extends AbstractArrow {
                             staleGrapple();
                         }
                         DragTargetToParent(Strength);
+                        if (LE.distanceTo(getTarget()) < 2){
+                            StopGrappling();
+                        }
                     }
                     if (isOfGrappleType(GrappledTypes.Block)){
-                        if (LE.level().clip(new ClipContext(new Vec3(LE.getX(), LE.getEyeY(), LE.getZ()), getGrappledPos(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this)).getType() != HitResult.Type.MISS){
+                        if (LE.level().clip(new ClipContext(new Vec3(getX(), getEyeY(), getZ()), getGrappledPos(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this)).getType() != HitResult.Type.MISS){
                             staleGrapple();
                         }
                         DragParentToPos(Strength);
+                        if (Mth.sqrt((float)LE.distanceToSqr(getGrappledPos())) < 2){
+                            StopGrappling();
+                        }
                     }
                 }
 
                 setNoGravity(distanceTo(getOwner()) < 30);
             }
             else{
-                setFreshness(0);
                 StopGrappling();
             }
         }
@@ -236,8 +255,8 @@ public abstract class AbstractGrappleProjectile extends AbstractArrow {
         setNoPhysics(true);
         Entity parent = getOwner();
         if ((parent != null && this.distanceTo(getOwner()) > 2) && getFreshness() > -200){
-            Vec3 directionTo = position().subtract(parent.position()).normalize();
-            this.setDeltaMovement(getDeltaMovement().add(directionTo.multiply(Strength, Strength, Strength)));
+            Vec3 directionTo = parent.position().subtract(position()).normalize();
+            this.setDeltaMovement(directionTo.multiply(Strength, Strength, Strength));
         }
         else{
             this.discard();
@@ -246,8 +265,7 @@ public abstract class AbstractGrappleProjectile extends AbstractArrow {
 
     public void shoot(Vec3 direction, float pVelocity, float pInaccuracy, Entity parent, double strength, int freshness) {
         setOwner(parent);
-        setPos(parent.position().add(0, 1, 0));
-        setRot(parent.getYRot(), parent.getXRot());
+        setPos(parent.position().add(parent.getForward().add(0, 0.5, 0)));
         Strength = strength;
         setFreshness(freshness);
 
@@ -257,5 +275,14 @@ public abstract class AbstractGrappleProjectile extends AbstractArrow {
     @Override
     public boolean canBeCollidedWith() {
         return !isOfGrappleType(GrappledTypes.ReelingIn);
+    }
+    @Override
+    protected float getWaterInertia() {
+        return 1.0f;
+    }
+
+    @Override
+    protected boolean tryPickup(Player pPlayer) {
+        return false;
     }
 }

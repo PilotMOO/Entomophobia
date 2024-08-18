@@ -47,13 +47,18 @@ public class ReelInTargetsGoal extends Goal {
     @Override
     public void tick() {
         if (grapple == null){
-            parent.getLookControl().setLookAt(parent.getTarget());
-            parent.getLookControl().tick();
-            parent.getNavigation().moveTo(parent, 1.0);
-            ShootCD = ShootCD > 0 ? ShootCD - 1 : 0;
-            if (ShootCD == 0){
-                FireGrapple();
-                ShootCD = MaxShootCD;
+            if (parent.getTarget() != null){
+                parent.getLookControl().setLookAt(parent.getTarget());
+                parent.getLookControl().tick();
+                parent.getNavigation().moveTo(parent, 1.0);
+                ShootCD = ShootCD > 0 ? ShootCD - 1 : 0;
+                if (ShootCD == 0){
+                    FireGrapple();
+                    ShootCD = MaxShootCD;
+                }
+            }
+            else{
+                stop();
             }
         }
         else if(grapple.isRemoved()){
@@ -72,7 +77,7 @@ public class ReelInTargetsGoal extends Goal {
     protected void FireGrapple() {
         grapple = EntomoEntities.STRING_GRAPPLE.get().create(parent.level());
         parent.level().addFreshEntity(grapple);
-        grapple.shoot(parent.getDirectionToTarget(), 2, 1, parent, ReelSpeed, ReelMaxTime);
+        grapple.shoot(parent.getDirectionToTarget(), 2, 0, parent, ReelSpeed, ReelMaxTime);
     }
 
     @Override

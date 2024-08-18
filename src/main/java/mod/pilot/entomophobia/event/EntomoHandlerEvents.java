@@ -4,6 +4,7 @@ import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.effects.StackingEffectBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticCowEntity;
+import mod.pilot.entomophobia.entity.projectile.AbstractGrappleProjectile;
 import mod.pilot.entomophobia.items.EntomoItems;
 import mod.pilot.entomophobia.worlddata.WorldSaveData;
 import net.minecraft.server.level.ServerLevel;
@@ -14,14 +15,17 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
+import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -81,6 +85,14 @@ public class EntomoHandlerEvents {
                 player.getMainHandItem().shrink(1);
                 player.getInventory().add(new ItemStack(EntomoItems.POISONOUS_MILK.get()));
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void GrappleImpactManager(ProjectileImpactEvent event){
+        Projectile grapple = event.getProjectile() instanceof AbstractGrappleProjectile ? event.getProjectile() : null;
+        if (grapple != null){
+            event.setImpactResult(ProjectileImpactEvent.ImpactResult.DEFAULT);
         }
     }
 }
