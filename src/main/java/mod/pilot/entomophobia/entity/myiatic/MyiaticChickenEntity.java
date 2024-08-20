@@ -85,4 +85,35 @@ public class MyiaticChickenEntity extends MyiaticBase{
     public int getExperienceReward() {
         return 4;
     }
+
+    @Override
+    protected int StateManager() {
+        if (!onGround()){
+            return state.other.ordinal();
+        }
+        else if (isChasing() && getAIState() != state.attacking.ordinal()){
+            return state.running.ordinal();
+        }
+        else if (isMoving() && getAIState() != state.attacking.ordinal()){
+            return state.walking.ordinal();
+        }
+        else if (getAIState() != state.attacking.ordinal()) {
+            return state.idle.ordinal();
+        }
+        return getAIState();
+    }
+
+    @Override
+    public void aiStep() {
+        super.aiStep();
+        if (!onGround() && getDeltaMovement().y < 0 && canGlide()){
+            setDeltaMovement(getDeltaMovement().multiply(1, 0.8, 1));
+            resetFallDistance();
+        }
+    }
+
+    //Make this shit more unique later smh
+    private boolean canGlide() {
+        return true;
+    }
 }

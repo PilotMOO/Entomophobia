@@ -3,7 +3,9 @@ package mod.pilot.entomophobia.entity.AI;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.projectile.AbstractGrappleProjectile;
+import mod.pilot.entomophobia.worlddata.EntomoDataManager;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
@@ -72,6 +74,10 @@ public class ReelInTargetsGoal extends Goal {
             if (ReelTarget.distanceTo(parent) < 2){
                 stop();
             }
+        }
+
+        if (grapple == null && ReelTarget != null){
+            stop();
         }
     }
     protected void FireGrapple() {

@@ -2,6 +2,8 @@ package mod.pilot.entomophobia.entity.projectile;
 
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.worlddata.EntomoDataManager;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -13,10 +15,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.*;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
@@ -153,16 +155,15 @@ public abstract class AbstractGrappleProjectile extends AbstractArrow {
         Entity parent = getOwner();
         Entity target = getTarget();
         if (parent != null && target != null){
-            Vec3 force = EntomoDataManager.GetDirectionFromAToB(parent, target).multiply(strength, strength, strength);
+            Vec3 force = EntomoDataManager.GetDirectionFromAToB(target, parent).multiply(strength, strength, strength);
             target.setDeltaMovement(getDeltaMovement().add(force));
-            setPos(target.position().add(getGrappledPos()));
         }
     }
     public void DragParentToPos(double strength){
         Entity parent = getOwner();
         Vec3 pos = getGrappledPos();
         if (parent != null && pos != null){
-            Vec3 force = EntomoDataManager.GetDirectionFromAToB(pos, parent).multiply(strength, strength, strength);
+            Vec3 force = EntomoDataManager.GetDirectionFromAToB(parent, pos).multiply(strength, strength, strength);
             parent.setDeltaMovement(getDeltaMovement().add(force));
         }
     }
@@ -174,7 +175,7 @@ public abstract class AbstractGrappleProjectile extends AbstractArrow {
 
         setGrappled(true);
         setGrappledType(GrappledTypes.Entity);
-        setGrappledPos(target.position().add(0, target.getBbHeight() / 2, 0));
+        setGrappledPos(target.position());
         setTarget(target);
         if (parent instanceof Mob mob && target instanceof LivingEntity LTarget){
             if (mob instanceof MyiaticBase MBase){
@@ -265,7 +266,7 @@ public abstract class AbstractGrappleProjectile extends AbstractArrow {
 
     public void shoot(Vec3 direction, float pVelocity, float pInaccuracy, Entity parent, double strength, int freshness) {
         setOwner(parent);
-        setPos(parent.position().add(parent.getForward().add(0, 0.5, 0)));
+        setPos(parent.position().add(0, 0.5, 0));
         Strength = strength;
         setFreshness(freshness);
 
@@ -274,15 +275,10 @@ public abstract class AbstractGrappleProjectile extends AbstractArrow {
 
     @Override
     public boolean canBeCollidedWith() {
-        return !isOfGrappleType(GrappledTypes.ReelingIn);
+        return !isOfGrappleType(GrappledTypes.Not);
     }
     @Override
     protected float getWaterInertia() {
         return 1.0f;
-    }
-
-    @Override
-    protected boolean tryPickup(Player pPlayer) {
-        return false;
     }
 }

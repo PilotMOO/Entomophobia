@@ -1,7 +1,6 @@
 package mod.pilot.entomophobia.worlddata;
 
 import mod.pilot.entomophobia.Entomophobia;
-import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -31,6 +30,12 @@ public class WorldSaveData extends SavedData {
         if (tag.contains("myiatic_mobcap",99)){
             data.MyiaticCount = tag.getInt("myiatic_mobcap");
         }
+        if (tag.contains("has_started")){
+            data.HasStarted = tag.getBoolean("has_started");
+        }
+        if (tag.contains("world_age", 99)){
+            data.WorldAge = tag.getInt("world_age");
+        }
         if (tag.contains("myiatic_storage")){
             data.MyiaticStorage = tag.getString("myiatic_storage");
         }
@@ -38,8 +43,10 @@ public class WorldSaveData extends SavedData {
     }
     @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag tag) {
-        tag.putInt("myiatic_mobcap",MyiaticCount);
-        tag.putString("myiatic_storage",MyiaticStorage);
+        tag.putInt("myiatic_mobcap", MyiaticCount);
+        tag.putBoolean("has_started", HasStarted);
+        tag.putInt("world_age", WorldAge);
+        tag.putString("myiatic_storage", MyiaticStorage);
         return tag;
     }
 
@@ -61,6 +68,29 @@ public class WorldSaveData extends SavedData {
     }
     public int GetMyiaticCount(){
         return activeData().MyiaticCount;
+    }
+
+    private boolean HasStarted = false;
+
+    public boolean getHasStarted(){
+        return HasStarted;
+    }
+    public void setHasStarted(boolean flag){
+        HasStarted = flag;
+    }
+
+    private int WorldAge = 0;
+    public int getWorldAge(){
+        return WorldAge;
+    }
+    public void setWorldAge(int age){
+        WorldAge = age;
+    }
+    public void ageWorldBy(int age){
+        setWorldAge(getWorldAge() + age);
+    }
+    public void ageWorld(){
+        ageWorldBy(1);
     }
 
     private String MyiaticStorage;

@@ -45,5 +45,7 @@
   "death.attack.myiatic_explode": "%1$s was blown to smithereens by %2$s",
 
   "sounds.entomophobia:myiatic_zombie_idle": "Myiatic Zombie groans",
-  "sounds.entomophobia:myiatic_flying": "Myiatic takes flight"
+  "sounds.entomophobia:myiatic_flying": "Myiatic takes flight",
+
+  "infection_start": "The stench of rot and trepidation floods the air... something's off."
 }

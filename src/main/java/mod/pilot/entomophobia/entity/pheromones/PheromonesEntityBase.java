@@ -21,6 +21,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
+import javax.annotation.Nullable;
+
 public abstract class PheromonesEntityBase extends PathfinderMob {
     public PheromonesEntityBase(EntityType<? extends PathfinderMob> pEntityType, Level pLevel, PheromonesBase BaseEffect, PheromonesBase MyiaticEffect,
                                 int MSpread, int BSpread, int Timer, int amp, int life, double falloff) {
@@ -36,7 +38,9 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
     }
 
     //NBT and Variables
+    @Nullable
     public static PheromonesBase MyiaticPheromoneType;
+    @Nullable
     public static PheromonesBase BasePheromoneType;
     public int MyiaticSpreadAOE;
     public int BaseSpreadAOE;
