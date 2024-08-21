@@ -11,7 +11,7 @@ public class PleaseDontBreakMyLegsGoal extends FlyToGoal{
 
     @Override
     public boolean canUse() {
-        return !IsFlying && FlightState != FlightStates.Falling.ordinal() && parent.fallDistance > 5;
+        return !IsFlying && FlightState != FlightStates.Falling.ordinal() && parent.fallDistance > 5 && !parent.isInFluidType();
     }
 
     @Override

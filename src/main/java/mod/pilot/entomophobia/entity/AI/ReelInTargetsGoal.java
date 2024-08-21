@@ -3,12 +3,9 @@ package mod.pilot.entomophobia.entity.AI;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.projectile.AbstractGrappleProjectile;
-import mod.pilot.entomophobia.worlddata.EntomoDataManager;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.phys.Vec3;
 
 public class ReelInTargetsGoal extends Goal {
     final MyiaticBase parent;
@@ -41,7 +38,7 @@ public class ReelInTargetsGoal extends Goal {
         LivingEntity target = parent.getTarget();
         if (target != null){
             double distance = parent.distanceTo(target);
-            return distance > 3 && distance < ReelDistance && parent.hasLineOfSight(target);
+            return (distance > 10 || parent.getY() < target.getY() - 5) && distance < ReelDistance && parent.hasLineOfSight(target);
         }
         return false;
     }
@@ -90,7 +87,7 @@ public class ReelInTargetsGoal extends Goal {
     public void stop() {
         ReelTarget = null;
         if (grapple != null){
-            grapple.StopGrappling();
+            grapple.ReelGrappleBack();
         }
         parent.setAIState(MyiaticBase.state.idle);
     }

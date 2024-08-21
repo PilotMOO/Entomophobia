@@ -33,6 +33,7 @@ public class FlyToHostileTargetGoal extends FlyToGoal{
         parent.getNavigation().moveTo(parent.getTarget(), 1);
         if (FlightState != FlightStates.Gliding.ordinal()){
             parent.getLookControl().setLookAt(parent.getTarget());
+            parent.getLookControl().tick();
         }
         if (FlightCD > 0){
             FlightCD--;

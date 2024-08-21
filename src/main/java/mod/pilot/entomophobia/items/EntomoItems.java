@@ -18,19 +18,19 @@ public class EntomoItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Entomophobia.MOD_ID);
 
     public static final RegistryObject<Item> MYIATIC_ZOMBIE_SPAWNEGG = ITEMS.register("myiatic_zombie_spawnegg",
-            () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_ZOMBIE, 10112885, 1386338, new Item.Properties()));
+            () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_ZOMBIE, -1, -1, new Item.Properties()));
     public static final RegistryObject<Item> MYIATIC_CREEPER_SPAWNEGG = ITEMS.register("myiatic_creeper_spawnegg",
-            () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_CREEPER, 10112885, 1386338, new Item.Properties()));
+            () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_CREEPER, -1, -1, new Item.Properties()));
     public static final RegistryObject<Item> MYIATIC_SPIDER_SPAWNEGG = ITEMS.register("myiatic_spider_spawnegg",
-            () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_SPIDER, 10112885, 1386338, new Item.Properties()));
+            () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_SPIDER, -1, -1, new Item.Properties()));
     public static final RegistryObject<Item> MYIATIC_COW_SPAWNEGG = ITEMS.register("myiatic_cow_spawnegg",
-            () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_COW, 10112885, 1386338, new Item.Properties()));
+            () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_COW, -1, -1, new Item.Properties()));
     public static final RegistryObject<Item> MYIATIC_SHEEP_SPAWNEGG = ITEMS.register("myiatic_sheep_spawnegg",
-            () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_SHEEP, 10112885, 1386338, new Item.Properties()));
+            () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_SHEEP, -1, -1, new Item.Properties()));
     public static final RegistryObject<Item> MYIATIC_PIG_SPAWNEGG = ITEMS.register("myiatic_pig_spawnegg",
-            () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_PIG, 10112885, 1386338, new Item.Properties()));
+            () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_PIG, -1, -1, new Item.Properties()));
     public static final RegistryObject<Item> MYIATIC_CHICKEN_SPAWNEGG = ITEMS.register("myiatic_chicken_spawnegg",
-            () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_CHICKEN, 10112885, 1386338, new Item.Properties()));
+            () -> new ForgeSpawnEggItem(EntomoEntities.MYIATIC_CHICKEN, -1, -1, new Item.Properties()));
 
 
     public static final RegistryObject<Item> POISONOUS_MILK = ITEMS.register("milk_bucket",

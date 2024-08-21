@@ -2,8 +2,6 @@ package mod.pilot.entomophobia.entity.projectile;
 
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.worlddata.EntomoDataManager;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -15,10 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.*;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
@@ -173,6 +168,11 @@ public abstract class AbstractGrappleProjectile extends AbstractArrow {
         Entity parent = getOwner();
         Entity target = hitResult.getEntity();
 
+        if (target instanceof Player player && player.isBlocking()){
+            player.disableShield(false);
+            ReelGrappleBack();
+            return;
+        }
         setGrappled(true);
         setGrappledType(GrappledTypes.Entity);
         setGrappledPos(target.position());
@@ -216,7 +216,7 @@ public abstract class AbstractGrappleProjectile extends AbstractArrow {
                         }
                         DragTargetToParent(Strength);
                         if (LE.distanceTo(getTarget()) < 2){
-                            StopGrappling();
+                            ReelGrappleBack();
                         }
                     }
                     if (isOfGrappleType(GrappledTypes.Block)){
@@ -225,15 +225,15 @@ public abstract class AbstractGrappleProjectile extends AbstractArrow {
                         }
                         DragParentToPos(Strength);
                         if (Mth.sqrt((float)LE.distanceToSqr(getGrappledPos())) < 2){
-                            StopGrappling();
+                            ReelGrappleBack();
                         }
                     }
                 }
 
-                setNoGravity(distanceTo(getOwner()) < 30);
+                setNoGravity(ShouldNotFallFromGravity());
             }
             else{
-                StopGrappling();
+                ReelGrappleBack();
             }
         }
         else{
@@ -249,7 +249,7 @@ public abstract class AbstractGrappleProjectile extends AbstractArrow {
         }
     }
 
-    public void StopGrappling() {
+    public void ReelGrappleBack() {
         setGrappled(false);
         setGrappledType(GrappledTypes.ReelingIn);
         setTarget(null);
@@ -280,5 +280,12 @@ public abstract class AbstractGrappleProjectile extends AbstractArrow {
     @Override
     protected float getWaterInertia() {
         return 1.0f;
+    }
+
+    protected boolean ShouldNotFallFromGravity(){
+        if (getOwner() != null){
+            return distanceTo(getOwner()) < 30;
+        }
+        return true;
     }
 }

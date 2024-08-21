@@ -34,4 +34,18 @@ public class StringGrappleProjectile extends AbstractGrappleProjectile implement
     protected ItemStack getPickupItem() {
         return null;
     }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if (getOwner() != null && distanceTo(getOwner()) > 50){
+            ReelGrappleBack();
+        }
+    }
+
+    @Override
+    protected boolean ShouldNotFallFromGravity() {
+        return true;
+    }
 }

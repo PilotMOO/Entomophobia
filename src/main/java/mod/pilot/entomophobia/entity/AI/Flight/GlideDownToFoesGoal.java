@@ -14,7 +14,7 @@ public class GlideDownToFoesGoal extends FlyToHostileTargetGoal{
 
     @Override
     public boolean canUse() {
-        return super.canUse() && parent.distanceTo(parent.getTarget()) < 10;
+        return super.canUse() && parent.distanceTo(parent.getTarget()) < 10 && !parent.isInFluidType();
     }
 
     @Override

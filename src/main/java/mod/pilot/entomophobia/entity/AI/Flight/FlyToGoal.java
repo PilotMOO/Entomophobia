@@ -90,6 +90,7 @@ public class FlyToGoal extends Goal {
         parent.getNavigation().moveTo(finalPos.x, finalPos.y, finalPos.z, 1);
         if (FlightState != FlightStates.Gliding.ordinal()){
             parent.getLookControl().setLookAt(finalPos);
+            parent.getLookControl().tick();
         }
         if (FlightCD > 0){
             FlightCD--;
@@ -97,7 +98,7 @@ public class FlyToGoal extends Goal {
         if (CheckFly()){
             StartFlyCycle();
         }
-        if (IsFlying){
+        else if (IsFlying){
             FlightManager();
         }
         if (FlightState == FlightStates.Falling.ordinal() && parent.verticalCollisionBelow){

@@ -15,7 +15,7 @@ import net.minecraft.world.phys.AABB;
 
 public class PheromonePreyHuntEntity extends PheromonesEntityBase implements GeoAnimatable{
     public PheromonePreyHuntEntity(EntityType<? extends PathfinderMob> pEntityType, Level pLevel) {
-        super(pEntityType, pLevel, (PheromonesBase)EntomoMobEffects.PREY.get(), (PheromonesBase)EntomoMobEffects.HUNT.get(),
+        super(pEntityType, pLevel, EntomoMobEffects.PREY.get(), EntomoMobEffects.HUNT.get(),
                 120, 24, 2000, 0, 4000, 1);
     }
 

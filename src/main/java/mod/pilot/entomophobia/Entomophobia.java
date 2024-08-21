@@ -33,10 +33,10 @@ public class Entomophobia
         EntomoCreativeTabs.register(modEventBus);
         EntomoBlocks.register(modEventBus);
         EntomoSounds.register(modEventBus);
-        EntomoEntities.register(modEventBus);
         EntomoMobEffects.register(modEventBus);
+        EntomoEntities.register(modEventBus);
 
-        System.out.println("Color: " + getIntFromColor(131, 35, 242));
+        System.out.println("Color: " + getIntFromColor(255, 255, 255));
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SERVER_SPEC);
     }

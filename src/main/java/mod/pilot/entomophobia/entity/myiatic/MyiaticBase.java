@@ -8,6 +8,7 @@ import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.AI.*;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
+import mod.pilot.entomophobia.worlddata.EntomoDataManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -28,6 +29,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.AbstractFish;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Monster;
@@ -37,6 +39,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
@@ -363,6 +366,22 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             return flag;
         }
         return false;
+    }
+
+    @Override
+    public void travel(@NotNull Vec3 pTravelVector) {
+        if (isInFluidType() && getTarget() != null){
+            double waterMoveSpeed = (getAttributeValue(Attributes.MOVEMENT_SPEED) * getWaterSlowDown()) * 0.5;
+            setDeltaMovement(getDeltaMovement().add(getDirectionToTarget()).multiply(waterMoveSpeed, waterMoveSpeed, waterMoveSpeed));
+
+            if (getTarget().getY() < getY() && getAirSupply() > getMaxAirSupply() / 4){
+                double newYSpeed = getDeltaMovement().y / 0.8;
+                setDeltaMovement(getDeltaMovement().x, newYSpeed, getDeltaMovement().y);
+            }
+            getLookControl().setLookAt(getTarget());
+            getLookControl().tick();
+        }
+        super.travel(pTravelVector);
     }
 
     @Override

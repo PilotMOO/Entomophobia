@@ -11,6 +11,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -24,7 +25,7 @@ import net.minecraft.world.phys.AABB;
 import javax.annotation.Nullable;
 
 public abstract class PheromonesEntityBase extends PathfinderMob {
-    public PheromonesEntityBase(EntityType<? extends PathfinderMob> pEntityType, Level pLevel, PheromonesBase BaseEffect, PheromonesBase MyiaticEffect,
+    public PheromonesEntityBase(EntityType<? extends PathfinderMob> pEntityType, Level pLevel, MobEffect BaseEffect, MobEffect MyiaticEffect,
                                 int MSpread, int BSpread, int Timer, int amp, int life, double falloff) {
         super(pEntityType, pLevel);
         MyiaticPheromoneType = MyiaticEffect;
@@ -39,9 +40,9 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
 
     //NBT and Variables
     @Nullable
-    public static PheromonesBase MyiaticPheromoneType;
+    public static MobEffect MyiaticPheromoneType;
     @Nullable
-    public static PheromonesBase BasePheromoneType;
+    public static MobEffect BasePheromoneType;
     public int MyiaticSpreadAOE;
     public int BaseSpreadAOE;
     public static int EffectBaseTimer = 0;
@@ -78,7 +79,7 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
         if (MyiaticPheromoneType != null){
             for (LivingEntity entity : this.level().getEntitiesOfClass(MyiaticBase.class, MyiaticAABB, (M) -> M != null && !M.hasEffect(MyiaticPheromoneType) && M.isAlive() && hasLineOfSight(M))){
                 int duration = (int)(EffectBaseTimer * ((BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE) * Falloff);
-                if (duration > 100){
+                if (duration > 100 && MyiaticPheromoneType != null){
                     entity.addEffect(new MobEffectInstance(MyiaticPheromoneType, duration, EffectAmp));
                     AddLife(20);
                 }
@@ -87,7 +88,7 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
         if (BasePheromoneType != null){
             for (LivingEntity entity : this.level().getEntitiesOfClass(LivingEntity.class, NonMyiaticAABB, (E) -> E != null && !(E instanceof MyiaticBase) && !(E instanceof PheromonesEntityBase) && !E.hasEffect(BasePheromoneType) && E.isAlive() && hasLineOfSight(E))){
                 int duration = (int)(EffectBaseTimer * ((BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE) * Falloff);
-                if (duration > 100){
+                if (duration > 100 && BasePheromoneType != null){
                     entity.addEffect(new MobEffectInstance(BasePheromoneType, (int)(EffectBaseTimer * ((BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE) * Falloff), EffectAmp));
                     AddLife(20);
                 }
@@ -145,7 +146,7 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
         SpawnParticles();
         AttemptToSpread();
         if (getLife() >= LifeMax){
-            this.remove(RemovalReason.DISCARDED);
+            this.discard();
         }
         else{
             AddLife(1);
