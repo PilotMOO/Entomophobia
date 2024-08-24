@@ -8,7 +8,6 @@ import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.AI.*;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
-import mod.pilot.entomophobia.worlddata.EntomoDataManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -18,7 +17,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -29,7 +27,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
-import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.AbstractFish;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Monster;
@@ -39,7 +36,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
@@ -54,8 +50,6 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     protected MyiaticBase(EntityType<? extends Monster> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
         this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, -3.0f);
-        this.setPathfindingMalus(BlockPathTypes.WATER_BORDER, -2.0f);
-        this.setPathfindingMalus(BlockPathTypes.WATER, -1.0f);
         this.setPathfindingMalus(BlockPathTypes.LEAVES, 4.0f);
     }
 
@@ -429,7 +423,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             if (e instanceof Player && ((Player)e).isCreative() || e.isSpectator()){
                 return false;
             }
-            else if (e instanceof MyiaticBase || e instanceof PheromonesEntityBase){
+            else if (e instanceof MyiaticBase){
                 return false;
             }
             else if (Config.SERVER.blacklisted_targets.get().contains((e.getEncodeId()))){

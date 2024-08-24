@@ -78,9 +78,12 @@ public class ReelInTargetsGoal extends Goal {
         }
     }
     protected void FireGrapple() {
-        grapple = EntomoEntities.STRING_GRAPPLE.get().create(parent.level());
-        parent.level().addFreshEntity(grapple);
-        grapple.shoot(parent.getDirectionToTarget(), 2, 0, parent, ReelSpeed, ReelMaxTime);
+        LivingEntity target = parent.getTarget();
+        if (target != null){
+            grapple = EntomoEntities.STRING_GRAPPLE.get().create(parent.level());
+            parent.level().addFreshEntity(grapple);
+            grapple.shoot(parent.getDirectionTo(target.position().add(0, target.getBbHeight() / 2, 0)), 2, 0, parent, ReelSpeed, ReelMaxTime);
+        }
     }
 
     @Override

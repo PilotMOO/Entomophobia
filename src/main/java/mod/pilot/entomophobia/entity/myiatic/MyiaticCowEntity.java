@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 public class MyiaticCowEntity extends MyiaticBase{
     public MyiaticCowEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
-        setReach(0.25f);
+        setReach(0.3f);
     }
 
     @Override

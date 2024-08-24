@@ -8,13 +8,14 @@ import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.effects.pheromones.PheromonesBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.worlddata.EntomoWorldManager;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
 public class PheromonePreyHuntEntity extends PheromonesEntityBase implements GeoAnimatable{
-    public PheromonePreyHuntEntity(EntityType<? extends PathfinderMob> pEntityType, Level pLevel) {
+    public PheromonePreyHuntEntity(EntityType<? extends Entity> pEntityType, Level pLevel) {
         super(pEntityType, pLevel, EntomoMobEffects.PREY.get(), EntomoMobEffects.HUNT.get(),
                 120, 24, 2000, 0, 4000, 1);
     }

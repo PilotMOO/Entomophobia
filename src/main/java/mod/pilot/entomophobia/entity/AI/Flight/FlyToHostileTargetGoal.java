@@ -3,6 +3,7 @@ package mod.pilot.entomophobia.entity.AI.Flight;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.phys.Vec2;
 
 public class FlyToHostileTargetGoal extends FlyToGoal{

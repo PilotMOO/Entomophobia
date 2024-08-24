@@ -41,7 +41,7 @@ public class Myiasis extends MobEffect {
 
     @Override
     public void applyEffectTick(@NotNull LivingEntity target, int amp) {
-        if (!(target instanceof MyiaticBase || target instanceof PheromonesEntityBase || target instanceof Player) && EntomoDataManager.GetConvertedFor(target) != null){
+        if (!(target instanceof MyiaticBase || target instanceof Player) && EntomoDataManager.GetConvertedFor(target) != null){
             if (infectedDuration(target) == -1){
                 StartRot(target);
             }
@@ -93,7 +93,7 @@ public class Myiasis extends MobEffect {
     }
 
     private void TickDamage(LivingEntity target, int amp) {
-        if (amp > 0 && target.tickCount % (100 / amp) == 0){
+        if (amp > 0 && target.tickCount % (600 / amp) == 0){
             target.hurt(EntomoDamageTypes.myiasis(target), amp);
         }
     }

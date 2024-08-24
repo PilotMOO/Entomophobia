@@ -71,7 +71,7 @@ public abstract class PheromonesBase extends MobEffect {
                 }
             }
             for (LivingEntity entity : origin.level().getEntitiesOfClass(LivingEntity.class, NonMyiaticAABB)){
-                if (entity != parent && !entity.hasEffect(this) && !(entity instanceof MyiaticBase) && !(entity instanceof PheromonesEntityBase)){
+                if (entity != parent && !entity.hasEffect(this) && !(entity instanceof MyiaticBase)){
                     double duration = originEffect.getDuration();
                     duration = duration * (((BaseSpreadAOE - entity.distanceToSqr(blockPos.getCenter())) / BaseSpreadAOE) * Falloff);
                     if (duration > 20){

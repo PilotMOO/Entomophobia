@@ -13,6 +13,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
@@ -24,8 +25,8 @@ import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nullable;
 
-public abstract class PheromonesEntityBase extends PathfinderMob {
-    public PheromonesEntityBase(EntityType<? extends PathfinderMob> pEntityType, Level pLevel, MobEffect BaseEffect, MobEffect MyiaticEffect,
+public abstract class PheromonesEntityBase extends Entity {
+    public PheromonesEntityBase(EntityType<? extends Entity> pEntityType, Level pLevel, @org.jetbrains.annotations.Nullable MobEffect BaseEffect, @org.jetbrains.annotations.Nullable MobEffect MyiaticEffect,
                                 int MSpread, int BSpread, int Timer, int amp, int life, double falloff) {
         super(pEntityType, pLevel);
         MyiaticPheromoneType = MyiaticEffect;
@@ -57,16 +58,13 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
 
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
         tag.putInt("Life", entityData.get(Life));
     }
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
         entityData.set(Life, tag.getInt("Life"));
     }
     protected void defineSynchedData() {
-        super.defineSynchedData();
         this.entityData.define(Life, 0);
     }
     /**/
@@ -77,7 +75,7 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
         AABB NonMyiaticAABB = new AABB(blockPosition()).inflate(BaseSpreadAOE);
 
         if (MyiaticPheromoneType != null){
-            for (LivingEntity entity : this.level().getEntitiesOfClass(MyiaticBase.class, MyiaticAABB, (M) -> M != null && !M.hasEffect(MyiaticPheromoneType) && M.isAlive() && hasLineOfSight(M))){
+            for (LivingEntity entity : this.level().getEntitiesOfClass(MyiaticBase.class, MyiaticAABB, (M) -> M != null && !M.hasEffect(MyiaticPheromoneType) && M.isAlive() && M.hasLineOfSight(this))){
                 int duration = (int)(EffectBaseTimer * ((BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE) * Falloff);
                 if (duration > 100 && MyiaticPheromoneType != null){
                     entity.addEffect(new MobEffectInstance(MyiaticPheromoneType, duration, EffectAmp));
@@ -86,7 +84,7 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
             }
         }
         if (BasePheromoneType != null){
-            for (LivingEntity entity : this.level().getEntitiesOfClass(LivingEntity.class, NonMyiaticAABB, (E) -> E != null && !(E instanceof MyiaticBase) && !(E instanceof PheromonesEntityBase) && !E.hasEffect(BasePheromoneType) && E.isAlive() && hasLineOfSight(E))){
+            for (LivingEntity entity : this.level().getEntitiesOfClass(LivingEntity.class, NonMyiaticAABB, (E) -> E != null && !(E instanceof MyiaticBase) && !E.hasEffect(BasePheromoneType) && E.isAlive() && E.hasLineOfSight(this))){
                 int duration = (int)(EffectBaseTimer * ((BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE) * Falloff);
                 if (duration > 100 && BasePheromoneType != null){
                     entity.addEffect(new MobEffectInstance(BasePheromoneType, (int)(EffectBaseTimer * ((BaseSpreadAOE - entity.distanceTo(this)) / BaseSpreadAOE) * Falloff), EffectAmp));
@@ -140,9 +138,7 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
     /**/
 
     //Overridden Methods
-    @Override
-    public void aiStep() {
-        super.aiStep();
+    public void tick() {
         SpawnParticles();
         AttemptToSpread();
         if (getLife() >= LifeMax){
@@ -152,21 +148,5 @@ public abstract class PheromonesEntityBase extends PathfinderMob {
             AddLife(1);
         }
     }
-
-    @Override
-    public boolean hurt(DamageSource pSource, float pAmount) {
-        return false;
-    }
     /**/
-
-    public static AttributeSupplier.Builder createAttributes(){
-        return PheromonesEntityBase.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 5D)
-                .add(Attributes.ARMOR, 0)
-                .add(Attributes.FOLLOW_RANGE, 0)
-                .add(Attributes.MOVEMENT_SPEED, 0D)
-                .add(Attributes.ATTACK_DAMAGE, 0D)
-                .add(Attributes.ATTACK_KNOCKBACK, 0D)
-                .add(Attributes.ATTACK_SPEED, 0D);
-    }
 }

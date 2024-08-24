@@ -6,12 +6,13 @@ import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.util.AzureLibUtil;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.effects.pheromones.PheromonesBase;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.level.Level;
 
 public class PheromoneFrenzyEntity extends PheromonesEntityBase implements GeoAnimatable{
-    public PheromoneFrenzyEntity(EntityType<? extends PathfinderMob> pEntityType, Level pLevel) {
+    public PheromoneFrenzyEntity(EntityType<? extends Entity> pEntityType, Level pLevel) {
         super(pEntityType, pLevel, null, EntomoMobEffects.FRENZY.get(),
                 32, 0, 400, 0, 2500, 2);
     }

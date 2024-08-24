@@ -61,11 +61,11 @@ public class MyiaticSheepEntity extends MyiaticBase{
 
     public static AttributeSupplier.Builder createAttributes(){
         return MyiaticSheepEntity.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 8D)
-                .add(Attributes.ARMOR, 1)
+                .add(Attributes.MAX_HEALTH, 12D)
+                .add(Attributes.ARMOR, 2)
                 .add(Attributes.FOLLOW_RANGE, 32)
                 .add(Attributes.MOVEMENT_SPEED, 0.3D)
-                .add(Attributes.ATTACK_DAMAGE, 2D)
+                .add(Attributes.ATTACK_DAMAGE, 4D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0.25D)
                 .add(Attributes.ATTACK_SPEED, 2D);
     }

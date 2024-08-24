@@ -19,7 +19,5 @@ public class EntomoEventBusEvents {
         event.put(EntomoEntities.MYIATIC_SHEEP.get(), MyiaticSheepEntity.createAttributes().build());
         event.put(EntomoEntities.MYIATIC_PIG.get(), MyiaticPigEntity.createAttributes().build());
         event.put(EntomoEntities.MYIATIC_CHICKEN.get(), MyiaticChickenEntity.createAttributes().build());
-        event.put(EntomoEntities.PREYHUNT.get(), PheromonePreyHuntEntity.createAttributes().build());
-        event.put(EntomoEntities.FRENZY.get(), PheromonePreyHuntEntity.createAttributes().build());
     }
 }

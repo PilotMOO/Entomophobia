@@ -19,6 +19,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
@@ -32,6 +35,7 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -45,6 +49,12 @@ public class EntomoHandlerEvents {
             Entomophobia.activeData.AddToMyiaticCount();
             System.out.println("MyiaticCount is " + Entomophobia.activeData.GetMyiaticCount());
         }
+        else if (event.getEntity() instanceof Animal animal){
+            animal.targetSelector.addGoal(1, new AvoidEntityGoal<>(animal, MyiaticBase.class, 16, 1.0D, 1.3D));
+        }
+        else if (event.getEntity() instanceof AbstractVillager villager){
+            villager.targetSelector.addGoal(1, new AvoidEntityGoal<>(villager, MyiaticBase.class, 16, 0.8D, 1.0D));
+        }
     }
     @SubscribeEvent
     public static void onEntityDeath(LivingDeathEvent event){
@@ -57,11 +67,16 @@ public class EntomoHandlerEvents {
     @SubscribeEvent
     public static void onEntityLeave(EntityLeaveLevelEvent event){
         Entity E = event.getEntity();
-        if (E instanceof MyiaticBase M && !M.isDeadOrDying() && event.getLevel() instanceof ServerLevel server && server.getServer().isShutdown()){
-            System.out.println("Adding " + M.getEncodeId() + " to storage!");
-            Entomophobia.activeData.AddToStorage(M.getEncodeId());
-            Entomophobia.activeData.RemoveFromMyiaticCount();
-            System.out.println("MyiaticCount is " + Entomophobia.activeData.GetMyiaticCount());
+        if (E instanceof MyiaticBase M && !M.isDeadOrDying() && event.getLevel() instanceof ServerLevel server && !server.getServer().isShutdown()){
+            if (Entomophobia.activeData.GetMyiaticCount() <= Config.SERVER.mob_cap.get()){
+                event.setResult(Event.Result.DENY);
+            }
+            else{
+                System.out.println("Adding " + M.getEncodeId() + " to storage!");
+                Entomophobia.activeData.AddToStorage(M.getEncodeId());
+                Entomophobia.activeData.RemoveFromMyiaticCount();
+                System.out.println("MyiaticCount is " + Entomophobia.activeData.GetMyiaticCount());
+            }
         }
     }
 

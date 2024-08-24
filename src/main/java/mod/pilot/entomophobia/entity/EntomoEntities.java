@@ -41,10 +41,10 @@ public class EntomoEntities {
 
     //Pheromone Entities
     public static final RegistryObject<EntityType<PheromonePreyHuntEntity>> PREYHUNT =
-            ENTITY_TYPES.register("pheromone_prey/hunt", () -> EntityType.Builder.of(PheromonePreyHuntEntity::new, MobCategory.MONSTER)
+            ENTITY_TYPES.register("pheromone_prey/hunt", () -> EntityType.Builder.of(PheromonePreyHuntEntity::new, MobCategory.MISC)
                     .sized(0.1f, 0.1f).build("pheromone_prey/hunt"));
     public static final RegistryObject<EntityType<PheromoneFrenzyEntity>> FRENZY =
-            ENTITY_TYPES.register("pheromone_null/frenzy", () -> EntityType.Builder.of(PheromoneFrenzyEntity::new, MobCategory.MONSTER)
+            ENTITY_TYPES.register("pheromone_null/frenzy", () -> EntityType.Builder.of(PheromoneFrenzyEntity::new, MobCategory.MISC)
                     .sized(0.1f, 0.1f).build("pheromone_null/frenzy"));
 
     //Projectiles

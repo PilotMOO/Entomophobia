@@ -136,7 +136,7 @@ public class MyiaticCreeperEntity extends MyiaticBase{
                 superFlag = false;
             }
             if (sourceEntity == getTarget()){
-                if (getRandom().nextIntBetweenInclusive(0, 10) <= 3){
+                if (getRandom().nextIntBetweenInclusive(0, 10) <= DodgeChance){
                     superFlag = !TryToDodge();
                 }
             }
