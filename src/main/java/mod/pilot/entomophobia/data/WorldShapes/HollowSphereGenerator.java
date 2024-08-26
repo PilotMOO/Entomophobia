@@ -6,24 +6,27 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class SphereGenerator extends ShapeGenerator {
-    public SphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int radius) {
-        super(server, buildSpeed, blockTypes, pos, replaceableOnly);
-        this.radius = radius;
-    }
-    public SphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int radius) {
-        super(server, buildSpeed, blockTypes, pos, maxHardness);
-        this.radius = radius;
-    }
-    public SphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, int radius) {
-        super(server, buildSpeed, blockTypes, pos, whitelist, blacklist);
-        this.radius = radius;
+public class HollowSphereGenerator extends SphereGenerator {
+    public HollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int radius, int thickness) {
+        super(server, buildSpeed, blockTypes, pos, replaceableOnly, radius);
+        this.thickness = thickness;
     }
 
-    public final int radius;
+    public HollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int radius, int thickness) {
+        super(server, buildSpeed, blockTypes, pos, maxHardness, radius);
+        this.thickness = thickness;
+    }
+
+    public HollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, int radius, int thickness) {
+        super(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius);
+        this.thickness = thickness;
+    }
+
+    public final int thickness;
 
     @Override
     public boolean Build() {
@@ -39,7 +42,7 @@ public class SphereGenerator extends ShapeGenerator {
                     Vec3 center = getPosition();
                     BlockPos bPos = new BlockPos(new Vec3i((int)(center.x + (x - radius) - 1), (int)(center.y + (y - radius) - 1), (int)(center.z + (z - radius) - 1)));
                     BlockState bState = server.getBlockState(bPos);
-                    if (CanThisBeReplaced(bState, bPos) && distance <= radius){
+                    if (CanThisBeReplaced(bState, bPos) && distance <= radius && distance > radius - thickness){
                         succeeded = ReplaceBlock(bPos);
                     }
                     if (succeeded) {break;}

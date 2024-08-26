@@ -3,6 +3,8 @@ package mod.pilot.entomophobia.data.WorldShapes;
 import mod.pilot.entomophobia.data.WorldShapes.EntomoWorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -120,6 +122,14 @@ public abstract class ShapeGenerator{
 
     protected ServerLevel server;
 
+    protected BlockPos lastBlock;
+    protected SoundEvent getLastBlockPlaceSFX(){
+        if (lastBlock != null){
+            return server.getBlockState(lastBlock).getSoundType().getPlaceSound();
+        }
+        return null;
+    }
+
     public void Disable(){
         setState(EntomoWorldShapeManager.GeneratorStates.disabled);
     }
@@ -132,14 +142,19 @@ public abstract class ShapeGenerator{
         setState(EntomoWorldShapeManager.GeneratorStates.done);
     }
 
-    public void Build(){
-        if (!isOfState(EntomoWorldShapeManager.GeneratorStates.active)){
-            return;
-        }
-    }
+    public abstract boolean Build();
 
     protected boolean ReplaceBlock(BlockPos pos, BlockState state, int flag){
-        return server.setBlock(pos, state, flag);
+        boolean placed = server.setBlock(pos, state, flag);
+        if (placed){
+            lastBlock = pos;
+            SoundEvent placeSound = getLastBlockPlaceSFX();
+            if (placeSound != null){
+                server.playSound(null, pos, placeSound, SoundSource.BLOCKS, 1.0f, 1.0f);
+            }
+        }
+        return placed;
+
     }
     protected boolean ReplaceBlock(BlockPos pos, BlockState state){
         return ReplaceBlock(pos, state, 3);

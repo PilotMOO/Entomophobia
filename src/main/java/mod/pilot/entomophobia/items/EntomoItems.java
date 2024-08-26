@@ -2,13 +2,10 @@ package mod.pilot.entomophobia.items;
 
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.entity.EntomoEntities;
-import mod.pilot.entomophobia.entity.myiatic.MyiaticZombieEntity;
 import mod.pilot.entomophobia.items.custom.DangerousMilk;
-import mod.pilot.entomophobia.items.custom.NestBuilder;
+import mod.pilot.entomophobia.items.custom.ShapeWand;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.MilkBucketItem;
-import net.minecraft.world.item.SpawnEggItem;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -37,8 +34,8 @@ public class EntomoItems {
     public static final RegistryObject<Item> POISONOUS_MILK = ITEMS.register("milk_bucket",
             () -> new DangerousMilk(new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1)));
 
-    public static final RegistryObject<Item> NEST_BUILDER = ITEMS.register("nest_builder",
-            () -> new NestBuilder(new Item.Properties()));
+    public static final RegistryObject<Item> NEST_BUILDER = ITEMS.register("shape_wand",
+            () -> new ShapeWand(new Item.Properties().stacksTo(1)));
 
     public static void register(IEventBus eventBus){
         ITEMS.register(eventBus);

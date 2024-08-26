@@ -19,13 +19,52 @@ public class EntomoWorldShapeManager {
         Any
     }
 
+
+    public static CubeGenerator CreateCube(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int size){
+        CubeGenerator cube = new CubeGenerator(server, buildSpeed, blockTypes, pos, replaceableOnly, size);
+        cube.Enable();
+        return cube;
+    }
+    public static CubeGenerator CreateCube(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int size) {
+        CubeGenerator cube = new CubeGenerator(server, buildSpeed, blockTypes, pos, maxHardness, size);
+        cube.Enable();
+        return cube;
+    }
+    public static CubeGenerator CreateCube(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, int size){
+        CubeGenerator cube = new CubeGenerator(server, buildSpeed, blockTypes, pos, whitelist, blacklist, size);
+        cube.Enable();
+        return cube;
+    }
+
     public static SphereGenerator CreateSphere(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int radius){
-        return new SphereGenerator(server, buildSpeed, blockTypes, pos, replaceableOnly, radius);
+        SphereGenerator sphere = new SphereGenerator(server, buildSpeed, blockTypes, pos, replaceableOnly, radius);
+        sphere.Enable();
+        return sphere;
     }
     public static SphereGenerator CreateSphere(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int radius) {
-        return new SphereGenerator(server, buildSpeed, blockTypes, pos, maxHardness, radius);
+        SphereGenerator sphere = new SphereGenerator(server, buildSpeed, blockTypes, pos, maxHardness, radius);
+        sphere.Enable();
+        return sphere;
     }
     public static SphereGenerator CreateSphere(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, int radius){
-        return new SphereGenerator(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius);
+        SphereGenerator sphere = new SphereGenerator(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius);
+        sphere.Enable();
+        return sphere;
+    }
+
+    public static HollowSphereGenerator CreateHollowSphere(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int radius, int thickness){
+        HollowSphereGenerator sphere = new HollowSphereGenerator(server, buildSpeed, blockTypes, pos, replaceableOnly, radius, thickness);
+        sphere.Enable();
+        return sphere;
+    }
+    public static HollowSphereGenerator CreateHollowSphere(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int radius, int thickness) {
+        HollowSphereGenerator sphere = new HollowSphereGenerator(server, buildSpeed, blockTypes, pos, maxHardness, radius, thickness);
+        sphere.Enable();
+        return sphere;
+    }
+    public static HollowSphereGenerator CreateHollowSphere(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, int radius, int thickness){
+        HollowSphereGenerator sphere = new HollowSphereGenerator(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius, thickness);
+        sphere.Enable();
+        return sphere;
     }
 }

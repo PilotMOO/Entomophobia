@@ -129,7 +129,7 @@ public class EntomoHandlerEvents {
                 }
             }
 
-            event.getServer().getPlayerList().broadcastSystemMessage(Component.translatable("infection_start"), false);
+            event.getServer().getPlayerList().broadcastSystemMessage(Component.translatable("entomophobia.system.infection_start"), false);
             Entomophobia.activeData.setHasStarted(true);
         }
     }
