@@ -1,4 +1,4 @@
-package mod.pilot.entomophobia.worlddata;
+package mod.pilot.entomophobia.data;
 
 import mod.pilot.entomophobia.Entomophobia;
 import net.minecraft.nbt.CompoundTag;

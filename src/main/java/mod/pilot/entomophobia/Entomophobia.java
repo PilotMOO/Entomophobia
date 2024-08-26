@@ -2,13 +2,12 @@ package mod.pilot.entomophobia;
 
 import com.mojang.logging.LogUtils;
 import mod.pilot.entomophobia.blocks.EntomoBlocks;
-import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.items.EntomoCreativeTabs;
 import mod.pilot.entomophobia.items.EntomoItems;
 import mod.pilot.entomophobia.sound.EntomoSounds;
-import mod.pilot.entomophobia.worlddata.WorldSaveData;
+import mod.pilot.entomophobia.data.WorldSaveData;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -16,7 +15,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
-import org.spongepowered.asm.mixin.Mixin;
 
 @Mod(Entomophobia.MOD_ID)
 public class Entomophobia

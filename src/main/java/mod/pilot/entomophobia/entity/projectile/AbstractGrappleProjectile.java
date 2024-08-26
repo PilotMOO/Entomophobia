@@ -1,7 +1,7 @@
 package mod.pilot.entomophobia.entity.projectile;
 
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
-import mod.pilot.entomophobia.worlddata.EntomoDataManager;
+import mod.pilot.entomophobia.data.EntomoDataManager;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;

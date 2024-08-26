@@ -5,12 +5,10 @@ import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.util.AzureLibUtil;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
-import mod.pilot.entomophobia.effects.pheromones.PheromonesBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
-import mod.pilot.entomophobia.worlddata.EntomoWorldManager;
+import mod.pilot.entomophobia.data.EntomoWorldManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 

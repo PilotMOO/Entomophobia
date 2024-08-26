@@ -1,10 +1,9 @@
 package mod.pilot.entomophobia.effects;
 
 import mod.pilot.entomophobia.Config;
-import mod.pilot.entomophobia.worlddata.EntomoDataManager;
+import mod.pilot.entomophobia.data.EntomoDataManager;
 import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
-import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;

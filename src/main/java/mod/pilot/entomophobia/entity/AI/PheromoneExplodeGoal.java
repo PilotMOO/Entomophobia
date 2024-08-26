@@ -1,7 +1,7 @@
 package mod.pilot.entomophobia.entity.AI;
 
 import mod.pilot.entomophobia.Config;
-import mod.pilot.entomophobia.worlddata.EntomoWorldManager;
+import mod.pilot.entomophobia.data.EntomoWorldManager;
 import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.EntomoEntities;

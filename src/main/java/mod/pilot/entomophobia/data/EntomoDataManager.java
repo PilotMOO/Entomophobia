@@ -1,4 +1,4 @@
-package mod.pilot.entomophobia.worlddata;
+package mod.pilot.entomophobia.data;
 
 import mod.pilot.entomophobia.Config;
 import net.minecraft.resources.ResourceLocation;
@@ -6,9 +6,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class EntomoDataManager {
     public static EntityType<?> GetConvertedFor(String ID){
