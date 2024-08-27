@@ -1,6 +1,5 @@
 package mod.pilot.entomophobia.data.WorldShapes;
 
-import mod.pilot.entomophobia.data.WorldShapes.EntomoWorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -44,10 +43,10 @@ public abstract class ShapeGenerator{
     public void setState(int state){
         GeneratorState = state;
     }
-    public void setState(EntomoWorldShapeManager.GeneratorStates state){
+    public void setState(WorldShapeManager.GeneratorStates state){
         GeneratorState = state.ordinal();
     }
-    public boolean isOfState(EntomoWorldShapeManager.GeneratorStates state){
+    public boolean isOfState(WorldShapeManager.GeneratorStates state){
         return GeneratorState == state.ordinal();
     }
 
@@ -58,10 +57,10 @@ public abstract class ShapeGenerator{
     public void setPlacementDetail(int detail){
         PlacementDetail = detail;
     }
-    public void setPlacementDetail(EntomoWorldShapeManager.PlacementDetails detail){
+    public void setPlacementDetail(WorldShapeManager.PlacementDetails detail){
         PlacementDetail = detail.ordinal();
     }
-    public boolean isOfPlacementDetail(EntomoWorldShapeManager.PlacementDetails detail){
+    public boolean isOfPlacementDetail(WorldShapeManager.PlacementDetails detail){
         return PlacementDetail == detail.ordinal();
     }
 
@@ -74,35 +73,39 @@ public abstract class ShapeGenerator{
     public boolean CanThisBeReplaced(BlockState state, BlockPos pos){
         switch (getPlacementDetail()){
             case 0 ->{
-                return state.canBeReplaced();
+                return state.canBeReplaced() && isNotInList(state);
             }
             case 1 ->{
-                return MaxHardness <= state.getDestroySpeed(server, pos);
+                return MaxHardness <= state.getDestroySpeed(server, pos) && isNotInList(state );
             }
             case 2 ->{
                 if (ReplaceWhitelist == null){
                     if (ReplaceBlacklist != null){
-                        return !ReplaceBlacklist.contains(state);
+                        return !ReplaceBlacklist.contains(state) && isNotInList(state);
                     }
                     return false;
                 }
                 else{
-                    return ReplaceWhitelist.contains(state) && (ReplaceBlacklist == null || !ReplaceBlacklist.contains(state));
+                    return ReplaceWhitelist.contains(state) && (ReplaceBlacklist == null || !ReplaceBlacklist.contains(state)) && isNotInList(state);
                 }
             }
             case 3 ->{
-                for (BlockState buildBlocks : BuildingBlocks){
-                    if (state == buildBlocks){
-                        continue;
-                    }
-                    return true;
-                }
+                return isNotInList(state);
             }
             default -> {
                 return false;
             }
         }
-        return false;
+    }
+    private boolean isNotInList(BlockState state){
+        boolean flag = true;
+        for (BlockState buildBlocks : BuildingBlocks){
+            if (state == buildBlocks) {
+                flag = false;
+                break;
+            }
+        }
+        return flag;
     }
 
     private double BuildSpeed;
@@ -113,7 +116,18 @@ public abstract class ShapeGenerator{
         BuildSpeed = newSpeed;
     }
 
-    public List<BlockState> BuildingBlocks;
+    protected int ActiveTime;
+    public int getActiveTime(){
+        return ActiveTime;
+    }
+    protected void setActiveTime(int count){
+        ActiveTime = count;
+    }
+    protected void ActiveTimeTick(){
+        setActiveTime(getActiveTime() + 1);
+    }
+
+    public final List<BlockState> BuildingBlocks;
 
     private final Vec3 Position;
     public Vec3 getPosition(){
@@ -131,15 +145,15 @@ public abstract class ShapeGenerator{
     }
 
     public void Disable(){
-        setState(EntomoWorldShapeManager.GeneratorStates.disabled);
+        setState(WorldShapeManager.GeneratorStates.disabled);
     }
     public void Enable(){
-        if (!isOfState(EntomoWorldShapeManager.GeneratorStates.done)){
-            setState(EntomoWorldShapeManager.GeneratorStates.active);
+        if (!isOfState(WorldShapeManager.GeneratorStates.done)){
+            setState(WorldShapeManager.GeneratorStates.active);
         }
     }
     public void Finish(){
-        setState(EntomoWorldShapeManager.GeneratorStates.done);
+        setState(WorldShapeManager.GeneratorStates.done);
     }
 
     public abstract boolean Build();
@@ -160,9 +174,15 @@ public abstract class ShapeGenerator{
         return ReplaceBlock(pos, state, 3);
     }
     protected boolean ReplaceBlock(BlockPos pos, int index){
-        return ReplaceBlock(pos, BuildingBlocks.get(index), 3);
+        if (BuildingBlocks.size() > index){
+            return ReplaceBlock(pos, BuildingBlocks.get(index), 3);
+        }
+        return false;
     }
     protected boolean ReplaceBlock(BlockPos pos){
-        return ReplaceBlock(pos, BuildingBlocks.get(server.random.nextInt(0, BuildingBlocks.size())), 3);
+        if (BuildingBlocks.size() > 0){
+            return ReplaceBlock(pos, BuildingBlocks.get(server.random.nextInt(0, BuildingBlocks.size())), 3);
+        }
+        return false;
     }
 }

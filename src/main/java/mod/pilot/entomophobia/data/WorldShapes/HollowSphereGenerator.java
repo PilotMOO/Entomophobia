@@ -30,10 +30,12 @@ public class HollowSphereGenerator extends SphereGenerator {
 
     @Override
     public boolean Build() {
-        if (!isOfState(EntomoWorldShapeManager.GeneratorStates.active)){
+        if (!isOfState(WorldShapeManager.GeneratorStates.active)){
             return false;
         }
         //Code stolen from Harby-- thanks Harby
+        ActiveTimeTick();
+        double BuildTracker = getBuildSpeed();
         boolean succeeded = false;
         for(int x = 0; x <= 2*radius; ++x) {
             for(int y = 0; y <= 2*radius; ++y) {
@@ -43,13 +45,28 @@ public class HollowSphereGenerator extends SphereGenerator {
                     BlockPos bPos = new BlockPos(new Vec3i((int)(center.x + (x - radius) - 1), (int)(center.y + (y - radius) - 1), (int)(center.z + (z - radius) - 1)));
                     BlockState bState = server.getBlockState(bPos);
                     if (CanThisBeReplaced(bState, bPos) && distance <= radius && distance > radius - thickness){
-                        succeeded = ReplaceBlock(bPos);
+                        if (BuildTracker > 1){
+                            succeeded = ReplaceBlock(bPos);
+                        }
+                        else if (BuildTracker < 1){
+                            if (getActiveTime() % (1 / BuildTracker) == 0){
+                                succeeded = ReplaceBlock(bPos);
+                            }
+                            else{
+                                succeeded = true;
+                            }
+                        }
                     }
-                    if (succeeded) {break;}
+                    if (succeeded){
+                        BuildTracker--;
+                        if (BuildTracker <= 0){
+                            break;
+                        }
+                    }
                 }
-                if (succeeded) {break;}
+                if (succeeded && BuildTracker <= 0) {break;}
             }
-            if (succeeded) {break;}
+            if (succeeded && BuildTracker <= 0) {break;}
         }
         if (!succeeded){
             Finish();
