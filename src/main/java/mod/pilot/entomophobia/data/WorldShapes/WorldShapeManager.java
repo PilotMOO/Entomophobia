@@ -1,5 +1,6 @@
 package mod.pilot.entomophobia.data.WorldShapes;
 
+import mod.pilot.entomophobia.data.WorldShapes.Shapes.*;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -32,6 +33,37 @@ public class WorldShapeManager {
         NegZ,
     }
 
+    public static SquareGenerator CreateSquare(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int size, Axis excluded){
+        SquareGenerator square = new SquareGenerator(server, buildSpeed, blockTypes, pos, replaceableOnly, size, excluded);
+        square.Enable();
+        return square;
+    }
+    public static SquareGenerator CreateSquare(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int size, Axis excluded) {
+        SquareGenerator square = new SquareGenerator(server, buildSpeed, blockTypes, pos, maxHardness, size, excluded);
+        square.Enable();
+        return square;
+    }
+    public static SquareGenerator CreateSquare(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, int size, Axis excluded){
+        SquareGenerator square = new SquareGenerator(server, buildSpeed, blockTypes, pos, whitelist, blacklist, size, excluded);
+        square.Enable();
+        return square;
+    }
+
+    public static CircleGenerator CreateCircle(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int radius, Axis excluded){
+        CircleGenerator circle = new CircleGenerator(server, buildSpeed, blockTypes, pos, replaceableOnly, radius, excluded);
+        circle.Enable();
+        return circle;
+    }
+    public static CircleGenerator CreateCircle(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int radius, Axis excluded) {
+        CircleGenerator circle = new CircleGenerator(server, buildSpeed, blockTypes, pos, maxHardness, radius, excluded);
+        circle.Enable();
+        return circle;
+    }
+    public static CircleGenerator CreateCircle(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, int radius, Axis excluded){
+        CircleGenerator circle = new CircleGenerator(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius, excluded);
+        circle.Enable();
+        return circle;
+    }
 
     public static QuadrilateralGenerator CreateRectangle(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int X, int Y, int Z){
         QuadrilateralGenerator rectangle = new QuadrilateralGenerator(server, buildSpeed, blockTypes, pos, replaceableOnly, X, Y, Z);
@@ -65,21 +97,6 @@ public class WorldShapeManager {
         return cube;
     }
 
-    public static SquareGenerator CreateSquare(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int size, Axis excluded){
-        SquareGenerator square = new SquareGenerator(server, buildSpeed, blockTypes, pos, replaceableOnly, size, excluded);
-        square.Enable();
-        return square;
-    }
-    public static SquareGenerator CreateSquare(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int size, Axis excluded) {
-        SquareGenerator square = new SquareGenerator(server, buildSpeed, blockTypes, pos, maxHardness, size, excluded);
-        square.Enable();
-        return square;
-    }
-    public static SquareGenerator CreateSquare(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, int size, Axis excluded){
-        SquareGenerator square = new SquareGenerator(server, buildSpeed, blockTypes, pos, whitelist, blacklist, size, excluded);
-        square.Enable();
-        return square;
-    }
 
     public static SphereGenerator CreateSphere(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int radius){
         SphereGenerator sphere = new SphereGenerator(server, buildSpeed, blockTypes, pos, replaceableOnly, radius);
@@ -111,5 +128,21 @@ public class WorldShapeManager {
         HollowSphereGenerator sphere = new HollowSphereGenerator(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius, thickness);
         sphere.Enable();
         return sphere;
+    }
+
+    public static VectorLineGenerator CreateLine(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, boolean replaceableOnly, Vec3 start, Vec3 end){
+        VectorLineGenerator line = new VectorLineGenerator(server, buildSpeed, blockTypes, replaceableOnly, start, end);
+        line.Enable();
+        return line;
+    }
+    public static VectorLineGenerator CreateLine(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, int maxHardness, Vec3 start, Vec3 end) {
+        VectorLineGenerator line = new VectorLineGenerator(server, buildSpeed, blockTypes, maxHardness, start, end);
+        line.Enable();
+        return line;
+    }
+    public static VectorLineGenerator CreateLine(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, Vec3 start, Vec3 end){
+        VectorLineGenerator line = new VectorLineGenerator(server, buildSpeed, blockTypes, whitelist, blacklist, start, end);
+        line.Enable();
+        return line;
     }
 }

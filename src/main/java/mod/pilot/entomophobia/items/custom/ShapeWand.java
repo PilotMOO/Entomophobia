@@ -24,13 +24,13 @@ import java.util.List;
 public class ShapeWand extends Item {
     private static final int amountOfStates = states.values().length;
     enum states{
+        square,
+        circle,
         cube,
         rectangle,
-        square,
         sphere,
         hollow_sphere,
-        square_slow,
-        square_fast
+        line
     }
     int state = 0;
 
@@ -41,7 +41,9 @@ public class ShapeWand extends Item {
     public List<ShapeGenerator> shapeInstances(){
         return new ArrayList<>(shapes);
     }
-    private static final List<BlockState> BlockStates = new ArrayList<>();
+    private final List<BlockState> BlockStates = new ArrayList<>();
+
+    private Vec3 LineVectorStart;
 
     @Override
     public void inventoryTick(ItemStack pStack, Level pLevel, Entity pEntity, int pSlotId, boolean pIsSelected) {
@@ -76,38 +78,47 @@ public class ShapeWand extends Item {
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();
-        if (BlockStates.size() > 0){
-            if (player != null && context.getLevel() instanceof ServerLevel server){
-                Vec3 GeneratorCenter = context.isSecondaryUseActive() ? context.getClickedPos().getCenter() : context.getClickedPos().relative(context.getClickedFace()).getCenter();
-                if (state == states.cube.ordinal()){
-                    shapes.add(WorldShapeManager.CreateCube(server, 2, BlockStates, GeneratorCenter, false, 5));
+        if (player != null){
+            if (BlockStates.size() > 0){
+                if (context.getLevel() instanceof ServerLevel server){
+                    Vec3 GeneratorCenter = context.isSecondaryUseActive() ? context.getClickedPos().getCenter() : context.getClickedPos().relative(context.getClickedFace()).getCenter();
+                    switch (state){
+                        case 0 -> shapes.add(WorldShapeManager.CreateSquare(server, 1, BlockStates, GeneratorCenter, false, 10, WorldShapeManager.Axis.Y));
+                        case 1 -> shapes.add(WorldShapeManager.CreateCircle(server, 1, BlockStates, GeneratorCenter, false, 3, WorldShapeManager.Axis.Y));
+                        case 2 -> shapes.add(WorldShapeManager.CreateCube(server, 1, BlockStates, GeneratorCenter, false, 5));
+                        case 3 -> shapes.add(WorldShapeManager.CreateRectangle(server, 1, BlockStates, GeneratorCenter, false, 5, 2, 10));
+                        case 4 -> shapes.add(WorldShapeManager.CreateSphere(server, 1, BlockStates, GeneratorCenter, false, 3));
+                        case 5 -> shapes.add(WorldShapeManager.CreateHollowSphere(server, 50, BlockStates, GeneratorCenter, true, 20, 1));
+                        case 6 -> CreateLine(context.getPlayer(), GeneratorCenter);
+                    }
+                    if (state != states.line.ordinal()){
+                        player.displayClientMessage(Component.literal("Generating a new " + states.values()[state].name()), true);
+                    }
                 }
-                if (state == states.rectangle.ordinal()){
-                    shapes.add(WorldShapeManager.CreateRectangle(server, 2, BlockStates, GeneratorCenter, false, 5, 2, 10));
-                }
-                if (state == states.square.ordinal()){
-                    shapes.add(WorldShapeManager.CreateSquare(server, 2, BlockStates, GeneratorCenter, false, 10, WorldShapeManager.Axis.Y));
-                }
-                if (state == states.sphere.ordinal()) {
-                    shapes.add(WorldShapeManager.CreateSphere(server, 2, BlockStates, GeneratorCenter, false, 3));
-                }
-                if (state == states.hollow_sphere.ordinal()) {
-                    shapes.add(WorldShapeManager.CreateHollowSphere(server, 50, BlockStates, GeneratorCenter, true, 20, 1));
-                }
-                if (state == states.square_slow.ordinal()){
-                    shapes.add(WorldShapeManager.CreateSquare(server, 0.5, BlockStates, GeneratorCenter, false, 10, WorldShapeManager.Axis.Y));
-                }
-                if (state == states.square_fast.ordinal()){
-                    shapes.add(WorldShapeManager.CreateSquare(server, 5, BlockStates, GeneratorCenter, false, 10, WorldShapeManager.Axis.Y));
-                }
-                player.displayClientMessage(Component.literal("Generating a new " + states.values()[state].name()), true);
+                return InteractionResult.SUCCESS;
             }
-            return InteractionResult.SUCCESS;
+            else{
+                player.displayClientMessage(Component.literal("Can't create shape, list of blocks is empty!"), true);
+                player.playSound(SoundEvents.ANVIL_LAND);
+            }
+        }
+        return InteractionResult.FAIL;
+    }
+
+    private void CreateLine(Player player, Vec3 generatorCenter) {
+        if (LineVectorStart == null){
+            LineVectorStart = generatorCenter;
+            player.displayClientMessage(Component.literal("Added Position to Line start!"), true);
+            player.playSound(SoundEvents.CHICKEN_EGG);
+            player.getCooldowns().addCooldown(this, 5);
         }
         else{
-            player.displayClientMessage(Component.literal("Can't create shape, list of blocks is empty!"), true);
-            player.playSound(SoundEvents.ANVIL_LAND);
-            return InteractionResult.FAIL;
+            if (player.level() instanceof ServerLevel server){
+                shapes.add(WorldShapeManager.CreateLine(server, 1, BlockStates, false, LineVectorStart, generatorCenter));
+                LineVectorStart = null;
+            }
+            player.displayClientMessage(Component.literal("Generating a new " + states.values()[state].name()), true);
+            player.playSound(SoundEvents.CHICKEN_EGG);
         }
     }
 
@@ -118,6 +129,7 @@ public class ShapeWand extends Item {
             if (!BlockStates.contains(state)){
                 BlockStates.add(state);
                 player.displayClientMessage(Component.literal("Added " + state.getBlock() + " to list of BlockStates!"), true);
+                player.getCooldowns().addCooldown(this, 5);
                 player.playSound(SoundEvents.AMETHYST_BLOCK_CHIME, 1f, 1.5f);
             }
         }
@@ -125,16 +137,14 @@ public class ShapeWand extends Item {
             if (BlockStates.contains(state)) {
                 BlockStates.remove(state);
                 player.displayClientMessage(Component.literal("Removed " + state.getBlock() + " from list of BlockStates!"), true);
+                player.getCooldowns().addCooldown(this, 5);
                 player.playSound(SoundEvents.AMETHYST_BLOCK_CHIME, 1f, 0.5f);
             }
             else{
                 player.displayClientMessage(Component.literal("Can't remove that block, it isn't in the list!"), true);
+                player.getCooldowns().addCooldown(this, 5);
                 player.playSound(SoundEvents.AMETHYST_CLUSTER_BREAK);
             }
-        }
-
-        if (player.level() instanceof ServerLevel server){
-            server.setBlock(pos, state, 7);
         }
         return true;
     }

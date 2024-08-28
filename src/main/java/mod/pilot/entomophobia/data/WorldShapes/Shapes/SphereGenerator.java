@@ -1,5 +1,7 @@
-package mod.pilot.entomophobia.data.WorldShapes;
+package mod.pilot.entomophobia.data.WorldShapes.Shapes;
 
+import mod.pilot.entomophobia.data.WorldShapes.ShapeGenerator;
+import mod.pilot.entomophobia.data.WorldShapes.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -34,9 +36,9 @@ public class SphereGenerator extends ShapeGenerator {
         double BuildTracker = getBuildSpeed();
         //Code stolen from Harby-- thanks Harby
         boolean succeeded = false;
-        for(int x = 0; x <= 2*radius; ++x) {
-            for(int y = 0; y <= 2*radius; ++y) {
-                for(int z = 0; z <= 2*radius; ++z) {
+        for(int x = 0; x <= radius * 2; x++) {
+            for(int y = 0; y <= radius * 2; y++) {
+                for(int z = 0; z <= radius * 2; z++) {
                     double distance = Mth.sqrt((x - radius) * (x - radius) + (y - radius) * (y - radius) + (z - radius) * (z - radius));
                     Vec3 center = getPosition();
                     BlockPos bPos = new BlockPos(new Vec3i((int)(center.x + (x - radius) - 1), (int)(center.y + (y - radius) - 1), (int)(center.z + (z - radius) - 1)));
@@ -45,7 +47,7 @@ public class SphereGenerator extends ShapeGenerator {
                         if (BuildTracker > 1){
                             succeeded = ReplaceBlock(bPos);
                         }
-                        else if (BuildTracker < 1){
+                        else{
                             if (getActiveTime() % (1 / BuildTracker) == 0){
                                 succeeded = ReplaceBlock(bPos);
                             }

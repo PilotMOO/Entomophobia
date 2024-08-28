@@ -1,5 +1,7 @@
-package mod.pilot.entomophobia.data.WorldShapes;
+package mod.pilot.entomophobia.data.WorldShapes.Shapes;
 
+import mod.pilot.entomophobia.data.WorldShapes.ShapeGenerator;
+import mod.pilot.entomophobia.data.WorldShapes.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -51,7 +53,7 @@ public class QuadrilateralGenerator extends ShapeGenerator {
                         if (BuildTracker > 1){
                             succeeded = ReplaceBlock(bPos);
                         }
-                        else if (BuildTracker < 1){
+                        else{
                             if (getActiveTime() % (1 / BuildTracker) == 0){
                                 succeeded = ReplaceBlock(bPos);
                             }
