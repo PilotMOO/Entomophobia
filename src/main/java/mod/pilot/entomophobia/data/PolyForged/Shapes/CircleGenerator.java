@@ -1,7 +1,7 @@
-package mod.pilot.entomophobia.data.WorldShapes.Shapes;
+package mod.pilot.entomophobia.data.PolyForged.Shapes;
 
-import mod.pilot.entomophobia.data.WorldShapes.FlatShapeGenerator;
-import mod.pilot.entomophobia.data.WorldShapes.WorldShapeManager;
+import mod.pilot.entomophobia.data.PolyForged.FlatShapeGenerator;
+import mod.pilot.entomophobia.data.PolyForged.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -13,42 +13,45 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class CircleGenerator extends FlatShapeGenerator {
-    public CircleGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int radius, WorldShapeManager.Axis excluded) {
+    public CircleGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos,boolean replaceableOnly, int radius, WorldShapeManager.Axis excluded) {
         super(server, buildSpeed, blockTypes, pos, replaceableOnly, radius, radius, radius, excluded);
     }
+
     public CircleGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int radius, WorldShapeManager.Axis excluded) {
         super(server, buildSpeed, blockTypes, pos, maxHardness, radius, radius, radius, excluded);
     }
+
     public CircleGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, int radius, WorldShapeManager.Axis excluded) {
         super(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius, radius, radius, excluded);
     }
 
     @Override
     public boolean Build() {
-        if (!isOfState(WorldShapeManager.GeneratorStates.active)){
+        if (!isOfState(WorldShapeManager.GeneratorStates.active)) {
             return false;
         }
         ActiveTimeTick();
         double BuildTracker = getBuildSpeed();
         boolean succeeded = false;
-        for(int x = 0; x <= (ExcludedAxis != WorldShapeManager.Axis.X ? Xsize * 2 : 0); x++) {
-            for(int y = 0; y <= (ExcludedAxis != WorldShapeManager.Axis.Y ? Ysize * 2 : 0); y++) {
-                for(int z = 0; z <= (ExcludedAxis != WorldShapeManager.Axis.Z ? Zsize * 2 : 0); z++) {
+        for (int x = 0; x <= (ExcludedAxis != WorldShapeManager.Axis.X ? Xsize * 2 : 0); x++) {
+            for (int y = 0; y <= (ExcludedAxis != WorldShapeManager.Axis.Y ? Ysize * 2 : 0); y++) {
+                for (int z = 0; z <= (ExcludedAxis != WorldShapeManager.Axis.Z ? Zsize * 2 : 0); z++) {
                     double distance = Mth.sqrt((x - Xsize) * (x - Xsize) + (y - Ysize) * (y - Ysize) + (z - Zsize) * (z - Zsize));
                     Vec3 center = getPosition();
-                    BlockPos bPos = new BlockPos(new Vec3i((int)(center.x + (x - Xsize) - 1), (int)(center.y + (y - Ysize)), (int)(center.z + (z - Zsize) - 1)));
+                    BlockPos bPos = new BlockPos(new Vec3i((int) (center.x + (x - Xsize) - 1), (int) (center.y + (y - Ysize)), (int) (center.z + (z - Zsize) - 1)));
                     BlockState bState = server.getBlockState(bPos);
-                    if (CanThisBeReplaced(bState, bPos) && distance <= (double)(Xsize + Ysize + Zsize) / 2){
-                        if (BuildTracker >= 1){
+                    if (CanThisBeReplaced(bState, bPos) && distance <= (double) (Xsize + Ysize + Zsize) / 2) {
+                        if (BuildTracker >= 1) {
                             succeeded = ReplaceBlock(bPos);
-                        }
-                        else{
-                            if (getActiveTime() % (int)(1 / BuildTracker) == 0){
+                        } else {
+                            if (getActiveTime() % (int) (1 / BuildTracker) == 0) {
                                 succeeded = ReplaceBlock(bPos);
-                            }
-                            else{
+                            } else {
                                 succeeded = true;
                             }
+                        }
+                        if (succeeded && BuildTracker <= 0) {
+                            break;
                         }
                     }
                     if (succeeded){
@@ -62,7 +65,7 @@ public class CircleGenerator extends FlatShapeGenerator {
             }
             if (succeeded && BuildTracker <= 0) {break;}
         }
-        if (!succeeded){
+        if (!succeeded) {
             Finish();
         }
         return succeeded;

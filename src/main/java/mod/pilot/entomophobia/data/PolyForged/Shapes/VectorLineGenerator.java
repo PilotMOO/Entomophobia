@@ -1,6 +1,6 @@
-package mod.pilot.entomophobia.data.WorldShapes.Shapes;
+package mod.pilot.entomophobia.data.PolyForged.Shapes;
 
-import mod.pilot.entomophobia.data.WorldShapes.VectorShapeGenerator;
+import mod.pilot.entomophobia.data.PolyForged.VectorShapeGenerator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;

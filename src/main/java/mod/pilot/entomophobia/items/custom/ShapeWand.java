@@ -1,7 +1,7 @@
 package mod.pilot.entomophobia.items.custom;
 
-import mod.pilot.entomophobia.data.WorldShapes.WorldShapeManager;
-import mod.pilot.entomophobia.data.WorldShapes.ShapeGenerator;
+import mod.pilot.entomophobia.data.PolyForged.WorldShapeManager;
+import mod.pilot.entomophobia.data.PolyForged.ShapeGenerator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -15,10 +15,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ShapeWand extends Item {
@@ -30,7 +32,12 @@ public class ShapeWand extends Item {
         rectangle,
         sphere,
         hollow_sphere,
-        line
+        line,
+        weighted_square_line,
+        weighted_circle_line,
+        hollow_weighted_circle_line_small,
+        hollow_weighted_circle_line_medium,
+        hollow_weighted_circle_line_large
     }
     int state = 0;
 
@@ -42,6 +49,9 @@ public class ShapeWand extends Item {
         return new ArrayList<>(shapes);
     }
     private final List<BlockState> BlockStates = new ArrayList<>();
+
+private static final List<BlockState> whitelist = new ArrayList<>(Arrays.asList(Blocks.GRASS_BLOCK.defaultBlockState(), Blocks.DIRT.defaultBlockState()));
+    private static final List<BlockState> blacklist = new ArrayList<>(Arrays.asList(Blocks.COBBLESTONE.defaultBlockState(), Blocks.COARSE_DIRT.defaultBlockState()));
 
     private Vec3 LineVectorStart;
 
@@ -84,14 +94,14 @@ public class ShapeWand extends Item {
                     Vec3 GeneratorCenter = context.isSecondaryUseActive() ? context.getClickedPos().getCenter() : context.getClickedPos().relative(context.getClickedFace()).getCenter();
                     switch (state){
                         case 0 -> shapes.add(WorldShapeManager.CreateSquare(server, 1, BlockStates, GeneratorCenter, false, 10, WorldShapeManager.Axis.Y));
-                        case 1 -> shapes.add(WorldShapeManager.CreateCircle(server, 1, BlockStates, GeneratorCenter, false, 3, WorldShapeManager.Axis.Y));
+                        case 1 -> shapes.add(WorldShapeManager.CreateCircle(server, 0.25, BlockStates, GeneratorCenter, false, 5, WorldShapeManager.Axis.Y));
                         case 2 -> shapes.add(WorldShapeManager.CreateCube(server, 1, BlockStates, GeneratorCenter, false, 5));
                         case 3 -> shapes.add(WorldShapeManager.CreateRectangle(server, 1, BlockStates, GeneratorCenter, false, 5, 2, 10));
                         case 4 -> shapes.add(WorldShapeManager.CreateSphere(server, 1, BlockStates, GeneratorCenter, false, 3));
                         case 5 -> shapes.add(WorldShapeManager.CreateHollowSphere(server, 50, BlockStates, GeneratorCenter, true, 20, 1));
-                        case 6 -> CreateLine(context.getPlayer(), GeneratorCenter);
+                        case 6, 7, 8, 9, 10, 11 -> CreateLine(context.getPlayer(), GeneratorCenter);
                     }
-                    if (state != states.line.ordinal()){
+                    if (state != states.line.ordinal() && state != states.weighted_square_line.ordinal() && state != states.weighted_circle_line.ordinal() && state != states.hollow_weighted_circle_line_small.ordinal()  && state != states.hollow_weighted_circle_line_medium.ordinal()  && state != states.hollow_weighted_circle_line_large.ordinal()){
                         player.displayClientMessage(Component.literal("Generating a new " + states.values()[state].name()), true);
                     }
                 }
@@ -114,7 +124,14 @@ public class ShapeWand extends Item {
         }
         else{
             if (player.level() instanceof ServerLevel server){
-                shapes.add(WorldShapeManager.CreateLine(server, 1, BlockStates, false, LineVectorStart, generatorCenter));
+                switch (state){
+                    case 6 -> shapes.add(WorldShapeManager.CreateLine(server, 1, BlockStates, false, LineVectorStart, generatorCenter));
+                    case 7 -> shapes.add(WorldShapeManager.CreateWeightedSquareLine(server, 10, BlockStates, false, LineVectorStart, generatorCenter, 5));
+                    case 8 -> shapes.add(WorldShapeManager.CreateWeightedCircleLine(server, 25, BlockStates, false, LineVectorStart, generatorCenter, 10));
+                    case 9 -> shapes.add(WorldShapeManager.CreateHollowWeightedCircleLine(server, 10, BlockStates, false, LineVectorStart, generatorCenter, 5, 1));
+                    case 10 -> shapes.add(WorldShapeManager.CreateHollowWeightedCircleLine(server, 25, BlockStates, false, LineVectorStart, generatorCenter, 15, 2));
+                    case 11 -> shapes.add(WorldShapeManager.CreateHollowWeightedCircleLine(server, 30, BlockStates, false, LineVectorStart, generatorCenter, 25, 3));
+                }
                 LineVectorStart = null;
             }
             player.displayClientMessage(Component.literal("Generating a new " + states.values()[state].name()), true);

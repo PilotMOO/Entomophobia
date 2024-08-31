@@ -1,6 +1,6 @@
-package mod.pilot.entomophobia.data.WorldShapes;
+package mod.pilot.entomophobia.data.PolyForged;
 
-import mod.pilot.entomophobia.data.WorldShapes.Shapes.*;
+import mod.pilot.entomophobia.data.PolyForged.Shapes.*;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -97,7 +97,6 @@ public class WorldShapeManager {
         return cube;
     }
 
-
     public static SphereGenerator CreateSphere(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int radius){
         SphereGenerator sphere = new SphereGenerator(server, buildSpeed, blockTypes, pos, replaceableOnly, radius);
         sphere.Enable();
@@ -124,7 +123,7 @@ public class WorldShapeManager {
         sphere.Enable();
         return sphere;
     }
-    public static HollowSphereGenerator CreateHollowSphere(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, int radius, int thickness){
+    public static HollowSphereGenerator CreateHollowSphere(ServerLevel server, double buildSpeed, List<BlockState> blockTypes,Vec3 pos, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, int radius, int thickness){
         HollowSphereGenerator sphere = new HollowSphereGenerator(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius, thickness);
         sphere.Enable();
         return sphere;
@@ -142,6 +141,54 @@ public class WorldShapeManager {
     }
     public static VectorLineGenerator CreateLine(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, Vec3 start, Vec3 end){
         VectorLineGenerator line = new VectorLineGenerator(server, buildSpeed, blockTypes, whitelist, blacklist, start, end);
+        line.Enable();
+        return line;
+    }
+
+    public static WeightedSquareVectorLineGenerator CreateWeightedSquareLine(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, boolean replaceableOnly, Vec3 start, Vec3 end, int weight){
+        WeightedSquareVectorLineGenerator line = new WeightedSquareVectorLineGenerator(server, buildSpeed, blockTypes, replaceableOnly, start, end, weight);
+        line.Enable();
+        return line;
+    }
+    public static WeightedSquareVectorLineGenerator CreateWeightedSquareLine(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, int maxHardness, Vec3 start, Vec3 end, int weight) {
+        WeightedSquareVectorLineGenerator line = new WeightedSquareVectorLineGenerator(server, buildSpeed, blockTypes, maxHardness, start, end, weight);
+        line.Enable();
+        return line;
+    }
+    public static WeightedSquareVectorLineGenerator CreateWeightedSquareLine(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, Vec3 start, Vec3 end, int weight){
+        WeightedSquareVectorLineGenerator line = new WeightedSquareVectorLineGenerator(server, buildSpeed, blockTypes, whitelist, blacklist, start, end, weight);
+        line.Enable();
+        return line;
+    }
+
+    public static WeightedCircleVectorLineGenerator CreateWeightedCircleLine(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, boolean replaceableOnly, Vec3 start, Vec3 end, int weight){
+        WeightedCircleVectorLineGenerator line = new WeightedCircleVectorLineGenerator(server, buildSpeed, blockTypes, replaceableOnly, start, end, weight);
+        line.Enable();
+        return line;
+    }
+    public static WeightedCircleVectorLineGenerator CreateWeightedCircleLine(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, int maxHardness, Vec3 start, Vec3 end, int weight) {
+        WeightedCircleVectorLineGenerator line = new WeightedCircleVectorLineGenerator(server, buildSpeed, blockTypes, maxHardness, start, end, weight);
+        line.Enable();
+        return line;
+    }
+    public static WeightedCircleVectorLineGenerator CreateWeightedCircleLine(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, Vec3 start, Vec3 end, int weight){
+        WeightedCircleVectorLineGenerator line = new WeightedCircleVectorLineGenerator(server, buildSpeed, blockTypes, whitelist, blacklist, start, end, weight);
+        line.Enable();
+        return line;
+    }
+
+    public static HollowWeightedCircleLineGenerator CreateHollowWeightedCircleLine(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, boolean replaceableOnly, Vec3 start, Vec3 end, int weight, int thickness){
+        HollowWeightedCircleLineGenerator line = new HollowWeightedCircleLineGenerator(server, buildSpeed, blockTypes, replaceableOnly, start, end, weight, thickness);
+        line.Enable();
+        return line;
+    }
+    public static HollowWeightedCircleLineGenerator CreateHollowWeightedCircleLine(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, int maxHardness, Vec3 start, Vec3 end, int weight, int thickness) {
+        HollowWeightedCircleLineGenerator line = new HollowWeightedCircleLineGenerator(server, buildSpeed, blockTypes, maxHardness, start, end, weight, thickness);
+        line.Enable();
+        return line;
+    }
+    public static HollowWeightedCircleLineGenerator CreateHollowWeightedCircleLine(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, Vec3 start, Vec3 end, int weight, int thickness){
+        HollowWeightedCircleLineGenerator line = new HollowWeightedCircleLineGenerator(server, buildSpeed, blockTypes, whitelist, blacklist, start, end, weight, thickness);
         line.Enable();
         return line;
     }

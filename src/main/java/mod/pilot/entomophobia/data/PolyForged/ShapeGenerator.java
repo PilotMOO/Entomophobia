@@ -1,4 +1,4 @@
-package mod.pilot.entomophobia.data.WorldShapes;
+package mod.pilot.entomophobia.data.PolyForged;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -64,40 +64,41 @@ public abstract class ShapeGenerator{
         return PlacementDetail == detail.ordinal();
     }
 
-    int MaxHardness;
+    public int MaxHardness;
 
     @Nullable
-    List<BlockState> ReplaceWhitelist;
+    public List<BlockState> ReplaceWhitelist;
     @Nullable
-    List<BlockState> ReplaceBlacklist;
+    public List<BlockState> ReplaceBlacklist;
+
     public boolean CanThisBeReplaced(BlockState state, BlockPos pos){
         switch (getPlacementDetail()){
             case 0 ->{
-                return state.canBeReplaced() && isNotInList(state);
+                return state.canBeReplaced() && isNotInList(state.getBlock().defaultBlockState());
             }
             case 1 ->{
-                return MaxHardness <= state.getDestroySpeed(server, pos) && isNotInList(state );
+                return (MaxHardness >= state.getDestroySpeed(server, pos) && isNotInList(state.getBlock().defaultBlockState())) || state.canBeReplaced();
             }
             case 2 ->{
                 if (ReplaceWhitelist == null){
                     if (ReplaceBlacklist != null){
-                        return !ReplaceBlacklist.contains(state) && isNotInList(state);
+                        return (!ReplaceBlacklist.contains(state.getBlock().defaultBlockState()) && isNotInList(state.getBlock().defaultBlockState())) || state.canBeReplaced();
                     }
                     return false;
                 }
                 else{
-                    return ReplaceWhitelist.contains(state) && (ReplaceBlacklist == null || !ReplaceBlacklist.contains(state)) && isNotInList(state);
+                    return (ReplaceWhitelist.contains(state.getBlock().defaultBlockState()) && (ReplaceBlacklist == null || !ReplaceBlacklist.contains(state.getBlock().defaultBlockState())) && isNotInList(state.getBlock().defaultBlockState())) || state.canBeReplaced();
                 }
             }
             case 3 ->{
-                return isNotInList(state);
+                return isNotInList(state.getBlock().defaultBlockState()) || state.canBeReplaced();
             }
             default -> {
                 return false;
             }
         }
     }
-    private boolean isNotInList(BlockState state){
+    protected final boolean isNotInList(BlockState state){
         boolean flag = true;
         for (BlockState buildBlocks : BuildingBlocks){
             if (state == buildBlocks) {
