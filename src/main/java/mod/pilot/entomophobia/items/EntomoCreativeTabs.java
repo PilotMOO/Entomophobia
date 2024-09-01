@@ -30,7 +30,8 @@ public class EntomoCreativeTabs {
 
                         register.accept(EntomoItems.POISONOUS_MILK.get());
 
-                        register.accept(EntomoItems.NEST_BUILDER.get());
+                        register.accept(EntomoItems.SHAPE_WAND.get());
+                        register.accept(EntomoItems.NEST_WAND.get());
                     })
                     .build());
 }

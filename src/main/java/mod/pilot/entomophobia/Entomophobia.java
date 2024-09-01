@@ -8,6 +8,7 @@ import mod.pilot.entomophobia.items.EntomoCreativeTabs;
 import mod.pilot.entomophobia.items.EntomoItems;
 import mod.pilot.entomophobia.sound.EntomoSounds;
 import mod.pilot.entomophobia.data.WorldSaveData;
+import mod.pilot.entomophobia.systems.nest.NestManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -34,7 +35,7 @@ public class Entomophobia
         EntomoMobEffects.register(modEventBus);
         EntomoEntities.register(modEventBus);
 
-        System.out.println("Color: " + getIntFromColor(255, 255, 255));
+        //System.out.println("Color: " + getIntFromColor(255, 255, 255));
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SERVER_SPEC);
     }

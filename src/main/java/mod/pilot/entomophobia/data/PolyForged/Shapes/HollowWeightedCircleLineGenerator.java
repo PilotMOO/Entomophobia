@@ -28,7 +28,7 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
     }
 
     public final int thickness;
-    private int DistanceTracker = 0;
+    protected int DistanceTracker = 0;
 
     private ArrayList<ArrayList<BlockPos>> GhostLinePositions;
     private void GenerateGhostPositions(){
@@ -55,7 +55,7 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
         GhostLinePositions = ghostPositions;
     }
 
-    private boolean isThisAGhostPos(BlockPos bPos, int cycle){
+    protected boolean isThisAGhostPos(BlockPos bPos, int cycle){
         boolean flag = false;
         for (ArrayList<BlockPos> ghosts : GhostLinePositions){
             flag = ghosts.contains(bPos);
@@ -70,12 +70,12 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
                 return state.canBeReplaced() || state.canBeReplaced();
             }
             case 1 ->{
-                return MaxHardness >= state.getDestroySpeed(server, pos) || state.canBeReplaced();
+                return (MaxHardness >= state.getDestroySpeed(server, pos) || state.canBeReplaced()) && state.getDestroySpeed(server, pos) != -1;
             }
             case 2 ->{
                 if (ReplaceWhitelist == null){
                     if (ReplaceBlacklist != null){
-                        return !ReplaceBlacklist.contains(state.getBlock().defaultBlockState()) || state.canBeReplaced();
+                        return (!ReplaceBlacklist.contains(state.getBlock().defaultBlockState()) || state.canBeReplaced()) && state.getDestroySpeed(server, pos) != -1;
                     }
                     return false;
                 }

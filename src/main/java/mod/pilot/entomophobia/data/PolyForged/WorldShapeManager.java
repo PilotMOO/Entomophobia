@@ -113,18 +113,34 @@ public class WorldShapeManager {
         return sphere;
     }
 
-    public static HollowSphereGenerator CreateHollowSphere(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int radius, int thickness){
-        HollowSphereGenerator sphere = new HollowSphereGenerator(server, buildSpeed, blockTypes, pos, replaceableOnly, radius, thickness);
+    public static HollowSphereGenerator CreateHollowSphere(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int radius, int thickness, boolean trueHollow){
+        HollowSphereGenerator sphere = new HollowSphereGenerator(server, buildSpeed, blockTypes, pos, replaceableOnly, radius, thickness, trueHollow);
         sphere.Enable();
         return sphere;
     }
-    public static HollowSphereGenerator CreateHollowSphere(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int radius, int thickness) {
-        HollowSphereGenerator sphere = new HollowSphereGenerator(server, buildSpeed, blockTypes, pos, maxHardness, radius, thickness);
+    public static HollowSphereGenerator CreateHollowSphere(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int radius, int thickness, boolean trueHollow) {
+        HollowSphereGenerator sphere = new HollowSphereGenerator(server, buildSpeed, blockTypes, pos, maxHardness, radius, thickness, trueHollow);
         sphere.Enable();
         return sphere;
     }
-    public static HollowSphereGenerator CreateHollowSphere(ServerLevel server, double buildSpeed, List<BlockState> blockTypes,Vec3 pos, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, int radius, int thickness){
-        HollowSphereGenerator sphere = new HollowSphereGenerator(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius, thickness);
+    public static HollowSphereGenerator CreateHollowSphere(ServerLevel server, double buildSpeed, List<BlockState> blockTypes,Vec3 pos, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, int radius, int thickness, boolean trueHollow){
+        HollowSphereGenerator sphere = new HollowSphereGenerator(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius, thickness, trueHollow);
+        sphere.Enable();
+        return sphere;
+    }
+
+    public static RandomizedHollowSphereGenerator CreateRandomizedHollowSphere(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int radius, int thickness, double buildChance, boolean trueHollow){
+        RandomizedHollowSphereGenerator sphere = new RandomizedHollowSphereGenerator(server, buildSpeed, blockTypes, pos, replaceableOnly, radius, thickness, buildChance, trueHollow);
+        sphere.Enable();
+        return sphere;
+    }
+    public static RandomizedHollowSphereGenerator CreateRandomizedHollowSphere(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int radius, int thickness, double buildChance, boolean trueHollow) {
+        RandomizedHollowSphereGenerator sphere = new RandomizedHollowSphereGenerator(server, buildSpeed, blockTypes, pos, maxHardness, radius, thickness, buildChance, trueHollow);
+        sphere.Enable();
+        return sphere;
+    }
+    public static RandomizedHollowSphereGenerator CreateRandomizedHollowSphere(ServerLevel server, double buildSpeed, List<BlockState> blockTypes,Vec3 pos, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, int radius, int thickness, double buildChance, boolean trueHollow){
+        RandomizedHollowSphereGenerator sphere = new RandomizedHollowSphereGenerator(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius, thickness, buildChance, trueHollow);
         sphere.Enable();
         return sphere;
     }

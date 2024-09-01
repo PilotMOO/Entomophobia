@@ -49,6 +49,9 @@ public abstract class ShapeGenerator{
     public boolean isOfState(WorldShapeManager.GeneratorStates state){
         return GeneratorState == state.ordinal();
     }
+    public boolean isActive(){
+        return isOfState(WorldShapeManager.GeneratorStates.active);
+    }
 
     private int PlacementDetail;
     public int getPlacementDetail(){
@@ -77,21 +80,21 @@ public abstract class ShapeGenerator{
                 return state.canBeReplaced() && isNotInList(state.getBlock().defaultBlockState());
             }
             case 1 ->{
-                return (MaxHardness >= state.getDestroySpeed(server, pos) && isNotInList(state.getBlock().defaultBlockState())) || state.canBeReplaced();
+                return ((MaxHardness >= state.getDestroySpeed(server, pos) && isNotInList(state.getBlock().defaultBlockState())) || state.canBeReplaced()) && state.getDestroySpeed(server, pos) != -1;
             }
             case 2 ->{
                 if (ReplaceWhitelist == null){
                     if (ReplaceBlacklist != null){
-                        return (!ReplaceBlacklist.contains(state.getBlock().defaultBlockState()) && isNotInList(state.getBlock().defaultBlockState())) || state.canBeReplaced();
+                        return ((!ReplaceBlacklist.contains(state.getBlock().defaultBlockState()) && isNotInList(state.getBlock().defaultBlockState())) || state.canBeReplaced()) && state.getDestroySpeed(server, pos) != -1;
                     }
                     return false;
                 }
                 else{
-                    return (ReplaceWhitelist.contains(state.getBlock().defaultBlockState()) && (ReplaceBlacklist == null || !ReplaceBlacklist.contains(state.getBlock().defaultBlockState())) && isNotInList(state.getBlock().defaultBlockState())) || state.canBeReplaced();
+                    return ((ReplaceWhitelist.contains(state.getBlock().defaultBlockState()) && (ReplaceBlacklist == null || !ReplaceBlacklist.contains(state.getBlock().defaultBlockState()))) && isNotInList(state.getBlock().defaultBlockState())) || state.canBeReplaced() && state.getDestroySpeed(server, pos) != -1;
                 }
             }
             case 3 ->{
-                return isNotInList(state.getBlock().defaultBlockState()) || state.canBeReplaced();
+                return (isNotInList(state.getBlock().defaultBlockState()) || state.canBeReplaced()) && state.getDestroySpeed(server, pos) != -1;
             }
             default -> {
                 return false;

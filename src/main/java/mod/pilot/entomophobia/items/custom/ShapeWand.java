@@ -98,10 +98,10 @@ private static final List<BlockState> whitelist = new ArrayList<>(Arrays.asList(
                         case 2 -> shapes.add(WorldShapeManager.CreateCube(server, 1, BlockStates, GeneratorCenter, false, 5));
                         case 3 -> shapes.add(WorldShapeManager.CreateRectangle(server, 1, BlockStates, GeneratorCenter, false, 5, 2, 10));
                         case 4 -> shapes.add(WorldShapeManager.CreateSphere(server, 1, BlockStates, GeneratorCenter, false, 3));
-                        case 5 -> shapes.add(WorldShapeManager.CreateHollowSphere(server, 50, BlockStates, GeneratorCenter, true, 20, 1));
-                        case 6, 7, 8, 9, 10, 11 -> CreateLine(context.getPlayer(), GeneratorCenter);
+                        case 5 -> shapes.add(WorldShapeManager.CreateHollowSphere(server, 50, BlockStates, GeneratorCenter, true, 20, 1, true));
+                        case 6, 7, 8, 9, 10, 11, 12, 13 -> CreateLine(context.getPlayer(), GeneratorCenter);
                     }
-                    if (state != states.line.ordinal() && state != states.weighted_square_line.ordinal() && state != states.weighted_circle_line.ordinal() && state != states.hollow_weighted_circle_line_small.ordinal()  && state != states.hollow_weighted_circle_line_medium.ordinal()  && state != states.hollow_weighted_circle_line_large.ordinal()){
+                    if (state != states.line.ordinal() && state != states.weighted_square_line.ordinal() && state != states.weighted_circle_line.ordinal() && state != states.hollow_weighted_circle_line_small.ordinal()  && state != states.hollow_weighted_circle_line_medium.ordinal() && state != states.hollow_weighted_circle_line_large.ordinal()){
                         player.displayClientMessage(Component.literal("Generating a new " + states.values()[state].name()), true);
                     }
                 }

@@ -9,6 +9,7 @@ import mod.pilot.entomophobia.entity.myiatic.MyiaticCowEntity;
 import mod.pilot.entomophobia.items.EntomoItems;
 import mod.pilot.entomophobia.data.EntomoDataManager;
 import mod.pilot.entomophobia.data.WorldSaveData;
+import mod.pilot.entomophobia.systems.nest.NestManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -80,6 +81,7 @@ public class EntomoHandlerEvents {
     @SubscribeEvent
     public static void ServerStart(ServerStartedEvent event){
         WorldSaveData.SetActiveData(event.getServer().overworld());
+        NestManager.setNestConstructionDetails();
         System.out.println("Amount of myiatics in storage: " + Entomophobia.activeData.GetTotalInStorage());
     }
 
@@ -131,6 +133,14 @@ public class EntomoHandlerEvents {
 
             event.getServer().getPlayerList().broadcastSystemMessage(Component.translatable("entomophobia.system.infection_start"), false);
             Entomophobia.activeData.setHasStarted(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void NestTicker(TickEvent.ServerTickEvent event){
+        WorldSaveData data = Entomophobia.activeData;
+        if (data.getWorldAge() % NestManager.getTickFrequency() == 0){
+            NestManager.TickAllActiveNests();
         }
     }
 }

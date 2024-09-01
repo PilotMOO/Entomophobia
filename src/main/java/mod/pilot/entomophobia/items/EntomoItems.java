@@ -3,6 +3,7 @@ package mod.pilot.entomophobia.items;
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.items.custom.DangerousMilk;
+import mod.pilot.entomophobia.items.custom.NestWand;
 import mod.pilot.entomophobia.items.custom.ShapeWand;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -34,8 +35,10 @@ public class EntomoItems {
     public static final RegistryObject<Item> POISONOUS_MILK = ITEMS.register("milk_bucket",
             () -> new DangerousMilk(new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1)));
 
-    public static final RegistryObject<Item> NEST_BUILDER = ITEMS.register("shape_wand",
+    public static final RegistryObject<Item> SHAPE_WAND = ITEMS.register("shape_wand",
             () -> new ShapeWand(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> NEST_WAND = ITEMS.register("nest_wand",
+            () -> new NestWand(new Item.Properties().stacksTo(1)));
 
     public static void register(IEventBus eventBus){
         ITEMS.register(eventBus);
