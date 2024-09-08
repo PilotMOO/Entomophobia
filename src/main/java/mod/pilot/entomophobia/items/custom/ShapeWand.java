@@ -37,7 +37,8 @@ public class ShapeWand extends Item {
         weighted_circle_line,
         hollow_weighted_circle_line_small,
         hollow_weighted_circle_line_medium,
-        hollow_weighted_circle_line_large
+        hollow_weighted_circle_line_large,
+        tunnel
     }
     int state = 0;
 
@@ -99,9 +100,9 @@ private static final List<BlockState> whitelist = new ArrayList<>(Arrays.asList(
                         case 3 -> shapes.add(WorldShapeManager.CreateRectangle(server, 1, BlockStates, GeneratorCenter, false, 5, 2, 10));
                         case 4 -> shapes.add(WorldShapeManager.CreateSphere(server, 1, BlockStates, GeneratorCenter, false, 3));
                         case 5 -> shapes.add(WorldShapeManager.CreateHollowSphere(server, 50, BlockStates, GeneratorCenter, true, 20, 1, true));
-                        case 6, 7, 8, 9, 10, 11, 12, 13 -> CreateLine(context.getPlayer(), GeneratorCenter);
+                        case 6, 7, 8, 9, 10, 11, 12 -> CreateLine(context.getPlayer(), GeneratorCenter);
                     }
-                    if (state != states.line.ordinal() && state != states.weighted_square_line.ordinal() && state != states.weighted_circle_line.ordinal() && state != states.hollow_weighted_circle_line_small.ordinal()  && state != states.hollow_weighted_circle_line_medium.ordinal() && state != states.hollow_weighted_circle_line_large.ordinal()){
+                    if (state != states.line.ordinal() && state != states.weighted_square_line.ordinal() && state != states.weighted_circle_line.ordinal() && state != states.hollow_weighted_circle_line_small.ordinal()  && state != states.hollow_weighted_circle_line_medium.ordinal() && state != states.hollow_weighted_circle_line_large.ordinal() && state != states.tunnel.ordinal()){
                         player.displayClientMessage(Component.literal("Generating a new " + states.values()[state].name()), true);
                     }
                 }
@@ -131,6 +132,7 @@ private static final List<BlockState> whitelist = new ArrayList<>(Arrays.asList(
                     case 9 -> shapes.add(WorldShapeManager.CreateHollowWeightedCircleLine(server, 10, BlockStates, false, LineVectorStart, generatorCenter, 5, 1));
                     case 10 -> shapes.add(WorldShapeManager.CreateHollowWeightedCircleLine(server, 25, BlockStates, false, LineVectorStart, generatorCenter, 15, 2));
                     case 11 -> shapes.add(WorldShapeManager.CreateHollowWeightedCircleLine(server, 30, BlockStates, false, LineVectorStart, generatorCenter, 25, 3));
+                    case 12 -> shapes.add(WorldShapeManager.CreateTunnel(server, 30, BlockStates, false, LineVectorStart, generatorCenter, 6, 1));
                 }
                 LineVectorStart = null;
             }

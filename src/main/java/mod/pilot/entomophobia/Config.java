@@ -59,33 +59,13 @@ public class Config
         public final ForgeConfigSpec.ConfigValue<Integer> large_corridor_thickness;
         public final ForgeConfigSpec.ConfigValue<Integer> min_corridor_length;
         public final ForgeConfigSpec.ConfigValue<Integer> max_corridor_length;
+        public final ForgeConfigSpec.ConfigValue<Integer> max_corridor_extension;
+        public final ForgeConfigSpec.ConfigValue<Double> corridor_extension_chance;
+        public final ForgeConfigSpec.ConfigValue<Integer> nest_y_build_priority;
 
 
         public Server(ForgeConfigSpec.Builder builder){
-            builder.push("General knowledge");
-            builder.pop();
-            builder.push("1 second = 20 ticks");
-            builder.pop();
-            builder.push("Mod ID: entomophobia");
-            builder.pop();
-            builder.push("Mob IDs:");
-            builder.push(new ArrayList<>(Arrays.asList(
-                "Myiatics:",
-                    "myiatic_zombie",
-                    "myiatic_creeper",
-                    "myiatic_spider",
-                    "myiatic_cow",
-                    "myiatic_sheep",
-                    "myiatic_pig",
-                    "myiatic_chicken",
-                    "-",
-                "Festereds:",
-                    "-",
-                "Pheromones:",
-                    "pheromone_prey/hunt",
-                    "pheromone_null/frenzy"
-            )));
-            builder.pop(2);
+            builder.push("Entomophobia Config");
 
             builder.push("Mob Targeting");
             this.blacklisted_targets = builder.defineList("Mobs the Myiatic Ignore",
@@ -103,7 +83,7 @@ public class Config
             this.time_until_shit_gets_real = builder.defineInRange("Time, in ticks, until the infestation starts", 48000, 0, Integer.MAX_VALUE);
             this.start_spread_aoe = builder.defineInRange("How far from each player the Myiasis effect will spread once the infection starts", 200, 0, Integer.MAX_VALUE);
             this.mob_cap = builder.defineInRange("Max amount of mobs allowed in the world at once until encouraged despawning", 50, 0, Integer.MAX_VALUE);
-            this.distance_to_player_until_despawn = builder.defineInRange("Distance from the closest player until despawing is encouraged", 128, 0, Integer.MAX_VALUE);
+            this.distance_to_player_until_despawn = builder.defineInRange("Distance from the closest player until despawning is encouraged", 128, 0, Integer.MAX_VALUE);
             this.myiatic_convert_timer = builder.define("Time (in ticks) for Myiasis to convert mobs",
                     600);
             builder.pop();
@@ -113,38 +93,42 @@ public class Config
                     Lists.newArrayList(
                         "minecraft:mud"
                     ), o -> o instanceof String);
-            this.nest_tick_frequency = builder.defineInRange("The frequency at which nests tick (lower = faster, 1 is every tick, 2 is every other, etc.)", 60, 1, Integer.MAX_VALUE);
-            this.nest_build_speed = builder.defineInRange("The rate at which the nests build per build tick (Supports decimals but any decimal position higher than .5 will be rounded up)", 2, 0, Double.MAX_VALUE);
+            this.nest_tick_frequency = builder.defineInRange("The frequency at which nests tick (lower = faster, 1 is every tick, 2 is every other, etc)", 60, 1, Integer.MAX_VALUE);
+            this.nest_build_speed = builder.defineInRange("The rate at which the nests build per build tick (Supports decimals but any decimal position higher than point 5 will be rounded up)", 2, 0, Double.MAX_VALUE);
             this.nest_max_hardness = builder.defineInRange("Maximum hardness of blocks that the nest can replace while building", 5, 0, Integer.MAX_VALUE);
 
-            this.small_chamber_min_size = builder.defineInRange("Minimum radius size for small chambers", 3, 0, Integer.MAX_VALUE);
-            this.small_chamber_max_size = builder.defineInRange("Maximum radius size for small chambers", 4, 0, Integer.MAX_VALUE);
+            this.small_chamber_min_size = builder.defineInRange("Minimum radius size for small chambers", 7, 0, Integer.MAX_VALUE);
+            this.small_chamber_max_size = builder.defineInRange("Maximum radius size for small chambers", 9, 0, Integer.MAX_VALUE);
             this.small_chamber_thickness = builder.defineInRange("Thickness of the walls for small chambers", 1, 1, Integer.MAX_VALUE);
 
-            this.medium_chamber_min_size = builder.defineInRange("Minimum radius size for medium chambers", 5, 0, Integer.MAX_VALUE);
-            this.medium_chamber_max_size = builder.defineInRange("Maximum radius size for medium chambers", 7, 0, Integer.MAX_VALUE);
+            this.medium_chamber_min_size = builder.defineInRange("Minimum radius size for medium chambers", 8, 0, Integer.MAX_VALUE);
+            this.medium_chamber_max_size = builder.defineInRange("Maximum radius size for medium chambers", 10, 0, Integer.MAX_VALUE);
             this.medium_chamber_thickness = builder.defineInRange("Thickness of the walls for medium chambers", 2, 1, Integer.MAX_VALUE);
 
             this.large_chamber_min_size = builder.defineInRange("Minimum radius size for large chambers", 10, 0, Integer.MAX_VALUE);
-            this.large_chamber_max_size = builder.defineInRange("Maximum radius size for large chambers", 15, 0, Integer.MAX_VALUE);
+            this.large_chamber_max_size = builder.defineInRange("Maximum radius size for large chambers", 12, 0, Integer.MAX_VALUE);
             this.large_chamber_thickness = builder.defineInRange("Thickness of the walls for large chambers", 3, 1, Integer.MAX_VALUE);
 
-            this.max_nest_layers = builder.defineInRange("The maximum amount of offshoots a given branch of a nest can generate", 6, 1, Integer.MAX_VALUE);
+            this.max_nest_layers = builder.defineInRange("The maximum amount of offshoots a given branch of a nest can generate", 3, 1, Integer.MAX_VALUE);
 
-            this.small_corridor_min_size = builder.defineInRange("Minimum radius size for small corridors", 1, 0, Integer.MAX_VALUE);
-            this.small_corridor_max_size = builder.defineInRange("Maximum radius size for small corridors", 2, 0, Integer.MAX_VALUE);
+            this.small_corridor_min_size = builder.defineInRange("Minimum radius size for small corridors", 7, 0, Integer.MAX_VALUE);
+            this.small_corridor_max_size = builder.defineInRange("Maximum radius size for small corridors", 8, 0, Integer.MAX_VALUE);
             this.small_corridor_thickness = builder.defineInRange("Thickness of the walls for small corridors", 1, 1, Integer.MAX_VALUE);
 
-            this.medium_corridor_min_size = builder.defineInRange("Minimum radius size for medium corridors", 3, 0, Integer.MAX_VALUE);
-            this.medium_corridor_max_size = builder.defineInRange("Maximum radius size for medium corridors", 4, 0, Integer.MAX_VALUE);
+            this.medium_corridor_min_size = builder.defineInRange("Minimum radius size for medium corridors", 7, 0, Integer.MAX_VALUE);
+            this.medium_corridor_max_size = builder.defineInRange("Maximum radius size for medium corridors", 9, 0, Integer.MAX_VALUE);
             this.medium_corridor_thickness = builder.defineInRange("Thickness of the walls for medium corridors", 1, 1, Integer.MAX_VALUE);
 
-            this.large_corridor_min_size = builder.defineInRange("Minimum radius size for large corridors", 5, 0, Integer.MAX_VALUE);
-            this.large_corridor_max_size = builder.defineInRange("Maximum radius size for large corridors", 7, 0, Integer.MAX_VALUE);
+            this.large_corridor_min_size = builder.defineInRange("Minimum radius size for large corridors", 9, 0, Integer.MAX_VALUE);
+            this.large_corridor_max_size = builder.defineInRange("Maximum radius size for large corridors", 11, 0, Integer.MAX_VALUE);
             this.large_corridor_thickness = builder.defineInRange("Thickness of the walls for large corridors", 2, 1, Integer.MAX_VALUE);
 
-            this.min_corridor_length = builder.defineInRange("Minimum length of corridors", 4, 1, Integer.MAX_VALUE);
-            this.max_corridor_length = builder.defineInRange("Maximum length of corridors", 30, 1, Integer.MAX_VALUE);
+            this.min_corridor_length = builder.defineInRange("Minimum length of corridors", 24, 1, Integer.MAX_VALUE);
+            this.max_corridor_length = builder.defineInRange("Maximum length of corridors", 64, 1, Integer.MAX_VALUE);
+            this.max_corridor_extension = builder.defineInRange("Max amount of corridor extensions one corridor can have", 3, 1, Integer.MAX_VALUE);
+            this.corridor_extension_chance = builder.defineInRange("Chance for a corridor to get an extension", 0.4, 0, 1);
+
+            this.nest_y_build_priority = builder.defineInRange("The Y level at which nests will prioritize building up or down if below or above, respectfully", 40, -64, 320);
 
             builder.push("Pheromone values");
             this.hunt_bonus_range = builder.defineInRange("Pheromone Prey/Hunt bonus searchrange", 64, 1, Integer.MAX_VALUE);

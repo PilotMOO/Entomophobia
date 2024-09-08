@@ -208,4 +208,37 @@ public class WorldShapeManager {
         line.Enable();
         return line;
     }
+
+    public static TunnelGenerator CreateTunnel(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, boolean replaceableOnly, Vec3 start, Vec3 end, int weight, int thickness){
+        TunnelGenerator tunnel = new TunnelGenerator(server, buildSpeed, blockTypes, replaceableOnly, start, end, weight, thickness);
+        tunnel.Enable();
+        return tunnel;
+    }
+    public static TunnelGenerator CreateTunnel(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, int maxHardness, Vec3 start, Vec3 end, int weight, int thickness) {
+        TunnelGenerator tunnel = new TunnelGenerator(server, buildSpeed, blockTypes, maxHardness, start, end, weight, thickness);
+        tunnel.Enable();
+        return tunnel;
+    }
+    public static TunnelGenerator CreateTunnel(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, Vec3 start, Vec3 end, int weight, int thickness){
+
+        TunnelGenerator tunnel = new TunnelGenerator(server, buildSpeed, blockTypes, whitelist, blacklist, start, end, weight, thickness);
+        tunnel.Enable();
+        return tunnel;
+    }
+
+    public static ChamberGenerator CreateChamber(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int radius, int thickness, double buildChance, boolean trueHollow){
+        ChamberGenerator chamber = new ChamberGenerator(server, buildSpeed, blockTypes, pos, replaceableOnly, radius, thickness, buildChance, trueHollow);
+        chamber.Enable();
+        return chamber;
+    }
+    public static ChamberGenerator CreateChamber(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int radius, int thickness, double buildChance, boolean trueHollow) {
+        ChamberGenerator chamber = new ChamberGenerator(server, buildSpeed, blockTypes, pos, maxHardness, radius, thickness, buildChance, trueHollow);
+        chamber.Enable();
+        return chamber;
+    }
+    public static ChamberGenerator CreateChamber(ServerLevel server, double buildSpeed, List<BlockState> blockTypes,Vec3 pos, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, int radius, int thickness, double buildChance, boolean trueHollow){
+        ChamberGenerator chamber = new ChamberGenerator(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius, thickness, buildChance, trueHollow);
+        chamber.Enable();
+        return chamber;
+    }
 }

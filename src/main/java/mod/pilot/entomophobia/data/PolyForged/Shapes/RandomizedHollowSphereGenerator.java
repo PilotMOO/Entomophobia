@@ -72,5 +72,6 @@ public class RandomizedHollowSphereGenerator extends HollowSphereGenerator{
         if (!succeeded){
             Finish();
         }
-        return succeeded;    }
+        return succeeded;
+    }
 }

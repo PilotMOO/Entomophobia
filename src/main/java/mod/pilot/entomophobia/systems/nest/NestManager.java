@@ -28,7 +28,7 @@ public class NestManager {
     public static void TickAllActiveNests(){
         ArrayList<Nest> nestsToDiscard = new ArrayList<>();
         for (Nest nest : ActiveNests){
-            if (!nest.Alive()){
+            if (nest.Dead()){
                 nestsToDiscard.add(nest);
                 continue;
             }
@@ -65,8 +65,25 @@ public class NestManager {
         NestLargeChamberMaxRadius = Config.SERVER.large_chamber_max_size.get();
         NestLargeChamberThickness = Config.SERVER.large_chamber_thickness.get();
 
+        NestSmallCorridorMinRadius = Config.SERVER.small_corridor_min_size.get();
+        NestSmallCorridorMaxRadius = Config.SERVER.small_corridor_max_size.get();
+        NestSmallCorridorThickness = Config.SERVER.small_corridor_thickness.get();
+
+        NestMediumCorridorMinRadius = Config.SERVER.medium_corridor_min_size.get();
+        NestMediumCorridorMaxRadius = Config.SERVER.medium_corridor_max_size.get();
+        NestMediumCorridorThickness = Config.SERVER.medium_corridor_thickness.get();
+
+        NestLargeCorridorMinRadius = Config.SERVER.large_corridor_min_size.get();
+        NestLargeCorridorMaxRadius = Config.SERVER.large_corridor_max_size.get();
+        NestLargeCorridorThickness = Config.SERVER.large_corridor_thickness.get();
+
         NestMinCorridorLength = Config.SERVER.min_corridor_length.get();
         NestMaxCorridorLength = Config.SERVER.max_corridor_length.get();
+        NestMaxCorridorExtensions = Config.SERVER.max_corridor_extension.get();
+
+        NestCorridorExtensionChance = Config.SERVER.corridor_extension_chance.get();
+
+        NestYBuildPriority = Config.SERVER.nest_y_build_priority.get();
     }
     private static int TickFrequency;
     public static int getTickFrequency(){
@@ -137,6 +154,54 @@ public class NestManager {
         return NestLargeChamberThickness;
     }
 
+    private static int NestSmallCorridorMinRadius;
+    private static int NestSmallCorridorMaxRadius;
+    public static int getNestSmallCorridorMinRadius() {
+        return NestSmallCorridorMinRadius;
+    }
+    public static int getNestSmallCorridorMaxRadius() {
+        return NestSmallCorridorMaxRadius;
+    }
+    public static int getRandomSmallCorridorRadius(RandomSource random){
+        return random.nextIntBetweenInclusive(getNestSmallCorridorMinRadius(), getNestSmallCorridorMaxRadius());
+    }
+    private static int NestSmallCorridorThickness;
+    public static int getNestSmallCorridorThickness() {
+        return NestSmallCorridorThickness;
+    }
+
+    private static int NestMediumCorridorMinRadius;
+    private static int NestMediumCorridorMaxRadius;
+    public static int getNestMediumCorridorMinRadius() {
+        return NestMediumCorridorMinRadius;
+    }
+    public static int getNestMediumCorridorMaxRadius() {
+        return NestMediumCorridorMaxRadius;
+    }
+    public static int getRandomMediumCorridorRadius(RandomSource random){
+        return random.nextIntBetweenInclusive(getNestMediumCorridorMinRadius(), getNestMediumCorridorMaxRadius());
+    }
+    private static int NestMediumCorridorThickness;
+    public static int getNestMediumCorridorThickness() {
+        return NestMediumCorridorThickness;
+    }
+
+    private static int NestLargeCorridorMinRadius;
+    private static int NestLargeCorridorMaxRadius;
+    public static int getNestLargeCorridorMinRadius() {
+        return NestLargeCorridorMinRadius;
+    }
+    public static int getNestLargeCorridorMaxRadius() {
+        return NestLargeCorridorMaxRadius;
+    }
+    public static int getRandomLargeCorridorRadius(RandomSource random){
+        return random.nextIntBetweenInclusive(getNestLargeCorridorMinRadius(), getNestLargeCorridorMaxRadius());
+    }
+    private static int NestLargeCorridorThickness;
+    public static int getNestLargeCorridorThickness() {
+        return NestLargeCorridorThickness;
+    }
+
     private static int NestMinCorridorLength;
     private static int NestMaxCorridorLength;
     public static int getNestMinCorridorLength(){
@@ -147,5 +212,20 @@ public class NestManager {
     }
     public static int getRandomCorridorLength(RandomSource random){
         return random.nextIntBetweenInclusive(getNestMinCorridorLength(), getNestMaxCorridorLength());
+    }
+
+    private static int NestMaxCorridorExtensions;
+    public static int getNestMaxCorridorExtensions(){
+        return NestMaxCorridorExtensions;
+    }
+
+    private static double NestCorridorExtensionChance;
+    public static double getNestCorridorExtensionChance() {
+        return NestCorridorExtensionChance;
+    }
+
+    private static int NestYBuildPriority;
+    public static int getNestYBuildPriority() {
+        return NestYBuildPriority;
     }
 }

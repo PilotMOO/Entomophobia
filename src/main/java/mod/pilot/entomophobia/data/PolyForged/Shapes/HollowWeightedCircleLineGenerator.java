@@ -30,8 +30,8 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
     public final int thickness;
     protected int DistanceTracker = 0;
 
-    private ArrayList<ArrayList<BlockPos>> GhostLinePositions;
-    private void GenerateGhostPositions(){
+    protected ArrayList<ArrayList<BlockPos>> GhostLinePositions;
+    protected void GenerateGhostPositions(){
         ArrayList<ArrayList<BlockPos>> ghostPositions = new ArrayList<>();
 
         int GhostLineWeight = weight - (thickness * 2);
@@ -116,6 +116,10 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
                         double distanceToCore = Mth.sqrt((x - (float) weight / 2) * (x - (float) weight / 2) + (y - (float) weight / 2) * (y - (float) weight / 2) + (z - (float) weight / 2) * (z - (float) weight / 2));
                         BlockPos bPos = new BlockPos((int) (buildPos.x + x - weight / 2), (int) (buildPos.y + y - weight / 2), (int) (buildPos.z + z - weight / 2));
                         BlockState bState = server.getBlockState(bPos);
+                        if (bPos.getY() <= server.getMinBuildHeight()){
+                            Disable();
+                            break;
+                        }
                         if (CanThisBeReplaced(bState, bPos) && distanceToCore <= (double) weight / 2){
                             if (BuildTracker >= 1){
                                 succeeded = isThisAGhostPos(bPos, i) ? ReplaceBlock(bPos, Blocks.AIR.defaultBlockState()) : ReplaceBlock(bPos);
