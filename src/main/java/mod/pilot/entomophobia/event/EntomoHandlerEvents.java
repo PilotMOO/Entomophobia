@@ -83,6 +83,8 @@ public class EntomoHandlerEvents {
         WorldSaveData.SetActiveData(event.getServer().overworld());
         NestManager.setNestConstructionDetails();
         System.out.println("Amount of myiatics in storage: " + Entomophobia.activeData.GetTotalInStorage());
+
+        Entomophobia.activeData.server = event.getServer().overworld();
     }
 
     @SubscribeEvent

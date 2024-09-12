@@ -1,6 +1,6 @@
-package mod.pilot.entomophobia.data.PolyForged.Shapes;
+package mod.pilot.entomophobia.systems.PolyForged.Shapes;
 
-import mod.pilot.entomophobia.data.PolyForged.WorldShapeManager;
+import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -12,23 +12,27 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class RandomizedHollowSphereGenerator extends HollowSphereGenerator{
-    public RandomizedHollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int radius, int thickness, double buildChance, boolean trueHollow) {
-        super(server, buildSpeed, blockTypes, pos, replaceableOnly, radius, thickness, trueHollow);
-        BuildChance = buildChance;
+public class HollowSphereGenerator extends SphereGenerator {
+    public HollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int radius, int thickness, boolean trueHollow) {
+        super(server, buildSpeed, blockTypes, pos, replaceableOnly, radius);
+        this.thickness = thickness;
+        TrueHollow = trueHollow;
     }
 
-    public RandomizedHollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int radius, int thickness, double buildChance, boolean trueHollow) {
-        super(server, buildSpeed, blockTypes, pos, maxHardness, radius, thickness, trueHollow);
-        BuildChance = buildChance;
+    public HollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int radius, int thickness, boolean trueHollow) {
+        super(server, buildSpeed, blockTypes, pos, maxHardness, radius);
+        this.thickness = thickness;
+        TrueHollow = trueHollow;
     }
 
-    public RandomizedHollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, int radius, int thickness, double buildChance, boolean trueHollow) {
-        super(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius, thickness, trueHollow);
-        BuildChance = buildChance;
+    public HollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, int radius, int thickness, boolean trueHollow) {
+        super(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius);
+        this.thickness = thickness;
+        TrueHollow = trueHollow;
     }
 
-    public final double BuildChance;
+    public final int thickness;
+    public final boolean TrueHollow;
 
     @Override
     public boolean Build() {
@@ -48,13 +52,14 @@ public class RandomizedHollowSphereGenerator extends HollowSphereGenerator{
                     BlockState bState = server.getBlockState(bPos);
                     if (CanThisBeReplaced(bState, bPos) && distance <= radius && (TrueHollow || distance > radius - thickness)){
                         if (BuildTracker > 1){
-                            if (server.random.nextDouble() <= BuildChance){
-                                succeeded = TrueHollow && distance <= radius - thickness ? ReplaceBlock(bPos, Blocks.AIR.defaultBlockState()) : ReplaceBlock(bPos);
-                            }
+                            succeeded = TrueHollow && distance <= radius - thickness ? ReplaceBlock(bPos, Blocks.AIR.defaultBlockState()) : ReplaceBlock(bPos);
                         }
                         else if (BuildTracker < 1){
-                            if (getActiveTime() % (1 / BuildTracker) == 0 && server.random.nextDouble() <= BuildChance){
+                            if (getActiveTime() % (1 / BuildTracker) == 0){
                                 succeeded = TrueHollow && distance <= radius - thickness ? ReplaceBlock(bPos, Blocks.AIR.defaultBlockState()) : ReplaceBlock(bPos);
+                            }
+                            else{
+                                succeeded = true;
                             }
                         }
                     }

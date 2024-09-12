@@ -19,7 +19,7 @@ public class NestManager {
         dead
     }
 
-    private static final ArrayList<Nest> ActiveNests = new ArrayList<>();
+    public static final ArrayList<Nest> ActiveNests = new ArrayList<>();
     public static Nest ConstructNewNest(ServerLevel server, Vec3 start){
         Nest nest = new Nest(server, start, getTickFrequency());
         ActiveNests.add(nest);

@@ -94,7 +94,7 @@ public class Config
                         "minecraft:mud"
                     ), o -> o instanceof String);
             this.nest_tick_frequency = builder.defineInRange("The frequency at which nests tick (lower = faster, 1 is every tick, 2 is every other, etc)", 60, 1, Integer.MAX_VALUE);
-            this.nest_build_speed = builder.defineInRange("The rate at which the nests build per build tick (Supports decimals but any decimal position higher than point 5 will be rounded up)", 2, 0, Double.MAX_VALUE);
+            this.nest_build_speed = builder.defineInRange("The rate at which the nests build per build tick (Supports decimals but any decimal position higher than point 5 will be rounded up)", 2.5, 0, Double.MAX_VALUE);
             this.nest_max_hardness = builder.defineInRange("Maximum hardness of blocks that the nest can replace while building", 5, 0, Integer.MAX_VALUE);
 
             this.small_chamber_min_size = builder.defineInRange("Minimum radius size for small chambers", 7, 0, Integer.MAX_VALUE);
@@ -111,20 +111,20 @@ public class Config
 
             this.max_nest_layers = builder.defineInRange("The maximum amount of offshoots a given branch of a nest can generate", 3, 1, Integer.MAX_VALUE);
 
-            this.small_corridor_min_size = builder.defineInRange("Minimum radius size for small corridors", 7, 0, Integer.MAX_VALUE);
-            this.small_corridor_max_size = builder.defineInRange("Maximum radius size for small corridors", 8, 0, Integer.MAX_VALUE);
-            this.small_corridor_thickness = builder.defineInRange("Thickness of the walls for small corridors", 1, 1, Integer.MAX_VALUE);
+            this.small_corridor_min_size = builder.defineInRange("Minimum radius size for small corridors", 9, 0, Integer.MAX_VALUE);
+            this.small_corridor_max_size = builder.defineInRange("Maximum radius size for small corridors", 10, 0, Integer.MAX_VALUE);
+            this.small_corridor_thickness = builder.defineInRange("Thickness of the walls for small corridors", 2, 1, Integer.MAX_VALUE);
 
-            this.medium_corridor_min_size = builder.defineInRange("Minimum radius size for medium corridors", 7, 0, Integer.MAX_VALUE);
-            this.medium_corridor_max_size = builder.defineInRange("Maximum radius size for medium corridors", 9, 0, Integer.MAX_VALUE);
-            this.medium_corridor_thickness = builder.defineInRange("Thickness of the walls for medium corridors", 1, 1, Integer.MAX_VALUE);
+            this.medium_corridor_min_size = builder.defineInRange("Minimum radius size for medium corridors", 9, 0, Integer.MAX_VALUE);
+            this.medium_corridor_max_size = builder.defineInRange("Maximum radius size for medium corridors", 11, 0, Integer.MAX_VALUE);
+            this.medium_corridor_thickness = builder.defineInRange("Thickness of the walls for medium corridors", 2, 1, Integer.MAX_VALUE);
 
-            this.large_corridor_min_size = builder.defineInRange("Minimum radius size for large corridors", 9, 0, Integer.MAX_VALUE);
-            this.large_corridor_max_size = builder.defineInRange("Maximum radius size for large corridors", 11, 0, Integer.MAX_VALUE);
-            this.large_corridor_thickness = builder.defineInRange("Thickness of the walls for large corridors", 2, 1, Integer.MAX_VALUE);
+            this.large_corridor_min_size = builder.defineInRange("Minimum radius size for large corridors", 11, 0, Integer.MAX_VALUE);
+            this.large_corridor_max_size = builder.defineInRange("Maximum radius size for large corridors", 13, 0, Integer.MAX_VALUE);
+            this.large_corridor_thickness = builder.defineInRange("Thickness of the walls for large corridors", 3, 1, Integer.MAX_VALUE);
 
-            this.min_corridor_length = builder.defineInRange("Minimum length of corridors", 24, 1, Integer.MAX_VALUE);
-            this.max_corridor_length = builder.defineInRange("Maximum length of corridors", 64, 1, Integer.MAX_VALUE);
+            this.min_corridor_length = builder.defineInRange("Minimum length of corridors", 16, 1, Integer.MAX_VALUE);
+            this.max_corridor_length = builder.defineInRange("Maximum length of corridors", 48, 1, Integer.MAX_VALUE);
             this.max_corridor_extension = builder.defineInRange("Max amount of corridor extensions one corridor can have", 3, 1, Integer.MAX_VALUE);
             this.corridor_extension_chance = builder.defineInRange("Chance for a corridor to get an extension", 0.4, 0, 1);
 

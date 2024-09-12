@@ -2,11 +2,12 @@ package mod.pilot.entomophobia.systems.nest;
 
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.data.EntomoDataManager;
-import mod.pilot.entomophobia.data.PolyForged.ShapeGenerator;
-import mod.pilot.entomophobia.data.PolyForged.Shapes.ChamberGenerator;
-import mod.pilot.entomophobia.data.PolyForged.Shapes.HollowSphereGenerator;
-import mod.pilot.entomophobia.data.PolyForged.Shapes.TunnelGenerator;
-import mod.pilot.entomophobia.data.PolyForged.WorldShapeManager;
+import mod.pilot.entomophobia.data.WorldSaveData;
+import mod.pilot.entomophobia.systems.PolyForged.ShapeGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.Shapes.ChamberGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.Shapes.HollowSphereGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.Shapes.TunnelGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -24,6 +25,16 @@ public class Nest {
         TickFrequency = tickFrequency;
         MainChamber = CreateMainChamber();
         Enable();
+    }
+    private Nest(ServerLevel server, Vec3 start, int tickFrequency, Chamber mainChamber){
+        this.server = server;
+        origin = start;
+        TickFrequency = tickFrequency;
+        MainChamber = mainChamber;
+        Enable();
+    }
+    public static Nest ConstructFromBlueprint(ServerLevel server, Vec3 start, int tickFrequency, Chamber mainChamber){
+        return new Nest(server, start, tickFrequency, mainChamber);
     }
 
     public ServerLevel server;
@@ -93,7 +104,9 @@ public class Nest {
             this.server = server;
             this.parent = parent;
             this.position = position;
-            DeadEnd = !ShouldThisBecomeAParent();
+            if (this instanceof Corridor){
+                DeadEnd = !ShouldThisBecomeAParent();
+            }
         }
 
         protected ServerLevel server;
@@ -112,7 +125,25 @@ public class Nest {
         }
 
         public boolean ShouldThisBecomeAParent(){
-            return (!DeadEnd && LayersDeep() <= NestManager.getNestMaxLayers() && (children == null || (children.size() < MaxChildCount && !AreAnyOfMyChildrenAlive())) && (double)random.nextIntBetweenInclusive(0, 10) / 10 <= 1) || (this instanceof Corridor && children == null) || (this.parent == null && (children == null || children.size() < MaxChildCount) && !AreAnyOfMyChildrenAlive());
+            if (DeadEnd) return false;
+
+            if (this instanceof Corridor) return children == null;
+
+            if (parent == null){
+                return (children == null || children.size() < MaxChildCount) && !AreAnyOfMyChildrenAlive();
+            }
+
+            if (children == null) return true;
+
+            else if (random.nextIntBetweenInclusive(0, 10) / 10 < 1){
+                if (LayersDeep() > NestManager.getNestMaxLayers()){
+                    return false;
+                }
+                else{
+                    return children.size() < MaxChildCount;
+                }
+            }
+            return false;
         }
 
         public Vec3 getPosition(){
@@ -253,10 +284,12 @@ public class Nest {
     }
     public static class Chamber extends Offshoot{
         private static final byte OffshootType = 1;
-        protected Chamber(ServerLevel server, @org.jetbrains.annotations.Nullable Nest.Offshoot parent, Vec3 pos, int radius, int thickness) {
+        public Chamber(ServerLevel server, @org.jetbrains.annotations.Nullable Nest.Offshoot parent, Vec3 pos, int radius, int thickness) {
             super(server, OffshootType, parent, pos);
             ConstructGenerator(server, getPosition(), radius, thickness);
             super.MaxChildCount = 3;
+            this.radius = radius;
+            this.thickness = thickness;
         }
         protected void ConstructGenerator(ServerLevel server, Vec3 pos, int radius, int thickness) {
             ChamberGenerator generator = WorldShapeManager.CreateChamber(server, NestManager.getNestBuildSpeed(), NestManager.getNestBlocks(), pos, NestManager.getNestMaxHardness(), radius, thickness, 0.5, true);
@@ -267,6 +300,12 @@ public class Nest {
                 }
             }
         }
+        public static Chamber ConstructFromPackage(WorldSaveData.NestPackager.PackagedChamber packaged, @Nullable Offshoot parent){
+            return new Chamber(packaged.getServer(), parent, new Vec3(packaged.X, packaged.Y, packaged.Z), packaged.radius, packaged.thickness);
+        }
+
+        public final int radius;
+        public final int thickness;
 
         @Override
         public void OffshootTick(boolean tickChildren, boolean continuative, int layers) {
@@ -278,7 +317,7 @@ public class Nest {
                     child.OffshootTick(continuative, layers != 0, layers - 1);
                 }
             }
-            else if (getGenerator() != null && getGenerator().isOfState(WorldShapeManager.GeneratorStates.done) && !AreAnyOfMyChildrenAlive()){
+            if (getGenerator() != null && getGenerator().isOfState(WorldShapeManager.GeneratorStates.done) && !AreAnyOfMyChildrenAlive()){
                 if (ShouldThisBecomeAParent()){
                     System.out.println("We gonna have a child!");
                     ConstructNewChild((byte)2);
@@ -322,6 +361,7 @@ public class Nest {
                     }
                 }
             }
+            if (parent == null) return flag;
             if (flag && parent.getGenerator() instanceof TunnelGenerator tunnel){
                 flag = pos.distanceTo(tunnel.getEnd()) < tunnel.weight * 2;
             }
@@ -337,6 +377,13 @@ public class Nest {
             this.weight = weight;
             this.thickness = thickness;
         }
+        private Corridor(ServerLevel server, @Nonnull Nest.Offshoot parent, Vec3 position, int weight, int thickness, Vec3 endPos){
+            super(server, OffshootType, parent, position);
+            super.MaxChildCount = 1;
+            this.weight = weight;
+            this.thickness = thickness;
+            ConstructGeneratorFromBlueprint(weight, thickness, endPos, parent);
+        }
         protected void ConstructGenerator(int weight, int thickness){
             TunnelGenerator tunnel = WorldShapeManager.CreateTunnel(server, NestManager.getNestBuildSpeed(), NestManager.getNestBlocks(), NestManager.getNestMaxHardness(), getPosition(), GenerateEndPosition(), weight, thickness);
             if (parent.getGenerator() instanceof ChamberGenerator chamber){
@@ -347,11 +394,36 @@ public class Nest {
                     }
                 }
             }
+            else if (parent instanceof Corridor corridor && corridor.getGenerator() instanceof TunnelGenerator parentTunnel){
+                for (ArrayList<BlockPos> ghost : parentTunnel.getGhostLineSpheres(weight, true)){
+                    tunnel.AddToGhostSpheres(ghost);
+                }
+            }
             setGenerator(tunnel);
         }
+        private void ConstructGeneratorFromBlueprint(int weight, int thickness, Vec3 end, @Nonnull Offshoot parent){
+            TunnelGenerator tunnel = WorldShapeManager.CreateTunnel(server, NestManager.getNestBuildSpeed(), NestManager.getNestBlocks(), NestManager.getNestMaxHardness(), getPosition(), end, weight, thickness);
+            if (parent.getGenerator() instanceof ChamberGenerator chamber){
+                tunnel.AddToGhostSpheres(chamber.GenerateInternalGhostSphere());
+                if (parent.parent instanceof Corridor parentCorridor && parentCorridor.getGenerator() instanceof TunnelGenerator parentTunnel){
+                    for (ArrayList<BlockPos> ghost : parentTunnel.getGhostLineSpheres(weight, true)){
+                        tunnel.AddToGhostSpheres(ghost);
+                    }
+                }
+            }
+            else if (parent instanceof Corridor corridor && corridor.getGenerator() instanceof TunnelGenerator parentTunnel){
+                for (ArrayList<BlockPos> ghost : parentTunnel.getGhostLineSpheres(weight, true)){
+                    tunnel.AddToGhostSpheres(ghost);
+                }
+            }
+            setGenerator(tunnel);
+        }
+        public static Corridor ConstructFromPackage(WorldSaveData.NestPackager.PackagedCorridor packaged, Offshoot parent){
+            return new Corridor(packaged.getServer(), parent, new Vec3(packaged.X, packaged.Y, packaged.Z), packaged.weight, packaged.thickness, new Vec3(packaged.X2, packaged.Y2, packaged.Z2));
+        }
 
-        private final int weight;
-        private final int thickness;
+        public final int weight;
+        public final int thickness;
 
         public static final int maxCorridorExtensionCount = Config.SERVER.max_corridor_extension.get();
         public int getAmountOfExtensions(){
@@ -376,17 +448,16 @@ public class Nest {
 
         public Vec3 end;
         private Vec3 GenerateEndPosition(){
-            int Origin = getPosition().y > NestManager.getNestYBuildPriority() ? -22 : 0;
-            int Bound = getPosition().y > NestManager.getNestYBuildPriority() ? 0 : 22;
             Vec3 toReturn = null;
 
             int cycleCounter = 0;
             while ((toReturn == null || IsThisEndPositionInvalid(toReturn)) && cycleCounter < 10){
                 toReturn = getPosition().add(EntomoDataManager.GetDirectionToAFromB(getPosition(), getComparePosition())
-                        .yRot(random.nextIntBetweenInclusive(-20, 20))
-                        .xRot(random.nextIntBetweenInclusive(Origin, Bound))
-                        .zRot(random.nextIntBetweenInclusive(Origin, Bound))
-                        .scale(NestManager.getRandomCorridorLength(random)));
+                        .yRot(random.nextIntBetweenInclusive(-25, 25))
+                        .xRot(random.nextIntBetweenInclusive(-25, 25))
+                        .zRot(random.nextIntBetweenInclusive(-25, 25))
+                        .scale(NestManager.getRandomCorridorLength(random)))
+                        .multiply(0, position.y > NestManager.getNestYBuildPriority() ? -1 : 1, 0);
                 cycleCounter++;
             }
             if (IsThisEndPositionInvalid(toReturn)){
@@ -396,9 +467,9 @@ public class Nest {
         }
         private boolean IsThisEndPositionInvalid(Vec3 toTest){
             boolean flag = false;
-            for (int x = -weight / 2; x < weight / 2; x++){
-                for (int y = -weight / 2; y < weight / 2; y++){
-                    for (int z = -weight / 2; z < weight / 2; z++){
+            for (int x = -weight; x < weight; x++){
+                for (int y = -weight; y < weight; y++){
+                    for (int z = -weight; z < weight; z++){
                         BlockState bState = server.getBlockState(new BlockPos((int)toTest.x + x, (int)toTest.y + y, (int)toTest.z + z));
                         for (BlockState placementBlocks : NestManager.getNestBlocks()){
                             if (bState.getBlock().defaultBlockState() == placementBlocks){
@@ -421,6 +492,9 @@ public class Nest {
 
         private Vec3 getComparePosition(){
             if (getGenerator() == null || !getGenerator().isOfState(WorldShapeManager.GeneratorStates.done)){
+                if (parent instanceof Corridor corridor && corridor.getGenerator() instanceof TunnelGenerator tunnel){
+                    return tunnel.getStart();
+                }
                 return parent.getPosition();
             }
             else{
@@ -439,9 +513,12 @@ public class Nest {
                 return tunnel.getEnd();
             }
         }
+        public Vec3 getStartDirect(){
+            return super.getPosition();
+        }
         @Override
         protected Vec3 getOffshootPosition() {
-            return getPosition().add(EntomoDataManager.GetDirectionToAFromB(getPosition(), parent.getPosition()).scale(weight));
+            return getPosition().add(EntomoDataManager.GetDirectionToAFromB(getPosition(), parent.getPosition()).scale((double)weight / 2));
         }
 
         @Override

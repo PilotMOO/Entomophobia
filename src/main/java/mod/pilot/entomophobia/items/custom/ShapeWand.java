@@ -1,7 +1,7 @@
 package mod.pilot.entomophobia.items.custom;
 
-import mod.pilot.entomophobia.data.PolyForged.WorldShapeManager;
-import mod.pilot.entomophobia.data.PolyForged.ShapeGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
+import mod.pilot.entomophobia.systems.PolyForged.ShapeGenerator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;

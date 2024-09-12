@@ -1,6 +1,6 @@
-package mod.pilot.entomophobia.data.PolyForged.Shapes;
+package mod.pilot.entomophobia.systems.PolyForged.Shapes;
 
-import mod.pilot.entomophobia.data.PolyForged.WorldShapeManager;
+import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -29,12 +29,7 @@ public class ChamberGenerator extends RandomizedHollowSphereGenerator{
         if (GhostSpheres == null){
             GhostSpheres = new ArrayList<>();
         }
-        if (toAdd != GenerateInternalGhostSphere()){
-            GhostSpheres.add(toAdd);
-        }
-        else{
-            System.out.println("shit's unreal");
-        }
+        GhostSpheres.add(toAdd);
     }
     public final ArrayList<ArrayList<BlockPos>> getGhostSpheres(){
         return GhostSpheres != null ? new ArrayList<>(GhostSpheres) : null;
@@ -73,27 +68,27 @@ public class ChamberGenerator extends RandomizedHollowSphereGenerator{
                     if (CanThisBeReplaced(bState, bPos) && distance <= radius && (TrueHollow || distance > radius - thickness)){
                         if (BuildTracker > 1){
                             if (server.random.nextDouble() <= BuildChance){
-                                if (isThisAGhostPosition(bPos)){
+                                if (TrueHollow && distance <= radius - thickness){
                                     succeeded = ReplaceBlock(bPos, Blocks.AIR.defaultBlockState());
                                 }
-                                else if (TrueHollow && distance < radius - thickness){
-                                    succeeded = ReplaceBlock(bPos, Blocks.AIR.defaultBlockState());
+                                else if (!isThisAGhostPosition(bPos)){
+                                    succeeded = ReplaceBlock(bPos);
                                 }
                                 else{
-                                    succeeded = ReplaceBlock(bPos);
+                                    succeeded = ReplaceBlock(bPos, Blocks.AIR.defaultBlockState());
                                 }
                             }
                         }
                         else if (BuildTracker < 1){
                             if (getActiveTime() % (1 / BuildTracker) == 0 && server.random.nextDouble() <= BuildChance){
-                                if (isThisAGhostPosition(bPos)){
+                                if (TrueHollow && distance <= radius - thickness){
                                     succeeded = ReplaceBlock(bPos, Blocks.AIR.defaultBlockState());
                                 }
-                                else if (TrueHollow && distance <= radius - thickness){
-                                    succeeded = ReplaceBlock(bPos, Blocks.AIR.defaultBlockState());
+                                else if (!isThisAGhostPosition(bPos)){
+                                    succeeded = ReplaceBlock(bPos);
                                 }
                                 else{
-                                    succeeded = ReplaceBlock(bPos);
+                                    succeeded = ReplaceBlock(bPos, Blocks.AIR.defaultBlockState());
                                 }
                             }
                         }
