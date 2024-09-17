@@ -36,6 +36,7 @@ public class VectorLineGenerator extends VectorShapeGenerator {
 
     @Override
     public boolean Build() {
+        ServerLevel server = getServer();
         double distance = getStart().distanceTo(getEnd());
         ActiveTimeTick();
         double BuildTracker = getBuildSpeed();

@@ -23,6 +23,7 @@ public class WeightedCircleVectorLineGenerator extends WeightedVectorLineGenerat
 
     @Override
     public boolean Build() {
+        ServerLevel server = getServer();
         double distance = getStart().distanceTo(getEnd());
         ActiveTimeTick();
         double BuildTracker = getBuildSpeed();

@@ -30,6 +30,7 @@ public class CircleGenerator extends FlatShapeGenerator {
         if (!isOfState(WorldShapeManager.GeneratorStates.active)) {
             return false;
         }
+        ServerLevel server = getServer();
         ActiveTimeTick();
         double BuildTracker = getBuildSpeed();
         boolean succeeded = false;

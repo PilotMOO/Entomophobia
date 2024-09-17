@@ -25,6 +25,7 @@ import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
@@ -32,10 +33,12 @@ import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.event.server.*;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.util.List;
 
@@ -83,8 +86,26 @@ public class EntomoHandlerEvents {
         WorldSaveData.SetActiveData(event.getServer().overworld());
         NestManager.setNestConstructionDetails();
         System.out.println("Amount of myiatics in storage: " + Entomophobia.activeData.GetTotalInStorage());
+    }
+    @SubscribeEvent
+    public static void ServerStarting(ServerStartingEvent event){
+        System.out.println("The Server from WorldLoad is: " + event.getServer().overworld());
+        server = event.getServer().overworld();
+    }
 
-        Entomophobia.activeData.server = event.getServer().overworld();
+    @SubscribeEvent
+    public static void WorldLoad(LevelEvent.Load event){
+        //this fucks everything up
+    }
+    private static ServerLevel server;
+    public static ServerLevel getServer(){
+        return server;
+    }
+
+    @SubscribeEvent
+    public static void PostServerEnd(ServerStoppedEvent event){
+        System.out.println("Clearing out all nests!");
+        NestManager.ActiveNests.clear();
     }
 
     @SubscribeEvent
@@ -137,7 +158,6 @@ public class EntomoHandlerEvents {
             Entomophobia.activeData.setHasStarted(true);
         }
     }
-
     @SubscribeEvent
     public static void NestTicker(TickEvent.ServerTickEvent event){
         WorldSaveData data = Entomophobia.activeData;

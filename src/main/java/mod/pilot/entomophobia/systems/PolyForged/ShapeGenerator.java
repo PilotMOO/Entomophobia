@@ -1,5 +1,6 @@
 package mod.pilot.entomophobia.systems.PolyForged;
 
+import mod.pilot.entomophobia.Entomophobia;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -90,7 +91,7 @@ public abstract class ShapeGenerator{
                     return false;
                 }
                 else{
-                    return ((ReplaceWhitelist.contains(state.getBlock().defaultBlockState()) && (ReplaceBlacklist == null || !ReplaceBlacklist.contains(state.getBlock().defaultBlockState()))) && isNotInList(state.getBlock().defaultBlockState())) || state.canBeReplaced() && state.getDestroySpeed(server, pos) != -1;
+                    return (ReplaceWhitelist.contains(state.getBlock().defaultBlockState()) && (ReplaceBlacklist == null || !ReplaceBlacklist.contains(state.getBlock().defaultBlockState()))) && isNotInList(state.getBlock().defaultBlockState()) && state.getDestroySpeed(server, pos) != -1;
                 }
             }
             case 3 ->{
@@ -138,7 +139,14 @@ public abstract class ShapeGenerator{
         return Position;
     }
 
-    protected ServerLevel server;
+    private ServerLevel server;
+    protected ServerLevel getServer(){
+        if (server == null) server = Entomophobia.activeData.getServer();
+        return server;
+    }
+    public void setServer(ServerLevel server) {
+        this.server = server;
+    }
 
     protected BlockPos lastBlock;
     protected SoundEvent getLastBlockPlaceSFX(){

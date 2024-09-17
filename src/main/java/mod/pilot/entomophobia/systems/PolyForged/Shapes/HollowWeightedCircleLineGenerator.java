@@ -3,6 +3,7 @@ package mod.pilot.entomophobia.systems.PolyForged.Shapes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -34,6 +35,7 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
     protected void GenerateGhostPositions(){
         ArrayList<ArrayList<BlockPos>> ghostPositions = new ArrayList<>();
 
+        ServerLevel server = getServer();
         int GhostLineWeight = weight - (thickness * 2);
         double distance = getStart().distanceTo(getEnd());
         for (int i = 0; i < distance; i++){
@@ -65,9 +67,11 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
     }
     @Override
     public boolean CanThisBeReplaced(BlockState state, BlockPos pos) {
+        ServerLevel server = getServer();
+
         switch (getPlacementDetail()){
             case 0 ->{
-                return state.canBeReplaced() || state.canBeReplaced();
+                return state.canBeReplaced();
             }
             case 1 ->{
                 return (MaxHardness >= state.getDestroySpeed(server, pos) || state.canBeReplaced()) && state.getDestroySpeed(server, pos) != -1;
@@ -80,7 +84,7 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
                     return false;
                 }
                 else{
-                    return (ReplaceWhitelist.contains(state.getBlock().defaultBlockState()) && (ReplaceBlacklist == null || !ReplaceBlacklist.contains(state.getBlock().defaultBlockState()))) || state.canBeReplaced();
+                    return ReplaceWhitelist.contains(state.getBlock().defaultBlockState()) && (ReplaceBlacklist == null || !ReplaceBlacklist.contains(state.getBlock().defaultBlockState()));
                 }
             }
             case 3 ->{
@@ -104,6 +108,7 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
 
     @Override
     public boolean Build() {
+        ServerLevel server = getServer();
         double distance = getStart().distanceTo(getEnd());
         ActiveTimeTick();
         double BuildTracker = getBuildSpeed();

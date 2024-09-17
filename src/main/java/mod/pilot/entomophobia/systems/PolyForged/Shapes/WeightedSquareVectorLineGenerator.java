@@ -25,6 +25,7 @@ public class WeightedSquareVectorLineGenerator extends WeightedVectorLineGenerat
     @Override
     public boolean Build() {
         double distance = getStart().distanceTo(getEnd());
+        ServerLevel server = getServer();
         ActiveTimeTick();
         double BuildTracker = getBuildSpeed();
         boolean succeeded = false;

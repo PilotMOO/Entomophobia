@@ -1,19 +1,24 @@
 package mod.pilot.entomophobia.data;
 
 import mod.pilot.entomophobia.Entomophobia;
+import mod.pilot.entomophobia.event.EntomoHandlerEvents;
 import mod.pilot.entomophobia.systems.PolyForged.Shapes.TunnelGenerator;
 import mod.pilot.entomophobia.systems.nest.Nest;
 import mod.pilot.entomophobia.systems.nest.NestManager;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 
 public class WorldSaveData extends SavedData {
@@ -22,6 +27,7 @@ public class WorldSaveData extends SavedData {
     public WorldSaveData(){
         super();
         MyiaticStorage = "dummy/";
+        server = EntomoHandlerEvents.getServer();
     }
     public static void SetActiveData(ServerLevel server){
         Entomophobia.activeData = server.getDataStorage().computeIfAbsent(WorldSaveData::load, WorldSaveData::new, NAME);
@@ -47,6 +53,8 @@ public class WorldSaveData extends SavedData {
 
         NestPackager packager = new NestPackager(tag, data);
         packager.UnpackNests();
+        System.out.println("All nests were unpacked without any fatal errors or snags");
+        System.out.println("Amount of active nests: " + NestManager.ActiveNests.size());
 
         return data;
     }
@@ -58,7 +66,8 @@ public class WorldSaveData extends SavedData {
         tag.putString("myiatic_storage", MyiaticStorage);
 
         NestPackager packager = new NestPackager(tag, this);
-        packager.PackAllNests();
+        tag = packager.PackAllNests();
+        System.out.println("No snags happened with the packager packing up the nests!");
 
         return tag;
     }
@@ -238,24 +247,31 @@ public class WorldSaveData extends SavedData {
         return newString.toString();
     }
 
+    private ServerLevel server;
+    public ServerLevel getServer(){
+        return server;
+    }
+    public void setServer(ServerLevel server){
+        this.server = server;
+    }
 
-    public ServerLevel server;
     public static class NestPackager {
         protected NestPackager(CompoundTag tag, WorldSaveData data){
             this.tag = tag;
-            nests = NestManager.ActiveNests;
             entomoWorld = data;
         }
         private final CompoundTag tag;
-        private final ArrayList<Nest> nests;
+        private static ArrayList<Nest> getNests(){
+            return NestManager.ActiveNests;
+        }
         private final WorldSaveData entomoWorld;
         private final StringBuilder builder = new StringBuilder();
 
-        public void PackAllNests(){
-            int temp = 0;
-            for (int n = 0; n < nests.size(); n++){
-                temp++;
+        public CompoundTag PackAllNests(){
+            int nestTracker = 0;
+            ArrayList<Nest> nests = getNests();
 
+            for (int n = 0; n < nests.size(); n++){
                 Nest current = nests.get(n);
                 if (current == null || current.Dead()) continue;
 
@@ -263,6 +279,8 @@ public class WorldSaveData extends SavedData {
 
                 HashMap<Nest.Offshoot, String> childIDs = new HashMap<>();
                 childIDs.put(current.MainChamber, PackageThisOffshoot(current.MainChamber, "Nest" + n, n));
+
+                nestTracker++;
 
                 if (current.MainChamber.children == null) continue;
                 ArrayList<Nest.Offshoot> currentLayer = current.MainChamber.children;
@@ -275,9 +293,17 @@ public class WorldSaveData extends SavedData {
 
                     currentLayer.clear();
                     currentLayer.addAll(CollectChildrenFrom(currentLayer));
-                }}
-            System.out.println("Packed up all of the nests!");
-            System.out.println("Packed up: " + temp + " Nests!");
+                }
+            }
+            if (nestTracker > 0){
+                System.out.println("Packed up all of the nests!");
+                System.out.println("Packed up: " + nestTracker + " Nest(s)!");
+            }
+            else{
+                System.out.println("There wasn't any nests in need of packing");
+            }
+
+            return tag;
         }
         private ArrayList<Nest.Offshoot> CollectChildrenFrom(ArrayList<Nest.Offshoot> parents){
             ArrayList<Nest.Offshoot> toReturn = new ArrayList<>();
@@ -288,12 +314,14 @@ public class WorldSaveData extends SavedData {
         }
 
         private void PackageThisNest(Nest nest, int index){
-            String nestID = builder.append("Nest").append(index).toString();
-            tag.putDouble(builder.append(nestID).append("x").toString(), nest.origin.x); CleanBuilder();
-            tag.putDouble(builder.append(nestID).append("y").toString(), nest.origin.y); CleanBuilder();
-            tag.putDouble(builder.append(nestID).append("z").toString(), nest.origin.z); CleanBuilder();
+            String nestID = builder.append("Nest").append(index).toString(); CleanBuilder();
+            tag.putDouble(builder.append(nestID).append("x").toString(), nest.origin.x); System.out.println("Packaged up a double with the ID: " + builder); CleanBuilder();
+            tag.putDouble(builder.append(nestID).append("y").toString(), nest.origin.y); System.out.println("Packaged up a double with the ID: " + builder); CleanBuilder();
+            tag.putDouble(builder.append(nestID).append("z").toString(), nest.origin.z); System.out.println("Packaged up a double with the ID: " + builder); CleanBuilder();
 
-            tag.putByte(builder.append(nestID).append("state").toString(), nest.getNestState()); CleanBuilder();
+            tag.putByte(builder.append(nestID).append("state").toString(), nest.getNestState()); System.out.println("Packaged up a byte with the ID: " + builder); CleanBuilder();
+
+            System.out.println("Packing up a nest with the ID: " + nestID);
         }
         private String PackageThisOffshoot(Nest.Offshoot offshoot, String parentID, int childIndex){
             String ID = builder.append(parentID).append("offshoot").append(childIndex).toString(); CleanBuilder();
@@ -302,60 +330,111 @@ public class WorldSaveData extends SavedData {
             boolean isCorridor = corridor != null;
             Vec3 pos = isCorridor ? corridor.getStartDirect() : offshoot.getPosition();
 
-            tag.putDouble(builder.append(ID).append("x").toString(), pos.x); CleanBuilder();
-            tag.putDouble(builder.append(ID).append("y").toString(), pos.y); CleanBuilder();
-            tag.putDouble(builder.append(ID).append("z").toString(), pos.z); CleanBuilder();
+            tag.putDouble(builder.append(ID).append("x").toString(), pos.x); System.out.println("Packaged up a double with the ID: " + builder); CleanBuilder();
+            tag.putDouble(builder.append(ID).append("y").toString(), pos.y); System.out.println("Packaged up a double with the ID: " + builder); CleanBuilder();
+            tag.putDouble(builder.append(ID).append("z").toString(), pos.z); System.out.println("Packaged up a double with the ID: " + builder); CleanBuilder();
 
-            tag.putBoolean(builder.append(ID).append("deadend").toString(), offshoot.DeadEnd); CleanBuilder();
+            tag.putBoolean(builder.append(ID).append("deadend").toString(), offshoot.DeadEnd); System.out.println("Packaged up a boolean with the ID: " + builder); CleanBuilder();
 
-            tag.putByte(builder.append(ID).append("type").toString(), offshoot.getOffshootType()); CleanBuilder();
-            tag.putByte(builder.append(ID).append("state").toString(), offshoot.getOffshootState()); CleanBuilder();
+            tag.putByte(builder.append(ID).append("type").toString(), offshoot.getOffshootType()); System.out.println("Packaged up a byte with the ID: " + builder); CleanBuilder();
+            tag.putByte(builder.append(ID).append("state").toString(), offshoot.getOffshootState()); System.out.println("Packaged up a byte with the ID: " + builder); CleanBuilder();
 
             int size = corridor != null ? corridor.weight : chamber != null ? chamber.radius : -1;
-            tag.putInt(builder.append(ID).append("size").toString(), size);
+            tag.putInt(builder.append(ID).append("size").toString(), size); System.out.println("Packaged up an int with the ID: " + builder); CleanBuilder();
             int thickness = corridor != null ? corridor.thickness : chamber != null ? chamber.thickness : -1;
-            tag.putInt(builder.append(ID).append("thickness").toString(), thickness);
+            tag.putInt(builder.append(ID).append("thickness").toString(), thickness); System.out.println("Packaged up an int with the ID: " + builder); CleanBuilder();
 
             if (isCorridor){
                 Vec3 end = corridor.end;
-                tag.putDouble(builder.append(ID).append("x2").toString(), end.x); CleanBuilder();
-                tag.putDouble(builder.append(ID).append("y2").toString(), end.y); CleanBuilder();
-                tag.putDouble(builder.append(ID).append("z2").toString(), end.z); CleanBuilder();
+                tag.putDouble(builder.append(ID).append("x2").toString(), end.x); System.out.println("Packaged up a double with the ID: " + builder); CleanBuilder();
+                tag.putDouble(builder.append(ID).append("y2").toString(), end.y); System.out.println("Packaged up a double with the ID: " + builder); CleanBuilder();
+                tag.putDouble(builder.append(ID).append("z2").toString(), end.z); System.out.println("Packaged up a double with the ID: " + builder); CleanBuilder();
             }
 
             return ID;
         }
+
         public void UnpackNests(){
+            System.out.println("Trying to unpack the nests!");
+
             int nestIndexTracker = 0;
             String NestID = builder.append("Nest").append(nestIndexTracker).toString(); CleanBuilder();
-            while (tag.contains(NestID)){
-                builder.append(NestID);
-                double X = tag.getDouble(builder.append("x").toString()); builder.setLength(NestID.length());
-                double Y = tag.getDouble(builder.append("y").toString()); builder.setLength(NestID.length());
-                double Z = tag.getDouble(builder.append("z").toString()); builder.setLength(NestID.length());
-                Vec3 nestPos = new Vec3(X, Y, Z);
 
-                Nest.Chamber mainChamber = (Nest.Chamber)ConstructPackagedFromID(builder.append("offshoot0").toString()).Unpack(null);CleanBuilder();
-                Nest.ConstructFromBlueprint(entomoWorld.server, nestPos, NestManager.getTickFrequency(), mainChamber);
-
-                ArrayList<String> OffshootIDs = new ArrayList<>();
-                ArrayList<Nest.Offshoot> parents = new ArrayList<>();
-                parents.add(mainChamber);
-
-                while (DoAnyOfTheseOffshootsHaveChildren(OffshootIDs)){
-                    for (String id : OffshootIDs){
-                        PackagedOffshoot packaged = ConstructPackagedFromID(id);
-                    }
-                }
-
-                nestIndexTracker++;
-                NestID = builder.append("Nest").append(nestIndexTracker).toString(); CleanBuilder();
+            boolean flag = tag.contains(builder.append(NestID).append("x").toString(), 99);
+            CleanBuilder();
+            if (!flag){
+                System.out.println("Tag didn't contain " + NestID);
             }
+            else{
+                while (flag){
+                    HashMap<Nest.Offshoot, String> OffshootIDMap = new HashMap<>();
+
+                    builder.append(NestID);
+                    double X = tag.getDouble(builder.append("x").toString()); builder.setLength(NestID.length());
+                    double Y = tag.getDouble(builder.append("y").toString()); builder.setLength(NestID.length());
+                    double Z = tag.getDouble(builder.append("z").toString()); builder.setLength(NestID.length());
+                    Vec3 nestPos = new Vec3(X, Y, Z);
+
+                    String mainChamberID = builder.append("offshoot0").toString(); CleanBuilder();
+                    Nest.Chamber mainChamber = (Nest.Chamber)ConstructPackagedFromID(mainChamberID).Unpack(null); CleanBuilder();
+                    System.out.println("Is the Main Chamber for " + NestID + " alive? " + (mainChamber.Alive()));
+                    OffshootIDMap.put(mainChamber, mainChamberID);
+
+                    ArrayList<String> OffshootIDs = new ArrayList<>(); OffshootIDs.add(mainChamberID);
+                    ArrayList<Nest.Offshoot> parents = new ArrayList<>(); parents.add(mainChamber);
+
+                    boolean childFlag = DoAnyOfTheseOffshootsHaveChildren(OffshootIDs);
+                    if (!childFlag){
+                        System.out.println("None of the given offshoots had children");
+                    }
+                    else{
+                        while (childFlag){
+                            ArrayList<String> newIDs = new ArrayList<>();
+                            ArrayList<Nest.Offshoot> newParents = new ArrayList<>();
+                            for (String id : OffshootIDs){
+                                CleanBuilder();
+                                String baseChildID = builder.append(id).append("offshoot").toString();
+                                for (int i = 0; tag.contains(builder.append(i).append("x").toString()); i++){
+                                    builder.setLength(builder.length() - 1);
+                                    newIDs.add(builder.toString());
+                                    builder.setLength(baseChildID.length());
+                                }
+                            }
+                            for (String childID : newIDs){
+                                for (Nest.Offshoot possibleParent : parents){
+                                    if (childID.contains(OffshootIDMap.get(possibleParent))){
+                                        Nest.Offshoot child = ConstructPackagedFromID(childID).Unpack(possibleParent);
+                                        newParents.add(child); OffshootIDMap.put(child, childID);
+                                    }
+                                }
+                            }
+
+                            parents = new ArrayList<>(newParents);
+                            OffshootIDs = new ArrayList<>(newIDs);
+                            childFlag = DoAnyOfTheseOffshootsHaveChildren(OffshootIDs);
+                        }
+                    }
+
+                    System.out.println("Finished getting all of the offshoots for " + NestID);
+
+                    Nest newNest = Nest.ConstructFromBlueprint(entomoWorld.getServer(), nestPos, NestManager.getTickFrequency(), mainChamber);
+                    NestManager.ActiveNests.add(newNest);
+                    System.out.println("Fully unpacked " + NestID + " and added it to ActiveNests!");
+
+                    nestIndexTracker++;
+                    CleanBuilder();
+                    NestID = builder.append("Nest").append(nestIndexTracker).toString(); CleanBuilder();
+                    flag = tag.contains(builder.append(NestID).append("x").toString(), 99); CleanBuilder();
+                }
+            }
+
+            System.out.println("We are finished unpacking the nests, boss!");
+            System.out.println("Unpacked: " + nestIndexTracker + " Nest(s)!");
         }
 
-
         private PackagedOffshoot ConstructPackagedFromID(String ID) {
-            byte type = tag.getByte(builder.append(ID).append("type").toString()); CleanBuilder();
+            CleanBuilder();
+            byte type = tag.getByte(builder.append(ID).append("type").toString()); System.out.println("Unpacking a byte with the ID: " + builder); CleanBuilder();
             PackagedOffshoot toReturn = null;
 
             builder.append(ID);
@@ -368,6 +447,8 @@ public class WorldSaveData extends SavedData {
             int thickness = tag.getByte(builder.append("thickness").toString()); builder.setLength(ID.length());
 
             if (type == 1){
+                System.out.println("Constructed a PackagedChamber with the I.D. " + ID);
+                System.out.println("PackagedChamber's state is: " + Nest.Offshoot.OffshootStates.values()[state]);
                 toReturn = new PackagedChamber(this, x, y, z, deadEnd, state, size, thickness);
             }
             if (type == 2){
@@ -375,6 +456,8 @@ public class WorldSaveData extends SavedData {
                 double y2 = tag.getDouble(builder.append("y2").toString()); builder.setLength(ID.length());
                 double z2 = tag.getDouble(builder.append("z2").toString()); builder.setLength(ID.length());
 
+                System.out.println("Constructed a PackagedCorridor with the I.D. " + ID);
+                System.out.println("PackagedCorridor's state is: " + Nest.Offshoot.OffshootStates.values()[state]);
                 toReturn = new PackagedCorridor(this, x, y, z, deadEnd, state, x2, y2, z2);
             }
 
@@ -386,7 +469,7 @@ public class WorldSaveData extends SavedData {
 
             boolean flag = false;
             for (String id : offshootIDs){
-                flag = tag.contains(builder.append(id).append("offshoot0").toString());
+                flag = tag.contains(builder.append(id).append("offshoot0").append("x").toString()); CleanBuilder();
                 if (flag) break;
             }
             return flag;
@@ -415,7 +498,7 @@ public class WorldSaveData extends SavedData {
 
             public abstract Nest.Offshoot Unpack(@Nullable Nest.Offshoot parent);
             public ServerLevel getServer(){
-                return packager.entomoWorld.server;
+                return packager.entomoWorld.getServer();
             }
         }
         public static class PackagedChamber extends PackagedOffshoot{
@@ -443,6 +526,8 @@ public class WorldSaveData extends SavedData {
                 super(packager, x, y, z, deadEnd, state);
                 super.type = 2;
                 X2 = x2; Y2 = y2; Z2 = z2;
+                System.out.println("Packing a corridor with a start position of [" + X + ", " + Y + ", " + Z + "]");
+                System.out.println("Packing a corridor with an end position of [" + X2 + ", " + Y2 + ", " + Z2 + "]");
             }
             public static PackagedCorridor PackageOffshoot(Nest.Corridor toPackage, NestPackager packager) {
                 TunnelGenerator tunnel = (TunnelGenerator)toPackage.getGenerator();
@@ -459,6 +544,9 @@ public class WorldSaveData extends SavedData {
             public int thickness;
             @Override
             public Nest.Offshoot Unpack(Nest.Offshoot parent) {
+                System.out.println("Unpacking a PackagedCorridor with parent: " + parent);
+                System.out.println("Unpacked Corridor has a start position of [" + X + ", " + Y + ", " + Z + "]");
+                System.out.println("Unpacked Corridor has an end position of [" + X2 + ", " + Y2 + ", " + Z2 + "]");
                 return Nest.Corridor.ConstructFromPackage(this, parent);
             }
         }

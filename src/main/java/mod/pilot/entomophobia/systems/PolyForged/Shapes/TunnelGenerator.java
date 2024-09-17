@@ -29,6 +29,7 @@ public class TunnelGenerator extends HollowWeightedCircleLineGenerator{
     protected void GenerateGhostPositions() {
         ArrayList<ArrayList<BlockPos>> ghostPositions = new ArrayList<>();
 
+        ServerLevel server = getServer();
         int GhostLineWeight = weight - (thickness * 2);
         double distance = getStart().distanceTo(getEnd());
         for (int i = -1; i <= distance + 1; i++){
@@ -63,6 +64,7 @@ public class TunnelGenerator extends HollowWeightedCircleLineGenerator{
         }
         return toReturn;
     }
+
     @Override
     public boolean Build() {
         if (toAdd != null){

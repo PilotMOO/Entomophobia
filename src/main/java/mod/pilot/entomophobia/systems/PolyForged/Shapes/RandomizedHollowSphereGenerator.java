@@ -35,6 +35,7 @@ public class RandomizedHollowSphereGenerator extends HollowSphereGenerator{
         if (!isOfState(WorldShapeManager.GeneratorStates.active)){
             return false;
         }
+        ServerLevel server = getServer();
         //Code stolen from Harby-- thanks Harby
         ActiveTimeTick();
         double BuildTracker = getBuildSpeed();

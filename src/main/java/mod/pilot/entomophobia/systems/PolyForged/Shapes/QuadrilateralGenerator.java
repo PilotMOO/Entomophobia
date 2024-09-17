@@ -39,6 +39,7 @@ public class QuadrilateralGenerator extends ShapeGenerator {
         if (!isOfState(WorldShapeManager.GeneratorStates.active)){
             return false;
         }
+        ServerLevel server = getServer();
         ActiveTimeTick();
         double BuildTracker = getBuildSpeed();
         //Code stolen from Harby-- thanks Harby

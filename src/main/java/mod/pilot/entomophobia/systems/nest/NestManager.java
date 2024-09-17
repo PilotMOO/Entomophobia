@@ -38,6 +38,12 @@ public class NestManager {
             ActiveNests.remove(toRemove);
         }
     }
+    public static void ActivateAllNests() {
+        for (Nest nest : ActiveNests){
+            if (nest.Dead()) continue;
+            nest.Enable();
+        }
+    }
 
     public static void setNestConstructionDetails(){
         TickFrequency = Config.SERVER.nest_tick_frequency.get();

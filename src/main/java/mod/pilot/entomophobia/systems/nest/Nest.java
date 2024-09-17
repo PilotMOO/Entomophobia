@@ -11,6 +11,7 @@ import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -69,7 +70,7 @@ public class Nest {
         return MainChamber.Alive() && getNestState() == 1;
     }
     public boolean Dead(){
-        return MainChamber.Dead() || getNestState() == 3 || getNestState() == 0;
+        return MainChamber.Dead() || getNestState() == 3;
     }
 
     public ArrayList<Offshoot> Offshoots(){
@@ -258,11 +259,11 @@ public class Nest {
                 case 1 -> {
                     switch (random.nextIntBetweenInclusive(1, 3)){
                         default -> child = new Chamber(server, this, OffshootPos, NestManager.getRandomSmallChamberRadius(random),
-                                Config.SERVER.small_chamber_thickness.get());
+                                NestManager.getNestSmallChamberThickness());
                         case 2 -> child = new Chamber(server, this, OffshootPos, NestManager.getRandomMediumChamberRadius(random),
-                                Config.SERVER.medium_chamber_thickness.get());
+                                NestManager.getNestMediumChamberThickness());
                         case 3 -> child = new Chamber(server, this, OffshootPos, NestManager.getRandomLargeChamberRadius(random),
-                                Config.SERVER.large_chamber_thickness.get());
+                                NestManager.getNestLargeChamberThickness());
                     }
                 }
                 case 2 -> {
@@ -287,7 +288,7 @@ public class Nest {
         public Chamber(ServerLevel server, @org.jetbrains.annotations.Nullable Nest.Offshoot parent, Vec3 pos, int radius, int thickness) {
             super(server, OffshootType, parent, pos);
             ConstructGenerator(server, getPosition(), radius, thickness);
-            super.MaxChildCount = 3;
+            super.MaxChildCount = 2;
             this.radius = radius;
             this.thickness = thickness;
         }
@@ -301,7 +302,11 @@ public class Nest {
             }
         }
         public static Chamber ConstructFromPackage(WorldSaveData.NestPackager.PackagedChamber packaged, @Nullable Offshoot parent){
-            return new Chamber(packaged.getServer(), parent, new Vec3(packaged.X, packaged.Y, packaged.Z), packaged.radius, packaged.thickness);
+            Chamber child = new Chamber(packaged.getServer(), parent, new Vec3(packaged.X, packaged.Y, packaged.Z), packaged.radius, packaged.thickness);
+            if (parent != null){
+                parent.AddToChildren(child);
+            }
+            return child;
         }
 
         public final int radius;
@@ -322,22 +327,17 @@ public class Nest {
                     System.out.println("We gonna have a child!");
                     ConstructNewChild((byte)2);
                 }
-                else{
-                    System.out.println("No child :[");
-                }
             }
         }
 
         @Override
         protected Vec3 getOffshootPosition() {
-            int Origin = getPosition().y > NestManager.getNestYBuildPriority() ? -25 : 0;
-            int Bound = getPosition().y > NestManager.getNestYBuildPriority() ? 0 : 25;
             HollowSphereGenerator sphereGenerator = (HollowSphereGenerator)generator;
             Vec3 direction;
             Vec3 toReturn = null;
             int cycleCounter = 0;
             while ((toReturn == null || !TestOffshootPosition(toReturn)) && cycleCounter < 10){
-                direction = getPosition().normalize().yRot(random.nextInt(Origin, Bound)).xRot(random.nextInt(-180, 180)).zRot(random.nextInt(-180, 180));
+                direction = getPosition().yRot(random.nextInt(-20, 20)).xRot(random.nextInt(-180, 180)).zRot(random.nextInt(-180, 180)).normalize();
                 toReturn = getPosition().add(direction.scale(sphereGenerator.radius - sphereGenerator.thickness));
                 cycleCounter++;
             }
@@ -379,10 +379,11 @@ public class Nest {
         }
         private Corridor(ServerLevel server, @Nonnull Nest.Offshoot parent, Vec3 position, int weight, int thickness, Vec3 endPos){
             super(server, OffshootType, parent, position);
+            ConstructGeneratorFromBlueprint(weight, thickness, endPos, parent);
             super.MaxChildCount = 1;
             this.weight = weight;
             this.thickness = thickness;
-            ConstructGeneratorFromBlueprint(weight, thickness, endPos, parent);
+            this.end = endPos;
         }
         protected void ConstructGenerator(int weight, int thickness){
             TunnelGenerator tunnel = WorldShapeManager.CreateTunnel(server, NestManager.getNestBuildSpeed(), NestManager.getNestBlocks(), NestManager.getNestMaxHardness(), getPosition(), GenerateEndPosition(), weight, thickness);
@@ -419,7 +420,9 @@ public class Nest {
             setGenerator(tunnel);
         }
         public static Corridor ConstructFromPackage(WorldSaveData.NestPackager.PackagedCorridor packaged, Offshoot parent){
-            return new Corridor(packaged.getServer(), parent, new Vec3(packaged.X, packaged.Y, packaged.Z), packaged.weight, packaged.thickness, new Vec3(packaged.X2, packaged.Y2, packaged.Z2));
+            Corridor child = new Corridor(packaged.getServer(), parent, new Vec3(packaged.X, packaged.Y, packaged.Z), packaged.weight, packaged.thickness, new Vec3(packaged.X2, packaged.Y2, packaged.Z2));
+            parent.AddToChildren(child);
+            return child;
         }
 
         public final int weight;
@@ -454,10 +457,10 @@ public class Nest {
             while ((toReturn == null || IsThisEndPositionInvalid(toReturn)) && cycleCounter < 10){
                 toReturn = getPosition().add(EntomoDataManager.GetDirectionToAFromB(getPosition(), getComparePosition())
                         .yRot(random.nextIntBetweenInclusive(-25, 25))
-                        .xRot(random.nextIntBetweenInclusive(-25, 25))
-                        .zRot(random.nextIntBetweenInclusive(-25, 25))
-                        .scale(NestManager.getRandomCorridorLength(random)))
-                        .multiply(0, position.y > NestManager.getNestYBuildPriority() ? -1 : 1, 0);
+                        .xRot(random.nextIntBetweenInclusive(0, 25))
+                        .zRot(random.nextIntBetweenInclusive(0, 25))
+                        .multiply(1, position.y > NestManager.getNestYBuildPriority() ? -1 : 1, 1)
+                        .scale(NestManager.getRandomCorridorLength(random)));
                 cycleCounter++;
             }
             if (IsThisEndPositionInvalid(toReturn)){
@@ -467,9 +470,9 @@ public class Nest {
         }
         private boolean IsThisEndPositionInvalid(Vec3 toTest){
             boolean flag = false;
-            for (int x = -weight; x < weight; x++){
-                for (int y = -weight; y < weight; y++){
-                    for (int z = -weight; z < weight; z++){
+            for (int x = -weight * 2; x < weight * 2; x++){
+                for (int y = -weight * 2; y < weight * 2; y++){
+                    for (int z = -weight * 2; z < weight * 2; z++){
                         BlockState bState = server.getBlockState(new BlockPos((int)toTest.x + x, (int)toTest.y + y, (int)toTest.z + z));
                         for (BlockState placementBlocks : NestManager.getNestBlocks()){
                             if (bState.getBlock().defaultBlockState() == placementBlocks){
@@ -514,7 +517,7 @@ public class Nest {
             }
         }
         public Vec3 getStartDirect(){
-            return super.getPosition();
+            return position;
         }
         @Override
         protected Vec3 getOffshootPosition() {

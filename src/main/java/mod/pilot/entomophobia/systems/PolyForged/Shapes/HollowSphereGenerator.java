@@ -40,6 +40,7 @@ public class HollowSphereGenerator extends SphereGenerator {
             return false;
         }
         //Code stolen from Harby-- thanks Harby
+        ServerLevel server = getServer();
         ActiveTimeTick();
         double BuildTracker = getBuildSpeed();
         boolean succeeded = false;

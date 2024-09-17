@@ -1,6 +1,5 @@
 package mod.pilot.entomophobia.systems.PolyForged;
 
-import mod.pilot.entomophobia.data.PolyForged.Shapes.*;
 import mod.pilot.entomophobia.systems.PolyForged.Shapes.*;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;

@@ -55,15 +55,16 @@ public class ChamberGenerator extends RandomizedHollowSphereGenerator{
             return false;
         }
         //Code stolen from Harby-- thanks Harby
+        ServerLevel server = getServer();
         ActiveTimeTick();
         double BuildTracker = getBuildSpeed();
         boolean succeeded = false;
         for(int x = 0; x <= 2*radius; ++x) {
             for(int y = 0; y <= 2*radius; ++y) {
                 for(int z = 0; z <= 2*radius; ++z) {
-                    double distance = Mth.sqrt((x - radius) * (x - radius) + (y - radius) * (y - radius) + (z - radius) * (z - radius));
                     Vec3 center = getPosition();
                     BlockPos bPos = new BlockPos(new Vec3i((int)(center.x + (x - radius) - 1), (int)(center.y + (y - radius) - 1), (int)(center.z + (z - radius) - 1)));
+                    double distance = center.distanceTo(bPos.getCenter());
                     BlockState bState = server.getBlockState(bPos);
                     if (CanThisBeReplaced(bState, bPos) && distance <= radius && (TrueHollow || distance > radius - thickness)){
                         if (BuildTracker > 1){
@@ -112,6 +113,8 @@ public class ChamberGenerator extends RandomizedHollowSphereGenerator{
 
     @Override
     public boolean CanThisBeReplaced(BlockState state, BlockPos pos) {
+        ServerLevel server = getServer();
+
         if (TrueHollow){
             switch (getPlacementDetail()){
                 case 0 ->{
