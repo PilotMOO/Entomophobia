@@ -1,6 +1,8 @@
 package mod.pilot.entomophobia.systems.nest;
 
 import mod.pilot.entomophobia.Config;
+import mod.pilot.entomophobia.Entomophobia;
+import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -19,10 +21,24 @@ public class NestManager {
         dead
     }
 
-    public static final ArrayList<Nest> ActiveNests = new ArrayList<>();
+    private static final ArrayList<Nest> ActiveNests = new ArrayList<>();
+    public static void addToActiveNests(Nest toAdd){
+        ActiveNests.add(toAdd);
+        NestSaveData.Dirty();
+    }
+    public static int AmountOfActiveNests(){
+        return ActiveNests.size();
+    }
+    public static ArrayList<Nest> getActiveNests(){
+        return ActiveNests;
+    }
+    public static void ClearNests(){
+        ActiveNests.clear();
+    }
     public static Nest ConstructNewNest(ServerLevel server, Vec3 start){
         Nest nest = new Nest(server, start, getTickFrequency());
-        ActiveNests.add(nest);
+        addToActiveNests(nest);
+        NestSaveData.Dirty();
         return nest;
     }
     public static void TickAllActiveNests(){

@@ -34,7 +34,7 @@ public class NestWand extends Item {
         if (player.isSecondaryUseActive()){
             Nest closest = null;
             double distance = Double.MAX_VALUE;
-            for (Nest nest : NestManager.ActiveNests){
+            for (Nest nest : NestManager.getActiveNests()){
                 if (closest == null){
                     closest = nest;
                     distance = player.position().distanceTo(nest.origin);

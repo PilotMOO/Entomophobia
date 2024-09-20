@@ -2,7 +2,8 @@ package mod.pilot.entomophobia.systems.nest;
 
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.data.EntomoDataManager;
-import mod.pilot.entomophobia.data.WorldSaveData;
+import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
+import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.systems.PolyForged.ShapeGenerator;
 import mod.pilot.entomophobia.systems.PolyForged.Shapes.ChamberGenerator;
 import mod.pilot.entomophobia.systems.PolyForged.Shapes.HollowSphereGenerator;
@@ -11,7 +12,6 @@ import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -26,16 +26,17 @@ public class Nest {
         TickFrequency = tickFrequency;
         MainChamber = CreateMainChamber();
         Enable();
+        NestSaveData.Dirty();
     }
-    private Nest(ServerLevel server, Vec3 start, int tickFrequency, Chamber mainChamber){
+    private Nest(ServerLevel server, Vec3 start, byte state, int tickFrequency, Chamber mainChamber){
         this.server = server;
         origin = start;
+        NestState = state;
         TickFrequency = tickFrequency;
         MainChamber = mainChamber;
-        Enable();
     }
-    public static Nest ConstructFromBlueprint(ServerLevel server, Vec3 start, int tickFrequency, Chamber mainChamber){
-        return new Nest(server, start, tickFrequency, mainChamber);
+    public static Nest ConstructFromBlueprint(ServerLevel server, Vec3 start, byte state, int tickFrequency, Chamber mainChamber){
+        return new Nest(server, start, state, tickFrequency, mainChamber);
     }
 
     public ServerLevel server;
@@ -51,6 +52,10 @@ public class Nest {
     }
     protected void setNestState(byte state){
         NestState = state;
+        NestSaveData.Dirty();
+    }
+    protected void setNestState(NestManager.NestStates state){
+        setNestState((byte)state.ordinal());
     }
 
     public void Disable(){
@@ -108,8 +113,19 @@ public class Nest {
             if (this instanceof Corridor){
                 DeadEnd = !ShouldThisBecomeAParent();
             }
-        }
 
+            NestSaveData.Dirty();
+        }
+        protected Offshoot(ServerLevel server, byte type, @Nullable Offshoot parent, Vec3 position, byte state){
+            setOffshootType(type);
+            this.OffshootState = state;
+            this.server = server;
+            this.parent = parent;
+            this.position = position;
+            if (this instanceof Corridor){
+                DeadEnd = !ShouldThisBecomeAParent();
+            }
+        }
         protected ServerLevel server;
         protected final Vec3 position;
 
@@ -168,6 +184,7 @@ public class Nest {
         }
         protected void setOffshootState(byte state){
             OffshootState = state;
+            NestSaveData.Dirty();
         }
         public void Disable(){
             setOffshootState((byte)0);
@@ -182,7 +199,7 @@ public class Nest {
         public byte getOffshootType(){
             return OffshootType;
         }
-        protected void setOffshootType(byte type){
+        private void setOffshootType(byte type){
             OffshootType = type;
         }
 
@@ -202,6 +219,7 @@ public class Nest {
                     child.Kill(true);
                 }
             }
+            NestSaveData.Dirty();
         }
 
         @Nullable
@@ -215,6 +233,7 @@ public class Nest {
             if (child != null){
                 children.add(child);
             }
+            NestSaveData.Dirty();
         }
         public boolean AreAnyOfMyChildrenAlive(){
             if (children == null) return false;
@@ -249,6 +268,7 @@ public class Nest {
         }
 
         public final Offshoot ConstructNewChild(byte newShootType){
+            System.out.println("Building a new child!");
             Offshoot child;
             Vec3 OffshootPos = getOffshootPosition();
             if (OffshootPos == null){
@@ -292,6 +312,13 @@ public class Nest {
             this.radius = radius;
             this.thickness = thickness;
         }
+        private Chamber(ServerLevel server, @org.jetbrains.annotations.Nullable Nest.Offshoot parent, Vec3 pos, byte state, int radius, int thickness) {
+            super(server, OffshootType, parent, pos, state);
+            ConstructGenerator(server, getPosition(), radius, thickness);
+            super.MaxChildCount = 2;
+            this.radius = radius;
+            this.thickness = thickness;
+        }
         protected void ConstructGenerator(ServerLevel server, Vec3 pos, int radius, int thickness) {
             ChamberGenerator generator = WorldShapeManager.CreateChamber(server, NestManager.getNestBuildSpeed(), NestManager.getNestBlocks(), pos, NestManager.getNestMaxHardness(), radius, thickness, 0.5, true);
             setGenerator(generator);
@@ -301,8 +328,8 @@ public class Nest {
                 }
             }
         }
-        public static Chamber ConstructFromPackage(WorldSaveData.NestPackager.PackagedChamber packaged, @Nullable Offshoot parent){
-            Chamber child = new Chamber(packaged.getServer(), parent, new Vec3(packaged.X, packaged.Y, packaged.Z), packaged.radius, packaged.thickness);
+        public static Chamber ConstructFromPackage(NestSaveData.NestPackager.PackagedChamber packaged, @Nullable Offshoot parent){
+            Chamber child = new Chamber(packaged.getServer(), parent, new Vec3(packaged.X, packaged.Y, packaged.Z), packaged.state, packaged.radius, packaged.thickness);
             if (parent != null){
                 parent.AddToChildren(child);
             }
@@ -324,7 +351,6 @@ public class Nest {
             }
             if (getGenerator() != null && getGenerator().isOfState(WorldShapeManager.GeneratorStates.done) && !AreAnyOfMyChildrenAlive()){
                 if (ShouldThisBecomeAParent()){
-                    System.out.println("We gonna have a child!");
                     ConstructNewChild((byte)2);
                 }
             }
@@ -419,7 +445,7 @@ public class Nest {
             }
             setGenerator(tunnel);
         }
-        public static Corridor ConstructFromPackage(WorldSaveData.NestPackager.PackagedCorridor packaged, Offshoot parent){
+        public static Corridor ConstructFromPackage(NestSaveData.NestPackager.PackagedCorridor packaged, Offshoot parent){
             Corridor child = new Corridor(packaged.getServer(), parent, new Vec3(packaged.X, packaged.Y, packaged.Z), packaged.weight, packaged.thickness, new Vec3(packaged.X2, packaged.Y2, packaged.Z2));
             parent.AddToChildren(child);
             return child;

@@ -2,13 +2,14 @@ package mod.pilot.entomophobia.event;
 
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.Entomophobia;
+import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.effects.StackingEffectBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticCowEntity;
 import mod.pilot.entomophobia.items.EntomoItems;
 import mod.pilot.entomophobia.data.EntomoDataManager;
-import mod.pilot.entomophobia.data.WorldSaveData;
+import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
 import mod.pilot.entomophobia.systems.nest.NestManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -25,7 +26,6 @@ import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
@@ -38,7 +38,6 @@ import net.minecraftforge.event.server.*;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.util.List;
 
@@ -83,13 +82,13 @@ public class EntomoHandlerEvents {
 
     @SubscribeEvent
     public static void ServerStart(ServerStartedEvent event){
-        WorldSaveData.SetActiveData(event.getServer().overworld());
+        EntomoGeneralSaveData.SetActiveData(event.getServer().overworld());
+        NestSaveData.SetActiveNestData(event.getServer().overworld());
         NestManager.setNestConstructionDetails();
         System.out.println("Amount of myiatics in storage: " + Entomophobia.activeData.GetTotalInStorage());
     }
     @SubscribeEvent
     public static void ServerStarting(ServerStartingEvent event){
-        System.out.println("The Server from WorldLoad is: " + event.getServer().overworld());
         server = event.getServer().overworld();
     }
 
@@ -105,7 +104,7 @@ public class EntomoHandlerEvents {
     @SubscribeEvent
     public static void PostServerEnd(ServerStoppedEvent event){
         System.out.println("Clearing out all nests!");
-        NestManager.ActiveNests.clear();
+        NestManager.ClearNests();
     }
 
     @SubscribeEvent
@@ -136,7 +135,7 @@ public class EntomoHandlerEvents {
 
     @SubscribeEvent
     public static void InvasionStartManager(TickEvent.ServerTickEvent event){
-        WorldSaveData data = Entomophobia.activeData;
+        EntomoGeneralSaveData data = Entomophobia.activeData;
         data.ageWorld();
 
         if (!data.getHasStarted() && data.getWorldAge() > Config.SERVER.time_until_shit_gets_real.get()){
@@ -160,7 +159,7 @@ public class EntomoHandlerEvents {
     }
     @SubscribeEvent
     public static void NestTicker(TickEvent.ServerTickEvent event){
-        WorldSaveData data = Entomophobia.activeData;
+        EntomoGeneralSaveData data = Entomophobia.activeData;
         if (data.getWorldAge() % NestManager.getTickFrequency() == 0){
             NestManager.TickAllActiveNests();
         }

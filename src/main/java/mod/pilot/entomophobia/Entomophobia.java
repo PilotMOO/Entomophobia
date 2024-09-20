@@ -2,13 +2,13 @@ package mod.pilot.entomophobia;
 
 import com.mojang.logging.LogUtils;
 import mod.pilot.entomophobia.blocks.EntomoBlocks;
+import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.items.EntomoCreativeTabs;
 import mod.pilot.entomophobia.items.EntomoItems;
 import mod.pilot.entomophobia.sound.EntomoSounds;
-import mod.pilot.entomophobia.data.WorldSaveData;
-import mod.pilot.entomophobia.systems.nest.NestManager;
+import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -22,7 +22,8 @@ public class Entomophobia
 {
     public static final String MOD_ID = "entomophobia";
     private static final Logger LOGGER = LogUtils.getLogger();
-    public static WorldSaveData activeData;
+    public static EntomoGeneralSaveData activeData;
+    public static NestSaveData activeNestData;
 
     public Entomophobia() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
