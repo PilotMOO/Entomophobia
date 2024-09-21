@@ -232,8 +232,8 @@ public class Nest {
             }
             if (child != null){
                 children.add(child);
+                NestSaveData.Dirty();
             }
-            NestSaveData.Dirty();
         }
         public boolean AreAnyOfMyChildrenAlive(){
             if (children == null) return false;
@@ -268,7 +268,6 @@ public class Nest {
         }
 
         public final Offshoot ConstructNewChild(byte newShootType){
-            System.out.println("Building a new child!");
             Offshoot child;
             Vec3 OffshootPos = getOffshootPosition();
             if (OffshootPos == null){
@@ -345,11 +344,13 @@ public class Nest {
                 TickGenerator();
             }
             if (tickChildren && children != null){
+                System.out.println("Amount of children: " + children.size());
                 for (Offshoot child : children) {
                     child.OffshootTick(continuative, layers != 0, layers - 1);
                 }
             }
             if (getGenerator() != null && getGenerator().isOfState(WorldShapeManager.GeneratorStates.done) && !AreAnyOfMyChildrenAlive()){
+                /*System.out.println("The generation of new children has been disabled for testing.");*/
                 if (ShouldThisBecomeAParent()){
                     ConstructNewChild((byte)2);
                 }

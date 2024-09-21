@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class NestSaveData extends SavedData {
@@ -93,8 +94,9 @@ public class NestSaveData extends SavedData {
                         childIDs.put(child, PackageThisOffshoot(child, childIDs.get(child.parent), i));
                     }
 
+                    ArrayList<Nest.Offshoot> snapshot = new ArrayList<>(currentLayer);
                     currentLayer.clear();
-                    currentLayer.addAll(CollectChildrenFrom(currentLayer));
+                    currentLayer = CollectChildrenFrom(snapshot);
                 }
             }
             if (nestTracker > 0){
@@ -108,8 +110,10 @@ public class NestSaveData extends SavedData {
         private ArrayList<Nest.Offshoot> CollectChildrenFrom(ArrayList<Nest.Offshoot> parents){
             ArrayList<Nest.Offshoot> toReturn = new ArrayList<>();
             for (Nest.Offshoot offshoot : parents){
+                if (offshoot.children == null) continue;
                 toReturn.addAll(offshoot.children);
             }
+            System.out.println("Collecting children... Amount collected: " + toReturn.size());
             return toReturn;
         }
 
@@ -201,10 +205,19 @@ public class NestSaveData extends SavedData {
                             }
                             for (String childID : newIDs){
                                 for (Nest.Offshoot possibleParent : parents){
+                                    System.out.println("---");
+                                    System.out.println("childID: " + childID + ", possibleParentID: " + OffshootIDMap.get(possibleParent));
+                                    System.out.println("Are these two I.D.'s connected? " + childID.contains(OffshootIDMap.get(possibleParent)));
                                     if (childID.contains(OffshootIDMap.get(possibleParent))){
+                                        System.out.println("<-->");
                                         Nest.Offshoot child = ConstructPackagedFromID(childID).Unpack(possibleParent);
                                         newParents.add(child); OffshootIDMap.put(child, childID);
+                                        System.out.println("<-->");
+                                        System.out.println("child " + childID + " is assigned to the parent " + OffshootIDMap.get(possibleParent));
+                                        System.out.println("parent's child count: " + possibleParent.children.size());
+                                        System.out.println("Does the child have a parent? " + (child.parent != null));
                                     }
+                                    System.out.println("---");
                                 }
                             }
 
@@ -264,9 +277,8 @@ public class NestSaveData extends SavedData {
         }
 
         private boolean DoAnyOfTheseOffshootsHaveChildren(ArrayList<String> offshootIDs) {
-            CleanBuilder();
-
             for (String id : offshootIDs){
+                CleanBuilder();
                 if (tag.contains(builder.append(id).append("offshoot0x").toString())){
                     CleanBuilder();
                     return true;
