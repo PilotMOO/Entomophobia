@@ -1,7 +1,6 @@
 package mod.pilot.entomophobia.systems.nest;
 
 import mod.pilot.entomophobia.Config;
-import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;

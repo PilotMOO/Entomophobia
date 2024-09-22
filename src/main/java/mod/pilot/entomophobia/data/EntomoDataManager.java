@@ -4,6 +4,8 @@ import mod.pilot.entomophobia.Config;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -44,5 +46,10 @@ public class EntomoDataManager {
     }
     public static Vec3 GetDirectionToAFromB(Vec3 target, Vec3 parent) {
         return target.subtract(parent).normalize();
+    }
+
+    public static boolean isThisGlass(BlockState state){
+        Block block = state.getBlock();
+        return block instanceof GlassBlock || block instanceof StainedGlassBlock || block instanceof StainedGlassPaneBlock || state.is(Blocks.GLASS_PANE);
     }
 }

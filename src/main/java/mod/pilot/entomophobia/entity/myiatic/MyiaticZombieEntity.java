@@ -6,6 +6,7 @@ import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.util.AzureLibUtil;
 import mod.pilot.entomophobia.entity.AI.DashAttackWithAnimationGoal;
+import mod.pilot.entomophobia.entity.interfaces.Dodgable;
 import mod.pilot.entomophobia.sound.EntomoSounds;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -16,13 +17,13 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import mod.pilot.entomophobia.entity.AI.Flight.*;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class MyiaticZombieEntity extends MyiaticBase{
+public class MyiaticZombieEntity extends MyiaticBase implements Dodgable {
     public MyiaticZombieEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
         setReach(0.15f);
-        DodgeChance = 3;
     }
 
     @Override
@@ -78,11 +79,6 @@ public class MyiaticZombieEntity extends MyiaticBase{
     }
 
     @Override
-    protected boolean CanDodge() {
-        return true;
-    }
-
-    @Override
     public int getExperienceReward() {
         return 10;
     }
@@ -97,7 +93,12 @@ public class MyiaticZombieEntity extends MyiaticBase{
         return SoundEvents.ZOMBIE_DEATH;
     }
     @Override
-    protected SoundEvent getHurtSound(DamageSource pDamageSource) {
+    protected SoundEvent getHurtSound(@NotNull DamageSource pDamageSource) {
         return SoundEvents.ZOMBIE_HURT;
+    }
+
+    @Override
+    public double getDodgeChance() {
+        return 0.3d;
     }
 }

@@ -2,12 +2,14 @@ package mod.pilot.entomophobia.entity.myiatic;
 
 import mod.azure.azurelib.animatable.GeoEntity;
 import mod.pilot.entomophobia.Config;
-import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
+import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.AI.*;
 import mod.pilot.entomophobia.entity.EntomoEntities;
+import mod.pilot.entomophobia.entity.interfaces.Dodgable;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
+import mod.pilot.entomophobia.systems.swarm.Swarm;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -37,7 +39,6 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,6 +46,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.function.Predicate;
+
+import static mod.pilot.entomophobia.data.EntomoDataManager.isThisGlass;
 
 public abstract class MyiaticBase extends Monster implements GeoEntity {
     protected MyiaticBase(EntityType<? extends Monster> pEntityType, Level pLevel) {
@@ -87,8 +90,6 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         this.entityData.define(AIState, 0);
         this.entityData.define(Reach, 0f);
     }
-
-    public static int DodgeChance = 0;
     /**/
 
     //Goals
@@ -228,7 +229,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         ArrayList<PheromonesEntityBase> AllPheromones = new ArrayList<>(level().getEntitiesOfClass(PheromonesEntityBase.class, nearby));
 
         for (PheromonesEntityBase P : AllPheromones){
-            if (P != null && Objects.equals(P.getEncodeId(), instance)){
+            if (Objects.equals(P.getEncodeId(), instance)){
                 return true;
             }
         }
@@ -262,17 +263,6 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         return null;
     }
 
-    protected boolean TryToDodge() {
-        if (CanDodge() && verticalCollisionBelow && !horizontalCollision){
-            int Direction = getRandom().nextIntBetweenInclusive(0, 1) != 0 ? -1 : 1;
-            setDeltaMovement(getDeltaMovement().add(Vec3.directionFromRotation(new Vec2 (getRotationVector().x, getRotationVector().y + 135 * Direction)).multiply(1.25, 0, 1.25)));
-            return true;
-        }
-        return false;
-    }
-    protected boolean CanDodge(){
-        return false;
-    }
     public void BreakBlocksInMyWay(){
         AABB breakBox = getBoundingBox().inflate(1.2);
         for (BlockPos pos : BlockPos.betweenClosed((int)breakBox.minX, (int)breakBox.minY, (int)breakBox.minZ, (int)breakBox.maxX, (int)breakBox.maxY, (int)breakBox.maxZ)){
@@ -283,10 +273,6 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
                 level().playSound(this, pos, state.getSoundType().getBreakSound(), SoundSource.BLOCKS, 0.5f, 1.25f);
             }
         }
-    }
-    protected boolean isThisGlass(BlockState state){
-        Block block = state.getBlock();
-        return block instanceof GlassBlock || block instanceof StainedGlassBlock || block instanceof StainedGlassPaneBlock || state.is(Blocks.GLASS_PANE);
     }
     /**/
 
@@ -315,10 +301,9 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             if (sourceEntity instanceof MyiaticBase){
                 superFlag = false;
             }
-            if (sourceEntity == getTarget()){
-                if (getRandom().nextIntBetweenInclusive(0, 10) <= DodgeChance){
-                    superFlag = !TryToDodge();
-                }
+            if (this instanceof Dodgable dodgable && sourceEntity == getTarget()){
+                superFlag = !dodgable.TryToDodge(this);
+
             }
         }
         if (superFlag){
@@ -384,20 +369,17 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         if (player != null && player.distanceTo(this) < Config.SERVER.distance_to_player_until_despawn.get()){
             super.checkDespawn();
         }
-        else if (Entomophobia.activeData.GetMyiaticCount() > Config.SERVER.mob_cap.get()){
+        else if (EntomoGeneralSaveData.GetMyiaticCount() > Config.SERVER.mob_cap.get()){
             this.discard();
         }
     }
     @Override
     public boolean removeWhenFarAway(double pDistanceToClosestPlayer) {
-        if (Entomophobia.activeData.GetMyiaticCount() > Config.SERVER.mob_cap.get() && getTarget() == null){
-            return true;
-        }
-        return false;
+        return EntomoGeneralSaveData.GetMyiaticCount() > Config.SERVER.mob_cap.get() && getTarget() == null;
     }
     @Override
     public boolean isPersistenceRequired() {
-        return Entomophobia.activeData.GetMyiaticCount() < Config.SERVER.mob_cap.get() || getTarget() != null;
+        return EntomoGeneralSaveData.GetMyiaticCount() < Config.SERVER.mob_cap.get() || getTarget() != null;
     }
 
     @Override
@@ -432,6 +414,45 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             else return !(e instanceof AbstractFish);
         }
         return false;
+    }
+    /**/
+
+    //Swarm Management
+    private Swarm currentSwarm;
+    public boolean CanSwarm() {
+        return true;
+    }
+    public Swarm getSwarm(){
+        return currentSwarm;
+    }
+    public boolean isInSwarm(){
+        return getSwarm() != null;
+    }
+    public boolean amITheCaptain(){
+        return getSwarm() != null && getSwarm().getCaptain() == this;
+    }
+    public boolean TryToRecruit(@NotNull Swarm swarm){
+        if (CanSwarm() && getSwarm() != null){
+            return swarm.AttemptToRecruit(this);
+        }
+        return false;
+    }
+
+    public void ForceJoin(@NotNull Swarm swarm, boolean ignoreCap){
+        if (getSwarm() == swarm) return;
+
+        if (ignoreCap) {
+            swarm.addToUnits(this);
+            swarm.AssignAllOrdersFor(this);
+        }
+        else if (swarm.AmountOfRecruits() < swarm.getMaxRecruits()) {
+            swarm.addToUnits(this);
+            swarm.AssignAllOrdersFor(this);
+        }
+    }
+    public void LeaveSwarm(boolean disbandIfCaptain){
+        getSwarm().DropMember(this, disbandIfCaptain);
+        currentSwarm = null;
     }
     /**/
 }
