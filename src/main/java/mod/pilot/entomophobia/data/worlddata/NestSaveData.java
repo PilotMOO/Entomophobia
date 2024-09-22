@@ -113,7 +113,6 @@ public class NestSaveData extends SavedData {
                 if (offshoot.children == null) continue;
                 toReturn.addAll(offshoot.children);
             }
-            System.out.println("Collecting children... Amount collected: " + toReturn.size());
             return toReturn;
         }
 
@@ -205,19 +204,10 @@ public class NestSaveData extends SavedData {
                             }
                             for (String childID : newIDs){
                                 for (Nest.Offshoot possibleParent : parents){
-                                    System.out.println("---");
-                                    System.out.println("childID: " + childID + ", possibleParentID: " + OffshootIDMap.get(possibleParent));
-                                    System.out.println("Are these two I.D.'s connected? " + childID.contains(OffshootIDMap.get(possibleParent)));
                                     if (childID.contains(OffshootIDMap.get(possibleParent))){
-                                        System.out.println("<-->");
                                         Nest.Offshoot child = ConstructPackagedFromID(childID).Unpack(possibleParent);
                                         newParents.add(child); OffshootIDMap.put(child, childID);
-                                        System.out.println("<-->");
-                                        System.out.println("child " + childID + " is assigned to the parent " + OffshootIDMap.get(possibleParent));
-                                        System.out.println("parent's child count: " + possibleParent.children.size());
-                                        System.out.println("Does the child have a parent? " + (child.parent != null));
                                     }
-                                    System.out.println("---");
                                 }
                             }
 
@@ -257,8 +247,8 @@ public class NestSaveData extends SavedData {
             double z = tag.getDouble(builder.append("z").toString()); builder.setLength(ID.length());
             boolean deadEnd = tag.getBoolean(builder.append("deadend").toString()); builder.setLength(ID.length());
             byte state = tag.getByte(builder.append("state").toString()); builder.setLength(ID.length());
-            int size = tag.getByte(builder.append("size").toString()); builder.setLength(ID.length());
-            int thickness = tag.getByte(builder.append("thickness").toString()); builder.setLength(ID.length());
+            int size = tag.getInt(builder.append("size").toString()); builder.setLength(ID.length());
+            int thickness = tag.getInt(builder.append("thickness").toString()); builder.setLength(ID.length());
 
             if (type == 1){
                 System.out.println("Constructed a PackagedChamber with the I.D. " + ID);
@@ -268,6 +258,7 @@ public class NestSaveData extends SavedData {
                 double x2 = tag.getDouble(builder.append("x2").toString()); builder.setLength(ID.length());
                 double y2 = tag.getDouble(builder.append("y2").toString()); builder.setLength(ID.length());
                 double z2 = tag.getDouble(builder.append("z2").toString()); builder.setLength(ID.length());
+                CleanBuilder();
 
                 System.out.println("Constructed a PackagedCorridor with the I.D. " + ID);
                 toReturn = new PackagedCorridor(this, x, y, z, deadEnd, state, size, thickness, x2, y2, z2);
