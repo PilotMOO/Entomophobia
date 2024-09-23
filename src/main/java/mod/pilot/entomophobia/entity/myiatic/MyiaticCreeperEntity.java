@@ -135,11 +135,6 @@ public class MyiaticCreeperEntity extends MyiaticBase{
             if (sourceEntity instanceof MyiaticBase && sourceEntity != this){
                 superFlag = false;
             }
-            if (sourceEntity == getTarget()){
-                if (getRandom().nextIntBetweenInclusive(0, 10) <= DodgeChance){
-                    superFlag = !TryToDodge();
-                }
-            }
         }
         if (superFlag){
             return super.hurt(pSource, pAmount);

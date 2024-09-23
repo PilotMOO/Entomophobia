@@ -15,8 +15,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -35,7 +33,6 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
@@ -46,8 +43,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.function.Predicate;
-
-import static mod.pilot.entomophobia.data.EntomoDataManager.isThisGlass;
 
 public abstract class MyiaticBase extends Monster implements GeoEntity {
     protected MyiaticBase(EntityType<? extends Monster> pEntityType, Level pLevel) {
@@ -262,18 +257,6 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         }
         return null;
     }
-
-    public void BreakBlocksInMyWay(){
-        AABB breakBox = getBoundingBox().inflate(1.2);
-        for (BlockPos pos : BlockPos.betweenClosed((int)breakBox.minX, (int)breakBox.minY, (int)breakBox.minZ, (int)breakBox.maxX, (int)breakBox.maxY, (int)breakBox.maxZ)){
-            BlockState state = level().getBlockState(pos);
-            if (state.is(BlockTags.LEAVES) || isThisGlass(state) || state.getBlock() instanceof BambooStalkBlock){
-                level().removeBlock(pos, false);
-                level().levelEvent(2001, pos, Block.getId(level().getBlockState(pos)));
-                level().playSound(this, pos, state.getSoundType().getBreakSound(), SoundSource.BLOCKS, 0.5f, 1.25f);
-            }
-        }
-    }
     /**/
 
     //Overridden Methods
@@ -333,7 +316,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
                     LEntity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 1200));
 
                     if (f1 > 0.0F) {
-                        ((LivingEntity)pEntity).knockback((double)(f1 * 0.5F), (double)Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), (double)(-Mth.cos(this.getYRot() * ((float)Math.PI / 180F))));
+                        ((LivingEntity)pEntity).knockback((f1 * 0.5F), Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), (-Mth.cos(this.getYRot() * ((float)Math.PI / 180F))));
                         this.setDeltaMovement(this.getDeltaMovement().multiply(0.6D, 1.0D, 0.6D));
                     }
                 }
@@ -343,6 +326,8 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             }
 
             return flag;
+
+
         }
         return false;
     }

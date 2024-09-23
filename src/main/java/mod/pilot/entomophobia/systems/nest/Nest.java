@@ -226,14 +226,15 @@ public class Nest {
         public final Offshoot parent;
         @Nullable
         public ArrayList<Offshoot> children;
-        public void AddToChildren(Offshoot child){
+        public boolean AddToChildren(Offshoot child){
             if (children == null){
                 children = new ArrayList<>();
             }
             if (child != null){
-                children.add(child);
                 NestSaveData.Dirty();
+                return children.add(child);
             }
+            return false;
         }
         public boolean AreAnyOfMyChildrenAlive(){
             if (children == null) return false;
@@ -344,15 +345,14 @@ public class Nest {
                 TickGenerator();
             }
             if (tickChildren && children != null){
-                System.out.println("Amount of children: " + children.size());
                 for (Offshoot child : children) {
                     child.OffshootTick(continuative, layers != 0, layers - 1);
                 }
             }
             if (getGenerator() != null && getGenerator().isOfState(WorldShapeManager.GeneratorStates.done) && !AreAnyOfMyChildrenAlive()){
-                /*System.out.println("The generation of new children has been disabled for testing.");*/
                 if (ShouldThisBecomeAParent()){
-                    ConstructNewChild((byte)2);
+                    System.out.println("Generating new children is currently disabled");
+                    //ConstructNewChild((byte)2);
                 }
             }
         }
@@ -447,7 +447,10 @@ public class Nest {
             setGenerator(tunnel);
         }
         public static Corridor ConstructFromPackage(NestSaveData.NestPackager.PackagedCorridor packaged, Offshoot parent){
+            System.out.println("Creating a new Corridor from Package");
             Corridor child = new Corridor(packaged.getServer(), parent, new Vec3(packaged.X, packaged.Y, packaged.Z), packaged.weight, packaged.thickness, new Vec3(packaged.X2, packaged.Y2, packaged.Z2));
+            System.out.println("Created Corridor: " + child);
+            System.out.println("Assigning child to parent " + parent);
             parent.AddToChildren(child);
             return child;
         }
@@ -568,12 +571,15 @@ public class Nest {
 
         private void ManageExtension() {
             if (ShouldThisBecomeAParent()){
+                System.out.println("Generating new children is currently disabled");
+                /*
                 if (ShouldGetExtension()) {
                     this.AddToChildren(new Corridor(server, this, end, weight, thickness));
                 }
                 else{
                     ConstructNewChild((byte)1);
                 }
+                */
             }
         }
     }

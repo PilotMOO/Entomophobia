@@ -29,7 +29,7 @@ public class NestManager {
         return ActiveNests.size();
     }
     public static ArrayList<Nest> getActiveNests(){
-        return ActiveNests;
+        return new ArrayList<>(ActiveNests);
     }
     public static void ClearNests(){
         ActiveNests.clear();

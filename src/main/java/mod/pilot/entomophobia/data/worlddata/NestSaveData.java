@@ -159,6 +159,8 @@ public class NestSaveData extends SavedData {
 
         public void UnpackNests(){
             System.out.println("Unpacking nests...");
+            System.out.println("Clearing out all old nests...");
+            NestManager.ClearNests();
 
             int nestIndexTracker = 0;
             String NestID = builder.append("Nest").append(nestIndexTracker).toString(); CleanBuilder();

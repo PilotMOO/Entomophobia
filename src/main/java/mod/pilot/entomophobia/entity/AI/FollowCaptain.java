@@ -29,7 +29,7 @@ public class FollowCaptain extends Goal implements SwarmOrder {
     @Override
     public boolean canUse() {
         Swarm swarm = parent.getSwarm();
-        return swarm != null && swarm.isActive();
+        return swarm != null && swarm.isActive() && !parent.amITheCaptain();
     }
 
     @Override
