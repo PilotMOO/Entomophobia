@@ -17,6 +17,8 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -286,7 +288,6 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             }
             if (this instanceof Dodgable dodgable && sourceEntity == getTarget()){
                 superFlag = !dodgable.TryToDodge(this);
-
             }
         }
         if (superFlag){

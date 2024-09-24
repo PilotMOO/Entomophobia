@@ -2,7 +2,6 @@ package mod.pilot.entomophobia.data.worlddata;
 
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.event.EntomoHandlerEvents;
-import mod.pilot.entomophobia.systems.PolyForged.Shapes.TunnelGenerator;
 import mod.pilot.entomophobia.systems.nest.Nest;
 import mod.pilot.entomophobia.systems.nest.NestManager;
 import net.minecraft.nbt.CompoundTag;
@@ -13,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 public class NestSaveData extends SavedData {
@@ -37,16 +35,15 @@ public class NestSaveData extends SavedData {
     public static NestSaveData load(CompoundTag tag){
         NestSaveData data = new NestSaveData();
 
-        NestPackager packager = new NestPackager(tag, data);
+        NestPackager packager = new NestPackager(data, tag);
         packager.UnpackNests();
-        System.out.println("Amount of active nests: " + NestManager.AmountOfActiveNests());
 
         return data;
     }
     @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag tag) {
-        NestPackager packager = new NestPackager(tag, this);
-        packager.PackAllNests();
+        NestPackager packager = new NestPackager(this, tag);
+        packager.PackNests();
 
         return tag;
     }
@@ -58,7 +55,213 @@ public class NestSaveData extends SavedData {
         this.server = server;
     }
 
-    public static class NestPackager {
+    public static class NestPackager{
+        private NestPackager(NestSaveData data, CompoundTag tag){
+            this.data = data;
+            this.tag = tag;
+        }
+        private final NestSaveData data;
+        private final CompoundTag tag;
+        private final StringBuilder builder = new StringBuilder();
+        private void CleanBuilder(){
+            builder.setLength(0);
+        }
+        private ServerLevel getServer(){
+            return data.getServer();
+        }
+
+        public void PackNests(){
+            ArrayList<Nest> nests = NestManager.getActiveNests();
+            int tracker = 0;
+
+            for (int i = 0; i < nests.size(); i++){
+                Nest current = nests.get(i);
+
+                String nestID = builder.append("Nest").append(i).toString(); CleanBuilder();
+                PackNest(current, nestID);
+                String mainChamberID = PackOffshoot(current.MainChamber, nestID, i);
+                PackageFamilyTreeFor(current.MainChamber, mainChamberID);
+
+                tracker++;
+            }
+
+            if (tracker > 0){
+                System.out.println("Packaged up " + tracker + " Nest(s)!");
+            }
+            else{
+                System.out.println("There were no available nests to pack!");
+            }
+        }
+
+        private void PackageFamilyTreeFor(Nest.Offshoot parent, String parentID) {
+            if (parent.children == null) return;
+            HashMap<Nest.Offshoot, String> OffshootIDs = new HashMap<>(); OffshootIDs.put(parent, parentID);
+
+            ArrayList<Nest.Offshoot> currentLayer = new ArrayList<>(parent.children);
+            while (currentLayer.size() > 0){
+                for (Nest.Offshoot current : currentLayer){
+                    String pID = OffshootIDs.get(current.parent);
+                    int index = current.parent != null ? current.getChildIndex() : 0;
+                    String cID = PackOffshoot(current, pID, index);
+                    OffshootIDs.put(current, cID);
+                }
+                currentLayer = CollectChildrenOf(currentLayer);
+            }
+        }
+        private ArrayList<Nest.Offshoot> CollectChildrenOf(ArrayList<Nest.Offshoot> parents){
+            ArrayList<Nest.Offshoot> toReturn = new ArrayList<>();
+            for (Nest.Offshoot parent : parents){
+                if (parent.children == null) continue;
+                toReturn.addAll(parent.children);
+            }
+            return toReturn;
+        }
+
+        private void PackNest(Nest nest, String ID) {
+            CleanBuilder();
+            builder.append(ID);
+
+            Vec3 pos = nest.origin;
+            tag.putDouble(builder.append("x").toString(), pos.x); builder.setLength(ID.length());
+            tag.putDouble(builder.append("y").toString(), pos.y); builder.setLength(ID.length());
+            tag.putDouble(builder.append("z").toString(), pos.z); builder.setLength(ID.length());
+
+            tag.putByte(builder.append("state").toString(), nest.getNestState()); CleanBuilder();
+            System.out.println("Packaged up a nest at " + pos + " with state " + nest.getNestState() + " and I.D. " + ID);
+        }
+        private String PackOffshoot(Nest.Offshoot toPack, String parentID, int childIndex) {
+            CleanBuilder();
+            String ID = builder.append(parentID).append("offshoot").append(childIndex).toString();
+
+            Vec3 pos = toPack instanceof Nest.Corridor corridor ? corridor.getStartDirect() : toPack.getPosition();
+            tag.putDouble(builder.append("x").toString(), pos.x); builder.setLength(ID.length());
+            tag.putDouble(builder.append("y").toString(), pos.y); builder.setLength(ID.length());
+            tag.putDouble(builder.append("z").toString(), pos.z); builder.setLength(ID.length());
+
+            tag.putBoolean(builder.append("deadend").toString(), toPack.DeadEnd); builder.setLength(ID.length());
+
+            tag.putByte(builder.append("state").toString(), toPack.getOffshootState()); builder.setLength(ID.length());
+            tag.putByte(builder.append("type").toString(), toPack.getOffshootType()); builder.setLength(ID.length());
+
+            if (toPack instanceof Nest.Chamber chamber){
+                tag.putInt(builder.append("size").toString(), chamber.radius); builder.setLength(ID.length());
+                tag.putInt(builder.append("thickness").toString(), chamber.thickness); builder.setLength(ID.length());
+            }
+            if (toPack instanceof Nest.Corridor corridor){
+                Vec3 end = corridor.end;
+
+                tag.putInt(builder.append("size").toString(), corridor.weight); builder.setLength(ID.length());
+                tag.putInt(builder.append("thickness").toString(), corridor.thickness); builder.setLength(ID.length());
+
+                tag.putDouble(builder.append("x2").toString(), end.x); builder.setLength(ID.length());
+                tag.putDouble(builder.append("y2").toString(), end.y); builder.setLength(ID.length());
+                tag.putDouble(builder.append("z2").toString(), end.z); builder.setLength(ID.length());
+            }
+
+            System.out.println("Packed up an offshoot with I.D. " + ID);
+            CleanBuilder();
+            return ID;
+        }
+
+        public void UnpackNests(){
+            int tracker = 0;
+
+            CleanBuilder();
+            String nestID = builder.append("Nest").append(tracker).toString(); CleanBuilder();
+            boolean flag = tag.contains(builder.append(nestID).append("x").toString()); CleanBuilder();
+            while (flag){
+                builder.append(nestID);
+
+                double x = tag.getDouble(builder.append("x").toString()); builder.setLength(nestID.length());
+                double y = tag.getDouble(builder.append("y").toString()); builder.setLength(nestID.length());
+                double z = tag.getDouble(builder.append("z").toString()); builder.setLength(nestID.length());
+                byte state = tag.getByte(builder.append("state").toString()); builder.setLength(nestID.length());
+                Vec3 nestPos = new Vec3(x, y, z);
+
+                String mainChamberID = builder.append("offshoot0").toString(); CleanBuilder();
+                Nest.Chamber mainChamber = (Nest.Chamber)UnpackWithAllChildrenFromID(mainChamberID, null);
+
+                NestManager.ConstructFromBlueprint(getServer(), nestPos, state, mainChamber);
+
+                System.out.println("Unpacked a nest with the I.D. " + nestID);
+
+                tracker++;
+                nestID = builder.append("Nest").append(tracker).toString(); CleanBuilder();
+                flag = tag.contains(builder.append(nestID).append("x").toString()); CleanBuilder();
+            }
+        }
+        private Nest.Offshoot UnpackOffshootFromID(String ID, @Nullable Nest.Offshoot parent){
+            Nest.Offshoot toReturn;
+            CleanBuilder();
+            builder.append(ID);
+
+            double x = tag.getDouble(builder.append("x").toString()); builder.setLength(ID.length());
+            double y = tag.getDouble(builder.append("y").toString()); builder.setLength(ID.length());
+            double z = tag.getDouble(builder.append("z").toString()); builder.setLength(ID.length());
+            Vec3 pos = new Vec3(x, y, z);
+
+            boolean deadEnd = tag.getBoolean(builder.append("deadend").toString()); builder.setLength(ID.length());
+
+            byte state = tag.getByte(builder.append("state").toString()); builder.setLength(ID.length());
+            byte type = tag.getByte(builder.append("type").toString()); builder.setLength(ID.length());
+
+            int size = tag.getInt(builder.append("size").toString()); builder.setLength(ID.length());
+            int thickness = tag.getInt(builder.append("thickness").toString()); builder.setLength(ID.length());
+
+            switch (type){
+                case 1 ->{
+                    System.out.println("Unpacking a Chamber with I.D. " + ID);
+                    toReturn = Nest.Chamber.ConstructFromBlueprint(getServer(), parent, pos, size, thickness, deadEnd, state);
+                }
+                case 2 ->{
+                    double x2 = tag.getDouble(builder.append("x2").toString()); builder.setLength(ID.length());
+                    double y2 = tag.getDouble(builder.append("y2").toString()); builder.setLength(ID.length());
+                    double z2 = tag.getDouble(builder.append("z2").toString()); builder.setLength(ID.length());
+                    Vec3 end = new Vec3(x2, y2, z2);
+
+                    if (parent == null){
+                        throw new RuntimeException("Can't unpack Corridor " + ID + " because assigned parent is null!");
+                    }
+                    System.out.println("Unpacking a Corridor with I.D. " + ID);
+                    toReturn = Nest.Corridor.ConstructFromBlueprint(getServer(), parent, pos, end, size, thickness, deadEnd, state);
+                }
+                default -> {
+                    System.out.println("Type did not match up, returning null...");
+                    toReturn = null;
+                }
+            }
+
+            return toReturn;
+        }
+        private Nest.Offshoot UnpackWithAllChildrenFromID(String originID, @Nullable Nest.Offshoot parent){
+            System.out.println("Attempting to unpack offshoot " + originID + " and all children");
+            Nest.Offshoot origin = UnpackOffshootFromID(originID, parent);
+            HashMap<String, Nest.Offshoot> OffshootIDs = new HashMap<>(); OffshootIDs.put(originID, origin);
+
+            ArrayList<String> currentLayerIDs = new ArrayList<>(); currentLayerIDs.add(originID);
+
+            while (currentLayerIDs.size() > 0){
+                ArrayList<String> IntermediateIDs = new ArrayList<>();
+                for (String ID : currentLayerIDs){
+                    CleanBuilder();
+                    for (int i = 0; tag.contains(builder.append(ID).append("offshoot").append(i).append("x").toString()); i++){
+                        System.out.println("Tag contained " + builder);
+                        builder.setLength(builder.length() - 1);
+                        String cID = builder.toString(); CleanBuilder();
+                        IntermediateIDs.add(cID);
+                        OffshootIDs.put(cID, UnpackOffshootFromID(cID, OffshootIDs.get(ID)));
+                    }
+                }
+
+                currentLayerIDs.clear();
+                currentLayerIDs.addAll(IntermediateIDs);
+            }
+            return origin;
+        }
+    }
+
+    //Old packaging system
+    /*public static class NestPackager {
         protected NestPackager(CompoundTag tag, NestSaveData data){
             this.tag = tag;
             nestData = data;
@@ -352,5 +555,5 @@ public class NestSaveData extends SavedData {
                 return Nest.Corridor.ConstructFromPackage(this, parent);
             }
         }
-    }
+    }*/
 }

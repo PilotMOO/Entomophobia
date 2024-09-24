@@ -224,6 +224,15 @@ public class Nest {
 
         @Nullable
         public final Offshoot parent;
+        public int getChildIndex(){
+            if (parent == null || parent.children == null) return -1;
+            for (int i = 0; i < parent.children.size(); i++){
+                if (parent.children.get(i) == this){
+                    return i;
+                }
+            }
+            return -1;
+        }
         @Nullable
         public ArrayList<Offshoot> children;
         public boolean AddToChildren(Offshoot child){
@@ -312,12 +321,13 @@ public class Nest {
             this.radius = radius;
             this.thickness = thickness;
         }
-        private Chamber(ServerLevel server, @org.jetbrains.annotations.Nullable Nest.Offshoot parent, Vec3 pos, byte state, int radius, int thickness) {
+        private Chamber(ServerLevel server, @org.jetbrains.annotations.Nullable Nest.Offshoot parent, Vec3 pos, int radius, int thickness, boolean deadEnd, byte state) {
             super(server, OffshootType, parent, pos, state);
             ConstructGenerator(server, getPosition(), radius, thickness);
             super.MaxChildCount = 2;
             this.radius = radius;
             this.thickness = thickness;
+            this.DeadEnd = deadEnd;
         }
         protected void ConstructGenerator(ServerLevel server, Vec3 pos, int radius, int thickness) {
             ChamberGenerator generator = WorldShapeManager.CreateChamber(server, NestManager.getNestBuildSpeed(), NestManager.getNestBlocks(), pos, NestManager.getNestMaxHardness(), radius, thickness, 0.5, true);
@@ -328,12 +338,12 @@ public class Nest {
                 }
             }
         }
-        public static Chamber ConstructFromPackage(NestSaveData.NestPackager.PackagedChamber packaged, @Nullable Offshoot parent){
-            Chamber child = new Chamber(packaged.getServer(), parent, new Vec3(packaged.X, packaged.Y, packaged.Z), packaged.state, packaged.radius, packaged.thickness);
+        public static Chamber ConstructFromBlueprint(ServerLevel server, @Nullable Offshoot parent, Vec3 pos, int radius, int thickness, boolean deadEnd, byte state){
+            Chamber chamber = new Chamber(server, parent, pos, radius, thickness, deadEnd, state);
             if (parent != null){
-                parent.AddToChildren(child);
+                parent.AddToChildren(chamber);
             }
-            return child;
+            return chamber;
         }
 
         public final int radius;
@@ -351,8 +361,7 @@ public class Nest {
             }
             if (getGenerator() != null && getGenerator().isOfState(WorldShapeManager.GeneratorStates.done) && !AreAnyOfMyChildrenAlive()){
                 if (ShouldThisBecomeAParent()){
-                    System.out.println("Generating new children is currently disabled");
-                    //ConstructNewChild((byte)2);
+                    ConstructNewChild((byte)2);
                 }
             }
         }
@@ -404,14 +413,6 @@ public class Nest {
             this.weight = weight;
             this.thickness = thickness;
         }
-        private Corridor(ServerLevel server, @Nonnull Nest.Offshoot parent, Vec3 position, int weight, int thickness, Vec3 endPos){
-            super(server, OffshootType, parent, position);
-            ConstructGeneratorFromBlueprint(weight, thickness, endPos, parent);
-            super.MaxChildCount = 1;
-            this.weight = weight;
-            this.thickness = thickness;
-            this.end = endPos;
-        }
         protected void ConstructGenerator(int weight, int thickness){
             TunnelGenerator tunnel = WorldShapeManager.CreateTunnel(server, NestManager.getNestBuildSpeed(), NestManager.getNestBlocks(), NestManager.getNestMaxHardness(), getPosition(), GenerateEndPosition(), weight, thickness);
             if (parent.getGenerator() instanceof ChamberGenerator chamber){
@@ -422,14 +423,29 @@ public class Nest {
                     }
                 }
             }
-            else if (parent instanceof Corridor corridor && corridor.getGenerator() instanceof TunnelGenerator parentTunnel){
+            else if (parent.getGenerator() instanceof TunnelGenerator parentTunnel){
                 for (ArrayList<BlockPos> ghost : parentTunnel.getGhostLineSpheres(weight, true)){
                     tunnel.AddToGhostSpheres(ghost);
                 }
             }
             setGenerator(tunnel);
         }
-        private void ConstructGeneratorFromBlueprint(int weight, int thickness, Vec3 end, @Nonnull Offshoot parent){
+
+        public static Corridor ConstructFromBlueprint(ServerLevel server, @Nonnull Offshoot parent, Vec3 position, Vec3 end, int weight, int thickness, boolean deadEnd, byte state){
+            Corridor corridor = new Corridor(server, parent, position, end, weight, thickness, deadEnd, state);
+            parent.AddToChildren(corridor);
+            return corridor;
+        }
+        private Corridor(ServerLevel server, @Nonnull Nest.Offshoot parent, Vec3 position, Vec3 end, int weight, int thickness, boolean deadEnd, byte state) {
+            super(server, OffshootType, parent, position, state);
+            ConstructGenerator(weight, thickness, end);
+            super.MaxChildCount = 1;
+            this.weight = weight;
+            this.thickness = thickness;
+            this.DeadEnd = deadEnd;
+            this.end = end;
+        }
+        private void ConstructGenerator(int weight, int thickness, Vec3 end){
             TunnelGenerator tunnel = WorldShapeManager.CreateTunnel(server, NestManager.getNestBuildSpeed(), NestManager.getNestBlocks(), NestManager.getNestMaxHardness(), getPosition(), end, weight, thickness);
             if (parent.getGenerator() instanceof ChamberGenerator chamber){
                 tunnel.AddToGhostSpheres(chamber.GenerateInternalGhostSphere());
@@ -439,21 +455,14 @@ public class Nest {
                     }
                 }
             }
-            else if (parent instanceof Corridor corridor && corridor.getGenerator() instanceof TunnelGenerator parentTunnel){
+            else if (parent.getGenerator() instanceof TunnelGenerator parentTunnel){
                 for (ArrayList<BlockPos> ghost : parentTunnel.getGhostLineSpheres(weight, true)){
                     tunnel.AddToGhostSpheres(ghost);
                 }
             }
             setGenerator(tunnel);
         }
-        public static Corridor ConstructFromPackage(NestSaveData.NestPackager.PackagedCorridor packaged, Offshoot parent){
-            System.out.println("Creating a new Corridor from Package");
-            Corridor child = new Corridor(packaged.getServer(), parent, new Vec3(packaged.X, packaged.Y, packaged.Z), packaged.weight, packaged.thickness, new Vec3(packaged.X2, packaged.Y2, packaged.Z2));
-            System.out.println("Created Corridor: " + child);
-            System.out.println("Assigning child to parent " + parent);
-            parent.AddToChildren(child);
-            return child;
-        }
+
 
         public final int weight;
         public final int thickness;
@@ -571,15 +580,12 @@ public class Nest {
 
         private void ManageExtension() {
             if (ShouldThisBecomeAParent()){
-                System.out.println("Generating new children is currently disabled");
-                /*
                 if (ShouldGetExtension()) {
                     this.AddToChildren(new Corridor(server, this, end, weight, thickness));
                 }
                 else{
                     ConstructNewChild((byte)1);
                 }
-                */
             }
         }
     }

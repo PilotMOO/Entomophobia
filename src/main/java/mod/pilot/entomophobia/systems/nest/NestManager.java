@@ -40,6 +40,11 @@ public class NestManager {
         NestSaveData.Dirty();
         return nest;
     }
+    public static Nest ConstructFromBlueprint(ServerLevel server, Vec3 start, byte state, Nest.Chamber mainChamber){
+        Nest toReturn = Nest.ConstructFromBlueprint(server, start, state, NestManager.getTickFrequency(), mainChamber);
+        addToActiveNests(toReturn);
+        return toReturn;
+    }
     public static void TickAllActiveNests(){
         ArrayList<Nest> nestsToDiscard = new ArrayList<>();
         for (Nest nest : ActiveNests){
