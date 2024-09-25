@@ -231,6 +231,7 @@ public class NestSaveData extends SavedData {
                 }
             }
 
+            CleanBuilder();
             return toReturn;
         }
         private Nest.Offshoot UnpackWithAllChildrenFromID(String originID, @Nullable Nest.Offshoot parent){
@@ -243,9 +244,9 @@ public class NestSaveData extends SavedData {
             while (currentLayerIDs.size() > 0){
                 ArrayList<String> IntermediateIDs = new ArrayList<>();
                 for (String ID : currentLayerIDs){
+                    System.out.println("Trying to unpack all children for " + ID);
                     CleanBuilder();
                     for (int i = 0; tag.contains(builder.append(ID).append("offshoot").append(i).append("x").toString()); i++){
-                        System.out.println("Tag contained " + builder);
                         builder.setLength(builder.length() - 1);
                         String cID = builder.toString(); CleanBuilder();
                         IntermediateIDs.add(cID);

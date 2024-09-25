@@ -2,18 +2,13 @@ package mod.pilot.entomophobia.data.worlddata;
 
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.event.EntomoHandlerEvents;
-import mod.pilot.entomophobia.systems.PolyForged.Shapes.TunnelGenerator;
-import mod.pilot.entomophobia.systems.nest.Nest;
-import mod.pilot.entomophobia.systems.nest.NestManager;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -84,7 +79,7 @@ public class EntomoGeneralSaveData extends SavedData {
 
     private boolean HasStarted = false;
 
-    public static boolean getHasStarted(){
+    public static boolean hasStarted(){
         return activeData().HasStarted;
     }
     public void setHasStarted(boolean flag){

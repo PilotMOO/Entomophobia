@@ -33,7 +33,6 @@ import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.event.server.*;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -47,7 +46,7 @@ public class EntomoHandlerEvents {
     public static void onLivingSpawned(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof MyiaticBase && event.getLevel() instanceof ServerLevel server && server.getServer().isReady()){
             Entomophobia.activeData.AddToMyiaticCount();
-            System.out.println("MyiaticCount is " + Entomophobia.activeData.GetMyiaticCount());
+            System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
         }
         else if (event.getEntity() instanceof Animal animal){
             animal.targetSelector.addGoal(1, new AvoidEntityGoal<>(animal, MyiaticBase.class, 16, 1.0D, 1.3D));
@@ -60,7 +59,7 @@ public class EntomoHandlerEvents {
     public static void onEntityDeath(LivingDeathEvent event){
         if (event.getEntity() instanceof MyiaticBase M && M.level() instanceof ServerLevel){
             Entomophobia.activeData.RemoveFromMyiaticCount();
-            System.out.println("MyiaticCount is " + Entomophobia.activeData.GetMyiaticCount());
+            System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
         }
     }
 
@@ -68,14 +67,14 @@ public class EntomoHandlerEvents {
     public static void onEntityLeave(EntityLeaveLevelEvent event){
         Entity E = event.getEntity();
         if (E instanceof MyiaticBase M && !M.isDeadOrDying() && event.getLevel() instanceof ServerLevel server && !server.getServer().isShutdown()){
-            if (Entomophobia.activeData.GetMyiaticCount() <= Config.SERVER.mob_cap.get()){
+            if (EntomoGeneralSaveData.GetMyiaticCount() <= Config.SERVER.mob_cap.get()){
                 event.setResult(Event.Result.DENY);
             }
             else{
                 System.out.println("Adding " + M.getEncodeId() + " to storage!");
                 Entomophobia.activeData.AddToStorage(M.getEncodeId());
                 Entomophobia.activeData.RemoveFromMyiaticCount();
-                System.out.println("MyiaticCount is " + Entomophobia.activeData.GetMyiaticCount());
+                System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
             }
         }
     }
@@ -84,18 +83,14 @@ public class EntomoHandlerEvents {
     public static void ServerStart(ServerStartedEvent event){
         EntomoGeneralSaveData.SetActiveData(event.getServer().overworld());
         NestSaveData.SetActiveNestData(event.getServer().overworld());
-        NestManager.setNestConstructionDetails();
         System.out.println("Amount of myiatics in storage: " + Entomophobia.activeData.GetTotalInStorage());
     }
     @SubscribeEvent
     public static void ServerStarting(ServerStartingEvent event){
+        NestManager.setNestConstructionDetails();
         server = event.getServer().overworld();
     }
 
-    @SubscribeEvent
-    public static void WorldLoad(LevelEvent.Load event){
-        //this fucks everything up
-    }
     private static ServerLevel server;
     public static ServerLevel getServer(){
         return server;
@@ -135,17 +130,16 @@ public class EntomoHandlerEvents {
 
     @SubscribeEvent
     public static void InvasionStartManager(TickEvent.ServerTickEvent event){
-        EntomoGeneralSaveData data = Entomophobia.activeData;
-        data.ageWorld();
+        Entomophobia.activeData.ageWorld();
 
-        if (!data.getHasStarted() && data.getWorldAge() > Config.SERVER.time_until_shit_gets_real.get()){
+        if (!EntomoGeneralSaveData.hasStarted() && EntomoGeneralSaveData.getWorldAge() > Config.SERVER.time_until_shit_gets_real.get()){
             for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
                 AABB spreadAABB = player.getBoundingBox().inflate(Config.SERVER.start_spread_aoe.get());
                 List<? extends LivingEntity> nearbyInfectables = player.level().getEntitiesOfClass(LivingEntity.class, spreadAABB, (LivingEntity Le) -> EntomoDataManager.GetConvertedFor(Le.getEncodeId()) != null);
                 int amountInfected = 0;
                 for (LivingEntity entity : nearbyInfectables){
                     if (amountInfected < nearbyInfectables.size() / 4){
-                        entity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 1200, 2));
+                        entity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), -1, 2));
                     }
                     else if (player.getRandom().nextIntBetweenInclusive(1, 100) < 25){
                         entity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), -1, 2));
@@ -159,8 +153,7 @@ public class EntomoHandlerEvents {
     }
     @SubscribeEvent
     public static void NestTicker(TickEvent.ServerTickEvent event){
-        EntomoGeneralSaveData data = Entomophobia.activeData;
-        if (data.getWorldAge() % NestManager.getTickFrequency() == 0){
+        if (EntomoGeneralSaveData.getWorldAge() % NestManager.getTickFrequency() == 0){
             NestManager.TickAllActiveNests();
         }
     }

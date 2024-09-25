@@ -2,7 +2,6 @@ package mod.pilot.entomophobia.systems.nest;
 
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.data.EntomoDataManager;
-import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.systems.PolyForged.ShapeGenerator;
 import mod.pilot.entomophobia.systems.PolyForged.Shapes.ChamberGenerator;
@@ -105,7 +104,7 @@ public class Nest {
 
     public abstract static class Offshoot{
         protected Offshoot(ServerLevel server, byte type, @Nullable Offshoot parent, Vec3 position){
-            setOffshootType(type);
+            OffshootType = type;
             Enable();
             this.server = server;
             this.parent = parent;
@@ -116,15 +115,13 @@ public class Nest {
 
             NestSaveData.Dirty();
         }
-        protected Offshoot(ServerLevel server, byte type, @Nullable Offshoot parent, Vec3 position, byte state){
-            setOffshootType(type);
+        protected Offshoot(ServerLevel server, byte type, @Nullable Offshoot parent, Vec3 position, byte state, boolean deadEnd){
+            OffshootType = type;
             this.OffshootState = state;
             this.server = server;
             this.parent = parent;
             this.position = position;
-            if (this instanceof Corridor){
-                DeadEnd = !ShouldThisBecomeAParent();
-            }
+            DeadEnd = deadEnd;
         }
         protected ServerLevel server;
         protected final Vec3 position;
@@ -195,12 +192,9 @@ public class Nest {
         public void Finish(){
             setOffshootState((byte)2);
         }
-        private byte OffshootType;
+        private final byte OffshootType;
         public byte getOffshootType(){
             return OffshootType;
-        }
-        private void setOffshootType(byte type){
-            OffshootType = type;
         }
 
         public boolean Alive(){
@@ -264,15 +258,15 @@ public class Nest {
             generator.Build();
         }
         protected boolean ShouldGeneratorTick(){
-            return OffshootState == 1 && generator != null && generator.isOfState(WorldShapeManager.GeneratorStates.active);
+            return OffshootState == 1 && generator != null && generator.isActive();
         }
-        public void OffshootTick(boolean tickChildren, boolean continuative, int layers){
+        public void OffshootTick(boolean tickChildren, boolean continuous, int layers){
             if (ShouldGeneratorTick()){
                 TickGenerator();
             }
             if (tickChildren && children != null){
                 for (Offshoot child : children) {
-                    child.OffshootTick(continuative, layers != 0, layers - 1);
+                    child.OffshootTick(continuous, layers != 0, layers - 1);
                 }
             }
         }
@@ -322,12 +316,11 @@ public class Nest {
             this.thickness = thickness;
         }
         private Chamber(ServerLevel server, @org.jetbrains.annotations.Nullable Nest.Offshoot parent, Vec3 pos, int radius, int thickness, boolean deadEnd, byte state) {
-            super(server, OffshootType, parent, pos, state);
+            super(server, OffshootType, parent, pos, state, deadEnd);
             ConstructGenerator(server, getPosition(), radius, thickness);
             super.MaxChildCount = 2;
             this.radius = radius;
             this.thickness = thickness;
-            this.DeadEnd = deadEnd;
         }
         protected void ConstructGenerator(ServerLevel server, Vec3 pos, int radius, int thickness) {
             ChamberGenerator generator = WorldShapeManager.CreateChamber(server, NestManager.getNestBuildSpeed(), NestManager.getNestBlocks(), pos, NestManager.getNestMaxHardness(), radius, thickness, 0.5, true);
@@ -350,23 +343,23 @@ public class Nest {
         public final int thickness;
 
         @Override
-        public void OffshootTick(boolean tickChildren, boolean continuative, int layers) {
+        public void OffshootTick(boolean tickChildren, boolean continuous, int layers) {
             if (ShouldGeneratorTick()){
-                TickGenerator();
-            }
+            TickGenerator();
+        }
             if (tickChildren && children != null){
-                for (Offshoot child : children) {
-                    child.OffshootTick(continuative, layers != 0, layers - 1);
-                }
-            }
-            if (getGenerator() != null && getGenerator().isOfState(WorldShapeManager.GeneratorStates.done) && !AreAnyOfMyChildrenAlive()){
-                if (ShouldThisBecomeAParent()){
-                    ConstructNewChild((byte)2);
-                }
+            for (Offshoot child : children) {
+                child.OffshootTick(continuous, layers != 0, layers - 1);
             }
         }
+            if (getGenerator() != null && getGenerator().isOfState(WorldShapeManager.GeneratorStates.done) && !AreAnyOfMyChildrenAlive()){
+            if (ShouldThisBecomeAParent()){
+                ConstructNewChild((byte)2);
+            }
+        }
+    }
 
-        @Override
+    @Override
         protected Vec3 getOffshootPosition() {
             HollowSphereGenerator sphereGenerator = (HollowSphereGenerator)generator;
             Vec3 direction;
@@ -437,12 +430,11 @@ public class Nest {
             return corridor;
         }
         private Corridor(ServerLevel server, @Nonnull Nest.Offshoot parent, Vec3 position, Vec3 end, int weight, int thickness, boolean deadEnd, byte state) {
-            super(server, OffshootType, parent, position, state);
+            super(server, OffshootType, parent, position, state, deadEnd);
             ConstructGenerator(weight, thickness, end);
             super.MaxChildCount = 1;
             this.weight = weight;
             this.thickness = thickness;
-            this.DeadEnd = deadEnd;
             this.end = end;
         }
         private void ConstructGenerator(int weight, int thickness, Vec3 end){
@@ -564,7 +556,7 @@ public class Nest {
         }
 
         @Override
-        public void OffshootTick(boolean tickChildren, boolean continuative, int layers) {
+        public void OffshootTick(boolean tickChildren, boolean continuous, int layers) {
             if (ShouldGeneratorTick()){
                 generator.Build();
             }
@@ -573,7 +565,7 @@ public class Nest {
             }
             if (tickChildren && children != null){
                 for (Offshoot child : children) {
-                    child.OffshootTick(continuative, layers != 0, layers - 1);
+                    child.OffshootTick(continuous, layers != 0, layers - 1);
                 }
             }
         }
