@@ -5,23 +5,23 @@ import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.systems.swarm.Swarm;
 import net.minecraft.world.entity.ai.goal.Goal;
 
-public class FollowCaptain extends Goal implements SwarmOrder {
+public class FollowCaptainGoal extends Goal implements SwarmOrder {
     final MyiaticBase parent;
     final MyiaticBase captain;
     public double MinDistance;
     public double MaxDistance;
     public int Priority;
 
-    public FollowCaptain(MyiaticBase parent, MyiaticBase captain, double minDistance, double maxDistance, int priority){
+    public FollowCaptainGoal(MyiaticBase parent, MyiaticBase captain, double minDistance, double maxDistance, int priority){
         this.parent = parent;
         this.captain = captain;
         MinDistance = minDistance;
         MaxDistance = maxDistance;
         Priority = priority;
     }
-    public static FollowCaptain CreateCaptainOrder(Swarm swarm, int priority, double minDistance, double maxDistance){
+    public static FollowCaptainGoal CreateCaptainOrder(Swarm swarm, int priority, double minDistance, double maxDistance){
         MyiaticBase captain = swarm.getCaptain();
-        FollowCaptain orders = new FollowCaptain(captain, captain, minDistance, maxDistance, priority);
+        FollowCaptainGoal orders = new FollowCaptainGoal(captain, captain, minDistance, maxDistance, priority);
         swarm.RelayOrder(orders, true);
         return orders;
     }
@@ -54,8 +54,14 @@ public class FollowCaptain extends Goal implements SwarmOrder {
 
     @Override
     public Goal Relay(MyiaticBase M) {
-        return new FollowCaptain(M, getCaptain(), MinDistance, MaxDistance, Priority);
+        return new FollowCaptainGoal(M, getCaptain(), MinDistance, MaxDistance, Priority);
     }
+
+    @Override
+    public Goal ReplaceCaptain(MyiaticBase toReplace) {
+        return new FollowCaptainGoal(toReplace, toReplace, MinDistance, MaxDistance, Priority);
+    }
+
     @Override
     public MyiaticBase getParent() {
         return parent;

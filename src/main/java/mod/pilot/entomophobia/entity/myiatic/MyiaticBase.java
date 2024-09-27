@@ -440,5 +440,9 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         getSwarm().DropMember(this, disbandIfCaptain);
         currentSwarm = null;
     }
+    public void SwitchSwarm(Swarm newSwarm, boolean disbandIfCaptain){
+        getSwarm().DropMember(this, disbandIfCaptain);
+        newSwarm.AttemptToRecruit(this);
+    }
     /**/
 }

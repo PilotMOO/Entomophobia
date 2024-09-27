@@ -1,15 +1,22 @@
 package mod.pilot.entomophobia.systems.swarm;
 
+import mod.pilot.entomophobia.entity.AI.HuntSwarmGoal;
 import mod.pilot.entomophobia.entity.AI.Interfaces.SwarmOrder;
 import mod.pilot.entomophobia.entity.festered.FesteredBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
+import mod.pilot.entomophobia.systems.nest.Nest;
+import mod.pilot.entomophobia.systems.nest.NestManager;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
 public abstract class Swarm {
-    public Swarm(byte type, MyiaticBase captain){
+    protected Swarm(byte type, MyiaticBase captain, @Nullable Nest parentNest, @Nullable Integer maxRecruits){
         SwarmType = type;
         AssignNewCaptain(captain);
         if (getCaptain() == null){
@@ -17,9 +24,16 @@ public abstract class Swarm {
             return;
         }
         RecruitNearby();
+        if (parentNest == null){
+            AssignClosestNest();
+        }
+        else{
+            setNest(parentNest);
+        }
+        setMaxRecruits(maxRecruits != null ? maxRecruits : SwarmManager.getBaseSwarmMaxSize());
         Enable();
     }
-    public Swarm(byte type, ArrayList<MyiaticBase> possibleCaptains){
+    protected Swarm(byte type, ArrayList<MyiaticBase> possibleCaptains, @Nullable Nest parentNest, @Nullable Integer maxRecruits){
         SwarmType = type;
         AssignNewCaptain(DecideCaptain(possibleCaptains));
         if (getCaptain() == null){
@@ -27,6 +41,13 @@ public abstract class Swarm {
             return;
         }
         RecruitNearby();
+        if (parentNest == null){
+            AssignClosestNest();
+        }
+        else{
+            setNest(parentNest);
+        }
+        setMaxRecruits(maxRecruits != null ? maxRecruits : SwarmManager.getBaseSwarmMaxSize());
         Enable();
     }
 
@@ -40,6 +61,22 @@ public abstract class Swarm {
     private final byte SwarmType;
     public final byte getSwarmType(){
         return SwarmType;
+    }
+    public Swarm ConvertSwarmType(SwarmManager.SwarmTypes newType, boolean AssignNewCaptain, boolean clearPrimary){
+        Swarm toReturn;
+        MyiaticBase newCaptain = AssignNewCaptain ? DecideCaptain(getUnits()) : getCaptain();
+        switch (newType.ordinal()){
+            default -> toReturn = null;
+            case 0 -> toReturn = new EmptySwarm(newCaptain, getNest(), getMaxRecruits());
+            case 1 -> toReturn = new HuntSwarm(newCaptain, getNest(), getMaxRecruits());
+        }
+        if (toReturn == null) return null;
+
+        toReturn.setSwarmState(getSwarmState());
+        toReturn.CopyUnits(this, false);
+        toReturn.CopyOrders(this, false);
+
+        return toReturn;
     }
 
     private byte SwarmState;
@@ -64,6 +101,9 @@ public abstract class Swarm {
     }
     public void Enable(){
         setSwarmState((byte)2);
+        if (getPrimaryOrderRaw() == null && getCaptain() != null){
+            GeneratePrimaryOrder(getCaptain());
+        }
     }
     public boolean isActive(){
         return Captain != null && getSwarmState() == 2;
@@ -83,6 +123,56 @@ public abstract class Swarm {
         Captain = newCaptain;
     }
 
+    public @Nullable Vec3 getSwarmPosition(){
+        if (getCaptain() == null) return null;
+        return getCaptain().position();
+    }
+    public @Nullable Vec3 getNestPosition(){
+        if (getNest() == null) return null;
+        return getNest().origin;
+    }
+    public double getDistanceToParentNest(){
+        Vec3 swarmPos = getSwarmPosition();
+        Vec3 nestPos = getNestPosition();
+        if (nestPos == null || swarmPos == null) return -1;
+        return swarmPos.distanceTo(nestPos);
+    }
+
+    @Nullable
+    private Nest ParentNest;
+    public @Nullable Nest getNest(){
+        return ParentNest;
+    }
+    protected void setNest(Nest nest){
+        ParentNest = nest;
+    }
+    public boolean AssignClosestNest(){
+        Vec3 pos = getSwarmPosition();
+        if (pos == null) return false;
+
+        ArrayList<Nest> nests = NestManager.getActiveNests();
+
+        Nest closest = null;
+        double distance = Double.MAX_VALUE;
+        for (Nest nest : nests){
+            if (closest == null){
+                closest = nest;
+                distance = pos.distanceTo(nest.origin);
+                continue;
+            }
+            double newDistance = pos.distanceTo(nest.origin);
+            if (newDistance < distance){
+                closest = nest;
+                distance = newDistance;
+            }
+        }
+        if (closest != null){
+            setNest(closest);
+            return true;
+        }
+        return false;
+    }
+
     private final ArrayList<MyiaticBase> units = new ArrayList<>();
     public ArrayList<MyiaticBase> getUnits(){
         return new ArrayList<>(units);
@@ -93,6 +183,12 @@ public abstract class Swarm {
     public void addToUnits(ArrayList<MyiaticBase> units){
         for (MyiaticBase unit : units){
             addToUnits(unit);
+        }
+    }
+    public void CopyUnits(Swarm toCopy, boolean clearOld){
+        if (clearOld) this.units.clear();
+        for (MyiaticBase M : toCopy.getUnits()){
+            M.SwitchSwarm(this, true);
         }
     }
     protected boolean RemoveFromUnits(MyiaticBase M){
@@ -108,16 +204,48 @@ public abstract class Swarm {
                     AssignNewCaptain(DecideCaptain(getUnits()));
                 }
             }
-            RemoveAllOrdersFor(M);
+            RemoveAllOrdersFor(M, true);
         }
     }
     public int AmountOfRecruits(){
         return units.size();
     }
 
+    private SwarmOrder PrimaryOrder;
+    protected abstract void GeneratePrimaryOrder(@NotNull MyiaticBase captain);
+    public void setPrimaryOrder(SwarmOrder order){
+        PrimaryOrder = order;
+    }
+    @Nullable
+    public SwarmOrder getPrimaryOrderRaw(){
+        return PrimaryOrder;
+    }
+    @Nullable
+    public SwarmOrder getPrimaryOrderFor(MyiaticBase M){
+        if (PrimaryOrder == null) return null;
+        return (SwarmOrder)PrimaryOrder.Relay(M);
+    }
+    @Nullable
+    public SwarmOrder getPrimaryOrderWithNewCaptain(MyiaticBase newCaptain){
+        if (PrimaryOrder == null) return null;
+        return (SwarmOrder)PrimaryOrder.ReplaceCaptain(newCaptain);
+    }
+    @Nullable
+    public SwarmOrder getPrimaryOrderWithNewCaptain(MyiaticBase newCaptain, MyiaticBase recruit){
+        SwarmOrder newCaptainOrder = getPrimaryOrderWithNewCaptain(newCaptain);
+        if (newCaptainOrder == null) return null;
+        return (SwarmOrder)newCaptainOrder.Relay(recruit);
+    }
     private final ArrayList<SwarmOrder> ActiveOrders = new ArrayList<>();
     public ArrayList<SwarmOrder> getOrders(){
         return new ArrayList<>(ActiveOrders);
+    }
+    public void CopyOrders(Swarm toCopy, boolean clearOld){
+        if (clearOld) this.DiscardAllSwarmOrders(true);
+        for (SwarmOrder order : toCopy.getOrders()){
+            SwarmOrder newOrder = (SwarmOrder)order.ReplaceCaptain(getCaptain());
+            RelayOrder(newOrder, clearOld);
+        }
     }
     protected void AddSwarmOrder(SwarmOrder order){
         ActiveOrders.add(order);
@@ -147,15 +275,37 @@ public abstract class Swarm {
         }
         return flag;
     }
+    public void DiscardPrimary() {
+        for (MyiaticBase M : getUnits()){
+            M.goalSelector.removeGoal((Goal)getPrimaryOrderFor(M));
+        }
+        setPrimaryOrder(null);
+    }
+    public boolean DiscardAllSwarmOrders(boolean removePrimary){
+        boolean flag = true;
+        for (SwarmOrder order : getOrders()){
+            boolean flag1 = DiscardSwarmOrder(order);
+            if (flag) flag = flag1;
+        }
+        if (removePrimary){
+            DiscardPrimary();
+        }
+        return flag;
+    }
+
+
     public void AssignAllOrdersFor(MyiaticBase M){
         for (SwarmOrder order : getOrders()){
             M.goalSelector.addGoal(order.getPriority(), order.Relay(M));
         }
+        SwarmOrder primary = getPrimaryOrderFor(M);
+        M.goalSelector.addGoal(primary.getPriority(), (Goal)primary);
     }
-    public void RemoveAllOrdersFor(MyiaticBase M){
+    public void RemoveAllOrdersFor(MyiaticBase M, boolean removePrimary){
         for (SwarmOrder order : getOrders()){
             M.goalSelector.removeGoal(order.Relay(M));
         }
+        if (removePrimary) M.goalSelector.removeGoal((Goal)getPrimaryOrderFor(M));
     }
 
     private int MaxRecruits;
@@ -247,6 +397,37 @@ public abstract class Swarm {
         AABB nearby = new AABB(getCaptain().blockPosition()).inflate(RecruitRange());
         for (MyiaticBase M : getCaptain().level().getEntitiesOfClass(MyiaticBase.class, nearby, (M) -> !M.isInSwarm())){
             M.TryToRecruit(this);
+        }
+    }
+
+    public static class EmptySwarm extends Swarm{
+        private static final byte SwarmType = 0;
+        public EmptySwarm(MyiaticBase captain, @Nullable Nest parentNest, @Nullable Integer maxRecruits){
+            super(SwarmType, captain, parentNest, maxRecruits);
+            Idle();
+        }
+        public EmptySwarm(ArrayList<MyiaticBase> possibleCaptains, @Nullable Nest parentNest, @Nullable Integer maxRecruits){
+            super(SwarmType, possibleCaptains, parentNest, maxRecruits);
+            Idle();
+        }
+
+        @Override
+        protected void GeneratePrimaryOrder(@NotNull MyiaticBase captain) {
+            setPrimaryOrder(null);
+        }
+    }
+    public static class HuntSwarm extends Swarm{
+        private static final byte SwarmType = 1;
+        protected HuntSwarm(MyiaticBase captain, @Nullable Nest parentNest, @Nullable Integer maxRecruits) {
+            super(SwarmType, captain, parentNest, maxRecruits);
+        }
+        protected HuntSwarm(ArrayList<MyiaticBase> possibleCaptains, @Nullable Nest parentNest, @Nullable Integer maxRecruits) {
+            super(SwarmType, possibleCaptains, parentNest, maxRecruits);
+        }
+
+        @Override
+        protected void GeneratePrimaryOrder(@NotNull MyiaticBase captain) {
+            setPrimaryOrder(new HuntSwarmGoal(captain, captain, 2400, 1));
         }
     }
 }

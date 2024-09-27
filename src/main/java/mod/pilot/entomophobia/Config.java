@@ -64,6 +64,9 @@ public class Config
         public final ForgeConfigSpec.ConfigValue<Integer> nest_y_build_priority;
 
 
+        public final ForgeConfigSpec.ConfigValue<Integer> base_swarm_max_members;
+
+
         public Server(ForgeConfigSpec.Builder builder){
             builder.push("Entomophobia Config");
 
@@ -129,6 +132,10 @@ public class Config
             this.corridor_extension_chance = builder.defineInRange("Chance for a corridor to get an extension", 0.4, 0, 1);
 
             this.nest_y_build_priority = builder.defineInRange("The Y level at which nests will prioritize building up or down if below or above, respectfully", 40, -64, 320);
+            builder.pop();
+
+            builder.push("Swarm Configuration");
+            this.base_swarm_max_members = builder.defineInRange("Maximum amount of members inside of a base swarm", 40, 1, Integer.MAX_VALUE);
 
             builder.push("Pheromone values");
             this.hunt_bonus_range = builder.defineInRange("Pheromone Prey/Hunt bonus searchrange", 64, 1, Integer.MAX_VALUE);
