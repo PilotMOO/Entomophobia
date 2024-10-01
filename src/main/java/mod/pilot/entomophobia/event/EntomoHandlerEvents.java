@@ -11,6 +11,7 @@ import mod.pilot.entomophobia.items.EntomoItems;
 import mod.pilot.entomophobia.data.EntomoDataManager;
 import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
 import mod.pilot.entomophobia.systems.nest.NestManager;
+import mod.pilot.entomophobia.systems.swarm.SwarmManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -65,16 +66,26 @@ public class EntomoHandlerEvents {
 
     @SubscribeEvent
     public static void onEntityLeave(EntityLeaveLevelEvent event){
-        Entity E = event.getEntity();
-        if (E instanceof MyiaticBase M && !M.isDeadOrDying() && event.getLevel() instanceof ServerLevel server && !server.getServer().isShutdown()){
-            if (EntomoGeneralSaveData.GetMyiaticCount() <= Config.SERVER.mob_cap.get()){
-                event.setResult(Event.Result.DENY);
-            }
-            else{
-                System.out.println("Adding " + M.getEncodeId() + " to storage!");
-                Entomophobia.activeData.AddToStorage(M.getEncodeId());
-                Entomophobia.activeData.RemoveFromMyiaticCount();
-                System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
+        if (event.getLevel() instanceof ServerLevel EServer){
+            if (EServer.getServer().isShutdown()) return;
+
+            Entity E = event.getEntity();
+            if (E instanceof MyiaticBase M){
+                if (!M.isDeadOrDying()){
+                    if (EntomoGeneralSaveData.GetMyiaticCount() <= Config.SERVER.mob_cap.get()){
+                        event.setResult(Event.Result.DENY);
+                    }
+                    else{
+                        System.out.println("Adding " + M.getEncodeId() + " to storage!");
+                        Entomophobia.activeData.AddToStorage(M.getEncodeId());
+                        Entomophobia.activeData.RemoveFromMyiaticCount();
+                        System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
+                    }
+                }
+                else{
+                    Entomophobia.activeData.RemoveFromMyiaticCount();
+                    System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
+                }
             }
         }
     }
@@ -88,6 +99,7 @@ public class EntomoHandlerEvents {
     @SubscribeEvent
     public static void ServerStarting(ServerStartingEvent event){
         NestManager.setNestConstructionDetails();
+        SwarmManager.setSwarmDetails();
         server = event.getServer().overworld();
     }
 

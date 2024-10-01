@@ -19,7 +19,7 @@ public class GlideDownToFoesGoal extends FlyToHostileTargetGoal{
 
     @Override
     protected void StartFlyCycle() {
-        parent.getLookControl().setLookAt(parent.getTarget());
+        parent.lookAt(parent.getTarget(), parent.getMaxHeadYRot(), parent.getMaxHeadXRot());
         ManageStateSwitch(FlightStates.Gliding);
     }
 }

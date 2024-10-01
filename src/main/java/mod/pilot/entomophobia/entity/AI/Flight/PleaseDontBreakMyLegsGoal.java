@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia.entity.AI.Flight;
 
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
@@ -26,7 +27,7 @@ public class PleaseDontBreakMyLegsGoal extends FlyToGoal{
 
     @Override
     protected void StartFlyCycle() {
-        parent.getLookControl().setLookAt(finalPos);
+        parent.lookAt(EntityAnchorArgument.Anchor.EYES, finalPos);
         ManageStateSwitch(FlightStates.Gliding);
     }
 

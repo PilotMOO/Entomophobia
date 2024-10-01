@@ -65,7 +65,7 @@ public class LatchOntoTargetGoal extends Goal {
 
     protected void PrePounceCheck() {
         LivingEntity target = parent.getTarget();
-        parent.getLookControl().setLookAt(target);
+        parent.lookAt(target, 180, 180);
         if (parent.distanceTo(target) < Distance && Mth.abs((float)(parent.position().y - target.position().y)) < 3){
             CD = CD > 0 ? CD - 1 : 0;
             if (CD == 0){
@@ -109,7 +109,7 @@ public class LatchOntoTargetGoal extends Goal {
     }
     protected void GrabOntoPrey() {
         if (latchedTarget == parent.getTarget()){
-            parent.getLookControl().setLookAt(parent.getDirectionFromTarget());
+            parent.lookAt(parent.getTarget(), 180, 180);
             parent.setPos(GetTargetLatchPos());
             parent.resetFallDistance();
             parent.setAIState(MyiaticBase.state.other.ordinal());

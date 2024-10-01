@@ -1,17 +1,12 @@
 package mod.pilot.entomophobia.entity.AI;
 
-import mod.pilot.entomophobia.entity.AI.Interfaces.SwarmOrder;
+import mod.pilot.entomophobia.entity.AI.Interfaces.ISwarmOrder;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 
-public class HuntSwarmGoal extends Goal implements SwarmOrder {
+public class HuntSwarmGoal extends Goal implements ISwarmOrder {
     final MyiaticBase parent;
     final MyiaticBase captain;
     final int Priority;

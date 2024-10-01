@@ -6,7 +6,7 @@ import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.util.AzureLibUtil;
 import mod.pilot.entomophobia.entity.AI.DashAttackWithAnimationGoal;
-import mod.pilot.entomophobia.entity.interfaces.Dodgable;
+import mod.pilot.entomophobia.entity.interfaces.IDodgable;
 import mod.pilot.entomophobia.sound.EntomoSounds;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -20,7 +20,7 @@ import mod.pilot.entomophobia.entity.AI.Flight.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class MyiaticZombieEntity extends MyiaticBase implements Dodgable {
+public class MyiaticZombieEntity extends MyiaticBase implements IDodgable {
     public MyiaticZombieEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
         setReach(0.15f);

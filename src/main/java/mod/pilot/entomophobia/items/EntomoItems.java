@@ -5,6 +5,7 @@ import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.items.custom.DangerousMilk;
 import mod.pilot.entomophobia.items.custom.NestWand;
 import mod.pilot.entomophobia.items.custom.ShapeWand;
+import mod.pilot.entomophobia.items.custom.SwarmWand;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.common.ForgeSpawnEggItem;
@@ -39,6 +40,8 @@ public class EntomoItems {
             () -> new ShapeWand(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> NEST_WAND = ITEMS.register("nest_wand",
             () -> new NestWand(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> SWARM_WAND = ITEMS.register("swarm_wand",
+            () -> new SwarmWand(new Item.Properties().stacksTo(1)));
 
     public static void register(IEventBus eventBus){
         ITEMS.register(eventBus);

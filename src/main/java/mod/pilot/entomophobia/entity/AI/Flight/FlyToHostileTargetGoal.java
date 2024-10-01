@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia.entity.AI.Flight;
 
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.control.LookControl;
@@ -33,7 +34,7 @@ public class FlyToHostileTargetGoal extends FlyToGoal{
     public void tick() {
         parent.getNavigation().moveTo(parent.getTarget(), 1);
         if (FlightState != FlightStates.Gliding.ordinal()){
-            parent.getLookControl().setLookAt(parent.getTarget());
+            parent.lookAt(parent.getTarget(), parent.getMaxHeadYRot(), parent.getMaxHeadXRot());
             parent.getLookControl().tick();
         }
         if (FlightCD > 0){

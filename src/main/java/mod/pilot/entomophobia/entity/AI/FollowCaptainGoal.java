@@ -1,11 +1,12 @@
 package mod.pilot.entomophobia.entity.AI;
 
-import mod.pilot.entomophobia.entity.AI.Interfaces.SwarmOrder;
+import mod.pilot.entomophobia.entity.AI.Interfaces.ISwarmOrder;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.systems.swarm.Swarm;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.level.Level;
 
-public class FollowCaptainGoal extends Goal implements SwarmOrder {
+public class FollowCaptainGoal extends Goal implements ISwarmOrder {
     final MyiaticBase parent;
     final MyiaticBase captain;
     public double MinDistance;

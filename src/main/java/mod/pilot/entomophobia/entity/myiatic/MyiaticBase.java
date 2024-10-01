@@ -7,17 +7,18 @@ import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.AI.*;
 import mod.pilot.entomophobia.entity.EntomoEntities;
-import mod.pilot.entomophobia.entity.interfaces.Dodgable;
+import mod.pilot.entomophobia.entity.interfaces.IDodgable;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
 import mod.pilot.entomophobia.systems.swarm.Swarm;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -34,6 +35,8 @@ import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
@@ -286,7 +289,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             if (sourceEntity instanceof MyiaticBase){
                 superFlag = false;
             }
-            if (this instanceof Dodgable dodgable && sourceEntity == getTarget()){
+            if (this instanceof IDodgable dodgable && sourceEntity == getTarget()){
                 superFlag = !dodgable.TryToDodge(this);
             }
         }
@@ -418,8 +421,10 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         return getSwarm() != null && getSwarm().getCaptain() == this;
     }
     public boolean TryToRecruit(@NotNull Swarm swarm){
-        if (CanSwarm() && getSwarm() != null){
-            return swarm.AttemptToRecruit(this);
+        if (CanSwarm() && getSwarm() == null){
+            boolean joinFlag = swarm.AttemptToRecruit(this);
+            if (joinFlag) currentSwarm = swarm;
+            return joinFlag;
         }
         return false;
     }
@@ -430,19 +435,26 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         if (ignoreCap) {
             swarm.addToUnits(this);
             swarm.AssignAllOrdersFor(this);
+            currentSwarm = swarm;
         }
         else if (swarm.AmountOfRecruits() < swarm.getMaxRecruits()) {
             swarm.addToUnits(this);
             swarm.AssignAllOrdersFor(this);
+            currentSwarm = swarm;
         }
     }
     public void LeaveSwarm(boolean disbandIfCaptain){
         getSwarm().DropMember(this, disbandIfCaptain);
+        level().getServer().getPlayerList().broadcastSystemMessage(Component.literal(this.getEncodeId() + " at " + position() + " left the swarm! Kill him."), false);
+        level().explode(this, null, null, position(), 1, false, Level.ExplosionInteraction.NONE);
         currentSwarm = null;
     }
     public void SwitchSwarm(Swarm newSwarm, boolean disbandIfCaptain){
         getSwarm().DropMember(this, disbandIfCaptain);
-        newSwarm.AttemptToRecruit(this);
+        boolean joinFlag = newSwarm.AttemptToRecruit(this);
+        if (joinFlag){
+            currentSwarm = newSwarm;
+        }
     }
     /**/
 }

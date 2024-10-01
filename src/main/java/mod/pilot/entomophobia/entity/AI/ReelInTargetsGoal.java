@@ -47,7 +47,7 @@ public class ReelInTargetsGoal extends Goal {
     public void tick() {
         if (grapple == null){
             if (parent.getTarget() != null){
-                parent.getLookControl().setLookAt(parent.getTarget());
+                parent.lookAt(parent.getTarget(), 180, 180);
                 parent.getLookControl().tick();
                 parent.getNavigation().moveTo(parent, 1.0);
                 ShootCD = ShootCD > 0 ? ShootCD - 1 : 0;
@@ -91,6 +91,9 @@ public class ReelInTargetsGoal extends Goal {
         ReelTarget = null;
         if (grapple != null){
             grapple.ReelGrappleBack();
+        }
+        if (parent.getTarget() != null){
+            parent.moveTo(parent.getTarget().position());
         }
         parent.setAIState(MyiaticBase.state.idle);
     }

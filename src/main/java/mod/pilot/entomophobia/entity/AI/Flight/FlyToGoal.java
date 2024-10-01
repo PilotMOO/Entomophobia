@@ -2,6 +2,7 @@ package mod.pilot.entomophobia.entity.AI.Flight;
 
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.sound.EntomoSounds;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -90,7 +91,7 @@ public class FlyToGoal extends Goal {
     public void tick() {
         parent.getNavigation().moveTo(finalPos.x, finalPos.y, finalPos.z, 1);
         if (FlightState != FlightStates.Gliding.ordinal()){
-            parent.getLookControl().setLookAt(finalPos);
+            parent.lookAt(EntityAnchorArgument.Anchor.EYES, finalPos);
             parent.getLookControl().tick();
         }
         if (FlightCD > 0){
@@ -128,7 +129,7 @@ public class FlyToGoal extends Goal {
     }
 
     protected void StartFlyCycle(){
-        parent.getLookControl().setLookAt(finalPos);
+        parent.lookAt(EntityAnchorArgument.Anchor.EYES, finalPos);
         ManageStateSwitch(FlightStates.Ascending);
         PlayFlySound();
     }

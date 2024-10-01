@@ -4,7 +4,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
-public interface Dodgable {
+public interface IDodgable {
     double getDodgeChance();
     default boolean TryToDodge(Mob parent) {
         if (CanDodge(parent)){

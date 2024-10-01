@@ -51,7 +51,7 @@ public class ShapeWand extends Item {
     }
     private final List<BlockState> BlockStates = new ArrayList<>();
 
-private static final List<BlockState> whitelist = new ArrayList<>(Arrays.asList(Blocks.GRASS_BLOCK.defaultBlockState(), Blocks.DIRT.defaultBlockState()));
+    private static final List<BlockState> whitelist = new ArrayList<>(Arrays.asList(Blocks.GRASS_BLOCK.defaultBlockState(), Blocks.DIRT.defaultBlockState()));
     private static final List<BlockState> blacklist = new ArrayList<>(Arrays.asList(Blocks.COBBLESTONE.defaultBlockState(), Blocks.COARSE_DIRT.defaultBlockState()));
 
     private Vec3 LineVectorStart;
