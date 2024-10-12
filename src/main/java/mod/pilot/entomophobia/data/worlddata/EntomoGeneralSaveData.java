@@ -92,6 +92,7 @@ public class EntomoGeneralSaveData extends SavedData {
     }
     public void setWorldAge(int age){
         WorldAge = age;
+        setDirty();
     }
     public void ageWorldBy(int age){
         setWorldAge(getWorldAge() + age);

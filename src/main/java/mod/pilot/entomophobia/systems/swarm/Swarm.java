@@ -10,7 +10,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -60,7 +59,7 @@ public abstract class Swarm {
     }
     @Override
     public String toString() {
-        return "Swarm [type: " + SwarmManager.SwarmTypes.values()[getSwarmType()] + ", state: " +
+        return "Swarm " + "\"" + SwarmManager.getNameFor(this) + "\" " + "[type: " + SwarmManager.SwarmTypes.values()[getSwarmType()] + ", state: " +
                 SwarmStates.values()[getSwarmState()] + ", has Captain: " + (getCaptain() != null) + ", has ParentNest: " +
                 (getNest() != null) + "]";
     }
@@ -108,7 +107,6 @@ public abstract class Swarm {
     }
     public void Enable(){
         setSwarmState((byte)2);
-        System.out.println("Current State: " + getSwarmState());
     }
     public boolean isActive(){
         return Captain != null && getSwarmState() == 2;
@@ -327,6 +325,7 @@ public abstract class Swarm {
         return ActiveOrders.remove(order);
     }
     public void RelayOrder(ISwarmOrder order, boolean override){
+        System.out.println("Relaying an order of type " + order.getClass() + " inside of " + SwarmManager.getNameFor(this));
         if (override){
             for (ISwarmOrder currentOrders : getOrders()){
                 if (currentOrders.getClass() == order.getClass()){
@@ -369,7 +368,9 @@ public abstract class Swarm {
 
     public void AssignAllOrdersFor(MyiaticBase M){
         for (ISwarmOrder order : getOrders()){
-            M.goalSelector.addGoal(order.getPriority(), order.Relay(M));
+            Goal toRelay = order.Relay(M);
+            assert M != null;
+            M.goalSelector.addGoal(order.getPriority(), toRelay);
         }
         ISwarmOrder primary = getPrimaryOrderFor(M);
         if (primary != null){
@@ -443,7 +444,8 @@ public abstract class Swarm {
 
         @Override
         protected void GeneratePrimaryOrder(@NotNull MyiaticBase captain) {
-            setPrimaryOrder(new HuntSwarmGoal(captain, captain, 2400, 1));
+            setPrimaryOrder(new HuntSwarmGoal(captain, captain, 300, 1));
+            RelayOrder(getPrimaryOrderRaw(), false);
         }
     }
 }

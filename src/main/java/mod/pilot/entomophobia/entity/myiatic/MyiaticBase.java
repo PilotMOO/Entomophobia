@@ -9,23 +9,19 @@ import mod.pilot.entomophobia.entity.AI.*;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.interfaces.IDodgable;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
+import mod.pilot.entomophobia.systems.nest.Nest;
+import mod.pilot.entomophobia.systems.nest.NestManager;
 import mod.pilot.entomophobia.systems.swarm.Swarm;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
@@ -35,8 +31,6 @@ import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.level.Explosion;
-import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
@@ -102,10 +96,13 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     protected void registerBasicGoals(){
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new PreyPriorityNearestAttackable(this, true));
-        this.goalSelector.addGoal(3, new RandomStrollGoal(this, 0.75D, 80));
+        this.goalSelector.addGoal(3, new RandomStrollGoal(this, 0.75D, 40));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(3, new LocateAndEatFoodOffTheFloorGoal(this, 20));
         this.goalSelector.addGoal(1, new BreakBlocksInMyWayGoal(this));
+        if (canSwarm() && getDistanceToClosestNest() == -1 || getDistanceToClosestNest() > 2048){
+            this.goalSelector.addGoal(2, new NestlessHuntSwarmFormGoal(this, 600, 8));
+        }
     }
     protected void registerFlightGoals(){}
     protected void registerPheromoneGoals(){
@@ -262,6 +259,15 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         }
         return null;
     }
+    public double getDistanceToClosestNest() {
+        double distance = -1;
+        for (Nest nest : NestManager.getActiveNests()){
+            if (distance == -1 || distance > nest.origin.distanceTo(position())) {
+                distance = nest.origin.distanceTo(position());
+            }
+        }
+        return distance;
+    }
     /**/
 
     //Overridden Methods
@@ -280,7 +286,8 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         if (sourceEntity instanceof LivingEntity LEntity){
             if (TestValidEntity(LEntity)){
                 for (MyiaticBase M : getNearbyMyiatics((int)(getAttributeValue(Attributes.FOLLOW_RANGE) * 2))){
-                    if (M.getTarget() == null){
+                    if (M.getTarget() == null || (M.getTarget() instanceof Targeting target1 && target1.getTarget() != M
+                            && getTarget() instanceof Targeting target2 && target2.getTarget() == this)){
                         M.setTarget(LEntity);
                     }
                 }
@@ -334,6 +341,14 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
 
         }
         return false;
+    }
+
+    @Override
+    public void die(@NotNull DamageSource pDamageSource) {
+        super.die(pDamageSource);
+        if (isInSwarm()){
+            this.LeaveSwarm(false);
+        }
     }
 
     @Override
@@ -408,7 +423,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
 
     //Swarm Management
     private Swarm currentSwarm;
-    public boolean CanSwarm() {
+    public boolean canSwarm() {
         return true;
     }
     public Swarm getSwarm(){
@@ -421,7 +436,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         return getSwarm() != null && getSwarm().getCaptain() == this;
     }
     public boolean TryToRecruit(@NotNull Swarm swarm){
-        if (CanSwarm() && getSwarm() == null){
+        if (canSwarm() && getSwarm() == null){
             boolean joinFlag = swarm.AttemptToRecruit(this);
             if (joinFlag) currentSwarm = swarm;
             return joinFlag;
@@ -432,21 +447,16 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     public void ForceJoin(@NotNull Swarm swarm, boolean ignoreCap){
         if (getSwarm() == swarm) return;
 
-        if (ignoreCap) {
-            swarm.addToUnits(this);
-            swarm.AssignAllOrdersFor(this);
-            currentSwarm = swarm;
-        }
-        else if (swarm.AmountOfRecruits() < swarm.getMaxRecruits()) {
+        if (ignoreCap || swarm.AmountOfRecruits() < swarm.getMaxRecruits()) {
             swarm.addToUnits(this);
             swarm.AssignAllOrdersFor(this);
             currentSwarm = swarm;
         }
     }
     public void LeaveSwarm(boolean disbandIfCaptain){
-        getSwarm().DropMember(this, disbandIfCaptain);
-        level().getServer().getPlayerList().broadcastSystemMessage(Component.literal(this.getEncodeId() + " at " + position() + " left the swarm! Kill him."), false);
-        level().explode(this, null, null, position(), 1, false, Level.ExplosionInteraction.NONE);
+        if (getSwarm() != null){
+            getSwarm().DropMember(this, disbandIfCaptain);
+        }
         currentSwarm = null;
     }
     public void SwitchSwarm(Swarm newSwarm, boolean disbandIfCaptain){

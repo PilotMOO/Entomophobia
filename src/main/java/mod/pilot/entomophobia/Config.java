@@ -73,8 +73,8 @@ public class Config
             builder.push("Mob Targeting");
             this.blacklisted_targets = builder.defineList("Mobs the Myiatic Ignore",
                     Lists.newArrayList(
-                            "minecraft:creeper","minecraft:squid","minecraft:bat","minecraft:armor_stand") , o -> o instanceof String);            builder.push("Mob Targeting");
-            this.myiatic_conversion_list = builder.defineList("Mobs and their Myiatic forms [key = \"Base>Myiatic\"",
+                            "minecraft:creeper","minecraft:squid","minecraft:bat","minecraft:armor_stand") , o -> o instanceof String);
+            this.myiatic_conversion_list = builder.defineList("Mobs and their Myiatic forms [key = \"Base>Myiatic\"]",
                     Lists.newArrayList(
                             "minecraft:zombie>entomophobia:myiatic_zombie", "minecraft:creeper>entomophobia:myiatic_creeper",
                             "minecraft:spider>entomophobia:myiatic_spider", "minecraft:cow>entomophobia:myiatic_cow",
@@ -92,7 +92,7 @@ public class Config
             builder.pop();
 
             builder.push("Nest configuration");
-            this.nest_build_materials = builder.define("Blocks nests are built out of",
+            this.nest_build_materials = builder.defineList("Blocks nests are built out of",
                     Lists.newArrayList(
                         "minecraft:mud"
                     ), o -> o instanceof String);
@@ -136,6 +136,7 @@ public class Config
 
             builder.push("Swarm Configuration");
             this.base_swarm_max_members = builder.defineInRange("Maximum amount of members inside of a base swarm", 40, 1, Integer.MAX_VALUE);
+            builder.pop();
 
             builder.push("Pheromone values");
             this.hunt_bonus_range = builder.defineInRange("Pheromone Prey/Hunt bonus searchrange", 64, 1, Integer.MAX_VALUE);
@@ -143,6 +144,7 @@ public class Config
 
             builder.push("Myiatic Stats");
             this.myiatic_creeper_explode_radius = builder.defineInRange("Myiatic Creeper explosion range", 3, 1, Integer.MAX_VALUE);
+            builder.pop();
         }
     }
 

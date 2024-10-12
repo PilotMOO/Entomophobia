@@ -67,20 +67,15 @@ public class EntomoHandlerEvents {
     @SubscribeEvent
     public static void onEntityLeave(EntityLeaveLevelEvent event){
         if (event.getLevel() instanceof ServerLevel EServer){
-            if (EServer.getServer().isShutdown()) return;
+            if (!EServer.getServer().isReady()) return;
 
             Entity E = event.getEntity();
             if (E instanceof MyiaticBase M){
                 if (!M.isDeadOrDying()){
-                    if (EntomoGeneralSaveData.GetMyiaticCount() <= Config.SERVER.mob_cap.get()){
-                        event.setResult(Event.Result.DENY);
-                    }
-                    else{
-                        System.out.println("Adding " + M.getEncodeId() + " to storage!");
-                        Entomophobia.activeData.AddToStorage(M.getEncodeId());
-                        Entomophobia.activeData.RemoveFromMyiaticCount();
-                        System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
-                    }
+                    System.out.println("Adding " + M.getEncodeId() + " to storage!");
+                    Entomophobia.activeData.AddToStorage(M.getEncodeId());
+                    Entomophobia.activeData.RemoveFromMyiaticCount();
+                    System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
                 }
                 else{
                     Entomophobia.activeData.RemoveFromMyiaticCount();
@@ -150,11 +145,13 @@ public class EntomoHandlerEvents {
                 List<? extends LivingEntity> nearbyInfectables = player.level().getEntitiesOfClass(LivingEntity.class, spreadAABB, (LivingEntity Le) -> EntomoDataManager.GetConvertedFor(Le.getEncodeId()) != null);
                 int amountInfected = 0;
                 for (LivingEntity entity : nearbyInfectables){
-                    if (amountInfected < nearbyInfectables.size() / 4){
+                    if (amountInfected < nearbyInfectables.size() / 6){
                         entity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), -1, 2));
+                        amountInfected++;
                     }
-                    else if (player.getRandom().nextIntBetweenInclusive(1, 100) < 25){
+                    else if (player.getRandom().nextDouble() < 0.15){
                         entity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), -1, 2));
+                        amountInfected++;
                     }
                 }
             }

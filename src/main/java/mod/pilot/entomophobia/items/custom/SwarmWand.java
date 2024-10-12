@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia.items.custom;
 
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
+import mod.pilot.entomophobia.systems.swarm.Swarm;
 import mod.pilot.entomophobia.systems.swarm.SwarmManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -9,6 +10,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -76,6 +79,12 @@ public class SwarmWand extends Item {
                 }
                 player.displayClientMessage(Component.literal(SwarmManager.SwarmTypes.values()[StateGhost].name()), true);
                 player.playSound(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+            }
+        }
+        else{
+            for (Swarm swarm : SwarmManager.getSwarms()){
+                player.displayClientMessage(Component.literal("Highlighting all Captains"), true);
+                swarm.getCaptain().addEffect(new MobEffectInstance(MobEffects.GLOWING, 100));
             }
         }
         return InteractionResultHolder.success(new ItemStack(this));

@@ -47,7 +47,7 @@ public class ReelInTargetsGoal extends Goal {
     public void tick() {
         if (grapple == null){
             if (parent.getTarget() != null){
-                parent.lookAt(parent.getTarget(), 180, 180);
+                parent.lookAt(parent.getTarget(), parent.getMaxHeadYRot(), parent.getMaxHeadXRot());
                 parent.getLookControl().tick();
                 parent.getNavigation().moveTo(parent, 1.0);
                 ShootCD = ShootCD > 0 ? ShootCD - 1 : 0;

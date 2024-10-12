@@ -3,6 +3,7 @@ package mod.pilot.entomophobia.entity.AI;
 import mod.pilot.entomophobia.entity.AI.Interfaces.ISwarmOrder;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.systems.swarm.Swarm;
+import mod.pilot.entomophobia.systems.swarm.SwarmManager;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.Level;
 
@@ -20,17 +21,16 @@ public class FollowCaptainGoal extends Goal implements ISwarmOrder {
         MaxDistance = maxDistance;
         Priority = priority;
     }
-    public static FollowCaptainGoal CreateCaptainOrder(Swarm swarm, int priority, double minDistance, double maxDistance){
-        MyiaticBase captain = swarm.getCaptain();
-        FollowCaptainGoal orders = new FollowCaptainGoal(captain, captain, minDistance, maxDistance, priority);
-        swarm.RelayOrder(orders, true);
-        return orders;
-    }
 
     @Override
     public boolean canUse() {
         Swarm swarm = parent.getSwarm();
-        return swarm != null && swarm.isActive() && !parent.amITheCaptain();
+        return swarm != null && !swarm.isDisbanded() && !swarm.isFinished() && !parent.amITheCaptain();
+    }
+
+    @Override
+    public boolean requiresUpdateEveryTick() {
+        return parent.distanceTo(captain) > MaxDistance / 2;
     }
 
     @Override
@@ -50,7 +50,6 @@ public class FollowCaptainGoal extends Goal implements ISwarmOrder {
     @Override
     public void stop() {
         parent.LeaveSwarm(false);
-        parent.goalSelector.removeGoal(this);
     }
 
     @Override

@@ -1,20 +1,18 @@
-package mod.pilot.entomophobia;
+package mod.pilot.entomophobia.event;
 
+import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.client.myiatic.*;
 import mod.pilot.entomophobia.entity.client.pheromones.PheromoneFrenzyRenderer;
 import mod.pilot.entomophobia.entity.client.pheromones.PheromonePreyHuntRenderer;
 import mod.pilot.entomophobia.entity.client.projectile.StringGrappleRenderer;
-import mod.pilot.entomophobia.entity.myiatic.MyiaticCreeperEntity;
-import mod.pilot.entomophobia.entity.myiatic.MyiaticSheepEntity;
-import mod.pilot.entomophobia.entity.pheromones.PheromoneFrenzyEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = Entomophobia.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-public class CilentManager {
+public class ClientManager {
     @SubscribeEvent
     public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event){
         event.registerEntityRenderer(EntomoEntities.MYIATIC_ZOMBIE.get(), MyiaticZombieRenderer::new);

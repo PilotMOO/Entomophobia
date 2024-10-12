@@ -27,6 +27,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MyiaticSpiderEntity extends MyiaticBase{
@@ -74,11 +75,9 @@ public class MyiaticSpiderEntity extends MyiaticBase{
                 .add(Attributes.ATTACK_SPEED, 2D);
     }
 
-    protected PathNavigation createNavigation(Level pLevel) {
+    protected @NotNull PathNavigation createNavigation(@NotNull Level pLevel) {
         return new WallClimberNavigation(this, pLevel);
     }
-
-
 
     //Overridden methods
     @Override
