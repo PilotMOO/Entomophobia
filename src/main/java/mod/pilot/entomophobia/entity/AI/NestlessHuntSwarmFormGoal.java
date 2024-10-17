@@ -15,7 +15,6 @@ public class NestlessHuntSwarmFormGoal extends Goal {
         this.parent = parent;
         this.FormationCheckTimer = checkTimer;
         this.MinSwarmSize = minFormationSize;
-        System.out.println("Creating a new NestlessHuntSwarmFormGoal for " + parent);
     }
     @Override
     public boolean canUse() {
@@ -43,8 +42,7 @@ public class NestlessHuntSwarmFormGoal extends Goal {
             }
             nearbyTeammates.removeAll(trim);
             if (nearbyTeammates.size() >= MinSwarmSize){
-                System.out.println("Making a new Hunt swarm at " + parent.position());
-                SwarmManager.CreateSwarm(SwarmManager.SwarmTypes.hunt, nearbyTeammates, null, SwarmManager.getBaseSwarmMaxSize());
+                SwarmManager.CreateSwarm(SwarmManager.SwarmTypes.hunt, nearbyTeammates, SwarmManager.getBaseSwarmMaxSize());
                 stop();
             }
             else{

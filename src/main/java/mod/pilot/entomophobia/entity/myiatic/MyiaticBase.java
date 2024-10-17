@@ -24,6 +24,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.animal.AbstractFish;
@@ -38,6 +39,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import oshi.util.tuples.Pair;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -68,13 +70,13 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     public void setReach(Float count) {entityData.set(Reach, count);}
 
     @Override
-    public void addAdditionalSaveData(CompoundTag tag) {
+    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt("AIState",entityData.get(AIState));
         tag.putFloat("Reach",entityData.get(Reach));
     }
     @Override
-    public void readAdditionalSaveData(CompoundTag tag) {
+    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         entityData.set(AIState, tag.getInt("AIState"));
         entityData.set(Reach, tag.getFloat("Reach"));
@@ -87,6 +89,30 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     /**/
 
     //Goals
+    protected ArrayList<Pair<Integer, Goal>> QueuedGoals = new ArrayList<>();
+    protected ArrayList<Goal> QueuedRemoveGoals = new ArrayList<>();
+    public void QueGoal(int priority, Goal goal){
+        QueuedGoals.add(new Pair<>(priority, goal));
+    }
+    public void QueRemoveGoal(Goal goal){
+        QueuedRemoveGoals.add(goal);
+    }
+    public void RegisterQueuedGoals(){
+        if (QueuedGoals.size() == 0) return;
+        ArrayList<Pair<Integer, Goal>> toUnque = new ArrayList<>(QueuedGoals);
+        for (Pair<Integer, Goal> queued : toUnque){
+            this.goalSelector.addGoal(queued.getA(), queued.getB());
+        }
+        QueuedGoals.removeAll(toUnque);
+    }
+    public void ClearQueuedRemovedGoals(){
+        if (QueuedRemoveGoals.size() == 0) return;
+        ArrayList<Goal> toRemove = new ArrayList<>(QueuedRemoveGoals);
+        for (Goal queued : toRemove){
+            this.goalSelector.removeGoal(queued);
+        }
+        QueuedRemoveGoals.removeAll(toRemove);
+    }
     @Override
     protected void registerGoals() {
         registerBasicGoals();
@@ -96,12 +122,12 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     protected void registerBasicGoals(){
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new PreyPriorityNearestAttackable(this, true));
-        this.goalSelector.addGoal(3, new RandomStrollGoal(this, 0.75D, 40));
+        this.goalSelector.addGoal(3, new HomophobicRandomStrollGoal(this, 0.75D, 40, 48, 16));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(3, new LocateAndEatFoodOffTheFloorGoal(this, 20));
         this.goalSelector.addGoal(1, new BreakBlocksInMyWayGoal(this));
         if (canSwarm() && getDistanceToClosestNest() == -1 || getDistanceToClosestNest() > 2048){
-            this.goalSelector.addGoal(2, new NestlessHuntSwarmFormGoal(this, 600, 8));
+            this.goalSelector.addGoal(2, new NestlessHuntSwarmFormGoal(this, 600, 5));
         }
     }
     protected void registerFlightGoals(){}
@@ -135,27 +161,162 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     protected boolean PreyHuntPredicate(MyiaticBase parent){
         return getNearbyMyiatics(128).size() > 5 && getValidTargets().size() > 3;
     }
+    /**/
+
+    //Overridden Methods
+        /*Continuous Methods*/
+    @Override
+    public void tick() {
+        super.tick();
+        if (getTarget() != null && getTarget().isDeadOrDying()){
+            setTarget(null);
+        }
+        setAIState(StateManager());
+    }
+    @Override
+    public void aiStep() {
+        super.aiStep();
+        RegisterQueuedGoals();
+        ClearQueuedRemovedGoals();
+    }
+
+    /*Damage-related*/
+    @Override
+    public boolean hurt(DamageSource pSource, float pAmount) {
+        boolean superFlag = true;
+        Entity sourceEntity = pSource.getEntity();
+        if (sourceEntity instanceof LivingEntity LEntity){
+            if (TestValidEntity(LEntity)){
+                for (MyiaticBase M : getNearbyMyiatics((int)(getAttributeValue(Attributes.FOLLOW_RANGE) * 2))){
+                    if (M.getTarget() == null || (M.getTarget() instanceof Targeting target1 && target1.getTarget() != M
+                            && getTarget() instanceof Targeting target2 && target2.getTarget() == this)){
+                        M.setTarget(LEntity);
+                    }
+                }
+                setTarget(LEntity);
+            }
+            if (sourceEntity instanceof MyiaticBase){
+                superFlag = false;
+            }
+            if (this instanceof IDodgable dodgable && sourceEntity == getTarget()){
+                superFlag = !dodgable.TryToDodge(this);
+            }
+        }
+        if (superFlag){
+            return super.hurt(pSource, pAmount);
+        }
+        return false;
+    }
+    @Override
+    public boolean doHurtTarget(@Nullable Entity pEntity) {
+        if (pEntity != null){
+
+            float f = (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE);
+            float f1 = (float)this.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
+            if (pEntity instanceof LivingEntity) {
+                f += EnchantmentHelper.getDamageBonus(this.getMainHandItem(), ((LivingEntity)pEntity).getMobType());
+                f1 += (float)EnchantmentHelper.getKnockbackBonus(this);
+            }
+
+            int i = EnchantmentHelper.getFireAspect(this);
+            if (i > 0) {
+                pEntity.setSecondsOnFire(i * 4);
+            }
+
+            boolean flag = pEntity.hurt(GetDamageSource(), f);
+            if (flag) {
+                if (pEntity instanceof LivingEntity LEntity){
+                    LEntity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 1200));
+
+                    if (f1 > 0.0F) {
+                        ((LivingEntity)pEntity).knockback((f1 * 0.5F), Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), (-Mth.cos(this.getYRot() * ((float)Math.PI / 180F))));
+                        this.setDeltaMovement(this.getDeltaMovement().multiply(0.6D, 1.0D, 0.6D));
+                    }
+                }
+
+                this.doEnchantDamageEffects(this, pEntity);
+                this.setLastHurtMob(pEntity);
+            }
+
+            return flag;
 
 
+        }
+        return false;
+    }
+    @Override
+    public void die(@NotNull DamageSource pDamageSource) {
+        super.die(pDamageSource);
+        if (isInSwarm()){
+            this.LeaveSwarm(false);
+        }
+    }
+
+        /*Movement*/
+    @Override
+    public void travel(@NotNull Vec3 pTravelVector) {
+        if (isInFluidType() && getTarget() != null){
+            double waterMoveSpeed = (getAttributeValue(Attributes.MOVEMENT_SPEED) * getWaterSlowDown()) * 0.5;
+            setDeltaMovement(getDeltaMovement().add(getDirectionToTarget()).multiply(waterMoveSpeed, waterMoveSpeed, waterMoveSpeed));
+
+            if (getTarget().getY() < getY() && getAirSupply() > getMaxAirSupply() / 4){
+                double newYSpeed = getDeltaMovement().y / 0.8;
+                setDeltaMovement(getDeltaMovement().x, newYSpeed, getDeltaMovement().y);
+            }
+            getLookControl().setLookAt(getTarget());
+            getLookControl().tick();
+        }
+        super.travel(pTravelVector);
+    }
+
+        /*Despawning*/
+    @Override
+    public void checkDespawn() {
+        Entity player = this.level().getNearestPlayer(this, -1.0D);
+        if (player != null && player.distanceTo(this) < Config.SERVER.distance_to_player_until_despawn.get()){
+            super.checkDespawn();
+        }
+        else if (EntomoGeneralSaveData.GetMyiaticCount() > Config.SERVER.mob_cap.get()){
+            this.discard();
+        }
+    }
+    @Override
+    public boolean removeWhenFarAway(double pDistanceToClosestPlayer) {
+        return EntomoGeneralSaveData.GetMyiaticCount() > Config.SERVER.mob_cap.get() && getTarget() == null;
+    }
+    @Override
+    public boolean isPersistenceRequired() {
+        return EntomoGeneralSaveData.GetMyiaticCount() < Config.SERVER.mob_cap.get() || getTarget() != null;
+    }
+
+        /*Booleans*/
+    @Override
+    public boolean canBeAffected(MobEffectInstance effect) {
+        if (effect.getEffect() == MobEffects.POISON) {
+            net.minecraftforge.event.entity.living.MobEffectEvent.Applicable event = new net.minecraftforge.event.entity.living.MobEffectEvent.Applicable(this, effect);
+            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(event);
+            return event.getResult() == net.minecraftforge.eventbus.api.Event.Result.ALLOW;
+        }
+        return super.canBeAffected(effect);
+    }
+
+        /*Static variable methods*/
+    @Override
+    public @NotNull MobType getMobType() {
+        return MobType.ARTHROPOD;
+    }
+    /**/
+
+    //Helper Methods and Shorthands
+        /*Movement*/
     public boolean isChasing(){
         return getTarget() != null && this.getDeltaMovement().x != 0 || this.getDeltaMovement().z != 0;
     }
     public boolean isMoving(){
         return this.getDeltaMovement().x != 0 || this.getDeltaMovement().z != 0;
     }
-    public boolean isThereABlockUnderMe(int VerticalSearchRange){
-        BlockPos pos = blockPosition();
-        for (int i = 1; i < VerticalSearchRange + 1; i++){
-            Level world = level();
-            BlockPos newPos = new BlockPos(pos.getX(), pos.getY() - i, pos.getZ());
-            BlockState state = world.getBlockState(newPos);
-            if (!state.isAir() && state.entityCanStandOn(world.getChunkForCollisions((int)this.position().x / 16, (int)this.position().z / 16),
-            newPos, this)){
-                return true;
-            }
-        }
-        return false;
-    }
+
+    /*Positional Helpers*/
     public ArrayList<LivingEntity> getValidTargets(int searchRange){
         AABB nearby = getBoundingBox().inflate(searchRange);
         return new ArrayList<>(level().getEntitiesOfClass(LivingEntity.class, nearby, this::TestValidEntity));
@@ -268,142 +429,21 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         }
         return distance;
     }
-    /**/
-
-    //Overridden Methods
-    @Override
-    public void tick() {
-        super.tick();
-        if (getTarget() != null && getTarget().isDeadOrDying()){
-            setTarget(null);
-        }
-        setAIState(StateManager());
-    }
-    @Override
-    public boolean hurt(DamageSource pSource, float pAmount) {
-        boolean superFlag = true;
-        Entity sourceEntity = pSource.getEntity();
-        if (sourceEntity instanceof LivingEntity LEntity){
-            if (TestValidEntity(LEntity)){
-                for (MyiaticBase M : getNearbyMyiatics((int)(getAttributeValue(Attributes.FOLLOW_RANGE) * 2))){
-                    if (M.getTarget() == null || (M.getTarget() instanceof Targeting target1 && target1.getTarget() != M
-                            && getTarget() instanceof Targeting target2 && target2.getTarget() == this)){
-                        M.setTarget(LEntity);
-                    }
-                }
-                setTarget(LEntity);
+    public boolean isThereABlockUnderMe(int VerticalSearchRange){
+        BlockPos pos = blockPosition();
+        for (int i = 1; i < VerticalSearchRange + 1; i++){
+            Level world = level();
+            BlockPos newPos = new BlockPos(pos.getX(), pos.getY() - i, pos.getZ());
+            BlockState state = world.getBlockState(newPos);
+            if (!state.isAir() && state.entityCanStandOn(world.getChunkForCollisions((int)this.position().x / 16, (int)this.position().z / 16),
+                    newPos, this)){
+                return true;
             }
-            if (sourceEntity instanceof MyiaticBase){
-                superFlag = false;
-            }
-            if (this instanceof IDodgable dodgable && sourceEntity == getTarget()){
-                superFlag = !dodgable.TryToDodge(this);
-            }
-        }
-        if (superFlag){
-            return super.hurt(pSource, pAmount);
-        }
-        return false;
-    }
-    @Override
-    public boolean doHurtTarget(@Nullable Entity pEntity) {
-        if (pEntity != null){
-
-            float f = (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE);
-            float f1 = (float)this.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
-            if (pEntity instanceof LivingEntity) {
-                f += EnchantmentHelper.getDamageBonus(this.getMainHandItem(), ((LivingEntity)pEntity).getMobType());
-                f1 += (float)EnchantmentHelper.getKnockbackBonus(this);
-            }
-
-            int i = EnchantmentHelper.getFireAspect(this);
-            if (i > 0) {
-                pEntity.setSecondsOnFire(i * 4);
-            }
-
-            boolean flag = pEntity.hurt(GetDamageSource(), f);
-            if (flag) {
-                if (pEntity instanceof LivingEntity LEntity){
-                    LEntity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 1200));
-
-                    if (f1 > 0.0F) {
-                        ((LivingEntity)pEntity).knockback((f1 * 0.5F), Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), (-Mth.cos(this.getYRot() * ((float)Math.PI / 180F))));
-                        this.setDeltaMovement(this.getDeltaMovement().multiply(0.6D, 1.0D, 0.6D));
-                    }
-                }
-
-                this.doEnchantDamageEffects(this, pEntity);
-                this.setLastHurtMob(pEntity);
-            }
-
-            return flag;
-
-
         }
         return false;
     }
 
-    @Override
-    public void die(@NotNull DamageSource pDamageSource) {
-        super.die(pDamageSource);
-        if (isInSwarm()){
-            this.LeaveSwarm(false);
-        }
-    }
-
-    @Override
-    public void travel(@NotNull Vec3 pTravelVector) {
-        if (isInFluidType() && getTarget() != null){
-            double waterMoveSpeed = (getAttributeValue(Attributes.MOVEMENT_SPEED) * getWaterSlowDown()) * 0.5;
-            setDeltaMovement(getDeltaMovement().add(getDirectionToTarget()).multiply(waterMoveSpeed, waterMoveSpeed, waterMoveSpeed));
-
-            if (getTarget().getY() < getY() && getAirSupply() > getMaxAirSupply() / 4){
-                double newYSpeed = getDeltaMovement().y / 0.8;
-                setDeltaMovement(getDeltaMovement().x, newYSpeed, getDeltaMovement().y);
-            }
-            getLookControl().setLookAt(getTarget());
-            getLookControl().tick();
-        }
-        super.travel(pTravelVector);
-    }
-
-    @Override
-    public void checkDespawn() {
-        Entity player = this.level().getNearestPlayer(this, -1.0D);
-        if (player != null && player.distanceTo(this) < Config.SERVER.distance_to_player_until_despawn.get()){
-            super.checkDespawn();
-        }
-        else if (EntomoGeneralSaveData.GetMyiaticCount() > Config.SERVER.mob_cap.get()){
-            this.discard();
-        }
-    }
-    @Override
-    public boolean removeWhenFarAway(double pDistanceToClosestPlayer) {
-        return EntomoGeneralSaveData.GetMyiaticCount() > Config.SERVER.mob_cap.get() && getTarget() == null;
-    }
-    @Override
-    public boolean isPersistenceRequired() {
-        return EntomoGeneralSaveData.GetMyiaticCount() < Config.SERVER.mob_cap.get() || getTarget() != null;
-    }
-
-    @Override
-    public @NotNull MobType getMobType() {
-        return MobType.ARTHROPOD;
-    }
-
-    @Override
-    public boolean canBeAffected(MobEffectInstance effect) {
-        if (effect.getEffect() == MobEffects.POISON) {
-            net.minecraftforge.event.entity.living.MobEffectEvent.Applicable event = new net.minecraftforge.event.entity.living.MobEffectEvent.Applicable(this, effect);
-            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(event);
-            return event.getResult() == net.minecraftforge.eventbus.api.Event.Result.ALLOW;
-        }
-        return super.canBeAffected(effect);
-    }
-
-    /**/
-
-    //Better Targeting
+    /*Targeting*/
     public boolean TestValidEntity(LivingEntity e) {
         if (e instanceof LivingEntity){
             if (e instanceof Player && ((Player)e).isCreative() || e.isSpectator()){

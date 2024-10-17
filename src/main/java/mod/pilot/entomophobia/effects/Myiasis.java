@@ -4,6 +4,8 @@ import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.data.EntomoDataManager;
 import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
+import mod.pilot.entomophobia.systems.swarm.Swarm;
+import mod.pilot.entomophobia.systems.swarm.SwarmManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -101,9 +103,17 @@ public class Myiasis extends MobEffect {
         EntityType<?> EType = EntomoDataManager.GetConvertedFor(target);
 
         Entity newEntity = EType.create(target.level());
+        assert newEntity != null;
         newEntity.copyPosition(target);
         target.level().addFreshEntity(newEntity);
-        target.level().playSound(target, target.blockPosition(), SoundEvents.ZOMBIE_INFECT, SoundSource.HOSTILE, 1.0f, 1.25f);
+        target.level().playSound(null, target.blockPosition(), SoundEvents.ZOMBIE_INFECT, SoundSource.HOSTILE, 1.0f, 1.25f);
+
+        if (newEntity instanceof MyiaticBase M && M.canSwarm()){
+            Swarm closest = SwarmManager.getClosestSwarm(M.position());
+            if (closest != null) {
+                M.TryToRecruit(closest);
+            }
+        }
 
         RotMashmap.remove(target);
         target.remove(Entity.RemovalReason.DISCARDED);

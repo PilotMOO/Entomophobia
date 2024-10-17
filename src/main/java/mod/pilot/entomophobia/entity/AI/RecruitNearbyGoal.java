@@ -8,12 +8,10 @@ import net.minecraft.world.entity.ai.goal.Goal;
 
 public class RecruitNearbyGoal extends Goal implements ISwarmOrder {
     private final MyiaticBase parent;
-    private final MyiaticBase captain;
     private final int Priority;
     private final int TickFrequency;
-    public RecruitNearbyGoal(MyiaticBase parent, MyiaticBase captain, int tickFrequency, int priority){
+    public RecruitNearbyGoal(MyiaticBase parent, int tickFrequency, int priority){
         this.parent = parent;
-        this.captain = captain;
         this.TickFrequency = tickFrequency;
         this.Priority = priority;
     }
@@ -43,24 +41,12 @@ public class RecruitNearbyGoal extends Goal implements ISwarmOrder {
 
     @Override
     public Goal Relay(MyiaticBase M) {
-        return new RecruitNearbyGoal(M, getCaptain(), TickFrequency, getPriority());
+        return new RecruitNearbyGoal(M, TickFrequency, getPriority());
     }
-
-    @Override
-    public Goal ReplaceCaptain(MyiaticBase toReplace) {
-        return new RecruitNearbyGoal(toReplace, toReplace, TickFrequency, getPriority());
-    }
-
     @Override
     public MyiaticBase getParent() {
         return parent;
     }
-
-    @Override
-    public MyiaticBase getCaptain() {
-        return captain;
-    }
-
     @Override
     public int getPriority() {
         return Priority;

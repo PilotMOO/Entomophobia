@@ -135,7 +135,7 @@ public class Config
             builder.pop();
 
             builder.push("Swarm Configuration");
-            this.base_swarm_max_members = builder.defineInRange("Maximum amount of members inside of a base swarm", 40, 1, Integer.MAX_VALUE);
+            this.base_swarm_max_members = builder.defineInRange("Maximum amount of members inside of a base swarm", 20, 1, Integer.MAX_VALUE);
             builder.pop();
 
             builder.push("Pheromone values");

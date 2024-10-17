@@ -9,14 +9,12 @@ import net.minecraft.world.level.Level;
 
 public class FollowCaptainGoal extends Goal implements ISwarmOrder {
     final MyiaticBase parent;
-    final MyiaticBase captain;
     public double MinDistance;
     public double MaxDistance;
     public int Priority;
 
-    public FollowCaptainGoal(MyiaticBase parent, MyiaticBase captain, double minDistance, double maxDistance, int priority){
+    public FollowCaptainGoal(MyiaticBase parent, double minDistance, double maxDistance, int priority){
         this.parent = parent;
-        this.captain = captain;
         MinDistance = minDistance;
         MaxDistance = maxDistance;
         Priority = priority;
@@ -25,24 +23,25 @@ public class FollowCaptainGoal extends Goal implements ISwarmOrder {
     @Override
     public boolean canUse() {
         Swarm swarm = parent.getSwarm();
-        return swarm != null && !swarm.isDisbanded() && !swarm.isFinished() && !parent.amITheCaptain();
+        return swarm != null && !swarm.isDisbanded() && swarm.getCaptain() != null && !swarm.isFinished() && !parent.amITheCaptain();
     }
 
     @Override
     public boolean requiresUpdateEveryTick() {
-        return parent.distanceTo(captain) > MaxDistance / 2;
+        if (getCaptain() == null) return false;
+        return parent.distanceTo(getCaptain()) > MaxDistance / 2;
     }
 
     @Override
     public void tick() {
         if (parent.tickCount % 60 == 0){
-            double distance = parent.distanceTo(captain);
+            double distance = parent.distanceTo(getCaptain());
             if (distance > MinDistance){
                 if (distance > MaxDistance){
                     stop();
                     return;
                 }
-                parent.getNavigation().moveTo(captain, 1);
+                parent.getNavigation().moveTo(getCaptain(), 1);
             }
         }
     }
@@ -54,23 +53,13 @@ public class FollowCaptainGoal extends Goal implements ISwarmOrder {
 
     @Override
     public Goal Relay(MyiaticBase M) {
-        return new FollowCaptainGoal(M, getCaptain(), MinDistance, MaxDistance, Priority);
-    }
-
-    @Override
-    public Goal ReplaceCaptain(MyiaticBase toReplace) {
-        return new FollowCaptainGoal(toReplace, toReplace, MinDistance, MaxDistance, Priority);
+        return new FollowCaptainGoal(M, MinDistance, MaxDistance, Priority);
     }
 
     @Override
     public MyiaticBase getParent() {
         return parent;
     }
-    @Override
-    public MyiaticBase getCaptain() {
-        return captain;
-    }
-
     @Override
     public int getPriority() {
         return Priority;

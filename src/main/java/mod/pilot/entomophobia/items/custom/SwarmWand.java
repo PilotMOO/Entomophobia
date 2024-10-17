@@ -46,7 +46,7 @@ public class SwarmWand extends Item {
                     }
                 }
                 else{
-                    SwarmManager.CreateSwarm(getCurrentType(), M, null, SwarmManager.getBaseSwarmMaxSize());
+                    SwarmManager.CreateSwarm(getCurrentType(), M, SwarmManager.getBaseSwarmMaxSize());
                     server.playSound(null, M.blockPosition(), SoundEvents.BELL_BLOCK, SoundSource.PLAYERS, 1.0f, 1.0f);
                     Vec3 pos = M.position();
                     server.getNearestPlayer(pos.x, pos.y, pos.z, -1, false)
