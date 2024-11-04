@@ -57,6 +57,7 @@ public class CaptainCommandGoal extends Goal implements ISwarmOrder {
                 }
             }
             else if (captain.getTarget() != null && captain.position().distanceTo(swarm.getSwarmPosition()) < 64){
+                System.out.println("Trying to get closer to " + swarm);
                 captain.getNavigation().moveTo(swarm.getCaptain(), 1);
                 getClose = true;
                 break;
@@ -64,7 +65,7 @@ public class CaptainCommandGoal extends Goal implements ISwarmOrder {
         }
     }
     protected boolean ValidSwarmForMerge(Swarm swarm){
-        return swarm != captain.getSwarm() && !swarm.isDisbanded() && swarm.getSwarmType() == captain.getSwarm().getSwarmType() && swarm.canMergeWith(captain.getSwarm());
+        return swarm != captain.getSwarm() && !swarm.isDisbanded() && captain.getSwarm() != null && swarm.getSwarmType() == captain.getSwarm().getSwarmType() && swarm.canMergeWith(captain.getSwarm());
     }
 
     @Override

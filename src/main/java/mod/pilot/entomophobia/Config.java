@@ -96,8 +96,8 @@ public class Config
                     Lists.newArrayList(
                         "minecraft:mud"
                     ), o -> o instanceof String);
-            this.nest_tick_frequency = builder.defineInRange("The frequency at which nests tick (lower = faster, 1 is every tick, 2 is every other, etc)", 60, 1, Integer.MAX_VALUE);
-            this.nest_build_speed = builder.defineInRange("The rate at which the nests build per build tick (Supports decimals but any decimal position higher than point 5 will be rounded up)", 2.5, 0, Double.MAX_VALUE);
+            this.nest_tick_frequency = builder.defineInRange("The frequency at which nests tick (lower = faster, 1 is every tick, 2 is every other, etc)", 100, 1, Integer.MAX_VALUE);
+            this.nest_build_speed = builder.defineInRange("The rate at which the nests build per build tick (Supports decimals but any decimal position higher than point 5 will be rounded up)", 20, 0, Double.MAX_VALUE);
             this.nest_max_hardness = builder.defineInRange("Maximum hardness of blocks that the nest can replace while building", 5, 0, Integer.MAX_VALUE);
 
             this.small_chamber_min_size = builder.defineInRange("Minimum radius size for small chambers", 7, 0, Integer.MAX_VALUE);
@@ -112,7 +112,7 @@ public class Config
             this.large_chamber_max_size = builder.defineInRange("Maximum radius size for large chambers", 12, 0, Integer.MAX_VALUE);
             this.large_chamber_thickness = builder.defineInRange("Thickness of the walls for large chambers", 3, 1, Integer.MAX_VALUE);
 
-            this.max_nest_layers = builder.defineInRange("The maximum amount of offshoots a given branch of a nest can generate", 3, 1, Integer.MAX_VALUE);
+            this.max_nest_layers = builder.defineInRange("The maximum amount of layers a given branch of a nest can generate", 2, 1, Integer.MAX_VALUE);
 
             this.small_corridor_min_size = builder.defineInRange("Minimum radius size for small corridors", 9, 0, Integer.MAX_VALUE);
             this.small_corridor_max_size = builder.defineInRange("Maximum radius size for small corridors", 10, 0, Integer.MAX_VALUE);
@@ -131,7 +131,7 @@ public class Config
             this.max_corridor_extension = builder.defineInRange("Max amount of corridor extensions one corridor can have", 3, 1, Integer.MAX_VALUE);
             this.corridor_extension_chance = builder.defineInRange("Chance for a corridor to get an extension", 0.4, 0, 1);
 
-            this.nest_y_build_priority = builder.defineInRange("The Y level at which nests will prioritize building up or down if below or above, respectfully", 40, -64, 320);
+            this.nest_y_build_priority = builder.defineInRange("The Y level at which nests will prioritize building up or down if below or above, respectfully", 0, -64, 320);
             builder.pop();
 
             builder.push("Swarm Configuration");

@@ -146,6 +146,7 @@ public class NestSaveData extends SavedData {
             if (toPack instanceof Nest.Chamber chamber){
                 tag.putInt(builder.append("size").toString(), chamber.radius); builder.setLength(ID.length());
                 tag.putInt(builder.append("thickness").toString(), chamber.thickness); builder.setLength(ID.length());
+                tag.putBoolean(builder.append("main").toString(), chamber.isMainChamber()); builder.setLength(ID.length());
             }
             if (toPack instanceof Nest.Corridor corridor){
                 Vec3 end = corridor.end;
@@ -156,6 +157,8 @@ public class NestSaveData extends SavedData {
                 tag.putDouble(builder.append("x2").toString(), end.x); builder.setLength(ID.length());
                 tag.putDouble(builder.append("y2").toString(), end.y); builder.setLength(ID.length());
                 tag.putDouble(builder.append("z2").toString(), end.z); builder.setLength(ID.length());
+
+                tag.putBoolean(builder.append("entrance").toString(), corridor.isEntrance()); builder.setLength(ID.length());
             }
 
             System.out.println("Packed up an offshoot with I.D. " + ID);
@@ -211,7 +214,8 @@ public class NestSaveData extends SavedData {
             switch (type){
                 case 1 ->{
                     System.out.println("Unpacking a Chamber with I.D. " + ID);
-                    toReturn = Nest.Chamber.ConstructFromBlueprint(getServer(), parent, pos, size, thickness, deadEnd, state);
+                    boolean isMain = tag.getBoolean(builder.append("main").toString()); builder.setLength(ID.length());
+                    toReturn = Nest.Chamber.ConstructFromBlueprint(getServer(), parent, pos, size, thickness, deadEnd, state, isMain);
                 }
                 case 2 ->{
                     double x2 = tag.getDouble(builder.append("x2").toString()); builder.setLength(ID.length());
@@ -219,11 +223,13 @@ public class NestSaveData extends SavedData {
                     double z2 = tag.getDouble(builder.append("z2").toString()); builder.setLength(ID.length());
                     Vec3 end = new Vec3(x2, y2, z2);
 
+                    boolean entrance = tag.getBoolean(builder.append("entrance").toString()); builder.setLength(ID.length());
+
                     if (parent == null){
                         throw new RuntimeException("Can't unpack Corridor " + ID + " because assigned parent is null!");
                     }
                     System.out.println("Unpacking a Corridor with I.D. " + ID);
-                    toReturn = Nest.Corridor.ConstructFromBlueprint(getServer(), parent, pos, end, size, thickness, deadEnd, state);
+                    toReturn = Nest.Corridor.ConstructFromBlueprint(getServer(), parent, pos, end, size, thickness, deadEnd, state, entrance);
                 }
                 default -> {
                     System.out.println("Type did not match up, returning null...");

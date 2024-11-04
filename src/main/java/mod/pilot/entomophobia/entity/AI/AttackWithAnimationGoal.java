@@ -5,6 +5,7 @@ import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import org.jetbrains.annotations.NotNull;
 
 public class AttackWithAnimationGoal extends MeleeAttackGoal {
     final int AnimLength;
@@ -29,7 +30,7 @@ public class AttackWithAnimationGoal extends MeleeAttackGoal {
     }
 
     @Override
-    protected void checkAndPerformAttack(LivingEntity pEnemy, double pDistToEnemySqr) {
+    protected void checkAndPerformAttack(@NotNull LivingEntity pEnemy, double pDistToEnemySqr) {
 
     }
 

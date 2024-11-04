@@ -49,7 +49,7 @@ public class TunnelGenerator extends HollowWeightedCircleLineGenerator{
         GhostLinePositions = new ArrayList<>(ghostPositions);
         GhostLineSnapshot = new ArrayList<>(ghostPositions);
     }
-    public void AddToGhostSpheres(ArrayList<BlockPos> toAdd){
+    public void addToGhostSpheres(ArrayList<BlockPos> toAdd){
         if (this.toAdd == null){
             this.toAdd = new ArrayList<>();
         }

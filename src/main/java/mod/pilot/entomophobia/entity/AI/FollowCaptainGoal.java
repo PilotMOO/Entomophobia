@@ -35,13 +35,15 @@ public class FollowCaptainGoal extends Goal implements ISwarmOrder {
     @Override
     public void tick() {
         if (parent.tickCount % 60 == 0){
-            double distance = parent.distanceTo(getCaptain());
+            MyiaticBase captain = getCaptain();
+            if (captain == null) return;
+            double distance = parent.distanceTo(captain);
             if (distance > MinDistance){
                 if (distance > MaxDistance){
                     stop();
                     return;
                 }
-                parent.getNavigation().moveTo(getCaptain(), 1);
+                parent.getNavigation().moveTo(captain, 1);
             }
         }
     }

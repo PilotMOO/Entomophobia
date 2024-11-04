@@ -20,6 +20,8 @@ public class NestManager {
         dead
     }
 
+    private static final RandomSource random = RandomSource.create();
+
     private static final ArrayList<Nest> ActiveNests = new ArrayList<>();
     public static void addToActiveNests(Nest toAdd){
         ActiveNests.add(toAdd);
@@ -63,6 +65,13 @@ public class NestManager {
             if (nest.Dead()) continue;
             nest.Enable();
         }
+    }
+
+    public static Vec3 getNewNestPosition(Vec3 start, int offsetScale, boolean YOnly){
+        int xOffset = YOnly ? 0 : random.nextIntBetweenInclusive(-offsetScale, offsetScale);
+        int yOffset = random.nextIntBetweenInclusive(-offsetScale, offsetScale);
+        int zOffset = YOnly ? 0 : random.nextIntBetweenInclusive(-offsetScale, offsetScale);
+        return new Vec3(start.x + xOffset, getNestYBuildPriority() + yOffset, start.z + zOffset);
     }
 
     public static void setNestConstructionDetails(){

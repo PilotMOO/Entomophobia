@@ -10,7 +10,10 @@ import mod.pilot.entomophobia.systems.PolyForged.Shapes.TunnelGenerator;
 import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -35,7 +38,7 @@ public class Nest {
         MainChamber = mainChamber;
     }
     public static Nest ConstructFromBlueprint(ServerLevel server, Vec3 start, byte state, int tickFrequency, Chamber mainChamber){
-        return new Nest(server, start, state, tickFrequency, mainChamber);
+        return new Nest(server, start, state, tickFrequency, mainChamber.DenoteAsMain());
     }
 
     public ServerLevel server;
@@ -83,7 +86,7 @@ public class Nest {
     public final Chamber MainChamber;
     private Chamber CreateMainChamber(){
         return new Chamber(server, null, origin,
-                Config.SERVER.large_chamber_max_size.get(), Config.SERVER.large_chamber_thickness.get());
+                Config.SERVER.large_chamber_max_size.get(), Config.SERVER.large_chamber_thickness.get()).DenoteAsMain();
     }
 
     public Offshoot CreateNewOffshootFrom(Offshoot parent, byte newShootType){
@@ -128,6 +131,12 @@ public class Nest {
 
         public boolean DeadEnd;
         public int MaxChildCount = 0;
+        public int getMaxChildCount(){
+            if (this instanceof Chamber c && c.isMainChamber()){
+                return MaxChildCount + 1;
+            }
+            return MaxChildCount;
+        }
         public int LayersDeep(){
             int layers = 0;
             Offshoot currentParent = this;
@@ -144,20 +153,18 @@ public class Nest {
             if (this instanceof Corridor) return children == null;
 
             if (parent == null){
-                return (children == null || children.size() < MaxChildCount) && !AreAnyOfMyChildrenAlive();
+                return (children == null || children.size() < getMaxChildCount()) && !AreAnyOfMyChildrenAlive();
             }
 
             if (children == null) return true;
-
-            else if (random.nextIntBetweenInclusive(0, 10) / 10 < 1){
+            else{
                 if (LayersDeep() > NestManager.getNestMaxLayers()){
                     return false;
                 }
                 else{
-                    return children.size() < MaxChildCount;
+                    return children.size() < getMaxChildCount();
                 }
             }
-            return false;
         }
 
         public Vec3 getPosition(){
@@ -254,8 +261,48 @@ public class Nest {
         protected final void setGenerator(ShapeGenerator newGenerator){
             generator = newGenerator;
         }
+        protected ArrayList<ArrayList<BlockPos>> QueuedGhostPositions;
+        public void addToQueuedGhostPositions(ArrayList<ArrayList<BlockPos>> ghostsLists){
+            if (QueuedGhostPositions == null) QueuedGhostPositions = new ArrayList<>();
+            QueuedGhostPositions.addAll(ghostsLists);
+        }
+        public void addToQueuedGhostPosition(ArrayList<BlockPos> ghost){
+            if (QueuedGhostPositions == null) QueuedGhostPositions = new ArrayList<>();
+            QueuedGhostPositions.add(ghost);
+        }
+        public ArrayList<ArrayList<BlockPos>> getQueuedGhostPositions(){
+            if (QueuedGhostPositions == null) QueuedGhostPositions = new ArrayList<>();
+            return new ArrayList<>(QueuedGhostPositions);
+        }
+        public void removeQueuedGhosts(ArrayList<ArrayList<BlockPos>> toRemove){
+            if (QueuedGhostPositions == null) {
+                QueuedGhostPositions = new ArrayList<>();
+                return;
+            }
+            QueuedGhostPositions.removeAll(toRemove);
+        }
+        protected void RegisterAllGhosts(){
+            if (getGenerator() == null || QueuedGhostPositions == null || QueuedGhostPositions.size() == 0) return;
+            ArrayList<ArrayList<BlockPos>> toRemove = new ArrayList<>();
+
+            if (getGenerator() instanceof ChamberGenerator C){
+                for (ArrayList<BlockPos> ghost : getQueuedGhostPositions()){
+                    C.addToGhostSpheres(ghost);
+                    toRemove.add(ghost);
+                }
+            }
+            else if (getGenerator() instanceof TunnelGenerator T){
+                for (ArrayList<BlockPos> ghost : getQueuedGhostPositions()){
+                    T.addToGhostSpheres(ghost);
+                    toRemove.add(ghost);
+                }
+            }
+            removeQueuedGhosts(toRemove);
+        }
         public final void TickGenerator(){
+            RegisterAllGhosts();
             generator.Build();
+            if (generator.isOfState(WorldShapeManager.GeneratorStates.done)) Finish();
         }
         protected boolean ShouldGeneratorTick(){
             return OffshootState == 1 && generator != null && generator.isActive();
@@ -310,66 +357,106 @@ public class Nest {
         private static final byte OffshootType = 1;
         public Chamber(ServerLevel server, @org.jetbrains.annotations.Nullable Nest.Offshoot parent, Vec3 pos, int radius, int thickness) {
             super(server, OffshootType, parent, pos);
-            ConstructGenerator(server, getPosition(), radius, thickness);
             super.MaxChildCount = 2;
             this.radius = radius;
             this.thickness = thickness;
-        }
-        private Chamber(ServerLevel server, @org.jetbrains.annotations.Nullable Nest.Offshoot parent, Vec3 pos, int radius, int thickness, boolean deadEnd, byte state) {
-            super(server, OffshootType, parent, pos, state, deadEnd);
             ConstructGenerator(server, getPosition(), radius, thickness);
-            super.MaxChildCount = 2;
-            this.radius = radius;
-            this.thickness = thickness;
         }
         protected void ConstructGenerator(ServerLevel server, Vec3 pos, int radius, int thickness) {
             ChamberGenerator generator = WorldShapeManager.CreateChamber(server, NestManager.getNestBuildSpeed(), NestManager.getNestBlocks(), pos, NestManager.getNestMaxHardness(), radius, thickness, 0.5, true);
-            setGenerator(generator);
             if (parent != null && parent instanceof Corridor corridor && corridor.getGenerator() instanceof TunnelGenerator tunnel){
                 for (ArrayList<BlockPos> ghost : tunnel.getGhostLineSpheres((radius + thickness) * 2, true)){
-                    generator.AddToGhostSpheres(ghost);
+                    addToQueuedGhostPosition(ghost);
                 }
             }
+
+            setGenerator(generator);
+            RegisterAllGhosts();
         }
-        public static Chamber ConstructFromBlueprint(ServerLevel server, @Nullable Offshoot parent, Vec3 pos, int radius, int thickness, boolean deadEnd, byte state){
+
+        //Blueprint Construction, for use in unpacking
+        public static Chamber ConstructFromBlueprint(ServerLevel server, @Nullable Offshoot parent, Vec3 pos, int radius, int thickness, boolean deadEnd, byte state, boolean main){
             Chamber chamber = new Chamber(server, parent, pos, radius, thickness, deadEnd, state);
+            if (main){
+                chamber.DenoteAsMain();
+            }
             if (parent != null){
                 parent.AddToChildren(chamber);
             }
             return chamber;
         }
+        //Private constructor for use in blueprint unpacking
+        private Chamber(ServerLevel server, @org.jetbrains.annotations.Nullable Nest.Offshoot parent, Vec3 pos, int radius, int thickness, boolean deadEnd, byte state) {
+            super(server, OffshootType, parent, pos, state, deadEnd);
+            super.MaxChildCount = 2;
+            this.radius = radius;
+            this.thickness = thickness;
+            ConstructGenerator(server, getPosition(), radius, thickness);
+        }
+
 
         public final int radius;
         public final int thickness;
+        private boolean MainChamber = false;
+        public boolean isMainChamber(){
+            return MainChamber;
+        }
+        private Chamber DenoteAsMain(){
+            MainChamber = true;
+            return this;
+        }
 
         @Override
         public void OffshootTick(boolean tickChildren, boolean continuous, int layers) {
-            if (ShouldGeneratorTick()){
-            TickGenerator();
-        }
-            if (tickChildren && children != null){
-            for (Offshoot child : children) {
-                child.OffshootTick(continuous, layers != 0, layers - 1);
-            }
-        }
-            if (getGenerator() != null && getGenerator().isOfState(WorldShapeManager.GeneratorStates.done) && !AreAnyOfMyChildrenAlive()){
-            if (ShouldThisBecomeAParent()){
-                ConstructNewChild((byte)2);
-            }
-        }
-    }
+            super.OffshootTick(tickChildren, continuous, layers);
 
-    @Override
+            if (getGenerator() != null && getGenerator().isOfState(WorldShapeManager.GeneratorStates.done)
+                    && getOffshootState() == 2 && !AreAnyOfMyChildrenAlive()){
+                if (ShouldThisBecomeAParent()){
+                    if (isMainChamber()){
+                        boolean noEntrance = true;
+                        if (children != null){
+                            for (Offshoot O : children){
+                                if (O instanceof Corridor c && c.isEntrance()){
+                                    noEntrance = false;
+                                }
+                            }
+                        }
+                        if (noEntrance){
+                            Corridor C;
+                            switch (random.nextIntBetweenInclusive(1, 3)){
+                                default -> C = new Corridor(server, this, getOffshootPosition(),
+                                        NestManager.getRandomSmallCorridorRadius(random),
+                                        NestManager.getNestSmallCorridorThickness(), true);
+                                case 2 -> C = new Corridor(server, this, getOffshootPosition(),
+                                        NestManager.getRandomMediumCorridorRadius(random),
+                                        NestManager.getNestMediumCorridorThickness(), true);
+                                case 3 -> C = new Corridor(server, this, getOffshootPosition(),
+                                        NestManager.getRandomLargeCorridorRadius(random),
+                                        NestManager.getNestLargeCorridorThickness(), true);
+                            }
+                            AddToChildren(C);
+                            return;
+                        }
+                    }
+
+                    ConstructNewChild((byte)2);
+                }
+            }
+        }
+
+        @Override
         protected Vec3 getOffshootPosition() {
             HollowSphereGenerator sphereGenerator = (HollowSphereGenerator)generator;
             Vec3 direction;
-            Vec3 toReturn = null;
+            Vec3 toReturn;
             int cycleCounter = 0;
-            while ((toReturn == null || !TestOffshootPosition(toReturn)) && cycleCounter < 10){
+            do{
                 direction = getPosition().yRot(random.nextInt(-20, 20)).xRot(random.nextInt(-180, 180)).zRot(random.nextInt(-180, 180)).normalize();
                 toReturn = getPosition().add(direction.scale(sphereGenerator.radius - sphereGenerator.thickness));
                 cycleCounter++;
             }
+            while (!TestOffshootPosition(toReturn) && cycleCounter < 10);
             if (TestOffshootPosition(toReturn)) return toReturn;
             else {
                 DeadEnd = true;
@@ -401,65 +488,95 @@ public class Nest {
         private static final byte OffshootType = 2;
         public Corridor(ServerLevel server, @Nonnull Nest.Offshoot parent, Vec3 position, int weight, int thickness) {
             super(server, OffshootType, parent, position);
-            ConstructGenerator(weight, thickness);
             super.MaxChildCount = 1;
             this.weight = weight;
             this.thickness = thickness;
+            ConstructGenerator(weight, thickness);
+        }
+        private Corridor(ServerLevel server, @Nonnull Nest.Offshoot parent, Vec3 position, int weight, int thickness, boolean isEntrance) {
+            super(server, OffshootType, parent, position);
+            if (isEntrance) this.denoteAsEntrance();
+            super.MaxChildCount = 1;
+            this.weight = weight;
+            this.thickness = thickness;
+            ConstructGenerator(weight, thickness);
         }
         protected void ConstructGenerator(int weight, int thickness){
-            TunnelGenerator tunnel = WorldShapeManager.CreateTunnel(server, NestManager.getNestBuildSpeed(), NestManager.getNestBlocks(), NestManager.getNestMaxHardness(), getPosition(), GenerateEndPosition(), weight, thickness);
+            TunnelGenerator tunnel = WorldShapeManager.CreateTunnel(server, NestManager.getNestBuildSpeed(), NestManager.getNestBlocks(),
+                    NestManager.getNestMaxHardness(), getPosition(), GenerateEndPosition(),
+                    weight, thickness);
+
             if (parent.getGenerator() instanceof ChamberGenerator chamber){
-                tunnel.AddToGhostSpheres(chamber.GenerateInternalGhostSphere());
+                addToQueuedGhostPosition(chamber.GenerateInternalGhostSphere());
                 if (parent.parent instanceof Corridor parentCorridor && parentCorridor.getGenerator() instanceof TunnelGenerator parentTunnel){
                     for (ArrayList<BlockPos> ghost : parentTunnel.getGhostLineSpheres(weight, true)){
-                        tunnel.AddToGhostSpheres(ghost);
+                        addToQueuedGhostPosition(ghost);
                     }
                 }
             }
             else if (parent.getGenerator() instanceof TunnelGenerator parentTunnel){
                 for (ArrayList<BlockPos> ghost : parentTunnel.getGhostLineSpheres(weight, true)){
-                    tunnel.AddToGhostSpheres(ghost);
+                    addToQueuedGhostPosition(ghost);
                 }
             }
+
             setGenerator(tunnel);
+            RegisterAllGhosts();
         }
 
-        public static Corridor ConstructFromBlueprint(ServerLevel server, @Nonnull Offshoot parent, Vec3 position, Vec3 end, int weight, int thickness, boolean deadEnd, byte state){
-            Corridor corridor = new Corridor(server, parent, position, end, weight, thickness, deadEnd, state);
+        //Blueprint Construction, for use in unpacking
+        public static Corridor ConstructFromBlueprint(ServerLevel server, @Nonnull Offshoot parent, Vec3 position, Vec3 end, int weight, int thickness, boolean deadEnd, byte state, boolean entrance){
+            Corridor corridor = new Corridor(server, parent, position, end, weight, thickness, deadEnd, state, entrance);
             parent.AddToChildren(corridor);
             return corridor;
         }
-        private Corridor(ServerLevel server, @Nonnull Nest.Offshoot parent, Vec3 position, Vec3 end, int weight, int thickness, boolean deadEnd, byte state) {
+        private Corridor(ServerLevel server, @Nonnull Nest.Offshoot parent, Vec3 position, Vec3 end, int weight, int thickness, boolean deadEnd, byte state, boolean isEntrance) {
             super(server, OffshootType, parent, position, state, deadEnd);
-            ConstructGenerator(weight, thickness, end);
+            if (isEntrance) denoteAsEntrance();
             super.MaxChildCount = 1;
             this.weight = weight;
             this.thickness = thickness;
             this.end = end;
+            ConstructGeneratorFromBlueprint(weight, thickness, end);
         }
-        private void ConstructGenerator(int weight, int thickness, Vec3 end){
-            TunnelGenerator tunnel = WorldShapeManager.CreateTunnel(server, NestManager.getNestBuildSpeed(), NestManager.getNestBlocks(), NestManager.getNestMaxHardness(), getPosition(), end, weight, thickness);
+        private void ConstructGeneratorFromBlueprint(int weight, int thickness, Vec3 end){
+            TunnelGenerator tunnel = WorldShapeManager.CreateTunnel(server, NestManager.getNestBuildSpeed(), NestManager.getNestBlocks(),
+                    NestManager.getNestMaxHardness(), getPosition(), end,
+                    weight, thickness);
+
             if (parent.getGenerator() instanceof ChamberGenerator chamber){
-                tunnel.AddToGhostSpheres(chamber.GenerateInternalGhostSphere());
+                addToQueuedGhostPosition(chamber.GenerateInternalGhostSphere());
                 if (parent.parent instanceof Corridor parentCorridor && parentCorridor.getGenerator() instanceof TunnelGenerator parentTunnel){
                     for (ArrayList<BlockPos> ghost : parentTunnel.getGhostLineSpheres(weight, true)){
-                        tunnel.AddToGhostSpheres(ghost);
+                        addToQueuedGhostPosition(ghost);
                     }
                 }
             }
             else if (parent.getGenerator() instanceof TunnelGenerator parentTunnel){
                 for (ArrayList<BlockPos> ghost : parentTunnel.getGhostLineSpheres(weight, true)){
-                    tunnel.AddToGhostSpheres(ghost);
+                    addToQueuedGhostPosition(ghost);
                 }
             }
+
+            if (getOffshootState() == 1 && isEntrance() && DeadEnd){
+                addToQueuedGhostPosition(GenerateSurfaceGhost(end));
+            }
+
             setGenerator(tunnel);
+            RegisterAllGhosts();
         }
 
+        private boolean entrance = false;
+        public boolean isEntrance(){
+            return entrance;
+        }
+        public void denoteAsEntrance(){
+            entrance = true;
+        }
 
         public final int weight;
         public final int thickness;
 
-        public static final int maxCorridorExtensionCount = Config.SERVER.max_corridor_extension.get();
         public int getAmountOfExtensions(){
             int toReturn = 0;
             Corridor currentCorridor = this;
@@ -477,51 +594,104 @@ public class Nest {
             return toReturn;
         }
         public boolean ShouldGetExtension(){
-            return (maxCorridorExtensionCount > getAmountOfExtensions() && (double)random.nextIntBetweenInclusive(0, 10) / 10 < NestManager.getNestCorridorExtensionChance() && children == null);
+            return (NestManager.getNestMaxCorridorExtensions() > getAmountOfExtensions()
+                    && random.nextDouble() < NestManager.getNestCorridorExtensionChance()
+                    && children == null) || (isEntrance() && !DeadEnd);
         }
 
         public Vec3 end;
         private Vec3 GenerateEndPosition(){
-            Vec3 toReturn = null;
+            Vec3 toReturn;
 
             int cycleCounter = 0;
-            while ((toReturn == null || IsThisEndPositionInvalid(toReturn)) && cycleCounter < 10){
-                toReturn = getPosition().add(EntomoDataManager.GetDirectionToAFromB(getPosition(), getComparePosition())
-                        .yRot(random.nextIntBetweenInclusive(-25, 25))
-                        .xRot(random.nextIntBetweenInclusive(0, 25))
-                        .zRot(random.nextIntBetweenInclusive(0, 25))
-                        .multiply(1, position.y > NestManager.getNestYBuildPriority() ? -1 : 1, 1)
-                        .scale(NestManager.getRandomCorridorLength(random)));
-                cycleCounter++;
+            if (isEntrance()){
+                Vec3 surface = findSurface(getPosition());
+                do{
+                    Vec3 direction = EntomoDataManager.GetDirectionToAFromB(surface, getPosition())
+                            .yRot(random.nextIntBetweenInclusive(-180, 180))
+                            .xRot(random.nextIntBetweenInclusive(-45, 45))
+                            .zRot(random.nextIntBetweenInclusive(-45, 45))
+                            .normalize();
+                    direction = direction.multiply(1,
+                            direction.y < 0 ? getPosition().y < surface.y ? -1 : 1
+                                    : getPosition().y > surface.y ? -1 : 1, 1);
+                    toReturn = getPosition().add(direction.scale((double)NestManager.getRandomCorridorLength(random) / 2));
+                    Vec3 surfaceFromReturn = findSurface(toReturn);
+                    if (toReturn.y > surfaceFromReturn.y) {
+                        toReturn = toReturn.multiply(1, 0, 1).add(0, surfaceFromReturn.y, 0);
+                    }
+                    cycleCounter++;
+                }
+                while (IsThisEndPositionInvalid(toReturn) && cycleCounter < 10);
+                if (toReturn.y >= surface.y) {
+                    DeadEnd = true;
+                    addToQueuedGhostPosition(GenerateSurfaceGhost(toReturn));
+                }
+            }
+            else{
+                do{
+                    Vec3 direction = EntomoDataManager.GetDirectionToAFromB(getPosition(), getComparePosition())
+                            .yRot(random.nextIntBetweenInclusive(-25, 25))
+                            .xRot(random.nextIntBetweenInclusive(0, 25))
+                            .zRot(random.nextIntBetweenInclusive(0, 25))
+                            .normalize();
+                    direction = direction.multiply(1,
+                            getPosition().y > NestManager.getNestYBuildPriority() ? direction.y > 0 ? -1 : 1 :
+                                    direction.y < 0 ? -1 : 1, 1);
+                    toReturn = getPosition().add(direction.scale(NestManager.getRandomCorridorLength(random)));
+                    cycleCounter++;
+                }
+                while (IsThisEndPositionInvalid(toReturn) && cycleCounter < 10);
             }
             if (IsThisEndPositionInvalid(toReturn)){
                 this.Kill(false);
             }
+            NestSaveData.Dirty();
             return end = toReturn;
         }
         private boolean IsThisEndPositionInvalid(Vec3 toTest){
-            boolean flag = false;
-            for (int x = -weight * 2; x < weight * 2; x++){
-                for (int y = -weight * 2; y < weight * 2; y++){
-                    for (int z = -weight * 2; z < weight * 2; z++){
+            Vec3 start = getStartDirect();
+            Vec3 direction = EntomoDataManager.GetDirectionFromAToB(start, toTest);
+            int thicknessScale = 0;
+            if (parent instanceof Chamber c){
+                thicknessScale = c.radius + c.thickness;
+            }
+            if (parent instanceof Corridor c){
+                thicknessScale = c.weight + c.thickness;
+            }
+            if (!isEntrance()){
+                start = start.add(direction.scale(thicknessScale));
+                int distance = (int)start.distanceTo(toTest);
+                for (int i = 0; i < distance; i++){
+                    Vec3 buildPos = i == 0 ? start : start.add(direction.scale(i));
+                    BlockPos bPos = new BlockPos((int)buildPos.x - 1, (int)buildPos.y - 1, (int)buildPos.z - 1);
+                    BlockState bState = server.getBlockState(bPos);
+                    for (BlockState placementBlocks : NestManager.getNestBlocks()){
+                        if (bState.getBlock().defaultBlockState() == placementBlocks){
+                            return true;
+                        }
+                    }
+                }
+            }
+
+
+            int checkSize = isEntrance() ? NestManager.getNestLargeCorridorMaxRadius() : NestManager.getNestLargeChamberMaxRadius();
+            for (int x = -checkSize / 2; x < checkSize / 2; x++){
+                for (int y = -checkSize / 2; y < checkSize / 2; y++){
+                    for (int z = -checkSize / 2; z < checkSize / 2; z++){
                         BlockState bState = server.getBlockState(new BlockPos((int)toTest.x + x, (int)toTest.y + y, (int)toTest.z + z));
                         for (BlockState placementBlocks : NestManager.getNestBlocks()){
                             if (bState.getBlock().defaultBlockState() == placementBlocks){
-                                flag = true;
-                                break;
+                                return true;
                             }
                         }
                     }
-                    if (flag) break;
                 }
-                if (flag) break;
             }
             Vec3 pos = getPosition();
             Vec3 midpoint = new Vec3((pos.x + toTest.x) / 2, (pos.y + toTest.y) / 2, (pos.y + toTest.y) / 2);
-            if (midpoint.distanceTo(parent.getPosition()) < pos.distanceTo(parent.getPosition())){
-                flag = true;
-            }
-            return flag;
+            if (parent == null) return false;
+            return midpoint.distanceTo(parent.getPosition()) < pos.distanceTo(parent.getPosition());
         }
 
         private Vec3 getComparePosition(){
@@ -557,28 +727,65 @@ public class Nest {
 
         @Override
         public void OffshootTick(boolean tickChildren, boolean continuous, int layers) {
-            if (ShouldGeneratorTick()){
-                generator.Build();
-            }
-            else if (generator.isOfState(WorldShapeManager.GeneratorStates.done)){
+            super.OffshootTick(tickChildren, continuous, layers);
+            if (generator.isOfState(WorldShapeManager.GeneratorStates.done) && getOffshootState() == 2){
                 ManageExtension();
-            }
-            if (tickChildren && children != null){
-                for (Offshoot child : children) {
-                    child.OffshootTick(continuous, layers != 0, layers - 1);
-                }
             }
         }
 
         private void ManageExtension() {
             if (ShouldThisBecomeAParent()){
                 if (ShouldGetExtension()) {
+                    if (isEntrance()){
+                        this.AddToChildren(new Corridor(server, this, end, weight, thickness, true));
+                        return;
+                    }
                     this.AddToChildren(new Corridor(server, this, end, weight, thickness));
                 }
                 else{
                     ConstructNewChild((byte)1);
                 }
             }
+        }
+
+        private Vec3 findSurface(Vec3 pos){
+            int YTracker = (int)pos.y;
+            BlockPos bPos;
+            do{
+                bPos = new BlockPos((int)pos.x, YTracker, (int)pos.z);
+                YTracker++;
+            } while ((!CheckNearbyBlocksForSky(bPos) && YTracker < server.getMaxBuildHeight()) || !server.getBlockState(bPos).getFluidState().isEmpty());
+            while (!((server.getBlockState(bPos).isSolidRender(server, bPos) || !server.getBlockState(bPos).getFluidState().isEmpty())
+                    || NestManager.getNestBlocks().contains(server.getBlockState(bPos).getBlock().defaultBlockState()))
+                    && YTracker > server.getMinBuildHeight()){
+                YTracker--;
+                bPos = new BlockPos((int)pos.x, YTracker, (int)pos.z);
+            }
+            server.setBlock(bPos, Blocks.GOLD_BLOCK.defaultBlockState(), 3);
+            return bPos.getCenter();
+        }
+        private boolean CheckNearbyBlocksForSky(BlockPos start){
+            if (server.canSeeSky(start)) return true;
+            for (int y = -weight / 2; y < weight / 2; y++){
+                BlockPos bPos = new BlockPos(start.getX(), start.getY() + y, start.getZ());
+                if (server.canSeeSky(bPos)) return true;
+            }
+            return false;
+        }
+        private ArrayList<BlockPos> GenerateSurfaceGhost(Vec3 pos) {
+            ArrayList<BlockPos> ghostSphere = new ArrayList<>();
+            for (int x = 0; x <= weight; x++){
+                for (int y = 0; y <= weight; y++){
+                    for (int z = 0; z <= weight; z++){
+                        double distanceToCore = Mth.sqrt((x - (float) weight / 2) * (x - (float) weight / 2) + (y - (float) weight / 2) * (y - (float) weight / 2) + (z - (float) weight / 2) * (z - (float) weight / 2));
+                        BlockPos bPos = new BlockPos((int)(pos.x + x - weight / 2), (int)(pos.y + y - weight / 2), (int)(pos.z + z - weight / 2));
+                        if (distanceToCore <= (double) weight / 2){
+                            ghostSphere.add(bPos);
+                        }
+                    }
+                }
+            }
+            return ghostSphere;
         }
     }
 }

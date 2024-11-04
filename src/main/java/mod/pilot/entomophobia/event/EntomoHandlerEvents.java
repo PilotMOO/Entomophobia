@@ -11,7 +11,10 @@ import mod.pilot.entomophobia.items.EntomoItems;
 import mod.pilot.entomophobia.data.EntomoDataManager;
 import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
 import mod.pilot.entomophobia.systems.nest.NestManager;
+import mod.pilot.entomophobia.systems.swarm.Swarm;
 import mod.pilot.entomophobia.systems.swarm.SwarmManager;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -27,8 +30,11 @@ import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.common.world.ForgeChunkManager;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -67,20 +73,16 @@ public class EntomoHandlerEvents {
     @SubscribeEvent
     public static void onEntityLeave(EntityLeaveLevelEvent event){
         if (event.getLevel() instanceof ServerLevel EServer){
-            if (!EServer.getServer().isReady()) return;
+            if (!EServer.getServer().isRunning()) return;
 
             Entity E = event.getEntity();
             if (E instanceof MyiaticBase M){
                 if (!M.isDeadOrDying()){
                     System.out.println("Adding " + M.getEncodeId() + " to storage!");
                     Entomophobia.activeData.AddToStorage(M.getEncodeId());
-                    Entomophobia.activeData.RemoveFromMyiaticCount();
-                    System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
                 }
-                else{
-                    Entomophobia.activeData.RemoveFromMyiaticCount();
-                    System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
-                }
+                Entomophobia.activeData.RemoveFromMyiaticCount();
+                System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
             }
         }
     }
@@ -164,6 +166,32 @@ public class EntomoHandlerEvents {
     public static void NestTicker(TickEvent.ServerTickEvent event){
         if (EntomoGeneralSaveData.getWorldAge() % NestManager.getTickFrequency() == 0){
             NestManager.TickAllActiveNests();
+        }
+    }
+
+    @SubscribeEvent
+    public static void LoadCaptain(EntityEvent.EnteringSection event){
+        Entity E = event.getEntity();
+        if (!(E.level() instanceof ServerLevel) || !(E instanceof MyiaticBase M)) return;
+        boolean captainFlag = false;
+        for (Swarm swarm : SwarmManager.getSwarms()){
+            if (swarm.isActive() && swarm.getCaptain() == M) {
+                captainFlag = true;
+                break;
+            }
+        }
+        if (!captainFlag) return;
+
+        SectionPos OldChunk = event.getOldPos();
+        SectionPos NewChunk = event.getNewPos();
+        if (event.didChunkChange() && OldChunk != NewChunk){
+            ChunkPos cPos = M.chunkPosition();
+            if (NewChunk != null){
+                ForgeChunkManager.forceChunk((ServerLevel)M.level(), Entomophobia.MOD_ID, M, cPos.x, cPos.z, true, false);
+            }
+            if (OldChunk != null){
+                ForgeChunkManager.forceChunk((ServerLevel)M.level(), Entomophobia.MOD_ID, M, cPos.x, cPos.z, false, false);
+            }
         }
     }
 }

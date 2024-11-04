@@ -22,8 +22,14 @@ public class NestWand extends Item {
 
     @Override
     public @NotNull InteractionResult useOn(UseOnContext context) {
+        if (context.getPlayer() == null) return InteractionResult.FAIL;
         if (context.getLevel() instanceof ServerLevel server){
-            NestManager.ConstructNewNest(server, context.getClickLocation());
+            if (context.getPlayer().isSecondaryUseActive()){
+                NestManager.ConstructNewNest(server, NestManager.getNewNestPosition(context.getClickLocation(), 20, true));
+            }
+            else {
+                NestManager.ConstructNewNest(server, context.getClickLocation());
+            }
         }
         context.getPlayer().displayClientMessage(Component.literal("Makin' a new nest!"), true);
         return InteractionResult.SUCCESS;
