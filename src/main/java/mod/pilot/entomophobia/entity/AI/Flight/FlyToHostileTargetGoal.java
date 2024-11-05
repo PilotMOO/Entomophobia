@@ -5,6 +5,9 @@ import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.control.LookControl;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.level.pathfinder.Node;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec2;
 
 public class FlyToHostileTargetGoal extends FlyToGoal{
@@ -32,7 +35,13 @@ public class FlyToHostileTargetGoal extends FlyToGoal{
 
     @Override
     public void tick() {
-        parent.getNavigation().moveTo(parent.getTarget(), 1);
+        PathNavigation nav = parent.getNavigation();
+        Path path = nav.getPath();
+        Node endNode = path != null ? path.getEndNode() : null;
+        if (nav.isDone() ||
+                (path != null && endNode != null && endNode.asVec3().distanceTo(parent.getTarget().position()) > 5)){
+            parent.getNavigation().moveTo(parent.getTarget(), 1);
+        }
         if (FlightState != FlightStates.Gliding.ordinal()){
             parent.lookAt(parent.getTarget(), parent.getMaxHeadYRot(), parent.getMaxHeadXRot());
             parent.getLookControl().tick();

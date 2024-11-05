@@ -40,8 +40,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import oshi.util.tuples.Pair;
 
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Predicate;
 
 public abstract class MyiaticBase extends Monster implements GeoEntity {
@@ -443,20 +442,41 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     }
 
     /*Targeting*/
+    //Special thanks to WinVic the GOAT
+    //The memory of the cache (how much it can "remember" before overriding)
+    private static final int CACHE_MEMORY = 256;
+    //BitSet is most efficient for boolean values
+    private static final BitSet validityCache = new BitSet(CACHE_MEMORY);
+    // Store validated hashes to not recompute for frequent visitors
+    private static final int[] entityHashCache = new int[CACHE_MEMORY];
+    //Blacklist of all entities and their related values (viable target or not)
+    private static final Set<String> blacklist = new HashSet<>(Config.SERVER.blacklisted_targets.get());
+    // Circular index for cache
+    private static int cacheIndex = 0;
+
     public boolean TestValidEntity(LivingEntity e) {
-        if (e instanceof LivingEntity){
-            if (e instanceof Player && ((Player)e).isCreative() || e.isSpectator()){
-                return false;
+        int hash = System.identityHashCode(e);
+        if (hash == 0) return false;
+        for (int i = 0; i < CACHE_MEMORY; i++) {
+            if (entityHashCache[i] == hash) {
+                return validityCache.get(i);
             }
-            else if (e instanceof MyiaticBase){
-                return false;
-            }
-            else if (Config.SERVER.blacklisted_targets.get().contains((e.getEncodeId()))){
-                return e instanceof Creeper && hasEffect(EntomoMobEffects.FRENZY.get());
-            }
-            else return !(e instanceof AbstractFish);
         }
-        return false;
+
+        Boolean flag = null;
+        if (e instanceof Player p) flag = !(p.isCreative() || p.isSpectator());
+        if (flag == null && e instanceof MyiaticBase) flag = false;
+        if (flag == null && e instanceof AbstractFish) flag = false;
+        if (flag == null && e instanceof Creeper) flag = hasEffect(EntomoMobEffects.FRENZY.get());
+        if (flag == null) flag = !blacklist.contains(e.getEncodeId());
+
+        UpdateCache(flag, hash);
+        return flag;
+    }
+    private static void UpdateCache(boolean result, int hash){
+        entityHashCache[cacheIndex] = hash;
+        validityCache.set(cacheIndex, result);
+        cacheIndex = (cacheIndex + 1) % CACHE_MEMORY;
     }
     /**/
 

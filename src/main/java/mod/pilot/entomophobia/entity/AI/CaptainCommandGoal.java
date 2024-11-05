@@ -29,6 +29,7 @@ public class CaptainCommandGoal extends Goal implements ISwarmOrder {
 
     @Override
     public void tick() {
+
         if (captain.tickCount % MergeCheckFrequency == 0 && SwarmManager.getSwarms().size() > 1){
             CheckForMerge();
         }
@@ -38,6 +39,10 @@ public class CaptainCommandGoal extends Goal implements ISwarmOrder {
         }
 
         if (targetFlag){
+            if (captain.getSwarm() == null){
+                stop();
+                return;
+            }
             for (MyiaticBase M : captain.getSwarm().getUnits()){
                 if (M.getTarget() != null) continue;
                 M.setTarget(captain.getTarget());
