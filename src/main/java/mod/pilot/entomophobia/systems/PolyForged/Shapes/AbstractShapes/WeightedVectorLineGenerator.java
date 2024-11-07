@@ -1,4 +1,4 @@
-package mod.pilot.entomophobia.systems.PolyForged;
+package mod.pilot.entomophobia.systems.PolyForged.Shapes.AbstractShapes;
 
 import mod.pilot.entomophobia.systems.PolyForged.Shapes.VectorLineGenerator;
 import net.minecraft.server.level.ServerLevel;

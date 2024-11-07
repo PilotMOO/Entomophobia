@@ -38,7 +38,7 @@ public class TunnelGenerator extends HollowWeightedCircleLineGenerator{
                         Vec3 buildPos = i == 0 ? getStart() : getStart().add(directionFromStartToFinish().scale(i));
                         double distanceToCore = Mth.sqrt((x - (float) GhostLineWeight / 2) * (x - (float) GhostLineWeight / 2) + (y - (float) GhostLineWeight / 2) * (y - (float) GhostLineWeight / 2) + (z - (float) GhostLineWeight / 2) * (z - (float) GhostLineWeight / 2));
                         BlockPos bPos = new BlockPos((int)(buildPos.x + x - GhostLineWeight / 2), (int)(buildPos.y + y - GhostLineWeight / 2), (int)(buildPos.z + z - GhostLineWeight / 2));
-                        if (CanThisBeReplaced(server.getBlockState(bPos), bPos) && distanceToCore <= (double) GhostLineWeight / 2){
+                        if (canThisBeReplaced(server.getBlockState(bPos), bPos) && distanceToCore <= (double) GhostLineWeight / 2){
                             ghostSphere.add(bPos);
                         }
                     }

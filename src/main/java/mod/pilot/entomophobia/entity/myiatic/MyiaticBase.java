@@ -9,6 +9,7 @@ import mod.pilot.entomophobia.entity.AI.*;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.interfaces.IDodgable;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
+import mod.pilot.entomophobia.data.BooleanCache;
 import mod.pilot.entomophobia.systems.nest.Nest;
 import mod.pilot.entomophobia.systems.nest.NestManager;
 import mod.pilot.entomophobia.systems.swarm.Swarm;
@@ -442,41 +443,17 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     }
 
     /*Targeting*/
-    //Special thanks to WinVic the GOAT
-    //The memory of the cache (how much it can "remember" before overriding)
-    private static final int CACHE_MEMORY = 256;
-    //BitSet is most efficient for boolean values
-    private static final BitSet validityCache = new BitSet(CACHE_MEMORY);
-    // Store validated hashes to not recompute for frequent visitors
-    private static final int[] entityHashCache = new int[CACHE_MEMORY];
-    //Blacklist of all entities and their related values (viable target or not)
+    private static final BooleanCache<LivingEntity> TargetCache = new BooleanCache<>(256, MyiaticBase::CachePredicate);
     private static final Set<String> blacklist = new HashSet<>(Config.SERVER.blacklisted_targets.get());
-    // Circular index for cache
-    private static int cacheIndex = 0;
-
-    public boolean TestValidEntity(LivingEntity e) {
-        int hash = System.identityHashCode(e);
-        if (hash == 0) return false;
-        for (int i = 0; i < CACHE_MEMORY; i++) {
-            if (entityHashCache[i] == hash) {
-                return validityCache.get(i);
-            }
-        }
-
-        Boolean flag = null;
-        if (e instanceof Player p) flag = !(p.isCreative() || p.isSpectator());
-        if (flag == null && e instanceof MyiaticBase) flag = false;
-        if (flag == null && e instanceof AbstractFish) flag = false;
-        if (flag == null && e instanceof Creeper) flag = hasEffect(EntomoMobEffects.FRENZY.get());
-        if (flag == null) flag = !blacklist.contains(e.getEncodeId());
-
-        UpdateCache(flag, hash);
-        return flag;
+    private static boolean CachePredicate(LivingEntity e) {
+        if (e instanceof Player p) return !(p.isCreative() || p.isSpectator());
+        if (e instanceof MyiaticBase) return false;
+        if ( e instanceof AbstractFish) return false;
+        else return !blacklist.contains(e.getEncodeId());
     }
-    private static void UpdateCache(boolean result, int hash){
-        entityHashCache[cacheIndex] = hash;
-        validityCache.set(cacheIndex, result);
-        cacheIndex = (cacheIndex + 1) % CACHE_MEMORY;
+    public boolean TestValidEntity(LivingEntity e) {
+        if (e instanceof Creeper) return hasEffect(EntomoMobEffects.FRENZY.get());
+        else return TargetCache.Test(e);
     }
     /**/
 

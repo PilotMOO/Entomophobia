@@ -33,8 +33,6 @@ public class EntomoCreativeTabs {
                         register.accept(EntomoItems.SHAPE_WAND.get());
                         register.accept(EntomoItems.NEST_WAND.get());
                         register.accept(EntomoItems.SWARM_WAND.get());
-
-                        register.accept(EntomoItems.GHOST_WAND.get());
                     })
                     .build());
 }

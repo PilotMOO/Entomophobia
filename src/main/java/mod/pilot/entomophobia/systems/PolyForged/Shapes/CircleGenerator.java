@@ -1,7 +1,7 @@
 package mod.pilot.entomophobia.systems.PolyForged.Shapes;
 
-import mod.pilot.entomophobia.systems.PolyForged.FlatShapeGenerator;
-import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
+import mod.pilot.entomophobia.systems.PolyForged.Shapes.AbstractShapes.FlatShapeGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.common.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -41,7 +41,7 @@ public class CircleGenerator extends FlatShapeGenerator {
                     Vec3 center = getPosition();
                     BlockPos bPos = new BlockPos(new Vec3i((int) (center.x + (x - Xsize) - 1), (int) (center.y + (y - Ysize)), (int) (center.z + (z - Zsize) - 1)));
                     BlockState bState = server.getBlockState(bPos);
-                    if (CanThisBeReplaced(bState, bPos) && distance <= (double) (Xsize + Ysize + Zsize) / 2) {
+                    if (canThisBeReplaced(bState, bPos) && distance <= (double) (Xsize + Ysize + Zsize) / 2) {
                         if (BuildTracker >= 1) {
                             succeeded = ReplaceBlock(bPos);
                         } else {

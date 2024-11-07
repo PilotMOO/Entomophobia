@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.systems.PolyForged.Shapes;
 
-import mod.pilot.entomophobia.systems.PolyForged.VectorShapeGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.Shapes.AbstractShapes.VectorShapeGenerator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
@@ -45,7 +45,7 @@ public class VectorLineGenerator extends VectorShapeGenerator {
             Vec3 buildPos = i == 0 ? getStart() : getStart().add(directionFromStartToFinish().scale(i));
             BlockPos bPos = new BlockPos((int)buildPos.x - 1, (int)buildPos.y - 1, (int)buildPos.z - 1);
             BlockState bState = server.getBlockState(bPos);
-            if (CanThisBeReplaced(bState, bPos)){
+            if (canThisBeReplaced(bState, bPos)){
                 if (BuildTracker >= 1){
                     succeeded = ReplaceBlock(bPos);
                 }

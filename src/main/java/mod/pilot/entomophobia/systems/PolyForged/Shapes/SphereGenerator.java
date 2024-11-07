@@ -1,7 +1,7 @@
 package mod.pilot.entomophobia.systems.PolyForged.Shapes;
 
-import mod.pilot.entomophobia.systems.PolyForged.ShapeGenerator;
-import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
+import mod.pilot.entomophobia.systems.PolyForged.Shapes.AbstractShapes.ShapeGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.common.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -44,7 +44,7 @@ public class SphereGenerator extends ShapeGenerator {
                     Vec3 center = getPosition();
                     BlockPos bPos = new BlockPos(new Vec3i((int)(center.x + (x - radius) - 1), (int)(center.y + (y - radius) - 1), (int)(center.z + (z - radius) - 1)));
                     BlockState bState = server.getBlockState(bPos);
-                    if (CanThisBeReplaced(bState, bPos) && distance <= radius){
+                    if (canThisBeReplaced(bState, bPos) && distance <= radius){
                         if (BuildTracker > 1){
                             succeeded = ReplaceBlock(bPos);
                         }

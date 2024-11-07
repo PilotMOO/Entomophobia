@@ -1,6 +1,7 @@
-package mod.pilot.entomophobia.systems.PolyForged;
+package mod.pilot.entomophobia.systems.PolyForged.Shapes.AbstractShapes;
 
 import mod.pilot.entomophobia.Entomophobia;
+import mod.pilot.entomophobia.systems.PolyForged.common.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -75,7 +76,7 @@ public abstract class ShapeGenerator{
     @Nullable
     public List<BlockState> ReplaceBlacklist;
 
-    public boolean CanThisBeReplaced(BlockState state, BlockPos pos){
+    public boolean canThisBeReplaced(BlockState state, BlockPos pos){
         switch (getPlacementDetail()){
             case 0 ->{
                 return state.canBeReplaced() && isNotInList(state.getBlock().defaultBlockState());

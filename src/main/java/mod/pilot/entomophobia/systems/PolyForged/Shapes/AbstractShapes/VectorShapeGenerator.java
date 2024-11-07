@@ -1,4 +1,4 @@
-package mod.pilot.entomophobia.systems.PolyForged;
+package mod.pilot.entomophobia.systems.PolyForged.Shapes.AbstractShapes;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;

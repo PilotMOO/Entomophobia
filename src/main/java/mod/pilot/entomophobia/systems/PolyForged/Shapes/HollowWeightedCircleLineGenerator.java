@@ -3,7 +3,6 @@ package mod.pilot.entomophobia.systems.PolyForged.Shapes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -12,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineGenerator{
+public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineGenerator {
     public HollowWeightedCircleLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, boolean replaceableOnly, Vec3 start, Vec3 end, int weight, int thickness) {
         super(server, buildSpeed, blockTypes, replaceableOnly, start, end, weight);
         this.thickness = thickness;
@@ -46,7 +45,7 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
                         Vec3 buildPos = i == 0 ? getStart() : getStart().add(directionFromStartToFinish().scale(i));
                         double distanceToCore = Mth.sqrt((x - (float) GhostLineWeight / 2) * (x - (float) GhostLineWeight / 2) + (y - (float) GhostLineWeight / 2) * (y - (float) GhostLineWeight / 2) + (z - (float) GhostLineWeight / 2) * (z - (float) GhostLineWeight / 2));
                         BlockPos bPos = new BlockPos((int)(buildPos.x + x - GhostLineWeight / 2), (int)(buildPos.y + y - GhostLineWeight / 2), (int)(buildPos.z + z - GhostLineWeight / 2));
-                        if (CanThisBeReplaced(server.getBlockState(bPos), bPos) && distanceToCore <= (double) GhostLineWeight / 2){
+                        if (canThisBeReplaced(server.getBlockState(bPos), bPos) && distanceToCore <= (double) GhostLineWeight / 2){
                             ghostSphere.add(bPos);
                         }
                     }
@@ -55,6 +54,10 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
             ghostPositions.add(ghostSphere);
         }
         GhostLinePositions = ghostPositions;
+    }
+
+    public ArrayList<ArrayList<BlockPos>> getGhostShapes() {
+        return new ArrayList<>(GhostLinePositions);
     }
 
     protected boolean isThisAGhostPos(BlockPos bPos, int cycle){
@@ -66,7 +69,7 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
         return flag;
     }
     @Override
-    public boolean CanThisBeReplaced(BlockState state, BlockPos pos) {
+    public boolean canThisBeReplaced(BlockState state, BlockPos pos) {
         ServerLevel server = getServer();
 
         switch (getPlacementDetail()){
@@ -125,7 +128,7 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
                             Disable();
                             break;
                         }
-                        if (CanThisBeReplaced(bState, bPos) && distanceToCore <= (double) weight / 2){
+                        if (canThisBeReplaced(bState, bPos) && distanceToCore <= (double) weight / 2){
                             if (BuildTracker >= 1){
                                 succeeded = isThisAGhostPos(bPos, i) ? ReplaceBlock(bPos, Blocks.AIR.defaultBlockState()) : ReplaceBlock(bPos);
                             }

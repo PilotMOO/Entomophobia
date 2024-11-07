@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.systems.PolyForged.Shapes;
 
-import mod.pilot.entomophobia.systems.PolyForged.WeightedVectorLineGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.Shapes.AbstractShapes.WeightedVectorLineGenerator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -36,7 +36,7 @@ public class WeightedCircleVectorLineGenerator extends WeightedVectorLineGenerat
                         double distanceToCore = Mth.sqrt((x - (float) weight / 2) * (x - (float) weight / 2) + (y - (float) weight / 2) * (y - (float) weight / 2) + (z - (float) weight / 2) * (z - (float) weight / 2));
                         BlockPos bPos = new BlockPos((int) (buildPos.x + x - weight / 2), (int) (buildPos.y + y - weight / 2), (int) (buildPos.z + z - weight / 2));
                         BlockState bState = server.getBlockState(bPos);
-                        if (CanThisBeReplaced(bState, bPos) && distanceToCore <= (double) weight / 2){
+                        if (canThisBeReplaced(bState, bPos) && distanceToCore <= (double) weight / 2){
                             if (BuildTracker >= 1){
                                 succeeded = ReplaceBlock(bPos);
                             }

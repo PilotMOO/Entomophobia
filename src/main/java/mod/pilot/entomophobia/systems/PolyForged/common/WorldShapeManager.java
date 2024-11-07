@@ -1,4 +1,4 @@
-package mod.pilot.entomophobia.systems.PolyForged;
+package mod.pilot.entomophobia.systems.PolyForged.common;
 
 import mod.pilot.entomophobia.systems.PolyForged.Shapes.*;
 import net.minecraft.server.level.ServerLevel;

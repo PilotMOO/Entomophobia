@@ -1,6 +1,5 @@
 package mod.pilot.entomophobia.systems.PolyForged.Shapes;
 
-import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -24,19 +23,17 @@ public class ChamberGenerator extends RandomizedHollowSphereGenerator{
         super(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius, thickness, buildChance, trueHollow);
     }
 
-    private ArrayList<ArrayList<BlockPos>> GhostSpheres;
-    public void addToGhostSpheres(ArrayList<BlockPos> toAdd){
-        if (GhostSpheres == null){
-            GhostSpheres = new ArrayList<>();
-        }
+    private final ArrayList<ArrayList<BlockPos>> GhostSpheres = new ArrayList<>();
+    public ArrayList<ArrayList<BlockPos>> getGhostShapes() {
+        return new ArrayList<>(GhostSpheres);
+    }
+    public void addToGhostShapes(ArrayList<BlockPos> toAdd){
         GhostSpheres.add(toAdd);
     }
-    public final ArrayList<ArrayList<BlockPos>> getGhostSpheres(){
-        return GhostSpheres != null ? new ArrayList<>(GhostSpheres) : null;
-    }
+
     protected boolean isThisAGhostPosition(BlockPos bPos){
         boolean flag = false;
-        ArrayList<ArrayList<BlockPos>> ghostSpheres = getGhostSpheres();
+        ArrayList<ArrayList<BlockPos>> ghostSpheres = getGhostShapes();
         if (ghostSpheres == null){
             return false;
         }
@@ -49,11 +46,14 @@ public class ChamberGenerator extends RandomizedHollowSphereGenerator{
         }
         return flag;
     }
+
+    @Override
+    public void Enable() {
+        super.Enable();
+    }
     @Override
     public boolean Build() {
-        if (!isOfState(WorldShapeManager.GeneratorStates.active)){
-            return false;
-        }
+        if (!isActive()) return false;
         //Code stolen from Harby-- thanks Harby
         ServerLevel server = getServer();
         ActiveTimeTick();
@@ -66,7 +66,7 @@ public class ChamberGenerator extends RandomizedHollowSphereGenerator{
                     BlockPos bPos = new BlockPos(new Vec3i((int)(center.x + (x - radius) - 1), (int)(center.y + (y - radius) - 1), (int)(center.z + (z - radius) - 1)));
                     double distance = center.distanceTo(bPos.getCenter());
                     BlockState bState = server.getBlockState(bPos);
-                    if (CanThisBeReplaced(bState, bPos) && distance <= radius && (TrueHollow || distance > radius - thickness)){
+                    if (canThisBeReplaced(bState, bPos) && distance <= radius && (TrueHollow || distance > radius - thickness)){
                         if (BuildTracker > 1){
                             if (server.random.nextDouble() <= BuildChance){
                                 if (TrueHollow && distance <= radius - thickness){
@@ -112,7 +112,7 @@ public class ChamberGenerator extends RandomizedHollowSphereGenerator{
     }
 
     @Override
-    public boolean CanThisBeReplaced(BlockState state, BlockPos pos) {
+    public boolean canThisBeReplaced(BlockState state, BlockPos pos) {
         ServerLevel server = getServer();
 
         if (TrueHollow){
@@ -142,7 +142,7 @@ public class ChamberGenerator extends RandomizedHollowSphereGenerator{
                 }
             }
         }
-        return super.CanThisBeReplaced(state, pos);
+        return super.canThisBeReplaced(state, pos);
     }
     public ArrayList<BlockPos> GenerateInternalGhostSphere(){
         ArrayList<BlockPos> toReturn = new ArrayList<>();

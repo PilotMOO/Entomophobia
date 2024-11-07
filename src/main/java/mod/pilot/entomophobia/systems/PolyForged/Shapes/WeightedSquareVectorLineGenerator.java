@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.systems.PolyForged.Shapes;
 
-import mod.pilot.entomophobia.systems.PolyForged.WeightedVectorLineGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.Shapes.AbstractShapes.WeightedVectorLineGenerator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
@@ -36,7 +36,7 @@ public class WeightedSquareVectorLineGenerator extends WeightedVectorLineGenerat
                         Vec3 buildPos = i == 0 ? getStart() : getStart().add(directionFromStartToFinish().scale(i));
                         BlockPos bPos = new BlockPos((int)buildPos.x + x - 1 , (int)buildPos.y + y - 1, (int)buildPos.z + z - 1);
                         BlockState bState = server.getBlockState(bPos);
-                        if (CanThisBeReplaced(bState, bPos)){
+                        if (canThisBeReplaced(bState, bPos)){
                             if (BuildTracker >= 1){
                                 succeeded = ReplaceBlock(bPos);
                             }

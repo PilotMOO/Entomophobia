@@ -3,16 +3,15 @@ package mod.pilot.entomophobia.systems.nest;
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.data.EntomoDataManager;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
-import mod.pilot.entomophobia.systems.PolyForged.ShapeGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.Shapes.AbstractShapes.ShapeGenerator;
 import mod.pilot.entomophobia.systems.PolyForged.Shapes.ChamberGenerator;
 import mod.pilot.entomophobia.systems.PolyForged.Shapes.HollowSphereGenerator;
 import mod.pilot.entomophobia.systems.PolyForged.Shapes.TunnelGenerator;
-import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
+import mod.pilot.entomophobia.systems.PolyForged.common.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -287,7 +286,7 @@ public class Nest {
 
             if (getGenerator() instanceof ChamberGenerator C){
                 for (ArrayList<BlockPos> ghost : getQueuedGhostPositions()){
-                    C.addToGhostSpheres(ghost);
+                    C.addToGhostShapes(ghost);
                     toRemove.add(ghost);
                 }
             }
@@ -625,6 +624,7 @@ public class Nest {
                 while (IsThisEndPositionInvalid(toReturn) && cycleCounter < 10);
                 if (toReturn.y >= surface.y) {
                     DeadEnd = true;
+                    addToQueuedGhostPosition(GenerateSurfaceGhost(toReturn));
                     addToQueuedGhostPosition(GenerateSurfaceGhost(toReturn));
                 }
             }
