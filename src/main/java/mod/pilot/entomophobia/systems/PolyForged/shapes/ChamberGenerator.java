@@ -1,9 +1,9 @@
-package mod.pilot.entomophobia.systems.PolyForged.Shapes;
+package mod.pilot.entomophobia.systems.PolyForged.shapes;
 
+import mod.pilot.entomophobia.systems.PolyForged.GhostSphere;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -23,33 +23,20 @@ public class ChamberGenerator extends RandomizedHollowSphereGenerator{
         super(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius, thickness, buildChance, trueHollow);
     }
 
-    private final ArrayList<ArrayList<BlockPos>> GhostSpheres = new ArrayList<>();
-    public ArrayList<ArrayList<BlockPos>> getGhostShapes() {
+    private final ArrayList<GhostSphere> GhostSpheres = new ArrayList<>();
+    public ArrayList<GhostSphere> getGhostSpheres() {
         return new ArrayList<>(GhostSpheres);
     }
-    public void addToGhostShapes(ArrayList<BlockPos> toAdd){
+    public void addToGhostShapes(GhostSphere toAdd){
         GhostSpheres.add(toAdd);
     }
-
     protected boolean isThisAGhostPosition(BlockPos bPos){
         boolean flag = false;
-        ArrayList<ArrayList<BlockPos>> ghostSpheres = getGhostShapes();
-        if (ghostSpheres == null){
-            return false;
-        }
-        for (ArrayList<BlockPos> ghostSphere : ghostSpheres){
-            if (ghostSphere == null){
-                continue;
-            }
-            flag = ghostSphere.contains(bPos);
+        for (GhostSphere ghost : getGhostSpheres()){
+            flag = ghost.isGhost(bPos);
             if (flag) break;
         }
         return flag;
-    }
-
-    @Override
-    public void Enable() {
-        super.Enable();
     }
     @Override
     public boolean Build() {
@@ -144,20 +131,7 @@ public class ChamberGenerator extends RandomizedHollowSphereGenerator{
         }
         return super.canThisBeReplaced(state, pos);
     }
-    public ArrayList<BlockPos> GenerateInternalGhostSphere(){
-        ArrayList<BlockPos> toReturn = new ArrayList<>();
-        for(int x = 0; x <= 2*radius; ++x) {
-            for(int y = 0; y <= 2*radius; ++y) {
-                for(int z = 0; z <= 2*radius; ++z) {
-                    double distance = Mth.sqrt((x - radius) * (x - radius) + (y - radius) * (y - radius) + (z - radius) * (z - radius));
-                    Vec3 center = getPosition();
-                    BlockPos bPos = new BlockPos(new Vec3i((int)(center.x + (x - radius) - 1), (int)(center.y + (y - radius) - 1), (int)(center.z + (z - radius) - 1)));
-                    if (distance < radius - thickness){
-                        toReturn.add(bPos);
-                    }
-                }
-            }
-        }
-        return toReturn;
+    public GhostSphere GenerateInternalGhostSphere(){
+        return new GhostSphere(getPosition(), radius - thickness);
     }
 }

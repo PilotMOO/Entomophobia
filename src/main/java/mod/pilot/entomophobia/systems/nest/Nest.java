@@ -3,14 +3,14 @@ package mod.pilot.entomophobia.systems.nest;
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.data.EntomoDataManager;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
-import mod.pilot.entomophobia.systems.PolyForged.Shapes.AbstractShapes.ShapeGenerator;
-import mod.pilot.entomophobia.systems.PolyForged.Shapes.ChamberGenerator;
-import mod.pilot.entomophobia.systems.PolyForged.Shapes.HollowSphereGenerator;
-import mod.pilot.entomophobia.systems.PolyForged.Shapes.TunnelGenerator;
-import mod.pilot.entomophobia.systems.PolyForged.common.WorldShapeManager;
+import mod.pilot.entomophobia.systems.PolyForged.shapes.abstractshapes.ShapeGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.shapes.ChamberGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.shapes.HollowSphereGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.shapes.TunnelGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.GhostSphere;
+import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -87,19 +87,19 @@ public class Nest {
         return new Chamber(server, null, origin,
                 Config.SERVER.large_chamber_max_size.get(), Config.SERVER.large_chamber_thickness.get()).DenoteAsMain();
     }
-
     public Offshoot CreateNewOffshootFrom(Offshoot parent, byte newShootType){
         return parent.ConstructNewChild(newShootType);
     }
     public Offshoot CreateNewOffshootFromMain(byte newShootType){
         return CreateNewOffshootFrom(MainChamber, newShootType);
     }
-
     public void NestTick(){
         if (getNestState() != 1){
+            System.out.println("Nest is not getting ticked because it is not active (state 1)");
             return;
         }
         if (!MainChamber.Dead()){
+            System.out.println("Nest is ticking Main Chamber!");
             MainChamber.OffshootTick(true, true, -1);
         }
     }
@@ -260,20 +260,20 @@ public class Nest {
         protected final void setGenerator(ShapeGenerator newGenerator){
             generator = newGenerator;
         }
-        protected ArrayList<ArrayList<BlockPos>> QueuedGhostPositions;
-        public void addToQueuedGhostPositions(ArrayList<ArrayList<BlockPos>> ghostsLists){
+        protected ArrayList<GhostSphere> QueuedGhostPositions;
+        public void addToQueuedGhostPositions(ArrayList<GhostSphere> ghostsLists){
             if (QueuedGhostPositions == null) QueuedGhostPositions = new ArrayList<>();
             QueuedGhostPositions.addAll(ghostsLists);
         }
-        public void addToQueuedGhostPosition(ArrayList<BlockPos> ghost){
+        public void addToQueuedGhostPosition(GhostSphere ghost){
             if (QueuedGhostPositions == null) QueuedGhostPositions = new ArrayList<>();
             QueuedGhostPositions.add(ghost);
         }
-        public ArrayList<ArrayList<BlockPos>> getQueuedGhostPositions(){
+        public ArrayList<GhostSphere> getQueuedGhostPositions(){
             if (QueuedGhostPositions == null) QueuedGhostPositions = new ArrayList<>();
             return new ArrayList<>(QueuedGhostPositions);
         }
-        public void removeQueuedGhosts(ArrayList<ArrayList<BlockPos>> toRemove){
+        public void removeQueuedGhosts(ArrayList<GhostSphere> toRemove){
             if (QueuedGhostPositions == null) {
                 QueuedGhostPositions = new ArrayList<>();
                 return;
@@ -282,16 +282,16 @@ public class Nest {
         }
         protected void RegisterAllGhosts(){
             if (getGenerator() == null || QueuedGhostPositions == null || QueuedGhostPositions.size() == 0) return;
-            ArrayList<ArrayList<BlockPos>> toRemove = new ArrayList<>();
+            ArrayList<GhostSphere> toRemove = new ArrayList<>();
 
             if (getGenerator() instanceof ChamberGenerator C){
-                for (ArrayList<BlockPos> ghost : getQueuedGhostPositions()){
+                for (GhostSphere ghost : getQueuedGhostPositions()){
                     C.addToGhostShapes(ghost);
                     toRemove.add(ghost);
                 }
             }
             else if (getGenerator() instanceof TunnelGenerator T){
-                for (ArrayList<BlockPos> ghost : getQueuedGhostPositions()){
+                for (GhostSphere ghost : getQueuedGhostPositions()){
                     T.addToGhostSpheres(ghost);
                     toRemove.add(ghost);
                 }
@@ -307,10 +307,13 @@ public class Nest {
             return OffshootState == 1 && generator != null && generator.isActive();
         }
         public void OffshootTick(boolean tickChildren, boolean continuous, int layers){
+            System.out.println("Offshoot is ticking! State " + getOffshootState());
             if (ShouldGeneratorTick()){
+                System.out.println("Ticking generator...!");
                 TickGenerator();
             }
             if (tickChildren && children != null){
+                System.out.println("Ticking all children!");
                 for (Offshoot child : children) {
                     child.OffshootTick(continuous, layers != 0, layers - 1);
                 }
@@ -364,7 +367,7 @@ public class Nest {
         protected void ConstructGenerator(ServerLevel server, Vec3 pos, int radius, int thickness) {
             ChamberGenerator generator = WorldShapeManager.CreateChamber(server, NestManager.getNestBuildSpeed(), NestManager.getNestBlocks(), pos, NestManager.getNestMaxHardness(), radius, thickness, 0.5, true);
             if (parent != null && parent instanceof Corridor corridor && corridor.getGenerator() instanceof TunnelGenerator tunnel){
-                for (ArrayList<BlockPos> ghost : tunnel.getGhostLineSpheres((radius + thickness) * 2, true)){
+                for (GhostSphere ghost : tunnel.getGhostLineSpheres((radius + thickness) * 2, true)){
                     addToQueuedGhostPosition(ghost);
                 }
             }
@@ -408,6 +411,7 @@ public class Nest {
         @Override
         public void OffshootTick(boolean tickChildren, boolean continuous, int layers) {
             super.OffshootTick(tickChildren, continuous, layers);
+            System.out.println("Chamber is ticking!");
 
             if (getGenerator() != null && getGenerator().isOfState(WorldShapeManager.GeneratorStates.done)
                     && getOffshootState() == 2 && !AreAnyOfMyChildrenAlive()){
@@ -508,13 +512,13 @@ public class Nest {
             if (parent.getGenerator() instanceof ChamberGenerator chamber){
                 addToQueuedGhostPosition(chamber.GenerateInternalGhostSphere());
                 if (parent.parent instanceof Corridor parentCorridor && parentCorridor.getGenerator() instanceof TunnelGenerator parentTunnel){
-                    for (ArrayList<BlockPos> ghost : parentTunnel.getGhostLineSpheres(weight, true)){
+                    for (GhostSphere ghost : parentTunnel.getGhostLineSpheres(weight, true)){
                         addToQueuedGhostPosition(ghost);
                     }
                 }
             }
             else if (parent.getGenerator() instanceof TunnelGenerator parentTunnel){
-                for (ArrayList<BlockPos> ghost : parentTunnel.getGhostLineSpheres(weight, true)){
+                for (GhostSphere ghost : parentTunnel.getGhostLineSpheres(weight, true)){
                     addToQueuedGhostPosition(ghost);
                 }
             }
@@ -546,13 +550,13 @@ public class Nest {
             if (parent.getGenerator() instanceof ChamberGenerator chamber){
                 addToQueuedGhostPosition(chamber.GenerateInternalGhostSphere());
                 if (parent.parent instanceof Corridor parentCorridor && parentCorridor.getGenerator() instanceof TunnelGenerator parentTunnel){
-                    for (ArrayList<BlockPos> ghost : parentTunnel.getGhostLineSpheres(weight, true)){
+                    for (GhostSphere ghost : parentTunnel.getGhostLineSpheres(weight, true)){
                         addToQueuedGhostPosition(ghost);
                     }
                 }
             }
             else if (parent.getGenerator() instanceof TunnelGenerator parentTunnel){
-                for (ArrayList<BlockPos> ghost : parentTunnel.getGhostLineSpheres(weight, true)){
+                for (GhostSphere ghost : parentTunnel.getGhostLineSpheres(weight, true)){
                     addToQueuedGhostPosition(ghost);
                 }
             }
@@ -624,7 +628,6 @@ public class Nest {
                 while (IsThisEndPositionInvalid(toReturn) && cycleCounter < 10);
                 if (toReturn.y >= surface.y) {
                     DeadEnd = true;
-                    addToQueuedGhostPosition(GenerateSurfaceGhost(toReturn));
                     addToQueuedGhostPosition(GenerateSurfaceGhost(toReturn));
                 }
             }
@@ -772,20 +775,8 @@ public class Nest {
             }
             return false;
         }
-        private ArrayList<BlockPos> GenerateSurfaceGhost(Vec3 pos) {
-            ArrayList<BlockPos> ghostSphere = new ArrayList<>();
-            for (int x = 0; x <= weight; x++){
-                for (int y = 0; y <= weight; y++){
-                    for (int z = 0; z <= weight; z++){
-                        double distanceToCore = Mth.sqrt((x - (float) weight / 2) * (x - (float) weight / 2) + (y - (float) weight / 2) * (y - (float) weight / 2) + (z - (float) weight / 2) * (z - (float) weight / 2));
-                        BlockPos bPos = new BlockPos((int)(pos.x + x - weight / 2), (int)(pos.y + y - weight / 2), (int)(pos.z + z - weight / 2));
-                        if (distanceToCore <= (double) weight / 2){
-                            ghostSphere.add(bPos);
-                        }
-                    }
-                }
-            }
-            return ghostSphere;
+        private GhostSphere GenerateSurfaceGhost(Vec3 pos) {
+            return new GhostSphere(pos, weight * 2);
         }
     }
 }

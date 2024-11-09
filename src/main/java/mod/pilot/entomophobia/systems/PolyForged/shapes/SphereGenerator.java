@@ -1,7 +1,7 @@
-package mod.pilot.entomophobia.systems.PolyForged.Shapes;
+package mod.pilot.entomophobia.systems.PolyForged.shapes;
 
-import mod.pilot.entomophobia.systems.PolyForged.Shapes.AbstractShapes.ShapeGenerator;
-import mod.pilot.entomophobia.systems.PolyForged.common.WorldShapeManager;
+import mod.pilot.entomophobia.systems.PolyForged.shapes.abstractshapes.ShapeGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -55,7 +55,8 @@ public class SphereGenerator extends ShapeGenerator {
                             else{
                                 succeeded = true;
                             }
-                        }                    }
+                        }
+                    }
                     if (succeeded){
                         BuildTracker--;
                         if (BuildTracker <= 0){

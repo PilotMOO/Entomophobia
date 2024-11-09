@@ -1,38 +1,26 @@
-package mod.pilot.entomophobia.systems.PolyForged.Shapes;
+package mod.pilot.entomophobia.systems.PolyForged.shapes;
 
-import mod.pilot.entomophobia.systems.PolyForged.Shapes.AbstractShapes.ShapeGenerator;
-import mod.pilot.entomophobia.systems.PolyForged.common.WorldShapeManager;
+import mod.pilot.entomophobia.systems.PolyForged.shapes.abstractshapes.FlatShapeGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class QuadrilateralGenerator extends ShapeGenerator {
-    public QuadrilateralGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int X, int Y, int Z) {
-        super(server, buildSpeed, blockTypes, pos, replaceableOnly);
-        Xsize = X;
-        Ysize = Y;
-        Zsize = Z;
+public class SquareGenerator extends FlatShapeGenerator {
+    public SquareGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int size, WorldShapeManager.Axis excluded) {
+        super(server, buildSpeed, blockTypes, pos, replaceableOnly, size, size, size, excluded);
     }
-    public QuadrilateralGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int X, int Y, int Z) {
-        super(server, buildSpeed, blockTypes, pos, maxHardness);
-        Xsize = X;
-        Ysize = Y;
-        Zsize = Z;
+    public SquareGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int size, WorldShapeManager.Axis excluded) {
+        super(server, buildSpeed, blockTypes, pos, maxHardness, size, size, size, excluded);
     }
-    public QuadrilateralGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, int X, int Y, int Z) {
-        super(server, buildSpeed, blockTypes, pos, whitelist, blacklist);
-        Xsize = X;
-        Ysize = Y;
-        Zsize = Z;
+    public SquareGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, int size, WorldShapeManager.Axis excluded) {
+        super(server, buildSpeed, blockTypes, pos, whitelist, blacklist, size, size, size, excluded);
     }
-
-    public final int Xsize;
-    public final int Ysize;
-    public final int Zsize;
 
     @Override
     public boolean Build() {
@@ -42,7 +30,6 @@ public class QuadrilateralGenerator extends ShapeGenerator {
         ServerLevel server = getServer();
         ActiveTimeTick();
         double BuildTracker = getBuildSpeed();
-        //Code stolen from Harby-- thanks Harby
         boolean succeeded = false;
         for(int x = 0; x < Xsize; ++x) {
             for(int y = 0; y < Ysize; ++y) {
@@ -51,11 +38,11 @@ public class QuadrilateralGenerator extends ShapeGenerator {
                     BlockPos bPos = new BlockPos(new Vec3i((int)(center.x + (x - (Xsize / 2)) - 1), (int)(center.y + (y - (Ysize / 2)) - 1), (int)(center.z + (z - (Zsize / 2))) - 1));
                     BlockState bState = server.getBlockState(bPos);
                     if (canThisBeReplaced(bState, bPos)){
-                        if (BuildTracker > 1){
+                        if (BuildTracker >= 1){
                             succeeded = ReplaceBlock(bPos);
                         }
                         else{
-                            if (getActiveTime() % (1 / BuildTracker) == 0){
+                            if (getActiveTime() % (int)(1 / BuildTracker) == 0){
                                 succeeded = ReplaceBlock(bPos);
                             }
                             else{

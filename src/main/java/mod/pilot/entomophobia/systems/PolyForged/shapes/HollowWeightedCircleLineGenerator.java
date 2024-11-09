@@ -1,5 +1,6 @@
-package mod.pilot.entomophobia.systems.PolyForged.Shapes;
+package mod.pilot.entomophobia.systems.PolyForged.shapes;
 
+import mod.pilot.entomophobia.systems.PolyForged.GhostSphere;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -30,41 +31,27 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
     public final int thickness;
     protected int DistanceTracker = 0;
 
-    protected ArrayList<ArrayList<BlockPos>> GhostLinePositions;
+    protected ArrayList<GhostSphere> GhostLinePositions;
     protected void GenerateGhostPositions(){
-        ArrayList<ArrayList<BlockPos>> ghostPositions = new ArrayList<>();
+        ArrayList<GhostSphere> ghostPositions = new ArrayList<>();
 
-        ServerLevel server = getServer();
-        int GhostLineWeight = weight - (thickness * 2);
+        int GhostLineWeight = (weight - (thickness * 2) - 1) / 2;
         double distance = getStart().distanceTo(getEnd());
         for (int i = 0; i < distance; i++){
-            ArrayList<BlockPos> ghostSphere = new ArrayList<>();
-            for (int x = 0; x <= GhostLineWeight; x++){
-                for (int y = 0; y <= GhostLineWeight; y++){
-                    for (int z = 0; z <= GhostLineWeight; z++){
-                        Vec3 buildPos = i == 0 ? getStart() : getStart().add(directionFromStartToFinish().scale(i));
-                        double distanceToCore = Mth.sqrt((x - (float) GhostLineWeight / 2) * (x - (float) GhostLineWeight / 2) + (y - (float) GhostLineWeight / 2) * (y - (float) GhostLineWeight / 2) + (z - (float) GhostLineWeight / 2) * (z - (float) GhostLineWeight / 2));
-                        BlockPos bPos = new BlockPos((int)(buildPos.x + x - GhostLineWeight / 2), (int)(buildPos.y + y - GhostLineWeight / 2), (int)(buildPos.z + z - GhostLineWeight / 2));
-                        if (canThisBeReplaced(server.getBlockState(bPos), bPos) && distanceToCore <= (double) GhostLineWeight / 2){
-                            ghostSphere.add(bPos);
-                        }
-                    }
-                }
-            }
-            ghostPositions.add(ghostSphere);
+            ghostPositions.add(new GhostSphere(i == 0 ? getStart() : getStart().add(directionFromStartToFinish().scale(i)), GhostLineWeight));
         }
         GhostLinePositions = ghostPositions;
     }
 
-    public ArrayList<ArrayList<BlockPos>> getGhostShapes() {
+    public ArrayList<GhostSphere> getGhostShapes() {
         return new ArrayList<>(GhostLinePositions);
     }
 
     protected boolean isThisAGhostPos(BlockPos bPos, int cycle){
         boolean flag = false;
-        for (ArrayList<BlockPos> ghosts : GhostLinePositions){
-            flag = ghosts.contains(bPos);
-            if (flag) {break;}
+        for (GhostSphere ghosts : GhostLinePositions){
+            flag = ghosts.isGhost(bPos);
+            if (flag) break;
         }
         return flag;
     }

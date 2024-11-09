@@ -1,7 +1,7 @@
-package mod.pilot.entomophobia.systems.PolyForged.Shapes.AbstractShapes;
+package mod.pilot.entomophobia.systems.PolyForged.shapes.abstractshapes;
 
 import mod.pilot.entomophobia.Entomophobia;
-import mod.pilot.entomophobia.systems.PolyForged.common.WorldShapeManager;
+import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -11,6 +11,7 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Predicate;
 
 public abstract class ShapeGenerator{
     protected ShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly){

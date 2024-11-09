@@ -54,6 +54,7 @@ public class NestManager {
                 nestsToDiscard.add(nest);
                 continue;
             }
+            System.out.println("Ticking Nest");
             nest.NestTick();
         }
         for (Nest toRemove : nestsToDiscard){

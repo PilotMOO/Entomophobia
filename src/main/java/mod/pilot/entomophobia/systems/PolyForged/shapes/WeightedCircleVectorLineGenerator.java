@@ -1,6 +1,6 @@
-package mod.pilot.entomophobia.systems.PolyForged.Shapes;
+package mod.pilot.entomophobia.systems.PolyForged.shapes;
 
-import mod.pilot.entomophobia.systems.PolyForged.Shapes.AbstractShapes.WeightedVectorLineGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.shapes.abstractshapes.WeightedVectorLineGenerator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;

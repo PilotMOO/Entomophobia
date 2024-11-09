@@ -165,6 +165,7 @@ public class EntomoHandlerEvents {
     @SubscribeEvent
     public static void NestTicker(TickEvent.ServerTickEvent event){
         if (EntomoGeneralSaveData.getWorldAge() % NestManager.getTickFrequency() == 0){
+            System.out.println("TickAllActiveNests is being called");
             NestManager.TickAllActiveNests();
         }
     }

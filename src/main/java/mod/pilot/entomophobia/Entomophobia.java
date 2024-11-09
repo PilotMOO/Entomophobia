@@ -40,8 +40,8 @@ public class Entomophobia
 
         //System.out.println("Color: " + getIntFromColor(255, 255, 255));
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SERVER_SPEC, "Entomophobia_Config.toml");
-        Config.loadConfig(Config.SERVER_SPEC, FMLPaths.CONFIGDIR.get().resolve("Entomophobia_Config.toml").toString());
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SERVER_SPEC, "entomophobia_config.toml");
+        Config.loadConfig(Config.SERVER_SPEC, FMLPaths.CONFIGDIR.get().resolve("entomophobia_config.toml").toString());
 
         SwarmManager.PopulateNameHashmap();
     }
