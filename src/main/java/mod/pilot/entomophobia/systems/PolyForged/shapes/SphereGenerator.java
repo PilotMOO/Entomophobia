@@ -8,20 +8,24 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class SphereGenerator extends ShapeGenerator {
-    public SphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int radius) {
-        super(server, buildSpeed, blockTypes, pos, replaceableOnly);
+    public SphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                           boolean replaceableOnly, int radius) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, replaceableOnly);
         this.radius = radius;
     }
-    public SphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int radius) {
-        super(server, buildSpeed, blockTypes, pos, maxHardness);
+    public SphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                           int maxHardness, int radius) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, maxHardness);
         this.radius = radius;
     }
-    public SphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, int radius) {
-        super(server, buildSpeed, blockTypes, pos, whitelist, blacklist);
+    public SphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                           @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, int radius) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, whitelist, blacklist);
         this.radius = radius;
     }
 
@@ -58,7 +62,9 @@ public class SphereGenerator extends ShapeGenerator {
                         }
                     }
                     if (succeeded){
-                        BuildTracker--;
+                        if (!(Hydrophobic && !bState.getFluidState().isEmpty())){
+                            BuildTracker--;
+                        }
                         if (BuildTracker <= 0){
                             break;
                         }

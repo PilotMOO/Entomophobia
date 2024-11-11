@@ -11,14 +11,18 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class WeightedCircleVectorLineGenerator extends WeightedVectorLineGenerator {
-    public WeightedCircleVectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, boolean replaceableOnly, Vec3 start, Vec3 end, int weight) {
-        super(server, buildSpeed, blockTypes, replaceableOnly, start, end, weight);
+    public WeightedCircleVectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, boolean replaceableOnly,
+                                             Vec3 start, Vec3 end, boolean hydrophobic, int weight) {
+        super(server, buildSpeed, blockTypes, replaceableOnly, start, end, hydrophobic, weight);
     }
-    public WeightedCircleVectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, int maxHardness, Vec3 start, Vec3 end, int weight) {
-        super(server, buildSpeed, blockTypes, maxHardness, start, end, weight);
+    public WeightedCircleVectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, int maxHardness,
+                                             Vec3 start, Vec3 end, boolean hydrophobic, int weight) {
+        super(server, buildSpeed, blockTypes, maxHardness, start, end, hydrophobic, weight);
     }
-    public WeightedCircleVectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, Vec3 start, Vec3 end, int weight) {
-        super(server, buildSpeed, blockTypes, whitelist, blacklist, start, end, weight);
+    public WeightedCircleVectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes,
+                                             @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist,
+                                             Vec3 start, Vec3 end, boolean hydrophobic, int weight) {
+        super(server, buildSpeed, blockTypes, whitelist, blacklist, start, end, hydrophobic, weight);
     }
 
     @Override
@@ -50,7 +54,9 @@ public class WeightedCircleVectorLineGenerator extends WeightedVectorLineGenerat
                             }
                         }
                         if (succeeded){
-                            BuildTracker--;
+                            if (!(Hydrophobic && !bState.getFluidState().isEmpty())){
+                                BuildTracker--;
+                            }
                             if (BuildTracker <= 0){
                                 break;
                             }

@@ -13,20 +13,24 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class HollowSphereGenerator extends SphereGenerator {
-    public HollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int radius, int thickness, boolean trueHollow) {
-        super(server, buildSpeed, blockTypes, pos, replaceableOnly, radius);
+    public HollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                                 boolean replaceableOnly, int radius, int thickness, boolean trueHollow) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, replaceableOnly, radius);
         this.thickness = thickness;
         TrueHollow = trueHollow;
     }
 
-    public HollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int radius, int thickness, boolean trueHollow) {
-        super(server, buildSpeed, blockTypes, pos, maxHardness, radius);
+    public HollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                                 int maxHardness, int radius, int thickness, boolean trueHollow) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, maxHardness, radius);
         this.thickness = thickness;
         TrueHollow = trueHollow;
     }
 
-    public HollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, int radius, int thickness, boolean trueHollow) {
-        super(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius);
+    public HollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                                 @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist,
+                                 int radius, int thickness, boolean trueHollow) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, whitelist, blacklist, radius);
         this.thickness = thickness;
         TrueHollow = trueHollow;
     }
@@ -65,7 +69,9 @@ public class HollowSphereGenerator extends SphereGenerator {
                         }
                     }
                     if (succeeded){
-                        BuildTracker--;
+                        if (!(Hydrophobic && !bState.getFluidState().isEmpty())){
+                            BuildTracker--;
+                        }
                         if (BuildTracker <= 0){
                             break;
                         }

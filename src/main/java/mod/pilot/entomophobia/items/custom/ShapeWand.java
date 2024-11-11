@@ -94,12 +94,12 @@ public class ShapeWand extends Item {
                 if (context.getLevel() instanceof ServerLevel server){
                     Vec3 GeneratorCenter = context.isSecondaryUseActive() ? context.getClickedPos().getCenter() : context.getClickedPos().relative(context.getClickedFace()).getCenter();
                     switch (state){
-                        case 0 -> shapes.add(WorldShapeManager.CreateSquare(server, 1, BlockStates, GeneratorCenter, false, 10, WorldShapeManager.Axis.Y));
-                        case 1 -> shapes.add(WorldShapeManager.CreateCircle(server, 0.25, BlockStates, GeneratorCenter, false, 5, WorldShapeManager.Axis.Y));
-                        case 2 -> shapes.add(WorldShapeManager.CreateCube(server, 1, BlockStates, GeneratorCenter, false, 5));
-                        case 3 -> shapes.add(WorldShapeManager.CreateRectangle(server, 1, BlockStates, GeneratorCenter, false, 5, 2, 10));
-                        case 4 -> shapes.add(WorldShapeManager.CreateSphere(server, 1, BlockStates, GeneratorCenter, false, 3));
-                        case 5 -> shapes.add(WorldShapeManager.CreateHollowSphere(server, 50, BlockStates, GeneratorCenter, true, 20, 1, true));
+                        case 0 -> shapes.add(WorldShapeManager.CreateSquare(server, 1, BlockStates, GeneratorCenter, true, false, 10, WorldShapeManager.Axis.Y));
+                        case 1 -> shapes.add(WorldShapeManager.CreateCircle(server, 0.25, BlockStates, GeneratorCenter, true, false, 5, WorldShapeManager.Axis.Y));
+                        case 2 -> shapes.add(WorldShapeManager.CreateCube(server, 1, BlockStates, GeneratorCenter, true, false, 5));
+                        case 3 -> shapes.add(WorldShapeManager.CreateRectangle(server, 1, BlockStates, GeneratorCenter, true, false, 5, 2, 10));
+                        case 4 -> shapes.add(WorldShapeManager.CreateSphere(server, 1, BlockStates, GeneratorCenter, true, false, 3));
+                        case 5 -> shapes.add(WorldShapeManager.CreateHollowSphere(server, 50, BlockStates, GeneratorCenter, true, true, 20, 1, true));
                         case 6, 7, 8, 9, 10, 11, 12 -> CreateLine(context.getPlayer(), GeneratorCenter);
                     }
                     if (state != states.line.ordinal() && state != states.weighted_square_line.ordinal() && state != states.weighted_circle_line.ordinal() && state != states.hollow_weighted_circle_line_small.ordinal()  && state != states.hollow_weighted_circle_line_medium.ordinal() && state != states.hollow_weighted_circle_line_large.ordinal() && state != states.tunnel.ordinal()){
@@ -126,13 +126,13 @@ public class ShapeWand extends Item {
         else{
             if (player.level() instanceof ServerLevel server){
                 switch (state){
-                    case 6 -> shapes.add(WorldShapeManager.CreateLine(server, 1, BlockStates, false, LineVectorStart, generatorCenter));
-                    case 7 -> shapes.add(WorldShapeManager.CreateWeightedSquareLine(server, 10, BlockStates, false, LineVectorStart, generatorCenter, 5));
-                    case 8 -> shapes.add(WorldShapeManager.CreateWeightedCircleLine(server, 25, BlockStates, false, LineVectorStart, generatorCenter, 10));
-                    case 9 -> shapes.add(WorldShapeManager.CreateHollowWeightedCircleLine(server, 10, BlockStates, false, LineVectorStart, generatorCenter, 5, 1));
-                    case 10 -> shapes.add(WorldShapeManager.CreateHollowWeightedCircleLine(server, 25, BlockStates, false, LineVectorStart, generatorCenter, 15, 2));
-                    case 11 -> shapes.add(WorldShapeManager.CreateHollowWeightedCircleLine(server, 30, BlockStates, false, LineVectorStart, generatorCenter, 25, 3));
-                    case 12 -> shapes.add(WorldShapeManager.CreateTunnel(server, 30, BlockStates, false, LineVectorStart, generatorCenter, 6, 1));
+                    case 6 -> shapes.add(WorldShapeManager.CreateLine(server, 1, BlockStates, false, LineVectorStart, generatorCenter, true));
+                    case 7 -> shapes.add(WorldShapeManager.CreateWeightedSquareLine(server, 10, BlockStates, false, LineVectorStart, generatorCenter, true, 5));
+                    case 8 -> shapes.add(WorldShapeManager.CreateWeightedCircleLine(server, 25, BlockStates, false, LineVectorStart, generatorCenter, true, 10));
+                    case 9 -> shapes.add(WorldShapeManager.CreateHollowWeightedCircleLine(server, 10, BlockStates, false, LineVectorStart, generatorCenter, true, 5, 1));
+                    case 10 -> shapes.add(WorldShapeManager.CreateHollowWeightedCircleLine(server, 25, BlockStates, false, LineVectorStart, generatorCenter, true, 15, 2));
+                    case 11 -> shapes.add(WorldShapeManager.CreateHollowWeightedCircleLine(server, 30, BlockStates, false, LineVectorStart, generatorCenter, true, 25, 3));
+                    case 12 -> shapes.add(WorldShapeManager.CreateTunnel(server, 30, BlockStates, false, LineVectorStart, generatorCenter, true, 6, 1));
                 }
                 LineVectorStart = null;
             }

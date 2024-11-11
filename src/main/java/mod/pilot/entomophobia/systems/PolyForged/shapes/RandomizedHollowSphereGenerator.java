@@ -13,18 +13,22 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class RandomizedHollowSphereGenerator extends HollowSphereGenerator{
-    public RandomizedHollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int radius, int thickness, double buildChance, boolean trueHollow) {
-        super(server, buildSpeed, blockTypes, pos, replaceableOnly, radius, thickness, trueHollow);
+    public RandomizedHollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                                           boolean replaceableOnly, int radius, int thickness, double buildChance, boolean trueHollow) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, replaceableOnly, radius, thickness, trueHollow);
         BuildChance = buildChance;
     }
 
-    public RandomizedHollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int radius, int thickness, double buildChance, boolean trueHollow) {
-        super(server, buildSpeed, blockTypes, pos, maxHardness, radius, thickness, trueHollow);
+    public RandomizedHollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                                           int maxHardness, int radius, int thickness, double buildChance, boolean trueHollow) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, maxHardness, radius, thickness, trueHollow);
         BuildChance = buildChance;
     }
 
-    public RandomizedHollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, int radius, int thickness, double buildChance, boolean trueHollow) {
-        super(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius, thickness, trueHollow);
+    public RandomizedHollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                                           @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist,
+                                           int radius, int thickness, double buildChance, boolean trueHollow) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, whitelist, blacklist, radius, thickness, trueHollow);
         BuildChance = buildChance;
     }
 
@@ -60,7 +64,9 @@ public class RandomizedHollowSphereGenerator extends HollowSphereGenerator{
                         }
                     }
                     if (succeeded){
-                        BuildTracker--;
+                        if (!(Hydrophobic && !bState.getFluidState().isEmpty())){
+                            BuildTracker--;
+                        }
                         if (BuildTracker <= 0){
                             break;
                         }

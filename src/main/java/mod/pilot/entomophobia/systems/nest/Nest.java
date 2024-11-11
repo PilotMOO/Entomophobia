@@ -95,11 +95,9 @@ public class Nest {
     }
     public void NestTick(){
         if (getNestState() != 1){
-            System.out.println("Nest is not getting ticked because it is not active (state 1)");
             return;
         }
         if (!MainChamber.Dead()){
-            System.out.println("Nest is ticking Main Chamber!");
             MainChamber.OffshootTick(true, true, -1);
         }
     }
@@ -307,13 +305,10 @@ public class Nest {
             return OffshootState == 1 && generator != null && generator.isActive();
         }
         public void OffshootTick(boolean tickChildren, boolean continuous, int layers){
-            System.out.println("Offshoot is ticking! State " + getOffshootState());
             if (ShouldGeneratorTick()){
-                System.out.println("Ticking generator...!");
                 TickGenerator();
             }
             if (tickChildren && children != null){
-                System.out.println("Ticking all children!");
                 for (Offshoot child : children) {
                     child.OffshootTick(continuous, layers != 0, layers - 1);
                 }
@@ -365,7 +360,8 @@ public class Nest {
             ConstructGenerator(server, getPosition(), radius, thickness);
         }
         protected void ConstructGenerator(ServerLevel server, Vec3 pos, int radius, int thickness) {
-            ChamberGenerator generator = WorldShapeManager.CreateChamber(server, NestManager.getNestBuildSpeed(), NestManager.getNestBlocks(), pos, NestManager.getNestMaxHardness(), radius, thickness, 0.5, true);
+            ChamberGenerator generator = WorldShapeManager.CreateChamber(server, NestManager.getNestBuildSpeed(), NestManager.getNestBlocks(),
+                    pos, true, NestManager.getNestMaxHardness(), radius, thickness, 0.5, true);
             if (parent != null && parent instanceof Corridor corridor && corridor.getGenerator() instanceof TunnelGenerator tunnel){
                 for (GhostSphere ghost : tunnel.getGhostLineSpheres((radius + thickness) * 2, true)){
                     addToQueuedGhostPosition(ghost);
@@ -411,8 +407,6 @@ public class Nest {
         @Override
         public void OffshootTick(boolean tickChildren, boolean continuous, int layers) {
             super.OffshootTick(tickChildren, continuous, layers);
-            System.out.println("Chamber is ticking!");
-
             if (getGenerator() != null && getGenerator().isOfState(WorldShapeManager.GeneratorStates.done)
                     && getOffshootState() == 2 && !AreAnyOfMyChildrenAlive()){
                 if (ShouldThisBecomeAParent()){
@@ -506,8 +500,7 @@ public class Nest {
         }
         protected void ConstructGenerator(int weight, int thickness){
             TunnelGenerator tunnel = WorldShapeManager.CreateTunnel(server, NestManager.getNestBuildSpeed(), NestManager.getNestBlocks(),
-                    NestManager.getNestMaxHardness(), getPosition(), GenerateEndPosition(),
-                    weight, thickness);
+                    NestManager.getNestMaxHardness(), getPosition(), GenerateEndPosition(), true, weight, thickness);
 
             if (parent.getGenerator() instanceof ChamberGenerator chamber){
                 addToQueuedGhostPosition(chamber.GenerateInternalGhostSphere());
@@ -544,8 +537,7 @@ public class Nest {
         }
         private void ConstructGeneratorFromBlueprint(int weight, int thickness, Vec3 end){
             TunnelGenerator tunnel = WorldShapeManager.CreateTunnel(server, NestManager.getNestBuildSpeed(), NestManager.getNestBlocks(),
-                    NestManager.getNestMaxHardness(), getPosition(), end,
-                    weight, thickness);
+                    NestManager.getNestMaxHardness(), getPosition(), end, true, weight, thickness);
 
             if (parent.getGenerator() instanceof ChamberGenerator chamber){
                 addToQueuedGhostPosition(chamber.GenerateInternalGhostSphere());
@@ -764,7 +756,6 @@ public class Nest {
                 YTracker--;
                 bPos = new BlockPos((int)pos.x, YTracker, (int)pos.z);
             }
-            server.setBlock(bPos, Blocks.GOLD_BLOCK.defaultBlockState(), 3);
             return bPos.getCenter();
         }
         private boolean CheckNearbyBlocksForSky(BlockPos start){

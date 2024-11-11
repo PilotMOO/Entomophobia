@@ -12,14 +12,18 @@ import java.util.Arrays;
 import java.util.List;
 
 public class VectorLineGenerator extends VectorShapeGenerator {
-    public VectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, boolean replaceableOnly, Vec3 start, Vec3 end) {
-        super(server, buildSpeed, blockTypes, start, replaceableOnly, new ArrayList<>(Arrays.asList(start, end)));
+    public VectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes,
+                               boolean replaceableOnly, Vec3 start, Vec3 end, boolean hydrophobic) {
+        super(server, buildSpeed, blockTypes, start, hydrophobic, replaceableOnly, new ArrayList<>(Arrays.asList(start, end)));
     }
-    public VectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, int maxHardness, Vec3 start, Vec3 end) {
-        super(server, buildSpeed, blockTypes, start, maxHardness, new ArrayList<>(Arrays.asList(start, end)));
+    public VectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes,
+                               int maxHardness, Vec3 start, Vec3 end, boolean hydrophobic) {
+        super(server, buildSpeed, blockTypes, start, hydrophobic, maxHardness, new ArrayList<>(Arrays.asList(start, end)));
     }
-    public VectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, Vec3 start, Vec3 end) {
-        super(server, buildSpeed, blockTypes, start, whitelist, blacklist, new ArrayList<>(Arrays.asList(start, end)));
+    public VectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes,
+                               @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist,
+                               Vec3 start, Vec3 end, boolean hydrophobic) {
+        super(server, buildSpeed, blockTypes, start, hydrophobic, whitelist, blacklist, new ArrayList<>(Arrays.asList(start, end)));
     }
 
     protected final static int start = 0;
@@ -59,7 +63,9 @@ public class VectorLineGenerator extends VectorShapeGenerator {
                 }
             }
             if (succeeded){
-                BuildTracker--;
+                if (!(Hydrophobic && !bState.getFluidState().isEmpty())){
+                    BuildTracker--;
+                }
                 if (BuildTracker <= 0){
                     break;
                 }

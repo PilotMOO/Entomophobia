@@ -7,24 +7,28 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class QuadrilateralGenerator extends ShapeGenerator {
-    public QuadrilateralGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int X, int Y, int Z) {
-        super(server, buildSpeed, blockTypes, pos, replaceableOnly);
+    public QuadrilateralGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                                  boolean replaceableOnly, int X, int Y, int Z) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, replaceableOnly);
         Xsize = X;
         Ysize = Y;
         Zsize = Z;
     }
-    public QuadrilateralGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int X, int Y, int Z) {
-        super(server, buildSpeed, blockTypes, pos, maxHardness);
+    public QuadrilateralGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                                  int maxHardness, int X, int Y, int Z) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, maxHardness);
         Xsize = X;
         Ysize = Y;
         Zsize = Z;
     }
-    public QuadrilateralGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @org.jetbrains.annotations.Nullable List<BlockState> whitelist, @org.jetbrains.annotations.Nullable List<BlockState> blacklist, int X, int Y, int Z) {
-        super(server, buildSpeed, blockTypes, pos, whitelist, blacklist);
+    public QuadrilateralGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                                  @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, int X, int Y, int Z) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, whitelist, blacklist);
         Xsize = X;
         Ysize = Y;
         Zsize = Z;
@@ -64,7 +68,9 @@ public class QuadrilateralGenerator extends ShapeGenerator {
                         }
                     }
                     if (succeeded){
-                        BuildTracker--;
+                        if (!(Hydrophobic && !bState.getFluidState().isEmpty())){
+                            BuildTracker--;
+                        }
                         if (BuildTracker <= 0){
                             break;
                         }

@@ -8,16 +8,19 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public abstract class VectorShapeGenerator extends ShapeGenerator{
-    protected VectorShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, List<Vec3> vectors) {
-        super(server, buildSpeed, blockTypes, pos, replaceableOnly);
+    protected VectorShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                                   boolean replaceableOnly, List<Vec3> vectors) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, replaceableOnly);
         Vectors = vectors;
     }
-    protected VectorShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, List<Vec3> vectors) {
-        super(server, buildSpeed, blockTypes, pos, maxHardness);
+    protected VectorShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                                   int maxHardness, List<Vec3> vectors) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, maxHardness);
         Vectors = vectors;
     }
-    protected VectorShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, List<Vec3> vectors) {
-        super(server, buildSpeed, blockTypes, pos, whitelist, blacklist);
+    protected VectorShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                                   @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, List<Vec3> vectors) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, whitelist, blacklist);
         Vectors = vectors;
     }
 

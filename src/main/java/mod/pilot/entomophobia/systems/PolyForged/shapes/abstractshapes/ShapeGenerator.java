@@ -14,22 +14,25 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public abstract class ShapeGenerator{
-    protected ShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly){
+    protected ShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic, boolean replaceableOnly){
         this.server = server;
         setPlacementDetail(replaceableOnly ? 0 : 3);
         BuildSpeed = buildSpeed;
         BuildingBlocks = blockTypes;
         Position = pos;
+        this.Hydrophobic = hydrophobic;
     }
-    protected ShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness){
+    protected ShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic, int maxHardness){
         this.server = server;
         setPlacementDetail(1);
         BuildSpeed = buildSpeed;
         BuildingBlocks = blockTypes;
         Position = pos;
         MaxHardness = maxHardness;
+        this.Hydrophobic = hydrophobic;
     }
-    protected ShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist){
+    protected ShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                             @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist){
         this.server = server;
         setPlacementDetail(2);
         BuildSpeed = buildSpeed;
@@ -37,6 +40,7 @@ public abstract class ShapeGenerator{
         Position = pos;
         ReplaceWhitelist = whitelist;
         ReplaceBlacklist = blacklist;
+        this.Hydrophobic = hydrophobic;
     }
 
     private int GeneratorState;
@@ -114,6 +118,8 @@ public abstract class ShapeGenerator{
         }
         return flag;
     }
+
+    public final boolean Hydrophobic;
 
     private double BuildSpeed;
     public double getBuildSpeed(){

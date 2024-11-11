@@ -9,8 +9,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public abstract class FlatShapeGenerator extends ShapeGenerator{
-    protected FlatShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int Xsize, int Ysize, int Zsize, WorldShapeManager.Axis excluded) {
-        super(server, buildSpeed, blockTypes, pos, replaceableOnly);
+    protected FlatShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                                 boolean replaceableOnly, int Xsize, int Ysize, int Zsize, WorldShapeManager.Axis excluded) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, replaceableOnly);
         int X = 1, Y = 1, Z = 1;
         switch (excluded.ordinal()) {
             case 0 -> {
@@ -31,8 +32,9 @@ public abstract class FlatShapeGenerator extends ShapeGenerator{
         ExcludedAxis = excluded;
     }
 
-    protected FlatShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int Xsize, int Ysize, int Zsize, WorldShapeManager.Axis excluded) {
-        super(server, buildSpeed, blockTypes, pos, maxHardness);
+    protected FlatShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                                 int maxHardness, int Xsize, int Ysize, int Zsize, WorldShapeManager.Axis excluded) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, maxHardness);
         int X = 1, Y = 1, Z = 1;
         switch (excluded.ordinal()) {
             case 0 -> {
@@ -53,8 +55,10 @@ public abstract class FlatShapeGenerator extends ShapeGenerator{
         ExcludedAxis = excluded;
     }
 
-    protected FlatShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, int Xsize, int Ysize, int Zsize, WorldShapeManager.Axis excluded) {
-        super(server, buildSpeed, blockTypes, pos, whitelist, blacklist);
+    protected FlatShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos,  boolean hydrophobic,
+                                 @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist,
+                                 int Xsize, int Ysize, int Zsize, WorldShapeManager.Axis excluded) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, whitelist, blacklist);
         int X = 1, Y = 1, Z = 1;
         switch (excluded.ordinal()) {
             case 0 -> {

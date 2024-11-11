@@ -13,16 +13,20 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class CircleGenerator extends FlatShapeGenerator {
-    public CircleGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos,boolean replaceableOnly, int radius, WorldShapeManager.Axis excluded) {
-        super(server, buildSpeed, blockTypes, pos, replaceableOnly, radius, radius, radius, excluded);
+    public CircleGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                           boolean replaceableOnly, int radius, WorldShapeManager.Axis excluded) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, replaceableOnly, radius, radius, radius, excluded);
     }
 
-    public CircleGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int radius, WorldShapeManager.Axis excluded) {
-        super(server, buildSpeed, blockTypes, pos, maxHardness, radius, radius, radius, excluded);
+    public CircleGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                           int maxHardness, int radius, WorldShapeManager.Axis excluded) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, maxHardness, radius, radius, radius, excluded);
     }
 
-    public CircleGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, int radius, WorldShapeManager.Axis excluded) {
-        super(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius, radius, radius, excluded);
+    public CircleGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                           @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist,
+                           int radius, WorldShapeManager.Axis excluded) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, whitelist, blacklist, radius, radius, radius, excluded);
     }
 
     @Override
@@ -56,7 +60,9 @@ public class CircleGenerator extends FlatShapeGenerator {
                         }
                     }
                     if (succeeded){
-                        BuildTracker--;
+                        if (!(Hydrophobic && !bState.getFluidState().isEmpty())){
+                            BuildTracker--;
+                        }
                         if (BuildTracker <= 0){
                             break;
                         }

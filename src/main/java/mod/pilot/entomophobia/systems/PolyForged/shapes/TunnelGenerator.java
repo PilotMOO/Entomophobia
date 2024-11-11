@@ -10,14 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TunnelGenerator extends HollowWeightedCircleLineGenerator{
-    public TunnelGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, boolean replaceableOnly, Vec3 start, Vec3 end, int weight, int thickness) {
-        super(server, buildSpeed, blockTypes, replaceableOnly, start, end, weight, thickness);
+    public TunnelGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, boolean replaceableOnly,
+                           Vec3 start, Vec3 end, boolean hydrophobic, int weight, int thickness) {
+        super(server, buildSpeed, blockTypes, replaceableOnly, start, end, hydrophobic, weight, thickness);
     }
-    public TunnelGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, int maxHardness, Vec3 start, Vec3 end, int weight, int thickness) {
-        super(server, buildSpeed, blockTypes, maxHardness, start, end, weight, thickness);
+    public TunnelGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, int maxHardness,
+                           Vec3 start, Vec3 end, boolean hydrophobic, int weight, int thickness) {
+        super(server, buildSpeed, blockTypes, maxHardness, start, end, hydrophobic, weight, thickness);
     }
-    public TunnelGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, Vec3 start, Vec3 end, int weight, int thickness) {
-        super(server, buildSpeed, blockTypes, whitelist, blacklist, start, end, weight, thickness);
+    public TunnelGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes,
+                           @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist,
+                           Vec3 start, Vec3 end, boolean hydrophobic, int weight, int thickness) {
+        super(server, buildSpeed, blockTypes, whitelist, blacklist, start, end, hydrophobic, weight, thickness);
     }
 
     private ArrayList<GhostSphere> toAdd;

@@ -9,18 +9,22 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public abstract class WeightedVectorLineGenerator extends VectorLineGenerator {
-    public WeightedVectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, boolean replaceableOnly, Vec3 start, Vec3 end, int weight) {
-        super(server, buildSpeed, blockTypes, replaceableOnly, start, end);
+    public WeightedVectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes,
+                                       boolean replaceableOnly, Vec3 start, Vec3 end, boolean hydrophobic, int weight) {
+        super(server, buildSpeed, blockTypes, replaceableOnly, start, end, hydrophobic);
         this.weight = weight;
     }
 
-    public WeightedVectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, int maxHardness, Vec3 start, Vec3 end, int weight) {
-        super(server, buildSpeed, blockTypes, maxHardness, start, end);
+    public WeightedVectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes,
+                                       int maxHardness, Vec3 start, Vec3 end, boolean hydrophobic, int weight) {
+        super(server, buildSpeed, blockTypes, maxHardness, start, end, hydrophobic);
         this.weight = weight;
     }
 
-    public WeightedVectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, Vec3 start, Vec3 end, int weight) {
-        super(server, buildSpeed, blockTypes, whitelist, blacklist, start, end);
+    public WeightedVectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes,
+                                       @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist,
+                                       Vec3 start, Vec3 end, boolean hydrophobic, int weight) {
+        super(server, buildSpeed, blockTypes, whitelist, blacklist, start, end, hydrophobic);
         this.weight = weight;
     }
 

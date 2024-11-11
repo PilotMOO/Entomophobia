@@ -13,14 +13,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChamberGenerator extends RandomizedHollowSphereGenerator{
-    public ChamberGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean replaceableOnly, int radius, int thickness, double buildChance, boolean trueHollow) {
-        super(server, buildSpeed, blockTypes, pos, replaceableOnly, radius, thickness, buildChance, trueHollow);
+    public ChamberGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                            boolean replaceableOnly, int radius, int thickness, double buildChance, boolean trueHollow) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, replaceableOnly, radius, thickness, buildChance, trueHollow);
     }
-    public ChamberGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, int maxHardness, int radius, int thickness, double buildChance, boolean trueHollow) {
-        super(server, buildSpeed, blockTypes, pos, maxHardness, radius, thickness, buildChance, trueHollow);
+    public ChamberGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                            int maxHardness, int radius, int thickness, double buildChance, boolean trueHollow) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, maxHardness, radius, thickness, buildChance, trueHollow);
     }
-    public ChamberGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, int radius, int thickness, double buildChance, boolean trueHollow) {
-        super(server, buildSpeed, blockTypes, pos, whitelist, blacklist, radius, thickness, buildChance, trueHollow);
+    public ChamberGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+                            @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist,
+                            int radius, int thickness, double buildChance, boolean trueHollow) {
+        super(server, buildSpeed, blockTypes, pos, hydrophobic, whitelist, blacklist, radius, thickness, buildChance, trueHollow);
     }
 
     private final ArrayList<GhostSphere> GhostSpheres = new ArrayList<>();
@@ -50,7 +54,7 @@ public class ChamberGenerator extends RandomizedHollowSphereGenerator{
             for(int y = 0; y <= 2*radius; ++y) {
                 for(int z = 0; z <= 2*radius; ++z) {
                     Vec3 center = getPosition();
-                    BlockPos bPos = new BlockPos(new Vec3i((int)(center.x + (x - radius) - 1), (int)(center.y + (y - radius) - 1), (int)(center.z + (z - radius) - 1)));
+                    BlockPos bPos = new BlockPos((int)(center.x + (x - radius) - 1), (int)(center.y + (y - radius) - 1), (int)(center.z + (z - radius) - 1));
                     double distance = center.distanceTo(bPos.getCenter());
                     BlockState bState = server.getBlockState(bPos);
                     if (canThisBeReplaced(bState, bPos) && distance <= radius && (TrueHollow || distance > radius - thickness)){
@@ -82,7 +86,9 @@ public class ChamberGenerator extends RandomizedHollowSphereGenerator{
                         }
                     }
                     if (succeeded){
-                        BuildTracker--;
+                        if (!(Hydrophobic && !bState.getFluidState().isEmpty())){
+                            BuildTracker--;
+                        }
                         if (BuildTracker <= 0){
                             break;
                         }
