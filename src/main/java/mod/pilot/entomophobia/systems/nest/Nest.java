@@ -21,29 +21,25 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 
 public class Nest {
-    public Nest(ServerLevel server, Vec3 start, int tickFrequency){
+    public Nest(ServerLevel server, Vec3 start){
         this.server = server;
         origin = start;
-        TickFrequency = tickFrequency;
         MainChamber = CreateMainChamber();
         Enable();
         NestSaveData.Dirty();
     }
-    private Nest(ServerLevel server, Vec3 start, byte state, int tickFrequency, Chamber mainChamber){
+    private Nest(ServerLevel server, Vec3 start, byte state, Chamber mainChamber){
         this.server = server;
         origin = start;
         NestState = state;
-        TickFrequency = tickFrequency;
         MainChamber = mainChamber;
     }
-    public static Nest ConstructFromBlueprint(ServerLevel server, Vec3 start, byte state, int tickFrequency, Chamber mainChamber){
-        return new Nest(server, start, state, tickFrequency, mainChamber.DenoteAsMain());
+    public static Nest ConstructFromBlueprint(ServerLevel server, Vec3 start, byte state, Chamber mainChamber){
+        return new Nest(server, start, state, mainChamber.DenoteAsMain());
     }
 
     public ServerLevel server;
     public static final RandomSource random = RandomSource.create();
-
-    public final int TickFrequency;
 
     public final Vec3 origin;
 
@@ -87,12 +83,7 @@ public class Nest {
         return new Chamber(server, null, origin,
                 Config.SERVER.large_chamber_max_size.get(), Config.SERVER.large_chamber_thickness.get()).DenoteAsMain();
     }
-    public Offshoot CreateNewOffshootFrom(Offshoot parent, byte newShootType){
-        return parent.ConstructNewChild(newShootType);
-    }
-    public Offshoot CreateNewOffshootFromMain(byte newShootType){
-        return CreateNewOffshootFrom(MainChamber, newShootType);
-    }
+
     public void NestTick(){
         if (getNestState() != 1){
             return;
@@ -105,7 +96,6 @@ public class Nest {
     public abstract static class Offshoot{
         protected Offshoot(ServerLevel server, byte type, @Nullable Offshoot parent, Vec3 position){
             OffshootType = type;
-            Enable();
             this.server = server;
             this.parent = parent;
             this.position = position;
@@ -113,6 +103,7 @@ public class Nest {
                 DeadEnd = !ShouldThisBecomeAParent();
             }
 
+            Enable();
             NestSaveData.Dirty();
         }
         protected Offshoot(ServerLevel server, byte type, @Nullable Offshoot parent, Vec3 position, byte state, boolean deadEnd){
@@ -187,15 +178,9 @@ public class Nest {
             OffshootState = state;
             NestSaveData.Dirty();
         }
-        public void Disable(){
-            setOffshootState((byte)0);
-        }
-        public void Enable(){
-            setOffshootState((byte)1);
-        }
-        public void Finish(){
-            setOffshootState((byte)2);
-        }
+        public void Disable(){ setOffshootState((byte)0); }
+        public void Enable(){ setOffshootState((byte)1); }
+        public void Finish(){ setOffshootState((byte)2); }
         private final byte OffshootType;
         public byte getOffshootType(){
             return OffshootType;
@@ -231,6 +216,7 @@ public class Nest {
             }
             return -1;
         }
+
         @Nullable
         public ArrayList<Offshoot> children;
         public boolean AddToChildren(Offshoot child){

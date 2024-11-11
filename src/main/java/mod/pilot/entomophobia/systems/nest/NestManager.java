@@ -37,13 +37,13 @@ public class NestManager {
         ActiveNests.clear();
     }
     public static Nest ConstructNewNest(ServerLevel server, Vec3 start){
-        Nest nest = new Nest(server, start, getTickFrequency());
+        Nest nest = new Nest(server, start);
         addToActiveNests(nest);
         NestSaveData.Dirty();
         return nest;
     }
     public static Nest ConstructFromBlueprint(ServerLevel server, Vec3 start, byte state, Nest.Chamber mainChamber){
-        Nest toReturn = Nest.ConstructFromBlueprint(server, start, state, NestManager.getTickFrequency(), mainChamber);
+        Nest toReturn = Nest.ConstructFromBlueprint(server, start, state, mainChamber);
         addToActiveNests(toReturn);
         return toReturn;
     }
