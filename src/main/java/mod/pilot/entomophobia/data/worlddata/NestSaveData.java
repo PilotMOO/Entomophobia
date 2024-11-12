@@ -1,7 +1,7 @@
 package mod.pilot.entomophobia.data.worlddata;
 
 import mod.pilot.entomophobia.Entomophobia;
-import mod.pilot.entomophobia.event.EntomoHandlerEvents;
+import mod.pilot.entomophobia.event.EntomoForgeEvents;
 import mod.pilot.entomophobia.systems.nest.Nest;
 import mod.pilot.entomophobia.systems.nest.NestManager;
 import net.minecraft.nbt.CompoundTag;
@@ -19,7 +19,7 @@ public class NestSaveData extends SavedData {
 
     public NestSaveData(){
         super();
-        server = EntomoHandlerEvents.getServer();
+        server = EntomoForgeEvents.getServer();
     }
     public static void SetActiveNestData(ServerLevel server){
         Entomophobia.activeNestData = server.getDataStorage().computeIfAbsent(NestSaveData::load, NestSaveData::new, NAME);

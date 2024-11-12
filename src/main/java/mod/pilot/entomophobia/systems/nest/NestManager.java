@@ -75,50 +75,50 @@ public class NestManager {
     }
 
     public static void setNestConstructionDetails(){
-        TickFrequency = Config.SERVER.nest_tick_frequency.get();
-        NestBuildSpeed = Config.SERVER.nest_build_speed.get();
-        NestMaxHardness = Config.SERVER.nest_max_hardness.get();
-        NestMaxLayers = Config.SERVER.max_nest_layers.get();
+        TickFrequency = Config.NEST.nest_tick_frequency.get();
+        NestBuildSpeed = Config.NEST.nest_build_speed.get();
+        NestMaxHardness = Config.NEST.nest_max_hardness.get();
+        NestMaxLayers = Config.NEST.max_nest_layers.get();
 
         NestBlocks = new ArrayList<>();
-        for (String blockID : Config.SERVER.nest_build_materials.get()){
+        for (String blockID : Config.NEST.nest_build_materials.get()){
             Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(blockID));
             if (block != null){
                 NestBlocks.add(block.defaultBlockState());
             }
         }
 
-        NestSmallChamberMinRadius = Config.SERVER.small_chamber_min_size.get();
-        NestSmallChamberMaxRadius = Config.SERVER.small_chamber_max_size.get();
-        NestSmallChamberThickness = Config.SERVER.small_chamber_thickness.get();
+        NestSmallChamberMinRadius = Config.NEST.small_chamber_min_size.get();
+        NestSmallChamberMaxRadius = Config.NEST.small_chamber_max_size.get();
+        NestSmallChamberThickness = Config.NEST.small_chamber_thickness.get();
 
-        NestMediumChamberMinRadius = Config.SERVER.medium_chamber_min_size.get();
-        NestMediumChamberMaxRadius = Config.SERVER.medium_chamber_max_size.get();
-        NestMediumChamberThickness = Config.SERVER.medium_chamber_thickness.get();
+        NestMediumChamberMinRadius = Config.NEST.medium_chamber_min_size.get();
+        NestMediumChamberMaxRadius = Config.NEST.medium_chamber_max_size.get();
+        NestMediumChamberThickness = Config.NEST.medium_chamber_thickness.get();
 
-        NestLargeChamberMinRadius = Config.SERVER.large_chamber_min_size.get();
-        NestLargeChamberMaxRadius = Config.SERVER.large_chamber_max_size.get();
-        NestLargeChamberThickness = Config.SERVER.large_chamber_thickness.get();
+        NestLargeChamberMinRadius = Config.NEST.large_chamber_min_size.get();
+        NestLargeChamberMaxRadius = Config.NEST.large_chamber_max_size.get();
+        NestLargeChamberThickness = Config.NEST.large_chamber_thickness.get();
 
-        NestSmallCorridorMinRadius = Config.SERVER.small_corridor_min_size.get();
-        NestSmallCorridorMaxRadius = Config.SERVER.small_corridor_max_size.get();
-        NestSmallCorridorThickness = Config.SERVER.small_corridor_thickness.get();
+        NestSmallCorridorMinRadius = Config.NEST.small_corridor_min_size.get();
+        NestSmallCorridorMaxRadius = Config.NEST.small_corridor_max_size.get();
+        NestSmallCorridorThickness = Config.NEST.small_corridor_thickness.get();
 
-        NestMediumCorridorMinRadius = Config.SERVER.medium_corridor_min_size.get();
-        NestMediumCorridorMaxRadius = Config.SERVER.medium_corridor_max_size.get();
-        NestMediumCorridorThickness = Config.SERVER.medium_corridor_thickness.get();
+        NestMediumCorridorMinRadius = Config.NEST.medium_corridor_min_size.get();
+        NestMediumCorridorMaxRadius = Config.NEST.medium_corridor_max_size.get();
+        NestMediumCorridorThickness = Config.NEST.medium_corridor_thickness.get();
 
-        NestLargeCorridorMinRadius = Config.SERVER.large_corridor_min_size.get();
-        NestLargeCorridorMaxRadius = Config.SERVER.large_corridor_max_size.get();
-        NestLargeCorridorThickness = Config.SERVER.large_corridor_thickness.get();
+        NestLargeCorridorMinRadius = Config.NEST.large_corridor_min_size.get();
+        NestLargeCorridorMaxRadius = Config.NEST.large_corridor_max_size.get();
+        NestLargeCorridorThickness = Config.NEST.large_corridor_thickness.get();
 
-        NestMinCorridorLength = Config.SERVER.min_corridor_length.get();
-        NestMaxCorridorLength = Config.SERVER.max_corridor_length.get();
-        NestMaxCorridorExtensions = Config.SERVER.max_corridor_extension.get();
+        NestMinCorridorLength = Config.NEST.min_corridor_length.get();
+        NestMaxCorridorLength = Config.NEST.max_corridor_length.get();
+        NestMaxCorridorExtensions = Config.NEST.max_corridor_extension.get();
 
-        NestCorridorExtensionChance = Config.SERVER.corridor_extension_chance.get();
+        NestCorridorExtensionChance = Config.NEST.corridor_extension_chance.get();
 
-        NestYBuildPriority = Config.SERVER.nest_y_build_priority.get();
+        NestYBuildPriority = Config.NEST.nest_y_build_priority.get();
     }
     private static int TickFrequency;
     public static int getTickFrequency(){

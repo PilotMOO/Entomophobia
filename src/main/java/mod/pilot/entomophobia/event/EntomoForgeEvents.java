@@ -13,7 +13,6 @@ import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
 import mod.pilot.entomophobia.systems.nest.NestManager;
 import mod.pilot.entomophobia.systems.swarm.Swarm;
 import mod.pilot.entomophobia.systems.swarm.SwarmManager;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -41,14 +40,14 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.server.*;
-import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mod.EventBusSubscriber(modid = Entomophobia.MOD_ID)
-public class EntomoHandlerEvents {
+public class EntomoForgeEvents {
     @SubscribeEvent
     public static void onLivingSpawned(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof MyiaticBase && event.getLevel() instanceof ServerLevel server && server.getServer().isReady()){
@@ -169,28 +168,38 @@ public class EntomoHandlerEvents {
         }
     }
 
+    private static final int LoadRadius = 1;
+
     @SubscribeEvent
     public static void LoadCaptain(EntityEvent.EnteringSection event){
         Entity E = event.getEntity();
-        if (!(E.level() instanceof ServerLevel) || !(E instanceof MyiaticBase M)) return;
-        boolean captainFlag = false;
-        for (Swarm swarm : SwarmManager.getSwarms()){
-            if (swarm.isActive() && swarm.getCaptain() == M) {
-                captainFlag = true;
-                break;
+        if (!(E.level() instanceof ServerLevel)
+                || !(E instanceof MyiaticBase M)
+                || !event.didChunkChange()
+                || !M.amITheCaptain()
+                || event.getNewPos() == event.getOldPos()) return;
+
+        ChunkPos captainCPos = M.chunkPosition();
+        ArrayList<ChunkPos> loadedChunkTracker = new ArrayList<>();
+
+        //Loading new chunks
+        for (int x = -LoadRadius; x <= LoadRadius; x++){
+            for (int z = -LoadRadius; z <= LoadRadius; z++){
+                ChunkPos cPos = new ChunkPos(captainCPos.x + x, captainCPos.z + z);
+
+                ForgeChunkManager.forceChunk((ServerLevel) M.level(), Entomophobia.MOD_ID, M,
+                        cPos.x, cPos.z, true, false);
+                loadedChunkTracker.add(cPos);
             }
         }
-        if (!captainFlag) return;
+        //Unloading old chunks
+        for (int x = -LoadRadius; x <= LoadRadius; x++){
+            for (int z = -LoadRadius; z <= LoadRadius; z++){
+                ChunkPos cPos = event.getOldPos().offset(x, 0, z).chunk();
+                if (loadedChunkTracker.contains(cPos)) continue;
 
-        SectionPos OldChunk = event.getOldPos();
-        SectionPos NewChunk = event.getNewPos();
-        if (event.didChunkChange() && OldChunk != NewChunk){
-            ChunkPos cPos = M.chunkPosition();
-            if (NewChunk != null){
-                ForgeChunkManager.forceChunk((ServerLevel)M.level(), Entomophobia.MOD_ID, M, cPos.x, cPos.z, true, false);
-            }
-            if (OldChunk != null){
-                ForgeChunkManager.forceChunk((ServerLevel)M.level(), Entomophobia.MOD_ID, M, cPos.x, cPos.z, false, false);
+                ForgeChunkManager.forceChunk((ServerLevel) M.level(), Entomophobia.MOD_ID, M,
+                        cPos.x, cPos.z, false, false);
             }
         }
     }

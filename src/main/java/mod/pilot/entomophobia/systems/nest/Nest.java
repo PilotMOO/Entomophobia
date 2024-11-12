@@ -81,7 +81,7 @@ public class Nest {
     public final Chamber MainChamber;
     private Chamber CreateMainChamber(){
         return new Chamber(server, null, origin,
-                Config.SERVER.large_chamber_max_size.get(), Config.SERVER.large_chamber_thickness.get()).DenoteAsMain();
+                Config.NEST.large_chamber_max_size.get(), Config.NEST.large_chamber_thickness.get()).DenoteAsMain();
     }
 
     public void NestTick(){

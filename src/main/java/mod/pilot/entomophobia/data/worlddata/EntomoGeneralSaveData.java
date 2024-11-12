@@ -1,7 +1,7 @@
 package mod.pilot.entomophobia.data.worlddata;
 
 import mod.pilot.entomophobia.Entomophobia;
-import mod.pilot.entomophobia.event.EntomoHandlerEvents;
+import mod.pilot.entomophobia.event.EntomoForgeEvents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -18,7 +18,7 @@ public class EntomoGeneralSaveData extends SavedData {
     public EntomoGeneralSaveData(){
         super();
         MyiaticStorage = "dummy/";
-        server = EntomoHandlerEvents.getServer();
+        server = EntomoForgeEvents.getServer();
     }
     public static void SetActiveData(ServerLevel server){
         Entomophobia.activeData = server.getDataStorage().computeIfAbsent(EntomoGeneralSaveData::load, EntomoGeneralSaveData::new, NAME);
