@@ -3,6 +3,7 @@ package mod.pilot.entomophobia.event;
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
+import mod.pilot.entomophobia.data.worlddata.SwarmSaveData;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.effects.StackingEffectBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
@@ -13,7 +14,6 @@ import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
 import mod.pilot.entomophobia.systems.nest.NestManager;
 import mod.pilot.entomophobia.systems.swarm.Swarm;
 import mod.pilot.entomophobia.systems.swarm.SwarmManager;
-import net.minecraft.core.SectionPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -31,6 +31,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.world.ForgeChunkManager;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityEvent;
@@ -39,7 +40,9 @@ import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.server.*;
+import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -62,10 +65,16 @@ public class EntomoForgeEvents {
         }
     }
     @SubscribeEvent
-    public static void onEntityDeath(LivingDeathEvent event){
-        if (event.getEntity() instanceof MyiaticBase M && M.level() instanceof ServerLevel){
-            Entomophobia.activeData.RemoveFromMyiaticCount();
-            System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
+    public static void HandleSwarms(EntityJoinLevelEvent event){
+        if (!(event.getLevel() instanceof ServerLevel) || !(event.getEntity() instanceof MyiaticBase M)) return;
+
+        if (Entomophobia.activeSwarmData != null && Entomophobia.activeSwarmData.toUnpack.size() != 0){
+            for (SwarmSaveData.SwarmPackager.PackagedSwarm pSwarm : Entomophobia.activeSwarmData.toUnpack){
+                if (M.getUUID().equals(pSwarm.captain())){
+                    pSwarm.Unpack(M);
+                    return;
+                }
+            }
         }
     }
 
@@ -85,12 +94,18 @@ public class EntomoForgeEvents {
             }
         }
     }
-
     @SubscribeEvent
-    public static void ServerStart(ServerStartedEvent event){
-        EntomoGeneralSaveData.SetActiveData(event.getServer().overworld());
-        NestSaveData.SetActiveNestData(event.getServer().overworld());
-        System.out.println("Amount of myiatics in storage: " + Entomophobia.activeData.GetTotalInStorage());
+    public static void onEntityDeath(LivingDeathEvent event){
+        if (event.getEntity() instanceof MyiaticBase M && M.level() instanceof ServerLevel){
+            Entomophobia.activeData.RemoveFromMyiaticCount();
+            System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
+        }
+    }
+
+
+    private static ServerLevel server;
+    public static ServerLevel getServer(){
+        return server;
     }
     @SubscribeEvent
     public static void ServerStarting(ServerStartingEvent event){
@@ -98,17 +113,23 @@ public class EntomoForgeEvents {
         SwarmManager.setSwarmDetails();
         server = event.getServer().overworld();
     }
-
-    private static ServerLevel server;
-    public static ServerLevel getServer(){
-        return server;
-    }
-
     @SubscribeEvent
-    public static void PostServerEnd(ServerStoppedEvent event){
+    public static void ServerStartDataSetup(ServerStartedEvent event){
+        ServerLevel server = event.getServer().overworld();
+        EntomoGeneralSaveData.SetActiveData(server);
+        NestSaveData.SetActiveNestData(server);
+        SwarmSaveData.SetActiveSwarmData(server);
+        System.out.println("Amount of myiatics in storage: " + Entomophobia.activeData.getTotalInStorage());
+    }
+    @SubscribeEvent
+    public static void PostServerCleanup(ServerStoppedEvent event){
         System.out.println("Clearing out all nests!");
         NestManager.ClearNests();
+        System.out.println("Clearing out all swarms!");
+        SwarmManager.PurgeAllSwarms();
     }
+
+
 
     @SubscribeEvent
     public static void PotionApplication(MobEffectEvent.Added event){
@@ -117,7 +138,7 @@ public class EntomoForgeEvents {
         if (oldEffect != null && oldEffect.getEffect() instanceof StackingEffectBase stacking){
             LivingEntity target = event.getEntity();
             int CumulativeDuration = oldEffect.getDuration() + newEffect.getDuration();
-            int amp = (int)Mth.absMax(oldEffect.getAmplifier(), newEffect.getAmplifier());
+            int amp = (int) Mth.absMax(oldEffect.getAmplifier(), newEffect.getAmplifier());
 
             target.removeEffect(oldEffect.getEffect());
             target.addEffect(new MobEffectInstance(oldEffect.getEffect(), CumulativeDuration, amp));

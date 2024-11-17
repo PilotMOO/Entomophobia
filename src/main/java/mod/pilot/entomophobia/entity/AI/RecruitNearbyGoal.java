@@ -33,8 +33,10 @@ public class RecruitNearbyGoal extends Goal implements ISwarmOrder {
             }
             for (MyiaticBase M : parent.getNearbyMyiatics()){
                 if (!M.canSwarm() || M.isInSwarm()) continue;
-                M.TryToRecruit(parent.getSwarm());
-                M.addEffect(new MobEffectInstance(MobEffects.GLOWING, 40));
+                boolean flag = M.TryToRecruit(parent.getSwarm());
+                if (flag) {
+                    M.addEffect(new MobEffectInstance(MobEffects.GLOWING, 40));
+                }
             }
         }
     }

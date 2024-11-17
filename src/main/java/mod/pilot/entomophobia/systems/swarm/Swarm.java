@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 
 public abstract class Swarm {
-    protected Swarm(byte type, MyiaticBase captain, int maxRecruits){
+    protected Swarm(byte type, MyiaticBase captain, int maxRecruits, @Nullable Vec3 finalPos){
         SwarmType = type;
         AssignNewCaptain(captain);
         if (getCaptain() == null){
@@ -24,9 +24,10 @@ public abstract class Swarm {
             return;
         }
         setMaxRecruits(maxRecruits);
+        setDestination(finalPos);
         Enable();
     }
-    protected Swarm(byte type, ArrayList<MyiaticBase> possibleCaptains, int maxRecruits){
+    protected Swarm(byte type, ArrayList<MyiaticBase> possibleCaptains, int maxRecruits, @Nullable Vec3 finalPos){
         SwarmType = type;
         AssignNewCaptain(DecideCaptain(possibleCaptains));
         if (getCaptain() == null){
@@ -34,6 +35,7 @@ public abstract class Swarm {
             return;
         }
         setMaxRecruits(maxRecruits);
+        setDestination(finalPos);
         Enable();
     }
 
@@ -63,8 +65,8 @@ public abstract class Swarm {
         MyiaticBase newCaptain = AssignNewCaptain ? DecideCaptain(getUnits()) : getCaptain();
         switch (newType.ordinal()){
             default -> toReturn = null;
-            case 0 -> toReturn = new AimlessSwarm(newCaptain, getMaxRecruits());
-            case 1 -> toReturn = new HuntSwarm(newCaptain, getMaxRecruits());
+            case 0 -> toReturn = new AimlessSwarm(newCaptain, getMaxRecruits(), getDestination());
+            case 1 -> toReturn = new HuntSwarm(newCaptain, getMaxRecruits(), getDestination());
         }
         if (toReturn == null) return null;
 
@@ -189,6 +191,11 @@ public abstract class Swarm {
     public @Nullable Vec3 getSwarmPosition(){
         if (getCaptain() == null) return null;
         return getCaptain().position();
+    }
+    public double distanceTo(Vec3 pos){
+        Vec3 swarmPos = getSwarmPosition();
+        if (swarmPos == null) return -1;
+        return swarmPos.distanceTo(pos);
     }
 
     private final ArrayList<MyiaticBase> units = new ArrayList<>();
@@ -329,7 +336,7 @@ public abstract class Swarm {
         MaxRecruits = max;
     }
 
-    protected int RecruitRange(){
+    public int RecruitRange(){
         if (getCaptain() == null) return 0;
         return (int)getCaptain().getAttributeValue(Attributes.FOLLOW_RANGE);
     }
@@ -348,7 +355,7 @@ public abstract class Swarm {
     }
 
     public void RecruitNearby(){
-        AABB nearby = new AABB(getCaptain().blockPosition()).inflate(RecruitRange());
+        AABB nearby = getCaptain().getBoundingBox().inflate(RecruitRange());
         for (MyiaticBase M : getCaptain().level().getEntitiesOfClass(MyiaticBase.class, nearby, (M) -> true)){
             M.TryToRecruit(this);
         }
@@ -356,12 +363,12 @@ public abstract class Swarm {
 
     public static class AimlessSwarm extends Swarm{
         private static final byte SwarmType = 0;
-        protected AimlessSwarm(MyiaticBase captain, int maxRecruits){
-            super(SwarmType, captain, maxRecruits);
+        protected AimlessSwarm(MyiaticBase captain, int maxRecruits, @Nullable Vec3 finalPos){
+            super(SwarmType, captain, maxRecruits, finalPos);
             Idle();
         }
-        protected AimlessSwarm(ArrayList<MyiaticBase> possibleCaptains, int maxRecruits){
-            super(SwarmType, possibleCaptains, maxRecruits);
+        protected AimlessSwarm(ArrayList<MyiaticBase> possibleCaptains, int maxRecruits, @Nullable Vec3 finalPos){
+            super(SwarmType, possibleCaptains, maxRecruits, finalPos);
             Idle();
         }
 
@@ -377,11 +384,11 @@ public abstract class Swarm {
     }
     public static class HuntSwarm extends Swarm{
         private static final byte SwarmType = 1;
-        protected HuntSwarm(MyiaticBase captain, int maxRecruits) {
-            super(SwarmType, captain, maxRecruits);
+        protected HuntSwarm(MyiaticBase captain, int maxRecruits, @Nullable Vec3 finalPos) {
+            super(SwarmType, captain, maxRecruits, finalPos);
         }
-        protected HuntSwarm(ArrayList<MyiaticBase> possibleCaptains, int maxRecruits) {
-            super(SwarmType, possibleCaptains, maxRecruits);
+        protected HuntSwarm(ArrayList<MyiaticBase> possibleCaptains, int maxRecruits, @Nullable Vec3 finalPos) {
+            super(SwarmType, possibleCaptains, maxRecruits, finalPos);
         }
 
         @Override

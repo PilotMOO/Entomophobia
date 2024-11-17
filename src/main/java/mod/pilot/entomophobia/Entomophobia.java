@@ -3,6 +3,7 @@ package mod.pilot.entomophobia;
 import com.mojang.logging.LogUtils;
 import mod.pilot.entomophobia.blocks.EntomoBlocks;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
+import mod.pilot.entomophobia.data.worlddata.SwarmSaveData;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.items.EntomoCreativeTabs;
@@ -26,6 +27,7 @@ public class Entomophobia
     private static final Logger LOGGER = LogUtils.getLogger();
     public static EntomoGeneralSaveData activeData;
     public static NestSaveData activeNestData;
+    public static SwarmSaveData activeSwarmData;
 
     public Entomophobia() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();

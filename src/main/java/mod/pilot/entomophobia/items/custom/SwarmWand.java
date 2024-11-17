@@ -46,7 +46,7 @@ public class SwarmWand extends Item {
                     }
                 }
                 else{
-                    SwarmManager.CreateSwarm(getCurrentType(), M, SwarmManager.getBaseSwarmMaxSize());
+                    SwarmManager.CreateSwarm(getCurrentType(), M, SwarmManager.getBaseSwarmMaxSize(), null);
                     server.playSound(null, M.blockPosition(), SoundEvents.BELL_BLOCK, SoundSource.PLAYERS, 1.0f, 1.0f);
                     Vec3 pos = M.position();
                     server.getNearestPlayer(pos.x, pos.y, pos.z, -1, false)
@@ -83,6 +83,7 @@ public class SwarmWand extends Item {
         }
         else{
             for (Swarm swarm : SwarmManager.getSwarms()){
+                if (swarm.isDisbanded()) continue;
                 player.displayClientMessage(Component.literal("Highlighting all Captains"), true);
                 swarm.getCaptain().addEffect(new MobEffectInstance(MobEffects.GLOWING, 100));
             }

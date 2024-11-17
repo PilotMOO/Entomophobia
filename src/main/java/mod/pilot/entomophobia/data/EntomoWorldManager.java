@@ -28,7 +28,7 @@ public class EntomoWorldManager {
 
     public static MyiaticBase SpawnFromStorage(EntityType<? extends MyiaticBase> myiaticType, Vec3 pos, Level world){
         String ID = myiaticType.create(world).getEncodeId();
-        if (Entomophobia.activeData.GetQuantityOf( ID) > 0){
+        if (Entomophobia.activeData.GetQuantityOf(ID) > 0){
             Entomophobia.activeData.RemoveFromStorage(ID);
             return (MyiaticBase)CreateNewEntityAt(myiaticType, pos, world);
         }
@@ -39,7 +39,7 @@ public class EntomoWorldManager {
         return SpawnFromStorage(myiaticType, GetValidPosFor(originPos.add(rand.nextIntBetweenInclusive(-Magnitude, Magnitude), 0, rand.nextIntBetweenInclusive(-Magnitude, Magnitude)), world, myiaticType.create(world)), world);
     }
     public static MyiaticBase SpawnAnythingFromStorage(Vec3 pos, Level world){
-        if (Entomophobia.activeData.GetTotalInStorage() > 0){
+        if (Entomophobia.activeData.getTotalInStorage() > 0){
             EntityType<? extends LivingEntity> type = (EntityType<? extends LivingEntity>)Entomophobia.activeData.GetFirstFromStorage();
             if (type != null){
                 return (MyiaticBase)CreateNewEntityAt(type, pos, world);

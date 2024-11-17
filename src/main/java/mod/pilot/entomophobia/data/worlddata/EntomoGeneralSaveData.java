@@ -157,7 +157,7 @@ public class EntomoGeneralSaveData extends SavedData {
         }
         return amount;
     }
-    public int GetTotalInStorage(){
+    public int getTotalInStorage(){
         return GetSpliced().length - 1;
     }
     public String[] GetStringFromStorageBetweenMax(String ID, int amount){
@@ -179,7 +179,7 @@ public class EntomoGeneralSaveData extends SavedData {
         return toReturn;
     }
     public String[] GetAnyStringFromStorageBetweenMax(int amount){
-        int amountToReturn = Math.min(GetTotalInStorage(), amount);
+        int amountToReturn = Math.min(getTotalInStorage(), amount);
         String[] toReturn = new String[amountToReturn];
         String[] spliced = GetSpliced();
         if (amountToReturn - 2 >= 0) System.arraycopy(spliced, 1, toReturn, 1, amountToReturn - 1 - 1);
@@ -187,7 +187,7 @@ public class EntomoGeneralSaveData extends SavedData {
         return toReturn;
     }
     public EntityType<?>[] GetAnyFromStorageBetweenMax(int amount){
-        int amountToReturn = Math.min(GetTotalInStorage(), amount);
+        int amountToReturn = Math.min(getTotalInStorage(), amount);
         EntityType<?>[] toReturn = new EntityType<?>[amountToReturn];
         String[] strings = GetAnyStringFromStorageBetweenMax(amountToReturn);
         for (int i = 0; i < amountToReturn; i++){
@@ -197,7 +197,7 @@ public class EntomoGeneralSaveData extends SavedData {
         return toReturn;
     }
     public String GetFirstStringFromStorage(){
-        if (GetTotalInStorage() > 1){
+        if (getTotalInStorage() > 1){
             String[] spliced = GetSpliced();
             String toReturn = spliced[1];
             RemoveFromStorage(toReturn);
@@ -207,7 +207,7 @@ public class EntomoGeneralSaveData extends SavedData {
         return null;
     }
     public EntityType<?> GetFirstFromStorage(){
-        if (GetTotalInStorage() > 1){
+        if (getTotalInStorage() > 1){
             String[] spliced = GetSpliced();
             EntityType<?> toReturn = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(spliced[1]));;
             RemoveFromStorage(spliced[1]);
@@ -217,13 +217,13 @@ public class EntomoGeneralSaveData extends SavedData {
         return null;
     }
     public String GetFirstPhantomFromStorage(){
-        if (GetTotalInStorage() > 1){
+        if (getTotalInStorage() > 1){
             return GetSpliced()[1];
         }
         return null;
     }
     public void RemoveFirstFromStorage(){
-        if (GetTotalInStorage() > 1){
+        if (getTotalInStorage() > 1){
             RemoveFromStorage(GetSpliced()[1]);
             setDirty();
         }

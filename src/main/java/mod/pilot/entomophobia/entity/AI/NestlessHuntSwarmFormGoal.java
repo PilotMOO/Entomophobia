@@ -42,7 +42,7 @@ public class NestlessHuntSwarmFormGoal extends Goal {
             }
             nearbyTeammates.removeAll(trim);
             if (nearbyTeammates.size() >= MinSwarmSize){
-                SwarmManager.CreateSwarm(SwarmManager.SwarmTypes.hunt, nearbyTeammates, SwarmManager.getBaseSwarmMaxSize());
+                SwarmManager.CreateSwarm(SwarmManager.SwarmTypes.hunt, nearbyTeammates, SwarmManager.getBaseSwarmMaxSize(), null);
                 stop();
             }
             else{

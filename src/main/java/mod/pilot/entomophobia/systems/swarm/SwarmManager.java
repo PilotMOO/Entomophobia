@@ -1,18 +1,22 @@
 package mod.pilot.entomophobia.systems.swarm;
 
 import mod.pilot.entomophobia.Config;
+import mod.pilot.entomophobia.data.worlddata.SwarmSaveData;
 import mod.pilot.entomophobia.entity.AI.CaptainCommandGoal;
 import mod.pilot.entomophobia.entity.AI.FollowCaptainGoal;
 import mod.pilot.entomophobia.entity.AI.Interfaces.ISwarmOrder;
 import mod.pilot.entomophobia.entity.AI.RecruitNearbyGoal;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.systems.nest.Nest;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import oshi.util.tuples.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.UUID;
 
 public class SwarmManager {
     public enum SwarmTypes{
@@ -52,17 +56,6 @@ public class SwarmManager {
         CleanSwarms();
         return new ArrayList<>(ActiveSwarms);
     }
-    public static @Nullable Swarm getClosestSwarm(Vec3 pos){
-        Swarm toReturn = null;
-        double distance = Double.MAX_VALUE;
-        for (Swarm swarm : getSwarms()){
-            if (swarm.getSwarmPosition() != null && swarm.getSwarmPosition().distanceTo(pos) < distance){
-                toReturn = swarm;
-                distance = swarm.getSwarmPosition().distanceTo(pos);
-            }
-        }
-        return toReturn;
-    }
     private static void CleanSwarms() {
         ArrayList<Swarm> toRemove = new ArrayList<>();
         for (Swarm swarm : ActiveSwarms){
@@ -71,83 +64,144 @@ public class SwarmManager {
             }
         }
         ActiveSwarms.removeAll(toRemove);
+        SwarmSaveData.Dirty();
     }
     public static void addToSwarms(Swarm swarm){
         ActiveSwarms.add(swarm);
+        SwarmSaveData.Dirty();
+    }
+    public static void PurgeAllSwarms(){
+        ActiveSwarms.clear();
+    }
+
+    public static @Nullable Swarm getClosestSwarm(Vec3 pos){
+        Swarm toReturn = null;
+        double distance = Double.MAX_VALUE;
+        for (Swarm swarm : getSwarms()){
+            if (swarm.getSwarmPosition() != null && swarm.distanceTo(pos) < distance){
+                toReturn = swarm;
+                distance = swarm.getSwarmPosition().distanceTo(pos);
+            }
+        }
+        return toReturn;
+    }
+    public static double getDistanceToClosestSwarm(Vec3 pos){
+        Swarm closest = getClosestSwarm(pos);
+        return closest == null ? -1 : closest.distanceTo(pos);
     }
 
     private static final ArrayList<ISwarmOrder> defaultOrders = new ArrayList<>(Arrays.asList(
-            new FollowCaptainGoal(null, 4, 48, 1),
+            new FollowCaptainGoal(null, 4, 24, 1),
             new RecruitNearbyGoal(null, 600, 1),
             new CaptainCommandGoal(null, 300, 3)
     ));
-    public static Swarm CreateSwarm(SwarmTypes type, MyiaticBase captain, int maxUnits){
+    public static Swarm CreateSwarm(SwarmTypes type, MyiaticBase captain, int maxUnits, @Nullable Vec3 finalPos){
         switch (type){
             default -> {
                 return null;
             }
             case aimless -> {
-                return CreateAimlessSwarm(captain, maxUnits);
+                return CreateAimlessSwarm(captain, maxUnits, finalPos);
             }
             case hunt -> {
-                return CreateHuntSwarm(captain, maxUnits);
+                return CreateHuntSwarm(captain, maxUnits, finalPos);
             }
         }
     }
-    public static Swarm CreateSwarm(SwarmTypes type, ArrayList<MyiaticBase> captain, int maxUnits){
+    public static Swarm CreateSwarm(SwarmTypes type, ArrayList<MyiaticBase> captain, int maxUnits, @Nullable Vec3 finalPos){
         switch (type){
             default -> {
                 return null;
             }
             case aimless -> {
-                return CreateAimlessSwarm(captain, maxUnits);
+                return CreateAimlessSwarm(captain, maxUnits, finalPos);
             }
             case hunt -> {
-                return CreateHuntSwarm(captain, maxUnits);
+                return CreateHuntSwarm(captain, maxUnits, finalPos);
             }
         }
     }
 
-    private static Swarm.AimlessSwarm CreateAimlessSwarm(MyiaticBase captain, int maxSwarms) {
-        Swarm.AimlessSwarm aimless = new Swarm.AimlessSwarm(captain, maxSwarms);
-        addToSwarms(aimless);
+    private static Swarm.AimlessSwarm CreateAimlessSwarm(MyiaticBase captain, int maxSwarms, @Nullable Vec3 finalPos) {
+        Swarm.AimlessSwarm aimless = new Swarm.AimlessSwarm(captain, maxSwarms, finalPos);
         aimless.GeneratePrimaryOrder(captain);
         for (ISwarmOrder order : defaultOrders){
             aimless.RelayOrder(order, true);
         }
         aimless.RecruitNearby();
+        addToSwarms(aimless);
         return aimless;
     }
-    private static Swarm.AimlessSwarm CreateAimlessSwarm(ArrayList<MyiaticBase> captain, int maxSwarms) {
-        Swarm.AimlessSwarm aimless = new Swarm.AimlessSwarm(captain, maxSwarms);
-        addToSwarms(aimless);
+    private static Swarm.AimlessSwarm CreateAimlessSwarm(ArrayList<MyiaticBase> captain, int maxSwarms, @Nullable Vec3 finalPos) {
+        Swarm.AimlessSwarm aimless = new Swarm.AimlessSwarm(captain, maxSwarms, finalPos);
         aimless.GeneratePrimaryOrder(aimless.getCaptain());
         for (ISwarmOrder order : defaultOrders){
             aimless.RelayOrder(order, true);
         }
         aimless.RecruitNearby();
+        addToSwarms(aimless);
         return aimless;
     }
-    private static Swarm.HuntSwarm CreateHuntSwarm(MyiaticBase captain, int maxSwarms) {
-        Swarm.HuntSwarm hunt = new Swarm.HuntSwarm(captain, maxSwarms);
-        addToSwarms(hunt);
+    private static Swarm.HuntSwarm CreateHuntSwarm(MyiaticBase captain, int maxSwarms, @Nullable Vec3 finalPos) {
+        Swarm.HuntSwarm hunt = new Swarm.HuntSwarm(captain, maxSwarms, finalPos);
         hunt.GeneratePrimaryOrder(captain);
         for (ISwarmOrder order : defaultOrders){
             hunt.RelayOrder(order, true);
         }
         hunt.RecruitNearby();
+        addToSwarms(hunt);
         return hunt;
     }
-    private static Swarm.HuntSwarm CreateHuntSwarm(ArrayList<MyiaticBase> captain, int maxSwarms) {
-        Swarm.HuntSwarm hunt = new Swarm.HuntSwarm(captain, maxSwarms);
-        addToSwarms(hunt);
+    private static Swarm.HuntSwarm CreateHuntSwarm(ArrayList<MyiaticBase> captain, int maxSwarms, @Nullable Vec3 finalPos) {
+        Swarm.HuntSwarm hunt = new Swarm.HuntSwarm(captain, maxSwarms, finalPos);
         hunt.GeneratePrimaryOrder(hunt.getCaptain());
         for (ISwarmOrder order : defaultOrders){
             hunt.RelayOrder(order, true);
         }
         hunt.RecruitNearby();
+        addToSwarms(hunt);
         return hunt;
     }
+
+    public static Swarm CreateSwarmFromBlueprint(MyiaticBase captain, byte type, byte state, @Nullable Vec3 finalPos, int maxUnits){
+        System.out.println("Trying to create a swarm from Blueprint...");
+        Swarm toReturn;
+        if (captain == null || !captain.canSwarm() || captain.isInSwarm()) {
+            System.out.println("There was an issue with the new captain, skipping this swarm...");
+            System.out.println("------");
+            System.out.println("Issue was:");
+            if (captain == null) {
+                System.out.println("Captain was null");
+                System.out.println("------");
+                return null;
+            }
+            if (!captain.canSwarm()) System.out.println("Captain cannot swarm");
+            if (captain.isInSwarm()) System.out.println("Captain was already in a different swarm!");
+            System.out.println("------");
+            return null;
+        }
+        System.out.println("New swarm's captain is " + captain);
+        switch (type){
+            default -> {
+                return null;
+            }
+            case 0 -> toReturn = new Swarm.AimlessSwarm(captain, maxUnits, finalPos);
+            case 1 -> toReturn = new Swarm.HuntSwarm(captain, maxUnits, finalPos);
+        }
+        toReturn.setSwarmState(state);
+        toReturn.setDestination(finalPos);
+
+        toReturn.GeneratePrimaryOrder(captain);
+        for (ISwarmOrder order : defaultOrders){
+            toReturn.RelayOrder(order, true);
+        }
+        toReturn.RecruitNearby();
+
+        System.out.println("Successfully created a swarm from Blueprint!");
+        addToSwarms(toReturn);
+        return toReturn;
+    }
+
 
     public static void setSwarmDetails(){
         BaseSwarmMaxSize = Config.SERVER.base_swarm_max_members.get();
