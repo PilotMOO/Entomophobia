@@ -267,7 +267,7 @@ public class NestSaveData extends SavedData {
         }
     }
 
-    //Old packaging system
+    //Old packaging system (broken, doesn't work)
     /*public static class NestPackager {
         protected NestPackager(CompoundTag tag, NestSaveData data){
             this.tag = tag;

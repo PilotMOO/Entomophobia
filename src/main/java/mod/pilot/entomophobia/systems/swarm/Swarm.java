@@ -2,6 +2,7 @@ package mod.pilot.entomophobia.systems.swarm;
 
 import mod.pilot.entomophobia.entity.AI.HuntSwarmCaptainGoal;
 import mod.pilot.entomophobia.entity.AI.Interfaces.ISwarmOrder;
+import mod.pilot.entomophobia.entity.AI.NestSwarmCaptainGoal;
 import mod.pilot.entomophobia.entity.festered.FesteredBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -78,7 +79,11 @@ public abstract class Swarm {
 
         return toReturn;
     }
-    public abstract boolean canMergeWith(Swarm swarm);
+    public boolean canMergeWith(Swarm swarm, boolean checkOther){
+        return (swarm != this
+                && (!swarm.isDisbanded() && !this.isDisbanded())
+                && swarm.getSwarmType() == getSwarmType()) && (!checkOther || swarm.canMergeWith(this, false));
+    }
 
     private byte SwarmState;
     public final byte getSwarmState(){
@@ -108,7 +113,10 @@ public abstract class Swarm {
     }
     public void Finish() {
         setSwarmState((byte)3);
+        OnFinish();
+        Disband();
     }
+    public void OnFinish(){}
     public boolean isFinished(){
         return getSwarmState() == 3;
     }
@@ -232,7 +240,7 @@ public abstract class Swarm {
             RemoveAllOrdersFor(M, true);
         }
     }
-    public int AmountOfRecruits(){
+    public int getRecruitCount(){
         return units.size();
     }
 
@@ -340,12 +348,13 @@ public abstract class Swarm {
         if (getCaptain() == null) return 0;
         return (int)getCaptain().getAttributeValue(Attributes.FOLLOW_RANGE);
     }
-    protected boolean CanRecruit(MyiaticBase recruit){
-        return recruit.isAlive() && !recruit.isInSwarm() && AmountOfRecruits() < MaxRecruits;
+    protected boolean canRecruit(MyiaticBase recruit){
+        return recruit.isAlive() && recruit.canSwarm() && !recruit.isInSwarm() && getRecruitCount() < getMaxRecruits()
+                && this.distanceTo(recruit.position()) < RecruitRange();
     }
 
     public boolean AttemptToRecruit(MyiaticBase toRecruit){
-        if (toRecruit.distanceTo(getCaptain()) < RecruitRange() && CanRecruit(toRecruit)){
+        if (canRecruit(toRecruit)){
             addToUnits(toRecruit);
             AssignAllOrdersFor(toRecruit);
             toRecruit.addEffect(new MobEffectInstance(MobEffects.GLOWING, 60));
@@ -373,11 +382,6 @@ public abstract class Swarm {
         }
 
         @Override
-        public boolean canMergeWith(Swarm swarm) {
-            return true;
-        }
-
-        @Override
         protected void GeneratePrimaryOrder(@NotNull MyiaticBase captain) {
             setPrimaryOrder(null);
         }
@@ -392,14 +396,31 @@ public abstract class Swarm {
         }
 
         @Override
-        public boolean canMergeWith(Swarm swarm) {
-            return true;
+        protected void GeneratePrimaryOrder(@NotNull MyiaticBase captain) {
+            setPrimaryOrder(new HuntSwarmCaptainGoal(captain, 300, 2));
+            RelayOrder(getPrimaryOrderRaw(), false);
+        }
+    }
+    public static class NestSwarm extends Swarm{
+        private static final byte SwarmType = 2;
+        protected NestSwarm(MyiaticBase captain, int maxRecruits, @Nullable Vec3 finalPos) {
+            super(SwarmType, captain, maxRecruits, finalPos);
+        }
+        protected NestSwarm(ArrayList<MyiaticBase> possibleCaptains, int maxRecruits, @Nullable Vec3 finalPos) {
+            super(SwarmType, possibleCaptains, maxRecruits, finalPos);
         }
 
         @Override
         protected void GeneratePrimaryOrder(@NotNull MyiaticBase captain) {
-            setPrimaryOrder(new HuntSwarmCaptainGoal(captain, 300, 2));
+            setPrimaryOrder(new NestSwarmCaptainGoal(captain, 300, 15, 3));
             RelayOrder(getPrimaryOrderRaw(), false);
+        }
+
+        @Override
+        public void OnFinish() {
+            for (MyiaticBase M : getUnits()){
+                M.setEncouragedDespawn(true);
+            }
         }
     }
 }

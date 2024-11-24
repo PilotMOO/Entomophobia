@@ -17,7 +17,7 @@ public class RecruitNearbyGoal extends Goal implements ISwarmOrder {
     }
     @Override
     public boolean canUse() {
-        return parent.isInSwarm() && parent.getSwarm().AmountOfRecruits() < parent.getSwarm().getMaxRecruits();
+        return parent.isInSwarm() && parent.getSwarm().getRecruitCount() < parent.getSwarm().getMaxRecruits();
     }
 
     @Override

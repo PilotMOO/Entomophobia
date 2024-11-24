@@ -20,12 +20,12 @@ import java.util.UUID;
 
 public class SwarmManager {
     public enum SwarmTypes{
-        aimless,
-        hunt,
-        nest,
-        attack,
-        scout,
-        intercept
+        aimless, //0
+        hunt, //1
+        nest, //2
+        attack, //3
+        scout, //4
+        intercept //5
     }
     private static final HashMap<Integer, String> SwarmNames = new HashMap<>();
 
@@ -91,7 +91,7 @@ public class SwarmManager {
     }
 
     private static final ArrayList<ISwarmOrder> defaultOrders = new ArrayList<>(Arrays.asList(
-            new FollowCaptainGoal(null, 4, 24, 1),
+            new FollowCaptainGoal(null, 4, 16, 1),
             new RecruitNearbyGoal(null, 600, 1),
             new CaptainCommandGoal(null, 300, 3)
     ));
@@ -106,6 +106,9 @@ public class SwarmManager {
             case hunt -> {
                 return CreateHuntSwarm(captain, maxUnits, finalPos);
             }
+            case nest -> {
+                return CreateNestSwarm(captain, maxUnits, finalPos);
+            }
         }
     }
     public static Swarm CreateSwarm(SwarmTypes type, ArrayList<MyiaticBase> captain, int maxUnits, @Nullable Vec3 finalPos){
@@ -118,6 +121,9 @@ public class SwarmManager {
             }
             case hunt -> {
                 return CreateHuntSwarm(captain, maxUnits, finalPos);
+            }
+            case nest -> {
+                return CreateNestSwarm(captain, maxUnits, finalPos);
             }
         }
     }
@@ -162,6 +168,26 @@ public class SwarmManager {
         addToSwarms(hunt);
         return hunt;
     }
+    private static Swarm.NestSwarm CreateNestSwarm(MyiaticBase captain, int maxSwarms, @Nullable Vec3 finalPos) {
+        Swarm.NestSwarm nest = new Swarm.NestSwarm(captain, maxSwarms, finalPos);
+        nest.GeneratePrimaryOrder(captain);
+        for (ISwarmOrder order : defaultOrders){
+            nest.RelayOrder(order, true);
+        }
+        nest.RecruitNearby();
+        addToSwarms(nest);
+        return nest;
+    }
+    private static Swarm.NestSwarm CreateNestSwarm(ArrayList<MyiaticBase> captain, int maxSwarms, @Nullable Vec3 finalPos) {
+        Swarm.NestSwarm nest = new Swarm.NestSwarm(captain, maxSwarms, finalPos);
+        nest.GeneratePrimaryOrder(nest.getCaptain());
+        for (ISwarmOrder order : defaultOrders){
+            nest.RelayOrder(order, true);
+        }
+        nest.RecruitNearby();
+        addToSwarms(nest);
+        return nest;
+    }
 
     public static Swarm CreateSwarmFromBlueprint(MyiaticBase captain, byte type, byte state, @Nullable Vec3 finalPos, int maxUnits){
         System.out.println("Trying to create a swarm from Blueprint...");
@@ -195,7 +221,6 @@ public class SwarmManager {
         for (ISwarmOrder order : defaultOrders){
             toReturn.RelayOrder(order, true);
         }
-        toReturn.RecruitNearby();
 
         System.out.println("Successfully created a swarm from Blueprint!");
         addToSwarms(toReturn);

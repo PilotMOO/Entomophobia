@@ -54,9 +54,9 @@ public class CaptainCommandGoal extends Goal implements ISwarmOrder {
 
     protected void CheckForMerge(){
         for (Swarm swarm : SwarmManager.getSwarms()){
-            if (!ValidSwarmForMerge(swarm)) continue;
+            if (!captain.getSwarm().canMergeWith(swarm, true)) continue;
             if (captain.position().distanceTo(swarm.getSwarmPosition()) < 16){
-                if (swarm.getMaxRecruits() <= swarm.AmountOfRecruits() + captain.getSwarm().AmountOfRecruits()) {
+                if (swarm.getMaxRecruits() <= swarm.getRecruitCount() + captain.getSwarm().getRecruitCount()) {
                     swarm.CopyUnits(captain.getSwarm(), false);
                     System.out.println("Trying to merge " + captain.getSwarm() + " with " + swarm);
                 }
@@ -68,9 +68,6 @@ public class CaptainCommandGoal extends Goal implements ISwarmOrder {
                 break;
             }
         }
-    }
-    protected boolean ValidSwarmForMerge(Swarm swarm){
-        return swarm != captain.getSwarm() && !swarm.isDisbanded() && captain.getSwarm() != null && swarm.getSwarmType() == captain.getSwarm().getSwarmType() && swarm.canMergeWith(captain.getSwarm());
     }
 
     @Override

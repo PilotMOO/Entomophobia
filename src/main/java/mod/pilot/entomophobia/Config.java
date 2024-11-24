@@ -7,6 +7,7 @@ import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -106,6 +107,11 @@ public class Config
         public final ForgeConfigSpec.ConfigValue<Double> corridor_extension_chance;
         public final ForgeConfigSpec.ConfigValue<Integer> nest_y_build_priority;
 
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>> nest_spawn_messages;
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>> nest_joke_spawn_messages;
+        public final ForgeConfigSpec.ConfigValue<Boolean> enable_joke_messages;
+        public final ForgeConfigSpec.ConfigValue<Double> joke_message_chance;
+
 
         public NestConfig(ForgeConfigSpec.Builder builder){
             builder.comment("DO NOT PROCEED UNLESS YOU KNOW WHAT YOU ARE DOING!");
@@ -123,6 +129,28 @@ public class Config
             this.nest_max_hardness = builder.defineInRange("Maximum hardness of blocks that the nest can replace while building", 5, 0, Integer.MAX_VALUE);
             this.max_nest_layers = builder.defineInRange("The maximum amount of layers a given branch of a nest can generate", 2, 1, Integer.MAX_VALUE);
             this.nest_y_build_priority = builder.defineInRange("The Y level at which nests will prioritize building up or down if below or above, respectfully", 0, -64, 320);
+            this.nest_spawn_messages = builder.defineList("Messages displayed in chat when a nest is formed",
+                    Lists.newArrayList(
+                            "You feel the world pulse as if something alive is buried nearby...",
+                            "Something foul takes root...",
+                            "The sickly-sweet smell of rot emanates from the ground",
+                            "It grows.",
+                            "A faint yet aggressive rustling permeates throughout the area"
+                    ), o -> o instanceof String);
+            this.enable_joke_messages = builder.define("should there be a a small chance to select and display joke messages for nests forming?",
+                    false);
+            this.joke_message_chance = builder.defineInRange("Chance for a joke message to be displayed instead of a normal one (if enabled)",
+                    0.05, 0, 1);
+            this.nest_joke_spawn_messages = builder.defineList("Messages with a very small chance to be displayed in chat when a nest is formed " +
+                            "(joke messages)",
+                    Lists.newArrayList(
+                            "It's Joever",
+                            "NEST!!!!!",
+                            "Erm what the sigma",
+                            "Fuck It Wii Ball™",
+                            "*Gulp* it's right behind me, isn't it?",
+                            "Ah lads not again."
+                    ), o -> o instanceof String);
             builder.pop();
 
             builder.push("Chamber Configuration");

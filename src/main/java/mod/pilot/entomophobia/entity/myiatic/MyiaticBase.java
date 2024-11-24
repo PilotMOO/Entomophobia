@@ -67,23 +67,29 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     public static final EntityDataAccessor<Float> Reach = SynchedEntityData.defineId(MyiaticBase.class, EntityDataSerializers.FLOAT);
     public float getReach(){return entityData.get(Reach);}
     public void setReach(Float count) {entityData.set(Reach, count);}
+    public static final EntityDataAccessor<Boolean> EncouragedDespawn = SynchedEntityData.defineId(MyiaticBase.class, EntityDataSerializers.BOOLEAN);
+    public boolean getEncouragedDespawn(){return entityData.get(EncouragedDespawn);}
+    public void setEncouragedDespawn(boolean flag) {entityData.set(EncouragedDespawn, flag);}
 
     @Override
     public void addAdditionalSaveData(@NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        tag.putInt("AIState",entityData.get(AIState));
-        tag.putFloat("Reach",entityData.get(Reach));
+        tag.putInt("AIState", entityData.get(AIState));
+        tag.putFloat("Reach", entityData.get(Reach));
+        tag.putBoolean("EncouragedDespawn", entityData.get(EncouragedDespawn));
     }
     @Override
     public void readAdditionalSaveData(@NotNull CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         entityData.set(AIState, tag.getInt("AIState"));
         entityData.set(Reach, tag.getFloat("Reach"));
+        entityData.set(EncouragedDespawn, tag.getBoolean("EncouragedDespawn"));
     }
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(AIState, 0);
         this.entityData.define(Reach, 0f);
+        this.entityData.define(EncouragedDespawn, false);
     }
     /**/
 
@@ -102,15 +108,15 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         for (Pair<Integer, Goal> queued : toUnque){
             this.goalSelector.addGoal(queued.getA(), queued.getB());
         }
-        QueuedGoals.removeAll(toUnque);
+        QueuedGoals.clear();
     }
     public void ClearQueuedRemovedGoals(){
         if (QueuedRemoveGoals.size() == 0) return;
-        ArrayList<Goal> toRemove = new ArrayList<>(QueuedRemoveGoals);
-        for (Goal queued : toRemove){
+        ArrayList<Goal> toUnque = new ArrayList<>(QueuedRemoveGoals);
+        for (Goal queued : toUnque){
             this.goalSelector.removeGoal(queued);
         }
-        QueuedRemoveGoals.removeAll(toRemove);
+        QueuedRemoveGoals.clear();
     }
     @Override
     protected void registerGoals() {
@@ -126,7 +132,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         this.goalSelector.addGoal(3, new LocateAndEatFoodOffTheFloorGoal(this, 20));
         this.goalSelector.addGoal(1, new BreakBlocksInMyWayGoal(this));
         if (canSwarm() && getDistanceToClosestNest() == -1 || getDistanceToClosestNest() > 2048){
-            this.goalSelector.addGoal(2, new NestlessHuntSwarmFormGoal(this, 600, 5));
+            this.goalSelector.addGoal(2, new FormNestSwarmGoal(this, 600, 5));
         }
     }
     protected void registerFlightGoals(){}
@@ -136,7 +142,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     /**/
 
     //Custom Methods
-    public DamageSource GetDamageSource(){
+    public DamageSource getDamageSource(){
         return EntomoDamageTypes.myiatic_basic(this);
     }
     protected int StateManager(){
@@ -174,9 +180,9 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     }
     @Override
     public void aiStep() {
-        super.aiStep();
         RegisterQueuedGoals();
         ClearQueuedRemovedGoals();
+        super.aiStep();
     }
 
     /*Damage-related*/
@@ -222,7 +228,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
                 pEntity.setSecondsOnFire(i * 4);
             }
 
-            boolean flag = pEntity.hurt(GetDamageSource(), f);
+            boolean flag = pEntity.hurt(getDamageSource(), f);
             if (flag) {
                 if (pEntity instanceof LivingEntity LEntity){
                     LEntity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 1200));
@@ -271,6 +277,9 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         /*Despawning*/
     @Override
     public void checkDespawn() {
+        if (getTarget() != null) return;
+        if (getEncouragedDespawn()) this.discard();
+
         Entity player = this.level().getNearestPlayer(this, -1.0D);
         if (player != null && player.distanceTo(this) < Config.SERVER.distance_to_player_until_despawn.get()){
             super.checkDespawn();
@@ -288,7 +297,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         return EntomoGeneralSaveData.GetMyiaticCount() < Config.SERVER.mob_cap.get() || getTarget() != null;
     }
 
-        /*Booleans*/
+    /*Booleans*/
     @Override
     public boolean canBeAffected(MobEffectInstance effect) {
         if (effect.getEffect() == MobEffects.POISON) {
@@ -483,11 +492,12 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     public void ForceJoin(@NotNull Swarm swarm, boolean ignoreCap){
         if (getSwarm() == swarm) return;
 
-        if (ignoreCap || swarm.AmountOfRecruits() < swarm.getMaxRecruits()) {
+        if (ignoreCap || swarm.getRecruitCount() < swarm.getMaxRecruits()) {
             swarm.addToUnits(this);
             swarm.AssignAllOrdersFor(this);
             currentSwarm = swarm;
         }
+        System.out.println(this + " was forced to join " + swarm + " against their will!");
     }
     public void LeaveSwarm(boolean disbandIfCaptain){
         if (getSwarm() != null){

@@ -12,7 +12,6 @@ import mod.pilot.entomophobia.items.EntomoItems;
 import mod.pilot.entomophobia.data.EntomoDataManager;
 import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
 import mod.pilot.entomophobia.systems.nest.NestManager;
-import mod.pilot.entomophobia.systems.swarm.Swarm;
 import mod.pilot.entomophobia.systems.swarm.SwarmManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -31,7 +30,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.world.ForgeChunkManager;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityEvent;
@@ -65,14 +63,25 @@ public class EntomoForgeEvents {
         }
     }
     @SubscribeEvent
-    public static void HandleSwarms(EntityJoinLevelEvent event){
-        if (!(event.getLevel() instanceof ServerLevel) || !(event.getEntity() instanceof MyiaticBase M)) return;
+    public static void HandleSwarmUnpacking(EntityJoinLevelEvent event){
+        if (!(event.getLevel() instanceof ServerLevel s)) return;
 
         if (Entomophobia.activeSwarmData != null && Entomophobia.activeSwarmData.toUnpack.size() != 0){
+            SwarmSaveData.CleanPackagedSwarms();
+            if (s.getGameTime() > 200) Entomophobia.activeSwarmData.toUnpack.clear();
             for (SwarmSaveData.SwarmPackager.PackagedSwarm pSwarm : Entomophobia.activeSwarmData.toUnpack){
-                if (M.getUUID().equals(pSwarm.captain())){
-                    pSwarm.Unpack(M);
-                    return;
+                if (pSwarm.awaitingApplication.size() != 0){
+                    pSwarm.EvaluateQueuedApplications();
+                }
+
+                if (event.getEntity() instanceof MyiaticBase M){
+                    if (M.getUUID().equals(pSwarm.captainUUID)){
+                        pSwarm.UnpackSwarm(M);
+                        return;
+                    }
+                    else{
+                        if (pSwarm.UnpackAndAddUnit(M, true) != 0) return;
+                    }
                 }
             }
         }

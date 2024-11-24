@@ -7,14 +7,8 @@ import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.util.AzureLibUtil;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.AI.AttackWithAnimationGoal;
-import mod.pilot.entomophobia.entity.AI.DashAttackWithAnimationGoal;
-import mod.pilot.entomophobia.entity.AI.Flight.FlyToHostileTargetGoal;
-import mod.pilot.entomophobia.entity.AI.Flight.GlideDownToFoesGoal;
-import mod.pilot.entomophobia.entity.AI.Flight.PleaseDontBreakMyLegsGoal;
-import mod.pilot.entomophobia.sound.EntomoSounds;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -117,7 +111,7 @@ public class MyiaticCowEntity extends MyiaticBase{
                 pEntity.setSecondsOnFire(i * 4);
             }
 
-            boolean flag = pEntity.hurt(GetDamageSource(), f);
+            boolean flag = pEntity.hurt(getDamageSource(), f);
             if (flag) {
                 if (pEntity instanceof LivingEntity LEntity){
                     LEntity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 1200));

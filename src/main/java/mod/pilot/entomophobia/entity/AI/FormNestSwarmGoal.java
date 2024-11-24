@@ -6,19 +6,20 @@ import net.minecraft.world.entity.ai.goal.Goal;
 
 import java.util.ArrayList;
 
-public class NestlessHuntSwarmFormGoal extends Goal {
+public class FormNestSwarmGoal extends Goal {
     private final MyiaticBase parent;
     private final int MinSwarmSize;
     private final int FormationCheckTimer;
     private int FCTTicker;
-    public NestlessHuntSwarmFormGoal(MyiaticBase parent, int checkTimer, int minFormationSize){
+    public FormNestSwarmGoal(MyiaticBase parent, int checkTimer, int minFormationSize){
         this.parent = parent;
         this.FormationCheckTimer = checkTimer;
         this.MinSwarmSize = minFormationSize;
     }
     @Override
     public boolean canUse() {
-        return parent.canSwarm() && !parent.isInSwarm() && (parent.getDistanceToClosestNest() == -1 || parent.getDistanceToClosestNest() > 2048);
+        double nestDistance = parent.getDistanceToClosestNest();
+        return parent.canSwarm() && !parent.isInSwarm() && (nestDistance == -1 || nestDistance > 2048);
     }
 
     @Override
@@ -42,12 +43,17 @@ public class NestlessHuntSwarmFormGoal extends Goal {
             }
             nearbyTeammates.removeAll(trim);
             if (nearbyTeammates.size() >= MinSwarmSize){
-                SwarmManager.CreateSwarm(SwarmManager.SwarmTypes.hunt, nearbyTeammates, SwarmManager.getBaseSwarmMaxSize(), null);
+                SwarmManager.CreateSwarm(SwarmManager.SwarmTypes.nest, nearbyTeammates, SwarmManager.getBaseSwarmMaxSize(), null);
                 stop();
             }
             else{
                 FCTTicker = 0;
             }
         }
+    }
+
+    @Override
+    public void stop() {
+        parent.QueRemoveGoal(this);
     }
 }

@@ -2,6 +2,7 @@ package mod.pilot.entomophobia.systems.nest;
 
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -36,10 +37,14 @@ public class NestManager {
     public static void ClearNests(){
         ActiveNests.clear();
     }
-    public static Nest ConstructNewNest(ServerLevel server, Vec3 start){
+    public static Nest ConstructNewNest(ServerLevel server, Vec3 start, boolean quiet){
         Nest nest = new Nest(server, start);
         addToActiveNests(nest);
         NestSaveData.Dirty();
+        if (!quiet){
+            server.getServer().getPlayerList().broadcastSystemMessage(
+                    Component.literal(getRandomNestMessageForChatDisplay(server.getRandom())), false);
+        }
         return nest;
     }
     public static Nest ConstructFromBlueprint(ServerLevel server, Vec3 start, byte state, Nest.Chamber mainChamber){
@@ -119,6 +124,12 @@ public class NestManager {
         NestCorridorExtensionChance = Config.NEST.corridor_extension_chance.get();
 
         NestYBuildPriority = Config.NEST.nest_y_build_priority.get();
+
+        NestMessages = new ArrayList<>(Config.NEST.nest_spawn_messages.get());
+
+        JokeMessagesEnabled = Config.NEST.enable_joke_messages.get();
+        JokeMessageChance = Config.NEST.joke_message_chance.get();
+        JokeNestMessages = new ArrayList<>(Config.NEST.nest_joke_spawn_messages.get());
     }
     private static int TickFrequency;
     public static int getTickFrequency(){
@@ -262,5 +273,39 @@ public class NestManager {
     private static int NestYBuildPriority;
     public static int getNestYBuildPriority() {
         return NestYBuildPriority;
+    }
+
+    private static ArrayList<String> NestMessages;
+    public static ArrayList<String> getNestMessages(){
+        return NestMessages;
+    }
+    public static String getRandomNestMessage(RandomSource random){
+        if (NestMessages == null || NestMessages.size() == 0) return "";
+        return NestMessages.get(random.nextIntBetweenInclusive(0, NestMessages.size()));
+    }
+
+    private static boolean JokeMessagesEnabled;
+    public static boolean isJokeMessagesEnabled(){
+        return JokeMessagesEnabled;
+    }
+
+    private static double JokeMessageChance;
+    public static double getJokeMessageChance(){
+        return isJokeMessagesEnabled() ? JokeMessageChance : 0;
+    }
+    private static ArrayList<String> JokeNestMessages;
+    public static ArrayList<String> getJokeNestMessages(){
+        return JokeNestMessages;
+    }
+    public static String getRandomJokeNestMessage(RandomSource random){
+        if (JokeNestMessages == null || JokeNestMessages.size() == 0 || !isJokeMessagesEnabled()) return "";
+        return JokeNestMessages.get(random.nextIntBetweenInclusive(0, JokeNestMessages.size()));
+    }
+
+    public static String getRandomNestMessageForChatDisplay(RandomSource random){
+        if (random.nextDouble() <= getJokeMessageChance()){
+            return getRandomJokeNestMessage(random);
+        }
+        return getRandomNestMessage(random);
     }
 }

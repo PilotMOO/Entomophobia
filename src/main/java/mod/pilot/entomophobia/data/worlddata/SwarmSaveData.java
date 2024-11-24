@@ -33,6 +33,7 @@ public class SwarmSaveData extends SavedData {
         if (Entomophobia.activeSwarmData == null) return;
         Entomophobia.activeSwarmData.setDirty();
     }
+
     public static SwarmSaveData load(CompoundTag tag){
         SwarmSaveData data = new SwarmSaveData();
         new SwarmPackager(data, tag).UnpackSwarms();
@@ -45,6 +46,13 @@ public class SwarmSaveData extends SavedData {
     }
 
     public ArrayList<SwarmPackager.PackagedSwarm> toUnpack = new ArrayList<>();
+    public static void CleanPackagedSwarms() {
+        ArrayList<SwarmPackager.PackagedSwarm> toRemove = new ArrayList<>();
+        for (SwarmPackager.PackagedSwarm pSwarm : activeData().toUnpack){
+            if (pSwarm.isFullyUnpacked()) toRemove.add(pSwarm);
+        }
+        activeData().toUnpack.removeAll(toRemove);
+    }
 
     private ServerLevel server;
     public ServerLevel getServer(){
@@ -88,6 +96,17 @@ public class SwarmSaveData extends SavedData {
 
                 tag.putInt(builder.append("MaxRecruits").toString(), toPack.getMaxRecruits()); builder.setLength(idSize);
 
+                ArrayList<MyiaticBase> units = toPack.getUnits();
+                builder.append("unit");
+                int unitIDSize = idSize + 4;
+                for (int index = 0; index < units.size(); index++){
+                    builder.append(index);
+                    tag.putUUID(builder.toString(), units.get(index).getUUID());
+                    System.out.println("Packed up a UUID with I.D. " + builder);
+                    builder.setLength(unitIDSize);
+                }
+                builder.setLength(idSize);
+
                 System.out.println("Packed up a Swarm with I.D. " + builder + "!");
                 CleanBuilder();
                 tracker++;
@@ -121,7 +140,18 @@ public class SwarmSaveData extends SavedData {
 
                 int maxUnits = tag.getInt(builder.append("MaxRecruits").toString()); builder.setLength(idLength);
 
-                data.toUnpack.add(new PackagedSwarm(captainUUID, type, state, fPos, maxUnits));
+                ArrayList<UUID> unitUUIDs = new ArrayList<>();
+                builder.append("unit");
+                int unitIDSize = idLength + 4;
+                for (int index = 0; tag.contains(builder.append(index).toString()); index++){
+                    unitUUIDs.add(tag.getUUID(builder.toString()));
+                    System.out.println("Unpacked a UUID with I.D. " + builder);
+                    builder.setLength(unitIDSize);
+                }
+
+                data.toUnpack.add(new PackagedSwarm(captainUUID, type, state, fPos, maxUnits, unitUUIDs));
+
+                builder.setLength(idLength);
                 System.out.println("Partially unpacked Swarm with I.D. " + builder + "!");
                 builder.setLength(5);
                 tracker++;
@@ -134,10 +164,90 @@ public class SwarmSaveData extends SavedData {
             }
         }
 
-        public record PackagedSwarm(UUID captain, byte type, byte state, @Nullable Vec3 finalPos, int maxUnits){
-            public void Unpack(MyiaticBase captain){
-                SwarmManager.CreateSwarmFromBlueprint(captain, type, state, finalPos, maxUnits);
-                Entomophobia.activeSwarmData.toUnpack.remove(this);
+        public static class PackagedSwarm{
+            public PackagedSwarm(UUID captain, byte type, byte state, @Nullable Vec3 finalPos, int maxUnits, ArrayList<UUID> recruitUUIDs){
+                this.captainUUID = captain;
+                this.type = type;
+                this.state = state;
+                this.finalPos = finalPos;
+                this.maxUnits = maxUnits;
+                this.recruits = recruitUUIDs;
+                this.recruitsSnapshot = new ArrayList<>(recruitUUIDs);
+                this.unpackedSwarm = null;
+            }
+            public final UUID captainUUID;
+            public final byte type;
+            public final byte state;
+            public final Vec3 finalPos;
+            public final int maxUnits;
+            public final ArrayList<UUID> recruits;
+            private final ArrayList<UUID> recruitsSnapshot;
+            public Swarm unpackedSwarm;
+
+            public final ArrayList<MyiaticBase> awaitingApplication = new ArrayList<>();
+
+            public boolean isFullyUnpacked(){
+                return recruits.size() == 0 && awaitingApplication.size() == 0;
+            }
+
+            public void UnpackSwarm(MyiaticBase captain){
+                unpackedSwarm = SwarmManager.CreateSwarmFromBlueprint(captain, type, state, finalPos, maxUnits);
+            }
+            public int UnpackAndAddUnit(MyiaticBase newUnit, boolean checkApplication){
+                UUID uuid = newUnit.getUUID();
+                if (uuid.equals(captainUUID)) return 0;
+
+                if (!checkApplication || CheckApplication(newUnit.getUUID())){
+                    if (unpackedSwarm == null){
+                        System.out.println("Can't assign new unit " + newUnit + " because unpackedSwarm was null, putting in waiting list...");
+                        awaitingApplication.add(newUnit);
+                        recruits.remove(uuid);
+                        return -1;
+                    }
+                    else{
+                        System.out.println("Application succeeded!");
+                        newUnit.ForceJoin(unpackedSwarm, true);
+                        recruits.remove(uuid);
+                        return 1;
+                    }
+                }
+                System.out.println(newUnit + " failed application!");
+                return 0;
+            }
+
+            private boolean CheckApplication(UUID application) {
+                System.out.println("Testing application UUID " + application);
+                for (UUID uuid : recruitsSnapshot){
+                    System.out.println("Comparing to UUID " + uuid + "...");
+                    if (uuid.equals(application)) {
+                        System.out.println("Valid!");
+                        return true;
+                    }
+                }
+                System.out.println("Invalid!");
+                return false;
+            }
+
+            public void EvaluateQueuedApplications() {
+                if (unpackedSwarm == null){
+                    System.out.println("Cannot Evaluate queued applications because the current swarm isn't unpacked!");
+                    return;
+                }
+                int tracker = 0; //temp for testing
+                for (MyiaticBase M : awaitingApplication){
+                    if (CheckApplication(M.getUUID())){
+                        System.out.println("Application for " + M + " was valid, recruiting...");
+                        tracker++;
+                        M.ForceJoin(unpackedSwarm, true);
+                    }
+                }
+                awaitingApplication.clear();
+                if (tracker == 0){
+                    System.out.println("No valid applications were in que...");
+                }
+                else{
+                    System.out.println("Unqueued " + tracker + " valid applications from que!");
+                }
             }
         }
     }
