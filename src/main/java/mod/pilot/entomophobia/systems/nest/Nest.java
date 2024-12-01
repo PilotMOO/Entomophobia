@@ -12,7 +12,6 @@ import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -144,14 +143,11 @@ public class Nest {
                 return (children == null || children.size() < getMaxChildCount()) && !AreAnyOfMyChildrenAlive();
             }
 
-            if (children == null) return true;
+            if (LayersDeep() > NestManager.getNestMaxLayers()){
+                return false;
+            }
             else{
-                if (LayersDeep() > NestManager.getNestMaxLayers()){
-                    return false;
-                }
-                else{
-                    return children.size() < getMaxChildCount();
-                }
+                return children == null || children.size() < getMaxChildCount();
             }
         }
 
@@ -588,7 +584,7 @@ public class Nest {
             if (isEntrance()){
                 Vec3 surface = findSurface(getPosition());
                 do{
-                    Vec3 direction = EntomoDataManager.GetDirectionToAFromB(surface, getPosition())
+                    Vec3 direction = EntomoDataManager.getDirectionToAFromB(surface, getPosition())
                             .yRot(random.nextIntBetweenInclusive(-180, 180))
                             .xRot(random.nextIntBetweenInclusive(-45, 45))
                             .zRot(random.nextIntBetweenInclusive(-45, 45))
@@ -611,7 +607,7 @@ public class Nest {
             }
             else{
                 do{
-                    Vec3 direction = EntomoDataManager.GetDirectionToAFromB(getPosition(), getComparePosition())
+                    Vec3 direction = EntomoDataManager.getDirectionToAFromB(getPosition(), getComparePosition())
                             .yRot(random.nextIntBetweenInclusive(-25, 25))
                             .xRot(random.nextIntBetweenInclusive(0, 25))
                             .zRot(random.nextIntBetweenInclusive(0, 25))
@@ -632,7 +628,7 @@ public class Nest {
         }
         private boolean IsThisEndPositionInvalid(Vec3 toTest){
             Vec3 start = getStartDirect();
-            Vec3 direction = EntomoDataManager.GetDirectionFromAToB(start, toTest);
+            Vec3 direction = EntomoDataManager.getDirectionFromAToB(start, toTest);
             int thicknessScale = 0;
             if (parent instanceof Chamber c){
                 thicknessScale = c.radius + c.thickness;
@@ -703,7 +699,7 @@ public class Nest {
         }
         @Override
         protected Vec3 getOffshootPosition() {
-            return getPosition().add(EntomoDataManager.GetDirectionToAFromB(getPosition(), parent.getPosition()).scale((double)weight / 2));
+            return getPosition().add(EntomoDataManager.getDirectionToAFromB(getPosition(), parent.getPosition()).scale((double)weight / 2));
         }
 
         @Override
@@ -717,11 +713,7 @@ public class Nest {
         private void ManageExtension() {
             if (ShouldThisBecomeAParent()){
                 if (ShouldGetExtension()) {
-                    if (isEntrance()){
-                        this.AddToChildren(new Corridor(server, this, end, weight, thickness, true));
-                        return;
-                    }
-                    this.AddToChildren(new Corridor(server, this, end, weight, thickness));
+                    this.AddToChildren(new Corridor(server, this, end, weight, thickness, isEntrance()));
                 }
                 else{
                     ConstructNewChild((byte)1);

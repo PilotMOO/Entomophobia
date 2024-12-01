@@ -2,6 +2,7 @@ package mod.pilot.entomophobia.event;
 
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.Entomophobia;
+import mod.pilot.entomophobia.blocks.custom.MyiaticFleshBlock;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.data.worlddata.SwarmSaveData;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
@@ -121,6 +122,10 @@ public class EntomoForgeEvents {
         NestManager.setNestConstructionDetails();
         SwarmManager.setSwarmDetails();
         server = event.getServer().overworld();
+
+        for (String ID : Config.NEST.mobs_from_flesh_blocks.get()){
+            MyiaticFleshBlock.RegisterAsFleshBlockPest(ID);
+        }
     }
     @SubscribeEvent
     public static void ServerStartDataSetup(ServerStartedEvent event){
@@ -173,7 +178,7 @@ public class EntomoForgeEvents {
         if (!EntomoGeneralSaveData.hasStarted() && EntomoGeneralSaveData.getWorldAge() > Config.SERVER.time_until_shit_gets_real.get()){
             for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
                 AABB spreadAABB = player.getBoundingBox().inflate(Config.SERVER.start_spread_aoe.get());
-                List<? extends LivingEntity> nearbyInfectables = player.level().getEntitiesOfClass(LivingEntity.class, spreadAABB, (LivingEntity Le) -> EntomoDataManager.GetConvertedFor(Le.getEncodeId()) != null);
+                List<? extends LivingEntity> nearbyInfectables = player.level().getEntitiesOfClass(LivingEntity.class, spreadAABB, (LivingEntity Le) -> EntomoDataManager.getConvertedFor(Le.getEncodeId()) != null);
                 int amountInfected = 0;
                 for (LivingEntity entity : nearbyInfectables){
                     if (amountInfected < nearbyInfectables.size() / 6){

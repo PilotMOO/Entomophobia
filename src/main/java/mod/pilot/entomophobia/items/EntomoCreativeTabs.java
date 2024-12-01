@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia.items;
 
 import mod.pilot.entomophobia.Entomophobia;
+import mod.pilot.entomophobia.blocks.EntomoBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -33,6 +34,10 @@ public class EntomoCreativeTabs {
                         register.accept(EntomoItems.SHAPE_WAND.get());
                         register.accept(EntomoItems.NEST_WAND.get());
                         register.accept(EntomoItems.SWARM_WAND.get());
+
+                        register.accept(EntomoBlocks.MYIATIC_FLESH.get());
+                        register.accept(EntomoBlocks.TWINED_FLESH.get());
+                        register.accept(EntomoBlocks.LUMINOUS_FLESH.get());
                     })
                     .build());
 }

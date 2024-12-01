@@ -209,7 +209,7 @@ public class EntomoGeneralSaveData extends SavedData {
     public EntityType<?> GetFirstFromStorage(){
         if (getTotalInStorage() > 1){
             String[] spliced = GetSpliced();
-            EntityType<?> toReturn = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(spliced[1]));;
+            EntityType<?> toReturn = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(spliced[1]));
             RemoveFromStorage(spliced[1]);
             setDirty();
             return toReturn;

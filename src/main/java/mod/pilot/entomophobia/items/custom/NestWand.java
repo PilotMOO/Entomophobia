@@ -32,6 +32,7 @@ public class NestWand extends Item {
             }
         }
         context.getPlayer().displayClientMessage(Component.literal("Makin' a new nest!"), true);
+        context.getPlayer().getCooldowns().addCooldown(this, 5);
         return InteractionResult.SUCCESS;
     }
 
@@ -62,6 +63,7 @@ public class NestWand extends Item {
                 player.playSound(SoundEvents.ENDER_DRAGON_GROWL, 10, 2);
             }
         }
+        player.getCooldowns().addCooldown(this, 5);
         return super.use(level, player, pUsedHand);
     }
 }

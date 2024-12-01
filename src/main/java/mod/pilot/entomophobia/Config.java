@@ -107,6 +107,8 @@ public class Config
         public final ForgeConfigSpec.ConfigValue<Double> corridor_extension_chance;
         public final ForgeConfigSpec.ConfigValue<Integer> nest_y_build_priority;
 
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>> mobs_from_flesh_blocks;
+
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> nest_spawn_messages;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> nest_joke_spawn_messages;
         public final ForgeConfigSpec.ConfigValue<Boolean> enable_joke_messages;
@@ -122,13 +124,20 @@ public class Config
             builder.push("General Nest Configuration");
             this.nest_build_materials = builder.defineList("Blocks nests are built out of",
                     Lists.newArrayList(
-                            "minecraft:mud"
+                            "entomophobia:myiatic_flesh"
                     ), o -> o instanceof String);
             this.nest_tick_frequency = builder.defineInRange("The frequency at which nests tick (lower = faster, 1 is every tick, 2 is every other, etc)", 100, 1, Integer.MAX_VALUE);
             this.nest_build_speed = builder.defineInRange("The rate at which the nests build per build tick (Supports decimals but any decimal position higher than point 5 will be rounded up)", 20, 0, Double.MAX_VALUE);
             this.nest_max_hardness = builder.defineInRange("Maximum hardness of blocks that the nest can replace while building", 5, 0, Integer.MAX_VALUE);
             this.max_nest_layers = builder.defineInRange("The maximum amount of layers a given branch of a nest can generate", 2, 1, Integer.MAX_VALUE);
             this.nest_y_build_priority = builder.defineInRange("The Y level at which nests will prioritize building up or down if below or above, respectfully", 0, -64, 320);
+
+            this.mobs_from_flesh_blocks = builder.defineList("Mobs that have a small chance to spawn from breaking myiatic flesh blocks",
+                    Lists.newArrayList(
+                            "minecraft:silverfish"
+                    ), o -> o instanceof String);
+
+            builder.push("Nest Message Configuration");
             this.nest_spawn_messages = builder.defineList("Messages displayed in chat when a nest is formed",
                     Lists.newArrayList(
                             "You feel the world pulse as if something alive is buried nearby...",
@@ -151,7 +160,7 @@ public class Config
                             "*Gulp* it's right behind me, isn't it?",
                             "Ah lads not again."
                     ), o -> o instanceof String);
-            builder.pop();
+            builder.pop(2);
 
             builder.push("Chamber Configuration");
             builder.push("Small Chamber Configuration");

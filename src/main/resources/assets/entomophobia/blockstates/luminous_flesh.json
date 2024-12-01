@@ -1,0 +1,137 @@
+{
+  "variants": {
+    "mirrored=false,lit=false":{
+      "model": "entomophobia:block/luminous_flesh"
+    },
+
+    "mirrored=false,lit=true,level=0": {
+      "model": "entomophobia:block/luminous_flesh"
+    },
+    "mirrored=false,lit=true,level=1": {
+      "model": "entomophobia:block/luminous_flesh"
+    },
+    "mirrored=false,lit=true,level=2": {
+      "model": "entomophobia:block/luminous_flesh"
+    },
+    "mirrored=false,lit=true,level=3": {
+      "model": "entomophobia:block/luminous_flesh"
+    },
+    "mirrored=false,lit=true,level=4": {
+      "model": "entomophobia:block/luminous_flesh"
+    },
+    "mirrored=false,lit=true,level=5": {
+      "model": "entomophobia:block/luminous_flesh"
+    },
+    "mirrored=false,lit=true,level=6": {
+      "model": "entomophobia:block/luminous_flesh"
+    },
+
+    "mirrored=false,lit=true,level=7": {
+      "model": "entomophobia:block/luminous_flesh_light2"
+    },
+    "mirrored=false,lit=true,level=8": {
+      "model": "entomophobia:block/luminous_flesh_light2"
+    },
+
+
+    "mirrored=false,lit=true,level=9": {
+      "model": "entomophobia:block/luminous_flesh_light3"
+    },
+    "mirrored=false,lit=true,level=10": {
+      "model": "entomophobia:block/luminous_flesh_light3"
+    },
+
+
+    "mirrored=false,lit=true,level=11": {
+      "model": "entomophobia:block/luminous_flesh_light4"
+    },
+    "mirrored=false,lit=true,level=12": {
+      "model": "entomophobia:block/luminous_flesh_light4"
+    },
+    "mirrored=false,lit=true,level=13": {
+      "model": "entomophobia:block/luminous_flesh_light4"
+    },
+    "mirrored=false,lit=true,level=14": {
+      "model": "entomophobia:block/luminous_flesh_light4"
+    },
+    "mirrored=false,lit=true,level=15": {
+      "model": "entomophobia:block/luminous_flesh_light4"
+    },
+
+
+    "mirrored=true,lit=false":{
+      "model": "entomophobia:block/luminous_flesh",
+      "y": 180
+    },
+
+    "mirrored=true,lit=true,level=0": {
+      "model": "entomophobia:block/luminous_flesh",
+      "y": 180
+    },
+    "mirrored=true,lit=true,level=1": {
+      "model": "entomophobia:block/luminous_flesh",
+      "y": 180
+    },
+    "mirrored=true,lit=true,level=2": {
+      "model": "entomophobia:block/luminous_flesh",
+      "y": 180
+    },
+    "mirrored=true,lit=true,level=3": {
+      "model": "entomophobia:block/luminous_flesh",
+      "y": 180
+    },
+    "mirrored=true,lit=true,level=4": {
+      "model": "entomophobia:block/luminous_flesh",
+      "y": 180
+    },
+    "mirrored=true,lit=true,level=5": {
+      "model": "entomophobia:block/luminous_flesh",
+      "y": 180
+    },
+    "mirrored=true,lit=true,level=6": {
+      "model": "entomophobia:block/luminous_flesh",
+      "y": 180
+    },
+
+    "mirrored=true,lit=true,level=7": {
+      "model": "entomophobia:block/luminous_flesh_light2",
+      "y": 180
+    },
+    "mirrored=true,lit=true,level=8": {
+      "model": "entomophobia:block/luminous_flesh_light2",
+      "y": 180
+    },
+
+
+    "mirrored=true,lit=true,level=9": {
+      "model": "entomophobia:block/luminous_flesh_light3",
+      "y": 180
+    },
+    "mirrored=true,lit=true,level=10": {
+      "model": "entomophobia:block/luminous_flesh_light3",
+      "y": 180
+    },
+
+
+    "mirrored=true,lit=true,level=11": {
+      "model": "entomophobia:block/luminous_flesh_light4",
+      "y": 180
+    },
+    "mirrored=true,lit=true,level=12": {
+      "model": "entomophobia:block/luminous_flesh_light4",
+      "y": 180
+    },
+    "mirrored=true,lit=true,level=13": {
+      "model": "entomophobia:block/luminous_flesh_light4",
+      "y": 180
+    },
+    "mirrored=true,lit=true,level=14": {
+      "model": "entomophobia:block/luminous_flesh_light4",
+      "y": 180
+    },
+    "mirrored=true,lit=true,level=15": {
+      "model": "entomophobia:block/luminous_flesh_light4",
+      "y": 180
+    }
+  }
+}

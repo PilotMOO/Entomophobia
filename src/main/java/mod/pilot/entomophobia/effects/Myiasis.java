@@ -42,7 +42,7 @@ public class Myiasis extends MobEffect {
 
     @Override
     public void applyEffectTick(@NotNull LivingEntity target, int amp) {
-        if (!(target instanceof MyiaticBase || target instanceof Player) && EntomoDataManager.GetConvertedFor(target) != null){
+        if (!(target instanceof MyiaticBase || target instanceof Player) && EntomoDataManager.getConvertedFor(target) != null){
             if (infectedDuration(target) == -1){
                 StartRot(target);
             }
@@ -100,7 +100,7 @@ public class Myiasis extends MobEffect {
     }
 
     private void ConvertMob(LivingEntity target) {
-        EntityType<?> EType = EntomoDataManager.GetConvertedFor(target);
+        EntityType<?> EType = EntomoDataManager.getConvertedFor(target);
 
         Entity newEntity = EType.create(target.level());
         assert newEntity != null;

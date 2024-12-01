@@ -11,6 +11,10 @@
   "item.entomophobia.nest_wand": "Nest Wand™",
   "item.entomophobia.swarm_wand": "Swarm Wand™",
 
+  "block.entomophobia.myiatic_flesh": "Myiatic Flesh Block",
+  "block.entomophobia.twined_flesh": "Twined Flesh",
+  "block.entomophobia.luminous_flesh": "Luminous Flesh Bulb",
+
   "entity.entomophobia.myiatic_zombie": "Myiatic Zombie",
   "entity.entomophobia.myiatic_creeper": "Myiatic Creeper",
   "entity.entomophobia.myiatic_spider": "Myiatic Spider",
