@@ -4,11 +4,14 @@ import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.data.EntomoDataManager;
 import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
+import mod.pilot.entomophobia.particles.EntomoParticles;
 import mod.pilot.entomophobia.systems.swarm.Swarm;
 import mod.pilot.entomophobia.systems.swarm.SwarmManager;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -63,10 +66,10 @@ public class Myiasis extends MobEffect {
 
                     BlockPos blockPos = target.blockPosition();
                     if (target.level().getBlockState(blockPos).isAir()){
-                        BlockPos newPos = new BlockPos(blockPos.getX(), blockPos.getY() - 1, blockPos.getZ());
+                        BlockPos newPos = blockPos.below();
                         int cycleCounter = 0;
                         while (target.level().getBlockState(newPos).isAir() && cycleCounter < 384){
-                            newPos = new BlockPos(newPos.getX(), newPos.getY() - 1, newPos.getZ());
+                            newPos = newPos.below();
                             cycleCounter++;
                         }
                         if (cycleCounter >= 384){
@@ -80,6 +83,8 @@ public class Myiasis extends MobEffect {
                 else{
                     TickDamage(target, amp);
                 }
+
+
             }
             else{
                 ConvertMob(target);
@@ -90,6 +95,19 @@ public class Myiasis extends MobEffect {
         }
         else{
             target.removeEffect(this);
+        }
+
+        if (target.level() instanceof ServerLevel server){
+            if (target.tickCount % 140 == 0){
+                RandomSource random = target.getRandom();
+                double xOffset = random.nextDouble() * (random.nextBoolean() ? 1 : -1) * 0.25;
+                double yOffset = target.getBbHeight() / 2 + random.nextDouble() * (random.nextBoolean() ? 1 : -1) * 0.25;
+                double zOffset = random.nextDouble() * (random.nextBoolean() ? 1 : -1) * 0.25;
+
+                server.sendParticles(EntomoParticles.FLY_PARTICLE.get(), target.getX(), target.getY(), target.getZ(),
+                        random.nextInt(2, 7),
+                        xOffset, yOffset, zOffset, 0);
+            }
         }
     }
 

@@ -3,6 +3,8 @@ package mod.pilot.entomophobia.sound;
 import mod.pilot.entomophobia.Entomophobia;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraftforge.common.util.ForgeSoundType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -18,6 +20,10 @@ public class EntomoSounds {
 
     public static final ForgeSoundType TEST_SOUND_TYPE = new ForgeSoundType(1f, 1f,
             null, null, null, null, null); //Replace Null with actual sounds
+    public static final SoundType TWINED_FLESH_STYPE = new SoundType(1f, 1f,
+            SoundEvents.HONEY_BLOCK_BREAK, SoundEvents.MUD_STEP,
+            SoundEvents.MUD_PLACE, SoundEvents.MUD_PLACE, SoundEvents.MUD_FALL);
+
 
     private static RegistryObject<SoundEvent> registerSoundEvents(String name) {
         return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(Entomophobia.MOD_ID, name)));

@@ -458,10 +458,27 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         if (e instanceof Player p) return !(p.isCreative() || p.isSpectator());
         if (e instanceof MyiaticBase) return false;
         if ( e instanceof AbstractFish) return false;
-        else return !blacklist.contains(e.getEncodeId());
+        else return !isInsideOfTargetBlacklist(e);
+    }
+    public static boolean isInsideOfTargetBlacklist(LivingEntity e){
+        return e != null && isInsideOfTargetBlacklist(e.getEncodeId());
+    }
+    public static boolean isInsideOfTargetBlacklist(String ID){
+        if (ID == null) return false;
+        boolean flag = false;
+        for (String s : blacklist){
+            if (flag) break;
+            if (s.endsWith(":")){
+                String IDSolo = s.replace(":", "");
+                flag = ID.split(":")[0].equals(IDSolo);
+            }else{
+                flag = ID.equals(s);
+            }
+        }
+        return flag;
     }
     public boolean TestValidEntity(LivingEntity e) {
-        if (e instanceof Creeper) return hasEffect(EntomoMobEffects.FRENZY.get());
+        if (e instanceof Creeper && !isInsideOfTargetBlacklist(e)) return hasEffect(EntomoMobEffects.FRENZY.get());
         else return TargetCache.Test(e);
     }
     /**/

@@ -8,6 +8,7 @@ import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.items.EntomoCreativeTabs;
 import mod.pilot.entomophobia.items.EntomoItems;
+import mod.pilot.entomophobia.particles.EntomoParticles;
 import mod.pilot.entomophobia.sound.EntomoSounds;
 import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
 import mod.pilot.entomophobia.systems.swarm.SwarmManager;
@@ -39,6 +40,7 @@ public class Entomophobia
         EntomoSounds.register(modEventBus);
         EntomoMobEffects.register(modEventBus);
         EntomoEntities.register(modEventBus);
+        EntomoParticles.register(modEventBus);
 
         //System.out.println("Color: " + getIntFromColor(255, 255, 255));
 

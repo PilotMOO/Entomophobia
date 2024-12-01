@@ -46,7 +46,7 @@ public class Config
             builder.push("Mob Targeting");
             this.blacklisted_targets = builder.defineList("Mobs the Myiatic Ignore",
                     Lists.newArrayList(
-                            "minecraft:creeper","minecraft:squid","minecraft:bat","minecraft:armor_stand") , o -> o instanceof String);
+                            "minecraft:squid","minecraft:bat","minecraft:armor_stand") , o -> o instanceof String);
             this.myiatic_conversion_list = builder.defineList("Mobs and their Myiatic forms [key = \"Base>Myiatic\"]",
                     Lists.newArrayList(
                             "minecraft:zombie>entomophobia:myiatic_zombie", "minecraft:creeper>entomophobia:myiatic_creeper",

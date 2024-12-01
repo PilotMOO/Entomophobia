@@ -43,11 +43,10 @@ public class TwinedFleshBlock extends CaveVinesPlantBlock {
 
     @Override
     protected @NotNull BlockState updateHeadAfterConvertedFromBody(@NotNull BlockState bodyState, @NotNull BlockState headState) {
-        headState = headState.setValue(BlockStateProperties.LIT, true);
-        headState = headState.setValue(LuminousFleshBlock.MIRRORED, random.nextBoolean());
-        headState = headState.setValue(LuminousFleshBlock.ALIVE, true);
-        headState = headState.setValue(LuminousFleshBlock.AGE, 0);
-        return headState;
+        return headState.setValue(BlockStateProperties.LIT, true)
+                .setValue(LuminousFleshBlock.MIRRORED, random.nextBoolean())
+                .setValue(LuminousFleshBlock.ALIVE, bodyState.getValue(ALIVE))
+                .setValue(LuminousFleshBlock.AGE, 0);
     }
 
     @Override

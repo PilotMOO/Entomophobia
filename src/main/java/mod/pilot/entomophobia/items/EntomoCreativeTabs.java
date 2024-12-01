@@ -34,6 +34,7 @@ public class EntomoCreativeTabs {
                         register.accept(EntomoItems.SHAPE_WAND.get());
                         register.accept(EntomoItems.NEST_WAND.get());
                         register.accept(EntomoItems.SWARM_WAND.get());
+                        register.accept(EntomoItems.FLY_WAND.get());
 
                         register.accept(EntomoBlocks.MYIATIC_FLESH.get());
                         register.accept(EntomoBlocks.TWINED_FLESH.get());

@@ -5,6 +5,7 @@ import mod.pilot.entomophobia.blocks.custom.LuminousFleshBlock;
 import mod.pilot.entomophobia.blocks.custom.MyiaticFleshBlock;
 import mod.pilot.entomophobia.blocks.custom.TwinedFleshBlock;
 import mod.pilot.entomophobia.items.EntomoItems;
+import mod.pilot.entomophobia.sound.EntomoSounds;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -24,10 +25,10 @@ public class EntomoBlocks {
             () -> new MyiaticFleshBlock(BlockBehaviour.Properties.copy(Blocks.MUD).requiresCorrectToolForDrops()
             ));
     public static RegistryObject<Block> TWINED_FLESH = registryBlock("twined_flesh",
-            () -> new TwinedFleshBlock(BlockBehaviour.Properties.copy(Blocks.CAVE_VINES)
+            () -> new TwinedFleshBlock(BlockBehaviour.Properties.copy(Blocks.CAVE_VINES).sound(EntomoSounds.TWINED_FLESH_STYPE)
             ));
     public static RegistryObject<Block> LUMINOUS_FLESH = registryBlock("luminous_flesh",
-            () -> new LuminousFleshBlock(BlockBehaviour.Properties.copy(Blocks.CAVE_VINES)
+            () -> new LuminousFleshBlock(BlockBehaviour.Properties.copy(Blocks.CAVE_VINES).sound(EntomoSounds.TWINED_FLESH_STYPE)
             ));
 
     private static <T extends net.minecraft.world.level.block.Block> RegistryObject<T> registryBlock(String name, Supplier<T> block){

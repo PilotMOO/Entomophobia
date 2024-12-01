@@ -4,7 +4,7 @@
 	"texture_size": [64, 64],
 	"textures": {
 		"0": "entomophobia:block/luminous_flesh_light4",
-		"particle": "entomophobia:block/luminous_flesh_light4"
+		"particle": "entomophobia:block/myiatic_flesh"
 	},
 	"elements": [
 		{

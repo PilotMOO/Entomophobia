@@ -6,8 +6,12 @@ import mod.pilot.entomophobia.entity.client.myiatic.*;
 import mod.pilot.entomophobia.entity.client.pheromones.PheromoneFrenzyRenderer;
 import mod.pilot.entomophobia.entity.client.pheromones.PheromonePreyHuntRenderer;
 import mod.pilot.entomophobia.entity.client.projectile.StringGrappleRenderer;
+import mod.pilot.entomophobia.particles.EntomoParticles;
+import mod.pilot.entomophobia.particles.FlyParticle;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -32,5 +36,11 @@ public class ClientManager {
         event.registerBlockEntityRenderer(EntomoBlockEntities.EXAMPLE_BLOCK_ENTITY.get(),
                 (BlockEntityRendererProvider.Context rendererDispatcherIn) -> new ExampleBlockEntityRenderer());
          */
+    }
+
+    @SubscribeEvent
+    public static void registerParticle(RegisterParticleProvidersEvent event) {
+        Minecraft.getInstance().particleEngine.register(EntomoParticles.FLY_PARTICLE.get(),
+                FlyParticle.Provider::new);
     }
 }

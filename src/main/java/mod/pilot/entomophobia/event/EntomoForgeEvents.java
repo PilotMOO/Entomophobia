@@ -55,8 +55,13 @@ public class EntomoForgeEvents {
         if (event.getEntity() instanceof MyiaticBase && event.getLevel() instanceof ServerLevel server && server.getServer().isReady()){
             Entomophobia.activeData.AddToMyiaticCount();
             System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
+            return;
         }
-        else if (event.getEntity() instanceof Animal animal){
+
+        if (!(event.getEntity() instanceof LivingEntity LE) ||
+                MyiaticBase.isInsideOfTargetBlacklist(LE)) return;
+
+        if (event.getEntity() instanceof Animal animal){
             animal.targetSelector.addGoal(1, new AvoidEntityGoal<>(animal, MyiaticBase.class, 16, 1.0D, 1.3D));
         }
         else if (event.getEntity() instanceof AbstractVillager villager){

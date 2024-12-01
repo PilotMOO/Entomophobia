@@ -2,6 +2,7 @@ package mod.pilot.entomophobia.blocks.custom;
 
 import mod.pilot.entomophobia.blocks.EntomoBlockStateProperties;
 import mod.pilot.entomophobia.blocks.EntomoBlocks;
+import mod.pilot.entomophobia.particles.EntomoParticles;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -56,7 +57,7 @@ public class LuminousFleshBlock extends CaveVinesBlock {
 
     @Override
     protected @NotNull BlockState updateBodyAfterConvertedFromHead(@NotNull BlockState bodyState, @NotNull BlockState headState) {
-        return bodyState.setValue(ALIVE, true);
+        return bodyState.setValue(ALIVE, false);
     }
 
     public @NotNull ItemStack getCloneItemStack(@NotNull BlockGetter level, @NotNull BlockPos bPos, @NotNull BlockState bState) {
@@ -85,7 +86,7 @@ public class LuminousFleshBlock extends CaveVinesBlock {
 
     @Override
     public boolean isRandomlyTicking(@NotNull BlockState bState) {
-        return /*bState.getValue(ALIVE)*/ true;
+        return bState.getValue(ALIVE);
     }
 
     @Override
@@ -94,19 +95,48 @@ public class LuminousFleshBlock extends CaveVinesBlock {
         BlockState belowState = server.getBlockState(below);
 
         if (bState.getValue(AGE) == 0){
-            bState = bState.setValue(AGE, random.nextInt(
-                    0, Math.max(Math.min(getLengthToGround(bPos, server) - 3, 8), 1)));
+            int lengthToGround = getLengthToGround(bPos, server);
+            int preRandomMaxGrowth = Math.max(Math.min(lengthToGround, 8), 2);
+            int origin;
+            if (preRandomMaxGrowth < 3) origin = 1;
+            else{
+                origin = preRandomMaxGrowth;
+                do{origin--;}
+                while (origin > 4);
+            }
+            bState = bState.setValue(AGE, random.nextInt(origin, preRandomMaxGrowth));
             server.setBlock(bPos, bState, 2);
         }
 
-        if (getTotalLength(bPos, server) < bState.getValue(AGE) && belowState.canBeReplaced()){
+        int totalLength = getTotalLength(bPos, server);
+        int age = bState.getValue(AGE);
+
+        if (getLengthToGround(bPos, server) < random.nextInt(3, 6)){
+            server.setBlock(bPos, bState.setValue(ALIVE, false), 3);
+            return;
+        }
+
+        if (totalLength < age && belowState.canBeReplaced()){
             server.setBlock(below, bState, 3);
-            updateShape(bState, Direction.DOWN, bState, server, bPos, below);
+            server.setBlock(bPos, updateBodyAfterConvertedFromHead(getBodyBlock().defaultBlockState(), bState), 3);
+        }else{
+            server.setBlock(bPos, bState.setValue(ALIVE, false), 3);
         }
     }
 
     @Override
     public void animateTick(@NotNull BlockState bState, @NotNull Level level, @NotNull BlockPos bPos, @NotNull RandomSource random) {
+        if (random.nextDouble() <= 0.1){
+            for (int i = 0; i < random.nextInt(2, 7); i++){
+                double x = bPos.getX() + random.nextDouble() * (random.nextBoolean() ? 1 : -1) * 0.25;
+                double y = bPos.getY() + random.nextDouble() * (random.nextBoolean() ? 1 : -1) * 0.25;
+                double z = bPos.getZ() + random.nextDouble() * (random.nextBoolean() ? 1 : -1) * 0.25;
+
+                level.addParticle(EntomoParticles.FLY_PARTICLE.get(), x, y, z, 0, 0, 0);
+            }
+        }
+
+
         if (!bState.getValue(BlockStateProperties.LIT)) return;
         if (random.nextBoolean()) return;
 
@@ -152,13 +182,13 @@ public class LuminousFleshBlock extends CaveVinesBlock {
             totalLength++;
             currentPos = currentPos.above();
         }
-
         return totalLength;
     }
 
     public static int getLengthToGround(BlockPos bPos, Level level){
+        bPos = bPos.below();
         int toReturn = 0;
-        while (level.getBlockState(bPos).isAir() && bPos.getY() > -64){
+        while (level.getBlockState(bPos).canBeReplaced() && bPos.getY() > -64){
             toReturn++;
             bPos = bPos.below();
         }
