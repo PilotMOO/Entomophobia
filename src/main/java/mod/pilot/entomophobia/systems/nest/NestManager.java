@@ -2,6 +2,7 @@ package mod.pilot.entomophobia.systems.nest;
 
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
+import mod.pilot.entomophobia.systems.PolyForged.utility.GeneratorBlockPacket;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -12,6 +13,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class NestManager {
     public enum NestStates{
@@ -85,13 +87,18 @@ public class NestManager {
         NestMaxHardness = Config.NEST.nest_max_hardness.get();
         NestMaxLayers = Config.NEST.max_nest_layers.get();
 
-        NestBlocks = new ArrayList<>();
-        for (String blockID : Config.NEST.nest_build_materials.get()){
-            Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(blockID));
+        HashMap<BlockState, Integer> NestBlocksHashmap = new HashMap<>();
+        for (String ConfigEntry : Config.NEST.nest_build_materials.get()){
+            String[] split = ConfigEntry.split(";");
+            System.out.println("Splicing " + ConfigEntry + "into " + split[0] + " and " + split[1]);
+            Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(split[0]));
+            int weight = Integer.parseInt(split[1]);
+            System.out.println("Weight for " + block + " is " + weight);
             if (block != null){
-                NestBlocks.add(block.defaultBlockState());
+                NestBlocksHashmap.put(block.defaultBlockState(), weight);
             }
         }
+        NestBlocks = new GeneratorBlockPacket(NestBlocksHashmap, 10);
 
         NestSmallChamberMinRadius = Config.NEST.small_chamber_min_size.get();
         NestSmallChamberMaxRadius = Config.NEST.small_chamber_max_size.get();
@@ -147,8 +154,8 @@ public class NestManager {
     public static int getNestMaxLayers(){
         return NestMaxLayers;
     }
-    private static ArrayList<BlockState> NestBlocks;
-    public static ArrayList<BlockState> getNestBlocks(){
+    private static GeneratorBlockPacket NestBlocks;
+    public static GeneratorBlockPacket getNestBlocks(){
         return NestBlocks;
     }
 

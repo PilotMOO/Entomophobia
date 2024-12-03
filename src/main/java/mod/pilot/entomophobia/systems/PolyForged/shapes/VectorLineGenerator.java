@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia.systems.PolyForged.shapes;
 
 import mod.pilot.entomophobia.systems.PolyForged.shapes.abstractshapes.VectorShapeGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.utility.GeneratorBlockPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
@@ -12,15 +13,15 @@ import java.util.Arrays;
 import java.util.List;
 
 public class VectorLineGenerator extends VectorShapeGenerator {
-    public VectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes,
+    public VectorLineGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes,
                                boolean replaceableOnly, Vec3 start, Vec3 end, boolean hydrophobic) {
         super(server, buildSpeed, blockTypes, start, hydrophobic, replaceableOnly, new ArrayList<>(Arrays.asList(start, end)));
     }
-    public VectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes,
+    public VectorLineGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes,
                                int maxHardness, Vec3 start, Vec3 end, boolean hydrophobic) {
         super(server, buildSpeed, blockTypes, start, hydrophobic, maxHardness, new ArrayList<>(Arrays.asList(start, end)));
     }
-    public VectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes,
+    public VectorLineGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes,
                                @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist,
                                Vec3 start, Vec3 end, boolean hydrophobic) {
         super(server, buildSpeed, blockTypes, start, hydrophobic, whitelist, blacklist, new ArrayList<>(Arrays.asList(start, end)));

@@ -3,6 +3,7 @@ package mod.pilot.entomophobia.blocks.custom;
 import mod.pilot.entomophobia.blocks.EntomoBlockStateProperties;
 import mod.pilot.entomophobia.blocks.EntomoBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -11,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
@@ -84,6 +86,12 @@ public class TwinedFleshBlock extends CaveVinesPlantBlock {
         super.tick(bState, server, bPos, random);
     }
 
+    @Override
+    public @NotNull BlockState updateShape(@NotNull BlockState bState, @NotNull Direction facing, @NotNull BlockState facingState,
+                                           @NotNull LevelAccessor level, @NotNull BlockPos bPos, @NotNull BlockPos bFacingPos) {
+        return super.updateShape(bState, facing, facingState, level, bPos, bFacingPos)
+                .setValue(ALIVE, level.getBlockState(bPos.below()).isAir());
+    }
 
     /*@Override
     public void performBonemeal(@NotNull ServerLevel server, @NotNull RandomSource random, @NotNull BlockPos bPos, @NotNull BlockState bState) {
@@ -111,19 +119,5 @@ public class TwinedFleshBlock extends CaveVinesPlantBlock {
         }
 
         return totalLength;
-    }
-    public static @Nullable BlockPos getEmptyGrowthPos(BlockPos startPos, Level level){
-        if (getTotalLength(startPos, level) >= 5) return null;
-        else{
-            BlockPos currentPos = startPos.below();
-            BlockState currentState = level.getBlockState(currentPos);
-            while (currentState.is(EntomoBlocks.TWINED_FLESH.get())
-                    || currentState.is(EntomoBlocks.LUMINOUS_FLESH.get())){
-                currentPos = startPos.below();
-                currentState = level.getBlockState(currentPos);
-            }
-            if (currentState.isAir()) return currentPos;
-        }
-        return null;
     }
 }

@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia.systems.PolyForged.shapes;
 
-import mod.pilot.entomophobia.systems.PolyForged.GhostSphere;
+import mod.pilot.entomophobia.systems.PolyForged.utility.GeneratorBlockPacket;
+import mod.pilot.entomophobia.systems.PolyForged.utility.GhostSphere;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -10,15 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TunnelGenerator extends HollowWeightedCircleLineGenerator{
-    public TunnelGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, boolean replaceableOnly,
+    public TunnelGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, boolean replaceableOnly,
                            Vec3 start, Vec3 end, boolean hydrophobic, int weight, int thickness) {
         super(server, buildSpeed, blockTypes, replaceableOnly, start, end, hydrophobic, weight, thickness);
     }
-    public TunnelGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, int maxHardness,
+    public TunnelGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, int maxHardness,
                            Vec3 start, Vec3 end, boolean hydrophobic, int weight, int thickness) {
         super(server, buildSpeed, blockTypes, maxHardness, start, end, hydrophobic, weight, thickness);
     }
-    public TunnelGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes,
+    public TunnelGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes,
                            @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist,
                            Vec3 start, Vec3 end, boolean hydrophobic, int weight, int thickness) {
         super(server, buildSpeed, blockTypes, whitelist, blacklist, start, end, hydrophobic, weight, thickness);

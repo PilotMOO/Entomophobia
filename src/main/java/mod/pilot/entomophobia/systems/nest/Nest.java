@@ -7,8 +7,8 @@ import mod.pilot.entomophobia.systems.PolyForged.shapes.abstractshapes.ShapeGene
 import mod.pilot.entomophobia.systems.PolyForged.shapes.ChamberGenerator;
 import mod.pilot.entomophobia.systems.PolyForged.shapes.HollowSphereGenerator;
 import mod.pilot.entomophobia.systems.PolyForged.shapes.TunnelGenerator;
-import mod.pilot.entomophobia.systems.PolyForged.GhostSphere;
-import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
+import mod.pilot.entomophobia.systems.PolyForged.utility.GhostSphere;
+import mod.pilot.entomophobia.systems.PolyForged.utility.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;

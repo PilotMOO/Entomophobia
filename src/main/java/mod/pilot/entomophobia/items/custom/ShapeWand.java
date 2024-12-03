@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia.items.custom;
 
-import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
+import mod.pilot.entomophobia.systems.PolyForged.utility.GeneratorBlockPacket;
+import mod.pilot.entomophobia.systems.PolyForged.utility.WorldShapeManager;
 import mod.pilot.entomophobia.systems.PolyForged.shapes.abstractshapes.ShapeGenerator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -49,7 +50,7 @@ public class ShapeWand extends Item {
     public List<ShapeGenerator> shapeInstances(){
         return new ArrayList<>(shapes);
     }
-    private final List<BlockState> BlockStates = new ArrayList<>();
+    private final GeneratorBlockPacket BlockStates = new GeneratorBlockPacket(1);
 
     private static final List<BlockState> whitelist = new ArrayList<>(Arrays.asList(Blocks.GRASS_BLOCK.defaultBlockState(), Blocks.DIRT.defaultBlockState()));
     private static final List<BlockState> blacklist = new ArrayList<>(Arrays.asList(Blocks.COBBLESTONE.defaultBlockState(), Blocks.COARSE_DIRT.defaultBlockState()));

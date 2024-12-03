@@ -102,7 +102,7 @@ public class LuminousFleshBlock extends CaveVinesBlock {
             else{
                 origin = preRandomMaxGrowth;
                 do{origin--;}
-                while (origin > 4);
+                while (origin > 6);
             }
             bState = bState.setValue(AGE, random.nextInt(origin, preRandomMaxGrowth));
             server.setBlock(bPos, bState, 2);
@@ -111,8 +111,8 @@ public class LuminousFleshBlock extends CaveVinesBlock {
         int totalLength = getTotalLength(bPos, server);
         int age = bState.getValue(AGE);
 
-        if (getLengthToGround(bPos, server) < random.nextInt(3, 6)){
-            server.setBlock(bPos, bState.setValue(ALIVE, false), 3);
+        if (getLengthToGround(bPos, server) < random.nextInt(3, 8)){
+            server.setBlock(bPos, bState.setValue(ALIVE, false), 2);
             return;
         }
 

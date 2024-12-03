@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia.systems.PolyForged.shapes;
 
-import mod.pilot.entomophobia.systems.PolyForged.GhostSphere;
+import mod.pilot.entomophobia.systems.PolyForged.utility.GeneratorBlockPacket;
+import mod.pilot.entomophobia.systems.PolyForged.utility.GhostSphere;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -13,19 +14,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineGenerator {
-    public HollowWeightedCircleLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, boolean replaceableOnly,
+    public HollowWeightedCircleLineGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, boolean replaceableOnly,
                                              Vec3 start, Vec3 end, boolean hydrophobic, int weight, int thickness) {
         super(server, buildSpeed, blockTypes, replaceableOnly, start, end, hydrophobic, weight);
         this.thickness = thickness;
     }
 
-    public HollowWeightedCircleLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, int maxHardness,
+    public HollowWeightedCircleLineGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, int maxHardness,
                                              Vec3 start, Vec3 end, boolean hydrophobic, int weight, int thickness) {
         super(server, buildSpeed, blockTypes, maxHardness, start, end, hydrophobic, weight);
         this.thickness = thickness;
     }
 
-    public HollowWeightedCircleLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes,
+    public HollowWeightedCircleLineGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes,
                                              @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist,
                                              Vec3 start, Vec3 end, boolean hydrophobic, int weight, int thickness) {
         super(server, buildSpeed, blockTypes, whitelist, blacklist, start, end, hydrophobic, weight);
@@ -51,7 +52,7 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
         return new ArrayList<>(GhostLinePositions);
     }
 
-    protected boolean isThisAGhostPos(BlockPos bPos, int cycle){
+    protected boolean isThisAGhostPos(BlockPos bPos){
         boolean flag = false;
         for (GhostSphere ghosts : GhostLinePositions){
             flag = ghosts.isGhost(bPos);
@@ -63,31 +64,34 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
     public boolean canThisBeReplaced(BlockState state, BlockPos pos) {
         ServerLevel server = getServer();
 
-        switch (getPlacementDetail()){
-            case 0 ->{
-                return state.canBeReplaced();
-            }
-            case 1 ->{
-                return (MaxHardness >= state.getDestroySpeed(server, pos) || state.canBeReplaced()) && state.getDestroySpeed(server, pos) != -1;
-            }
-            case 2 ->{
-                if (ReplaceWhitelist == null){
-                    if (ReplaceBlacklist != null){
-                        return (!ReplaceBlacklist.contains(state.getBlock().defaultBlockState()) || state.canBeReplaced()) && state.getDestroySpeed(server, pos) != -1;
+        if (isThisAGhostPos(pos)){
+            switch (getPlacementDetail()){
+                case 0 ->{
+                    return state.canBeReplaced();
+                }
+                case 1 ->{
+                    return (MaxHardness >= state.getDestroySpeed(server, pos) || state.canBeReplaced()) && state.getDestroySpeed(server, pos) != -1;
+                }
+                case 2 ->{
+                    if (ReplaceWhitelist == null){
+                        if (ReplaceBlacklist != null){
+                            return (!ReplaceBlacklist.contains(state.getBlock().defaultBlockState()) || state.canBeReplaced()) && state.getDestroySpeed(server, pos) != -1;
+                        }
+                        return false;
                     }
+                    else{
+                        return ReplaceWhitelist.contains(state.getBlock().defaultBlockState()) && (ReplaceBlacklist == null || !ReplaceBlacklist.contains(state.getBlock().defaultBlockState()));
+                    }
+                }
+                case 3 ->{
+                    return true;
+                }
+                default -> {
                     return false;
                 }
-                else{
-                    return ReplaceWhitelist.contains(state.getBlock().defaultBlockState()) && (ReplaceBlacklist == null || !ReplaceBlacklist.contains(state.getBlock().defaultBlockState()));
-                }
-            }
-            case 3 ->{
-                return true;
-            }
-            default -> {
-                return false;
             }
         }
+        return super.canThisBeReplaced(state, pos);
     }
     @Override
     public void Enable() {
@@ -121,11 +125,11 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
                         }
                         if (canThisBeReplaced(bState, bPos) && distanceToCore <= (double) weight / 2){
                             if (BuildTracker >= 1){
-                                succeeded = isThisAGhostPos(bPos, i) ? ReplaceBlock(bPos, Blocks.AIR.defaultBlockState()) : ReplaceBlock(bPos);
+                                succeeded = isThisAGhostPos(bPos) ? ReplaceBlock(bPos, Blocks.AIR.defaultBlockState()) : ReplaceBlock(bPos);
                             }
                             else{
                                 if (getActiveTime() % (int)(1 / BuildTracker) == 0){
-                                    succeeded = isThisAGhostPos(bPos, i) ? ReplaceBlock(bPos, Blocks.AIR.defaultBlockState()) : ReplaceBlock(bPos);
+                                    succeeded = isThisAGhostPos(bPos) ? ReplaceBlock(bPos, Blocks.AIR.defaultBlockState()) : ReplaceBlock(bPos);
                                 }
                                 else{
                                     succeeded = true;

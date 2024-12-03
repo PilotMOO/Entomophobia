@@ -10,8 +10,11 @@
   "item.entomophobia.shape_wand": "Shape Wand™",
   "item.entomophobia.nest_wand": "Nest Wand™",
   "item.entomophobia.swarm_wand": "Swarm Wand™",
+  "item.entomophobia.fly_wand": "Fly Particle Wand™",
+  "item.entomophobia.block_packet_wand": "Random Block Packet Test Wand™",
 
   "block.entomophobia.myiatic_flesh": "Myiatic Flesh Block",
+  "block.entomophobia.rooted_myiatic_flesh": "Rooted Myiatic Flesh Block",
   "block.entomophobia.twined_flesh": "Twined Flesh",
   "block.entomophobia.luminous_flesh": "Luminous Flesh Bulb",
 
@@ -55,5 +58,6 @@
   "sounds.entomophobia:myiatic_flying": "Myiatic takes flight",
 
   "entomophobia.system.infection_start": "The stench of rot and trepidation floods the air... something's off.",
-  "entomophobia.item.nest_builder_finish": "Built!"
+  "entomophobia.item.nest_builder_finish": "Built!",
+  "creativetab.entomophobia_dev_tab": "Entomophobia Dev Tools"
 }

@@ -31,14 +31,21 @@ public class EntomoCreativeTabs {
 
                         register.accept(EntomoItems.POISONOUS_MILK.get());
 
+                        register.accept(EntomoBlocks.MYIATIC_FLESH.get());
+                        register.accept(EntomoBlocks.ROOTED_MYIATIC_FLESH.get());
+                        register.accept(EntomoBlocks.TWINED_FLESH.get());
+                        register.accept(EntomoBlocks.LUMINOUS_FLESH.get());
+                    })
+                    .build());
+    public static final RegistryObject<CreativeModeTab> ENTOMOPHOBIA_DEV_TAB = CREATIVE_MODE_TABS.register("entomophobia_dev_tab",
+            () -> CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 3).icon(() -> new ItemStack(Items.ARROW))
+                    .title(Component.translatable("creativetab.entomophobia_dev_tab"))
+                    .displayItems((something, register) ->{
                         register.accept(EntomoItems.SHAPE_WAND.get());
                         register.accept(EntomoItems.NEST_WAND.get());
                         register.accept(EntomoItems.SWARM_WAND.get());
                         register.accept(EntomoItems.FLY_WAND.get());
-
-                        register.accept(EntomoBlocks.MYIATIC_FLESH.get());
-                        register.accept(EntomoBlocks.TWINED_FLESH.get());
-                        register.accept(EntomoBlocks.LUMINOUS_FLESH.get());
+                        register.accept(EntomoItems.BLOCK_PACKET_WAND.get());
                     })
                     .build());
 }

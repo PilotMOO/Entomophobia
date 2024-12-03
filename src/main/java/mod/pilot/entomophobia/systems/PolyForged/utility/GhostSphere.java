@@ -1,4 +1,4 @@
-package mod.pilot.entomophobia.systems.PolyForged;
+package mod.pilot.entomophobia.systems.PolyForged.utility;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;

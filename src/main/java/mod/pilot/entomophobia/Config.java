@@ -122,9 +122,10 @@ public class Config
             builder.push("Entomophobia Nest Config");
 
             builder.push("General Nest Configuration");
-            this.nest_build_materials = builder.defineList("Blocks nests are built out of",
+            this.nest_build_materials = builder.defineList("Blocks nests are built out of (key: \"modid:block;weight\") NOTE! Weights are how commonly that block appears, it is NOT X out of 100, a weight of 50 is NOT 50%, it's a fraction of the total cumulative weights (Ergo weight 10 out of a total of 50 is 20% [weight/total = percentChance%/100])",
                     Lists.newArrayList(
-                            "entomophobia:myiatic_flesh"
+                            "entomophobia:myiatic_flesh;95",
+                            "entomophobia:rooted_myiatic_flesh;5"
                     ), o -> o instanceof String);
             this.nest_tick_frequency = builder.defineInRange("The frequency at which nests tick (lower = faster, 1 is every tick, 2 is every other, etc)", 100, 1, Integer.MAX_VALUE);
             this.nest_build_speed = builder.defineInRange("The rate at which the nests build per build tick (Supports decimals but any decimal position higher than point 5 will be rounded up)", 20, 0, Double.MAX_VALUE);

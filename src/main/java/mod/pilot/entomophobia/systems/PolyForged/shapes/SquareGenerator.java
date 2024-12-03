@@ -1,7 +1,8 @@
 package mod.pilot.entomophobia.systems.PolyForged.shapes;
 
 import mod.pilot.entomophobia.systems.PolyForged.shapes.abstractshapes.FlatShapeGenerator;
-import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
+import mod.pilot.entomophobia.systems.PolyForged.utility.GeneratorBlockPacket;
+import mod.pilot.entomophobia.systems.PolyForged.utility.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -12,15 +13,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class SquareGenerator extends FlatShapeGenerator {
-    public SquareGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+    public SquareGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, Vec3 pos, boolean hydrophobic,
                            boolean replaceableOnly, int size, WorldShapeManager.Axis excluded) {
         super(server, buildSpeed, blockTypes, pos, hydrophobic, replaceableOnly, size, size, size, excluded);
     }
-    public SquareGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+    public SquareGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, Vec3 pos, boolean hydrophobic,
                            int maxHardness, int size, WorldShapeManager.Axis excluded) {
         super(server, buildSpeed, blockTypes, pos, hydrophobic, maxHardness, size, size, size, excluded);
     }
-    public SquareGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+    public SquareGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, Vec3 pos, boolean hydrophobic,
                            @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, int size, WorldShapeManager.Axis excluded) {
         super(server, buildSpeed, blockTypes, pos, hydrophobic, whitelist, blacklist, size, size, size, excluded);
     }

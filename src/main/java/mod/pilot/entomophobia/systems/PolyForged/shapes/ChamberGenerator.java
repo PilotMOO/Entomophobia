@@ -1,8 +1,8 @@
 package mod.pilot.entomophobia.systems.PolyForged.shapes;
 
-import mod.pilot.entomophobia.systems.PolyForged.GhostSphere;
+import mod.pilot.entomophobia.systems.PolyForged.utility.GeneratorBlockPacket;
+import mod.pilot.entomophobia.systems.PolyForged.utility.GhostSphere;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -13,15 +13,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChamberGenerator extends RandomizedHollowSphereGenerator{
-    public ChamberGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+    public ChamberGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, Vec3 pos, boolean hydrophobic,
                             boolean replaceableOnly, int radius, int thickness, double buildChance, boolean trueHollow) {
         super(server, buildSpeed, blockTypes, pos, hydrophobic, replaceableOnly, radius, thickness, buildChance, trueHollow);
     }
-    public ChamberGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+    public ChamberGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, Vec3 pos, boolean hydrophobic,
                             int maxHardness, int radius, int thickness, double buildChance, boolean trueHollow) {
         super(server, buildSpeed, blockTypes, pos, hydrophobic, maxHardness, radius, thickness, buildChance, trueHollow);
     }
-    public ChamberGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+    public ChamberGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, Vec3 pos, boolean hydrophobic,
                             @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist,
                             int radius, int thickness, double buildChance, boolean trueHollow) {
         super(server, buildSpeed, blockTypes, pos, hydrophobic, whitelist, blacklist, radius, thickness, buildChance, trueHollow);
@@ -108,7 +108,7 @@ public class ChamberGenerator extends RandomizedHollowSphereGenerator{
     public boolean canThisBeReplaced(BlockState state, BlockPos pos) {
         ServerLevel server = getServer();
 
-        if (TrueHollow){
+        if (TrueHollow && getPosition().distanceTo(pos.getCenter()) < radius - thickness){
             switch (getPlacementDetail()){
                 case 0 ->{
                     return state.canBeReplaced();

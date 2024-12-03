@@ -1,7 +1,8 @@
 package mod.pilot.entomophobia.systems.PolyForged.shapes;
 
 import mod.pilot.entomophobia.systems.PolyForged.shapes.abstractshapes.ShapeGenerator;
-import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
+import mod.pilot.entomophobia.systems.PolyForged.utility.GeneratorBlockPacket;
+import mod.pilot.entomophobia.systems.PolyForged.utility.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -12,21 +13,21 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class QuadrilateralGenerator extends ShapeGenerator {
-    public QuadrilateralGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+    public QuadrilateralGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, Vec3 pos, boolean hydrophobic,
                                   boolean replaceableOnly, int X, int Y, int Z) {
         super(server, buildSpeed, blockTypes, pos, hydrophobic, replaceableOnly);
         Xsize = X;
         Ysize = Y;
         Zsize = Z;
     }
-    public QuadrilateralGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+    public QuadrilateralGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, Vec3 pos, boolean hydrophobic,
                                   int maxHardness, int X, int Y, int Z) {
         super(server, buildSpeed, blockTypes, pos, hydrophobic, maxHardness);
         Xsize = X;
         Ysize = Y;
         Zsize = Z;
     }
-    public QuadrilateralGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+    public QuadrilateralGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, Vec3 pos, boolean hydrophobic,
                                   @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, int X, int Y, int Z) {
         super(server, buildSpeed, blockTypes, pos, hydrophobic, whitelist, blacklist);
         Xsize = X;

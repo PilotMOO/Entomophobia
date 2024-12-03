@@ -1,7 +1,8 @@
 package mod.pilot.entomophobia.systems.PolyForged.shapes.abstractshapes;
 
 import mod.pilot.entomophobia.Entomophobia;
-import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
+import mod.pilot.entomophobia.systems.PolyForged.utility.GeneratorBlockPacket;
+import mod.pilot.entomophobia.systems.PolyForged.utility.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -11,10 +12,9 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.Predicate;
 
 public abstract class ShapeGenerator{
-    protected ShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic, boolean replaceableOnly){
+    protected ShapeGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, Vec3 pos, boolean hydrophobic, boolean replaceableOnly){
         this.server = server;
         setPlacementDetail(replaceableOnly ? 0 : 3);
         BuildSpeed = buildSpeed;
@@ -22,7 +22,7 @@ public abstract class ShapeGenerator{
         Position = pos;
         this.Hydrophobic = hydrophobic;
     }
-    protected ShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic, int maxHardness){
+    protected ShapeGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, Vec3 pos, boolean hydrophobic, int maxHardness){
         this.server = server;
         setPlacementDetail(1);
         BuildSpeed = buildSpeed;
@@ -31,7 +31,7 @@ public abstract class ShapeGenerator{
         MaxHardness = maxHardness;
         this.Hydrophobic = hydrophobic;
     }
-    protected ShapeGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+    protected ShapeGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, Vec3 pos, boolean hydrophobic,
                              @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist){
         this.server = server;
         setPlacementDetail(2);
@@ -140,7 +140,7 @@ public abstract class ShapeGenerator{
         setActiveTime(getActiveTime() + 1);
     }
 
-    public final List<BlockState> BuildingBlocks;
+    public final GeneratorBlockPacket BuildingBlocks;
 
     private final Vec3 Position;
     public Vec3 getPosition(){
@@ -201,7 +201,7 @@ public abstract class ShapeGenerator{
     }
     protected boolean ReplaceBlock(BlockPos pos){
         if (BuildingBlocks.size() > 0){
-            return ReplaceBlock(pos, BuildingBlocks.get(server.random.nextInt(0, BuildingBlocks.size())), 3);
+            return ReplaceBlock(pos, BuildingBlocks.getRandomState(), 3);
         }
         return false;
     }

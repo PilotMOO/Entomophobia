@@ -1,7 +1,8 @@
 package mod.pilot.entomophobia.systems.PolyForged.shapes;
 
 import mod.pilot.entomophobia.systems.PolyForged.shapes.abstractshapes.ShapeGenerator;
-import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
+import mod.pilot.entomophobia.systems.PolyForged.utility.GeneratorBlockPacket;
+import mod.pilot.entomophobia.systems.PolyForged.utility.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -13,17 +14,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class SphereGenerator extends ShapeGenerator {
-    public SphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+    public SphereGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, Vec3 pos, boolean hydrophobic,
                            boolean replaceableOnly, int radius) {
         super(server, buildSpeed, blockTypes, pos, hydrophobic, replaceableOnly);
         this.radius = radius;
     }
-    public SphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+    public SphereGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, Vec3 pos, boolean hydrophobic,
                            int maxHardness, int radius) {
         super(server, buildSpeed, blockTypes, pos, hydrophobic, maxHardness);
         this.radius = radius;
     }
-    public SphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+    public SphereGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, Vec3 pos, boolean hydrophobic,
                            @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist, int radius) {
         super(server, buildSpeed, blockTypes, pos, hydrophobic, whitelist, blacklist);
         this.radius = radius;

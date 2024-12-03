@@ -3,6 +3,7 @@ package mod.pilot.entomophobia.blocks;
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.blocks.custom.LuminousFleshBlock;
 import mod.pilot.entomophobia.blocks.custom.MyiaticFleshBlock;
+import mod.pilot.entomophobia.blocks.custom.RootedMyiaticFleshBlock;
 import mod.pilot.entomophobia.blocks.custom.TwinedFleshBlock;
 import mod.pilot.entomophobia.items.EntomoItems;
 import mod.pilot.entomophobia.sound.EntomoSounds;
@@ -23,6 +24,9 @@ public class EntomoBlocks {
 
     public static RegistryObject<Block> MYIATIC_FLESH = registryBlock("myiatic_flesh",
             () -> new MyiaticFleshBlock(BlockBehaviour.Properties.copy(Blocks.MUD).requiresCorrectToolForDrops()
+            ));
+    public static RegistryObject<Block> ROOTED_MYIATIC_FLESH = registryBlock("rooted_myiatic_flesh",
+            () -> new RootedMyiaticFleshBlock(BlockBehaviour.Properties.copy(Blocks.MUD).requiresCorrectToolForDrops()
             ));
     public static RegistryObject<Block> TWINED_FLESH = registryBlock("twined_flesh",
             () -> new TwinedFleshBlock(BlockBehaviour.Properties.copy(Blocks.CAVE_VINES).sound(EntomoSounds.TWINED_FLESH_STYPE)

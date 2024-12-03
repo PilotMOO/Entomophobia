@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia.systems.PolyForged.shapes;
 
-import mod.pilot.entomophobia.systems.PolyForged.WorldShapeManager;
+import mod.pilot.entomophobia.systems.PolyForged.utility.GeneratorBlockPacket;
+import mod.pilot.entomophobia.systems.PolyForged.utility.WorldShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -13,19 +14,19 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class RandomizedHollowSphereGenerator extends HollowSphereGenerator{
-    public RandomizedHollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+    public RandomizedHollowSphereGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, Vec3 pos, boolean hydrophobic,
                                            boolean replaceableOnly, int radius, int thickness, double buildChance, boolean trueHollow) {
         super(server, buildSpeed, blockTypes, pos, hydrophobic, replaceableOnly, radius, thickness, trueHollow);
         BuildChance = buildChance;
     }
 
-    public RandomizedHollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+    public RandomizedHollowSphereGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, Vec3 pos, boolean hydrophobic,
                                            int maxHardness, int radius, int thickness, double buildChance, boolean trueHollow) {
         super(server, buildSpeed, blockTypes, pos, hydrophobic, maxHardness, radius, thickness, trueHollow);
         BuildChance = buildChance;
     }
 
-    public RandomizedHollowSphereGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, Vec3 pos, boolean hydrophobic,
+    public RandomizedHollowSphereGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, Vec3 pos, boolean hydrophobic,
                                            @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist,
                                            int radius, int thickness, double buildChance, boolean trueHollow) {
         super(server, buildSpeed, blockTypes, pos, hydrophobic, whitelist, blacklist, radius, thickness, trueHollow);

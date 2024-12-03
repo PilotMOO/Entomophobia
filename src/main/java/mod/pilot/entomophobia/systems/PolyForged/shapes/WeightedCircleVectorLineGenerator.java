@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia.systems.PolyForged.shapes;
 
 import mod.pilot.entomophobia.systems.PolyForged.shapes.abstractshapes.WeightedVectorLineGenerator;
+import mod.pilot.entomophobia.systems.PolyForged.utility.GeneratorBlockPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -11,15 +12,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class WeightedCircleVectorLineGenerator extends WeightedVectorLineGenerator {
-    public WeightedCircleVectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, boolean replaceableOnly,
+    public WeightedCircleVectorLineGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, boolean replaceableOnly,
                                              Vec3 start, Vec3 end, boolean hydrophobic, int weight) {
         super(server, buildSpeed, blockTypes, replaceableOnly, start, end, hydrophobic, weight);
     }
-    public WeightedCircleVectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes, int maxHardness,
+    public WeightedCircleVectorLineGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, int maxHardness,
                                              Vec3 start, Vec3 end, boolean hydrophobic, int weight) {
         super(server, buildSpeed, blockTypes, maxHardness, start, end, hydrophobic, weight);
     }
-    public WeightedCircleVectorLineGenerator(ServerLevel server, double buildSpeed, List<BlockState> blockTypes,
+    public WeightedCircleVectorLineGenerator(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes,
                                              @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist,
                                              Vec3 start, Vec3 end, boolean hydrophobic, int weight) {
         super(server, buildSpeed, blockTypes, whitelist, blacklist, start, end, hydrophobic, weight);

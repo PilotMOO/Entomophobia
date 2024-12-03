@@ -41,6 +41,8 @@ public class EntomoItems {
             () -> new SwarmWand(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> FLY_WAND = ITEMS.register("fly_wand",
             () -> new FlyWand(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> BLOCK_PACKET_WAND = ITEMS.register("block_packet_wand",
+            () -> new BlockPacketTestWand(new Item.Properties().stacksTo(1)));
 
     public static void register(IEventBus eventBus){
         ITEMS.register(eventBus);
