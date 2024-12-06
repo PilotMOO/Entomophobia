@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "entomophobia:block/infested_myiatic_flesh_animated"
+  }
+}

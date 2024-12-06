@@ -29,12 +29,16 @@ public class EntomoCreativeTabs {
                         register.accept(EntomoItems.MYIATIC_PIG_SPAWNEGG.get());
                         register.accept(EntomoItems.MYIATIC_CHICKEN_SPAWNEGG.get());
 
-                        register.accept(EntomoItems.POISONOUS_MILK.get());
-
                         register.accept(EntomoBlocks.MYIATIC_FLESH.get());
                         register.accept(EntomoBlocks.ROOTED_MYIATIC_FLESH.get());
+                        register.accept(EntomoBlocks.INFESTED_MYIATIC_FLESH.get());
                         register.accept(EntomoBlocks.TWINED_FLESH.get());
                         register.accept(EntomoBlocks.LUMINOUS_FLESH.get());
+
+                        register.accept(EntomoItems.POISONOUS_MILK.get());
+
+                        register.accept(EntomoItems.LUSTROUS_TISSUE.get());
+                        register.accept(EntomoItems.BOTTLED_CORPSEDEW.get());
                     })
                     .build());
     public static final RegistryObject<CreativeModeTab> ENTOMOPHOBIA_DEV_TAB = CREATIVE_MODE_TABS.register("entomophobia_dev_tab",

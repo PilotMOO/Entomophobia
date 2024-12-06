@@ -6,15 +6,23 @@
   "item.entomophobia.myiatic_sheep_spawnegg": "Myiatic Sheep Spawn",
   "item.entomophobia.myiatic_pig_spawnegg": "Myiatic Pig Spawn",
   "item.entomophobia.myiatic_chicken_spawnegg": "Myiatic Chicken Spawn",
+
   "item.entomophobia.milk_bucket": "Milk Bucket",
+
+  "item.entomophobia.lustrous_tissue": "Lustrous Tissue",
+  "item.entomophobia.bottled_corpsedew": "Bottled Corpsedew",
+
   "item.entomophobia.shape_wand": "Shape Wand™",
   "item.entomophobia.nest_wand": "Nest Wand™",
   "item.entomophobia.swarm_wand": "Swarm Wand™",
   "item.entomophobia.fly_wand": "Fly Particle Wand™",
   "item.entomophobia.block_packet_wand": "Random Block Packet Test Wand™",
 
+  "entomophobia.item.tooltip.bottled_corpsedew": "A bottle of a strange green substance extracted from within a nest. It is presumably very calorically dense, however consumption of this might not be the best idea, not in this state...",
+
   "block.entomophobia.myiatic_flesh": "Myiatic Flesh Block",
   "block.entomophobia.rooted_myiatic_flesh": "Rooted Myiatic Flesh Block",
+  "block.entomophobia.infested_myiatic_flesh": "Infested Myiatic Flesh Block",
   "block.entomophobia.twined_flesh": "Twined Flesh",
   "block.entomophobia.luminous_flesh": "Luminous Flesh Bulb",
 
@@ -30,6 +38,7 @@
 
   "effect.entomophobia.myiasis": "Myiasis",
   "effect.entomophobia.neurointoxication": "Neurointoxication",
+  "effect.entomophobia.overstimulation": "Overstimulation",
   "effect.entomophobia.prey": "Prey",
   "effect.entomophobia.hunt": "Hunt",
   "effect.entomophobia.frenzy": "Frenzy",
@@ -52,9 +61,20 @@
   "death.attack.neuro_damage2": "%1$s lost the final braincell",
   "death.attack.neuro_damage3": "%1$s grew (even more) brain dead",
 
+  "death.attack.overstimulation1": "%1$s's heart gave out",
+  "death.attack.overstimulation2": "%1$s couldn't calm down",
+  "death.attack.overstimulation3": "%1$s probably shouldn't have eaten that",
+
+  "death.attack.overstimulation1.player": "%1$s's heart gave out",
+  "death.attack.overstimulation2.player": "%1$s couldn't calm down",
+  "death.attack.overstimulation3.player": "%1$s probably shouldn't have eaten that",
+
   "death.attack.myiatic_explode": "%1$s was blown to smithereens by %2$s",
 
   "sounds.entomophobia:myiatic_zombie_idle": "Myiatic Zombie groans",
+  "sounds.entomophobia:myiatic_cow_idle": "Myiatic Cow moos",
+  "sounds.entomophobia:myiatic_pig_idle": "Myiatic Pig squeals",
+  "sounds.entomophobia:myiatic_shhep_idle": "Myiatic Sheep baas",
   "sounds.entomophobia:myiatic_flying": "Myiatic takes flight",
 
   "entomophobia.system.infection_start": "The stench of rot and trepidation floods the air... something's off.",

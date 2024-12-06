@@ -53,6 +53,10 @@ public class CaptainCommandGoal extends Goal implements ISwarmOrder {
     }
 
     protected void CheckForMerge(){
+        if (captain.getSwarm() == null){
+            stop();
+            return;
+        }
         for (Swarm swarm : SwarmManager.getSwarms()){
             if (!captain.getSwarm().canMergeWith(swarm, true)) continue;
             if (captain.position().distanceTo(swarm.getSwarmPosition()) < 16){

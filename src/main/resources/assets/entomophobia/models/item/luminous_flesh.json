@@ -1,3 +1,57 @@
 {
-  "parent": "entomophobia:block/luminous_flesh"
+  "parent": "entomophobia:block/luminous_flesh",
+  "display": {
+    "thirdperson_righthand": {
+      "scale": [
+        0.75,
+        0.75,
+        0.75
+      ]
+    },
+    "thirdperson_lefthand": {
+      "scale": [
+        0.75,
+        0.75,
+        0.75
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        3,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "gui": {
+    },
+    "head": {
+      "translation": [
+        0,
+        -1.5,
+        0
+      ],
+      "rotation": [
+        180,
+        0,
+        0
+      ],
+      "scale": [
+        1.75,
+        1.75,
+        1.75
+      ]
+    },
+    "fixed": {
+      "scale": [
+        0.75,
+        0.75,
+        0.75
+      ]
+    }
+  }
 }

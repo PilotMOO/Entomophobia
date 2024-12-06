@@ -5,6 +5,24 @@
       "entomophobia:myiatic_zombie_idle"
     ]
   },
+  "myiatic_cow_idle": {
+    "subtitles": "sounds.entomophobia:myiatic_cow_idle",
+    "sounds": [
+      "entomophobia:myiatic_cow_idle"
+    ]
+  },
+  "myiatic_sheep_idle": {
+    "subtitles": "sounds.entomophobia:myiatic_sheep_idle",
+    "sounds": [
+      "entomophobia:myiatic_sheep_idle"
+    ]
+  },
+  "myiatic_pig_idle": {
+    "subtitles": "sounds.entomophobia:myiatic_pig_idle",
+    "sounds": [
+      "entomophobia:myiatic_pig_idle"
+    ]
+  },
   "myiatic_flying": {
     "subtitles": "sounds.entomophobia:myiatic_flying",
     "sounds": [

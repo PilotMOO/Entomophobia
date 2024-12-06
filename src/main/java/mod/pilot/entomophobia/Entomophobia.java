@@ -42,7 +42,7 @@ public class Entomophobia
         EntomoEntities.register(modEventBus);
         EntomoParticles.register(modEventBus);
 
-        //System.out.println("Color: " + getIntFromColor(255, 255, 255));
+        System.out.println("Color: " + getIntFromColor(149, 168, 38));
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SERVER_SPEC, "entomo_common_config.toml");
         Config.loadConfig(Config.SERVER_SPEC, FMLPaths.CONFIGDIR.get().resolve("entomo_common_config.toml").toString());

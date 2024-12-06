@@ -1,6 +1,8 @@
 package mod.pilot.entomophobia.event;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import mod.pilot.entomophobia.Entomophobia;
+import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.client.myiatic.*;
 import mod.pilot.entomophobia.entity.client.pheromones.PheromoneFrenzyRenderer;
@@ -9,9 +11,21 @@ import mod.pilot.entomophobia.entity.client.projectile.StringGrappleRenderer;
 import mod.pilot.entomophobia.particles.EntomoParticles;
 import mod.pilot.entomophobia.particles.FlyParticle;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 

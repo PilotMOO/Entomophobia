@@ -1,0 +1,40 @@
+{
+  "variants": {
+    "alive=true":[
+      {
+        "model": "entomophobia:block/infested_myiatic_flesh_animated",
+        "y": 0
+      },
+      {
+        "model": "entomophobia:block/infested_myiatic_flesh_animated",
+        "y": 90
+      },
+      {
+        "model": "entomophobia:block/infested_myiatic_flesh_animated",
+        "y": 180
+      },
+      {
+        "model": "entomophobia:block/infested_myiatic_flesh_animated",
+        "y": 270
+      }
+    ],
+    "alive=false": [
+      {
+        "model": "entomophobia:block/infested_myiatic_flesh",
+        "y": 0
+      },
+      {
+        "model": "entomophobia:block/infested_myiatic_flesh",
+        "y": 90
+      },
+      {
+        "model": "entomophobia:block/infested_myiatic_flesh",
+        "y": 180
+      },
+      {
+        "model": "entomophobia:block/infested_myiatic_flesh",
+        "y": 270
+      }
+    ]
+  }
+}

@@ -16,6 +16,9 @@ public class EntomoSounds {
             DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, Entomophobia.MOD_ID);
 
     public static final RegistryObject<SoundEvent> MYIATIC_ZOMBIE_IDLE = registerSoundEvents("myiatic_zombie_idle");
+    public static final RegistryObject<SoundEvent> MYIATIC_COW_IDLE = registerSoundEvents("myiatic_cow_idle");
+    public static final RegistryObject<SoundEvent> MYIATIC_PIG_IDLE = registerSoundEvents("myiatic_pig_idle");
+    public static final RegistryObject<SoundEvent> MYIATIC_SHEEP_IDLE = registerSoundEvents("myiatic_sheep_idle");
     public static final RegistryObject<SoundEvent> MYIATIC_FLYING = registerSoundEvents("myiatic_flying");
 
     public static final ForgeSoundType TEST_SOUND_TYPE = new ForgeSoundType(1f, 1f,

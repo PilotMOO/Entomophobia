@@ -40,6 +40,10 @@ public class EntomoDamageTypes {
     public static final ResourceKey<DamageType> NEURO_2 = create("neuro_2");
     public static final ResourceKey<DamageType> NEURO_3 = create("neuro_3");
 
+    public static final ResourceKey<DamageType> OVERSTIM1 = create("overstimulation1");
+    public static final ResourceKey<DamageType> OVERSTIM2 = create("overstimulation2");
+    public static final ResourceKey<DamageType> OVERSTIM3 = create("overstimulation3");
+
 
     public static final ResourceKey<DamageType> MYIATIC_EXPLODE = create("myiatic_explode");
 
@@ -100,5 +104,17 @@ public class EntomoDamageTypes {
             }
         }
     }
-
+    public static DamageSource overstimulation(LivingEntity entity){
+        switch (entity.getRandom().nextIntBetweenInclusive(1, 3)){
+            default -> {
+                return damageSource(entity, OVERSTIM1);
+            }
+            case 2 -> {
+                return damageSource(entity, OVERSTIM2);
+            }
+            case 3 -> {
+                return damageSource(entity, OVERSTIM3);
+            }
+        }
+    }
 }

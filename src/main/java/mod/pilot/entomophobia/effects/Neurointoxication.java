@@ -1,16 +1,14 @@
 package mod.pilot.entomophobia.effects;
 
 import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
-import mod.pilot.entomophobia.effects.StackingEffectBase;
-import net.minecraft.util.Mth;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.monster.Creeper;
 import oshi.util.tuples.Pair;
 
 import java.util.HashMap;
 
-public class Neurointoxication extends StackingEffectBase {
+public class Neurointoxication extends MobEffect implements IStacking {
     public Neurointoxication() {
         super(MobEffectCategory.HARMFUL, -8182798);
     }
@@ -61,5 +59,31 @@ public class Neurointoxication extends StackingEffectBase {
             NewHeadRotFor(target, target.getYRot(), target.getXRot());
         }
          */
+    }
+
+    @Override
+    public boolean isDurationEffectTick(int duration, int amp) {
+        return duration > 0;
+    }
+
+    @Override
+    public int getWrapAroundThreshold() {
+        return 100;
+    }
+    @Override
+    public int getMaxCap() {
+        return 4;
+    }
+    @Override
+    public boolean canDurationExtendIfCapped() {
+        return false;
+    }
+    @Override
+    public int getMinimumWrapDuration() {
+        return 20;
+    }
+    @Override
+    public boolean isDegradable() {
+        return true;
     }
 }

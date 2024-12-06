@@ -38,8 +38,8 @@ public class RootedMyiaticFleshBlock extends MyiaticFleshBlock{
         server.setBlock(bPos, bState.setValue(ALIVE, false), 2);
     }
     @Override
-    public BlockState updateShape(@NotNull BlockState bState, @NotNull Direction direction, @NotNull BlockState neighbor,
-                                  @NotNull LevelAccessor level, @NotNull BlockPos bPos, @NotNull BlockPos neighborPos) {
+    public @NotNull BlockState updateShape(@NotNull BlockState bState, @NotNull Direction direction, @NotNull BlockState neighborState,
+                                           @NotNull LevelAccessor level, @NotNull BlockPos bPos, @NotNull BlockPos neighborPos) {
         return direction == Direction.DOWN && level.getBlockState(bPos.below()).isAir() ? bState.setValue(ALIVE, true) : bState;
     }
 }

@@ -1,10 +1,7 @@
 package mod.pilot.entomophobia.blocks;
 
 import mod.pilot.entomophobia.Entomophobia;
-import mod.pilot.entomophobia.blocks.custom.LuminousFleshBlock;
-import mod.pilot.entomophobia.blocks.custom.MyiaticFleshBlock;
-import mod.pilot.entomophobia.blocks.custom.RootedMyiaticFleshBlock;
-import mod.pilot.entomophobia.blocks.custom.TwinedFleshBlock;
+import mod.pilot.entomophobia.blocks.custom.*;
 import mod.pilot.entomophobia.items.EntomoItems;
 import mod.pilot.entomophobia.sound.EntomoSounds;
 import net.minecraft.world.item.BlockItem;
@@ -23,10 +20,13 @@ public class EntomoBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Entomophobia.MOD_ID);
 
     public static RegistryObject<Block> MYIATIC_FLESH = registryBlock("myiatic_flesh",
-            () -> new MyiaticFleshBlock(BlockBehaviour.Properties.copy(Blocks.MUD).requiresCorrectToolForDrops()
+            () -> new MyiaticFleshBlock(BlockBehaviour.Properties.copy(Blocks.MUD).requiresCorrectToolForDrops().destroyTime(0.5f)
             ));
     public static RegistryObject<Block> ROOTED_MYIATIC_FLESH = registryBlock("rooted_myiatic_flesh",
-            () -> new RootedMyiaticFleshBlock(BlockBehaviour.Properties.copy(Blocks.MUD).requiresCorrectToolForDrops()
+            () -> new RootedMyiaticFleshBlock(BlockBehaviour.Properties.copy(Blocks.MUD).requiresCorrectToolForDrops().destroyTime(1f)
+            ));
+    public static RegistryObject<Block> INFESTED_MYIATIC_FLESH = registryBlock("infested_myiatic_flesh",
+            () -> new InfestedMyiaticFleshBlock(BlockBehaviour.Properties.copy(Blocks.MUD).requiresCorrectToolForDrops().destroyTime(0.25f)
             ));
     public static RegistryObject<Block> TWINED_FLESH = registryBlock("twined_flesh",
             () -> new TwinedFleshBlock(BlockBehaviour.Properties.copy(Blocks.CAVE_VINES).sound(EntomoSounds.TWINED_FLESH_STYPE)

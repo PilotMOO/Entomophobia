@@ -2,9 +2,11 @@ package mod.pilot.entomophobia.blocks.custom;
 
 import mod.pilot.entomophobia.data.EntomoDataManager;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
@@ -50,5 +52,10 @@ public class MyiaticFleshBlock extends Block {
             M.setTarget(target);
         }
         level.addFreshEntity(toReturn);
+    }
+
+    @Override
+    public boolean isValidSpawn(BlockState state, BlockGetter level, BlockPos pos, SpawnPlacements.Type type, EntityType<?> entityType) {
+        return false;
     }
 }

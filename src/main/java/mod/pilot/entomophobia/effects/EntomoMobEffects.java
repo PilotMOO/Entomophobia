@@ -30,9 +30,12 @@ public class EntomoMobEffects {
     public static final RegistryObject<MobEffect> MYIASIS = MOB_EFFECTS.register("myiasis",
             Myiasis::new);
     public static final RegistryObject<MobEffect> NEUROINTOXICATION = MOB_EFFECTS.register("neurointoxication", () ->
-            new Neurointoxication().addAttributeModifier(Attributes.MOVEMENT_SPEED, "99c9da36-345b-459b-83b1-81aa4f409756", -0.5f, AttributeModifier.Operation.MULTIPLY_TOTAL)
-                    .addAttributeModifier(Attributes.ATTACK_SPEED, "aa1a1e37-3c7f-4f97-b709-92b5c0b2dd71", -0.5f, AttributeModifier.Operation.MULTIPLY_TOTAL)
-                    .addAttributeModifier(Attributes.JUMP_STRENGTH, "65972154-8d83-41a4-abfc-f229b503caf1", -0.75f, AttributeModifier.Operation.MULTIPLY_TOTAL));
+            new Neurointoxication().addAttributeModifier(Attributes.MOVEMENT_SPEED, "99c9da36-345b-459b-83b1-81aa4f409756", -0.1f, AttributeModifier.Operation.MULTIPLY_TOTAL)
+                    .addAttributeModifier(Attributes.ATTACK_SPEED, "aa1a1e37-3c7f-4f97-b709-92b5c0b2dd71", -0.1f, AttributeModifier.Operation.MULTIPLY_TOTAL)
+                    .addAttributeModifier(Attributes.JUMP_STRENGTH, "65972154-8d83-41a4-abfc-f229b503caf1", -0.1f, AttributeModifier.Operation.MULTIPLY_TOTAL));
+    public static final RegistryObject<MobEffect> OVERSTIMULATION = MOB_EFFECTS.register("overstimulation", () ->
+            new Overstimulation().addAttributeModifier(Attributes.MOVEMENT_SPEED, "5276572d-53ca-4f42-a024-765c164b3a21", 1f, AttributeModifier.Operation.MULTIPLY_TOTAL)
+                    .addAttributeModifier(Attributes.ATTACK_SPEED, "e00418a6-1dbb-4d23-bb6f-84608f7fc32f", 0.5f, AttributeModifier.Operation.MULTIPLY_TOTAL));
 
 
     public static void register(IEventBus eventBus) {

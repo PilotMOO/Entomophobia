@@ -1,8 +1,13 @@
 package mod.pilot.entomophobia.items;
 
 import mod.pilot.entomophobia.Entomophobia;
+import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.items.custom.*;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.HoneyBottleItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.common.ForgeSpawnEggItem;
@@ -12,6 +17,20 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 public class EntomoItems {
+    /*Food Properties*/
+    public static final FoodProperties LUSTROUS_TISSUE_FOOD = new FoodProperties.Builder().alwaysEat().fast()
+            .nutrition(1).saturationMod(0f)
+            .effect(() -> new MobEffectInstance(MobEffects.GLOWING, 200), 0.75f)
+            .effect(() -> new MobEffectInstance(MobEffects.NIGHT_VISION, 60), 1f)
+            .effect(() -> new MobEffectInstance(MobEffects.HUNGER, 600, 1), 0.5f)
+            .effect(() -> new MobEffectInstance(MobEffects.POISON, 80, 1), 0.25f)
+            .build();
+    public static final FoodProperties CORPSEDEW_FOOD = new FoodProperties.Builder().alwaysEat()
+            .nutrition(6).saturationMod(1.5f)
+            .effect(() -> new MobEffectInstance(EntomoMobEffects.OVERSTIMULATION.get(), 100), 1f)
+            .build();
+
+    /*Item registration*/
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Entomophobia.MOD_ID);
 
     public static final RegistryObject<Item> MYIATIC_ZOMBIE_SPAWNEGG = ITEMS.register("myiatic_zombie_spawnegg",
@@ -32,6 +51,11 @@ public class EntomoItems {
 
     public static final RegistryObject<Item> POISONOUS_MILK = ITEMS.register("milk_bucket",
             () -> new DangerousMilk(new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1)));
+
+    public static final RegistryObject<Item> LUSTROUS_TISSUE = ITEMS.register("lustrous_tissue",
+            () -> new Item(new Item.Properties().food(LUSTROUS_TISSUE_FOOD)));
+    public static final RegistryObject<Item> BOTTLED_CORPSEDEW = ITEMS.register("bottled_corpsedew",
+            () -> new BottledCorpsedewItem(new Item.Properties().food(CORPSEDEW_FOOD).stacksTo(8)));
 
     public static final RegistryObject<Item> SHAPE_WAND = ITEMS.register("shape_wand",
             () -> new ShapeWand(new Item.Properties().stacksTo(1)));

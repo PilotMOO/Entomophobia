@@ -6,6 +6,7 @@ import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.util.AzureLibUtil;
 import mod.pilot.entomophobia.entity.AI.AttackWithAnimationGoal;
+import mod.pilot.entomophobia.sound.EntomoSounds;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -76,7 +77,7 @@ public class MyiaticPigEntity extends MyiaticBase{
     @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
-        return SoundEvents.PIG_HURT;
+        return EntomoSounds.MYIATIC_PIG_IDLE.get();
     }
     @Override
     protected SoundEvent getDeathSound() {
