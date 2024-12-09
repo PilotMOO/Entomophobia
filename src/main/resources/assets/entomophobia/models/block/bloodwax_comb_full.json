@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "bottom": "entomophobia:block/bloodwax_top_full",
+    "side": "entomophobia:block/bloodwax_side_full",
+    "top": "entomophobia:block/bloodwax_top_full"
+  }
+}

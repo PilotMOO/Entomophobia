@@ -11,6 +11,7 @@ import mod.pilot.entomophobia.items.EntomoItems;
 import mod.pilot.entomophobia.particles.EntomoParticles;
 import mod.pilot.entomophobia.sound.EntomoSounds;
 import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
+import mod.pilot.entomophobia.systems.nest.features.FeatureManager;
 import mod.pilot.entomophobia.systems.swarm.SwarmManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -51,6 +52,7 @@ public class Entomophobia
         Config.loadConfig(Config.NEST_SPEC, FMLPaths.CONFIGDIR.get().resolve("entomo_nest_config.toml").toString());
 
         SwarmManager.PopulateNameHashmap();
+        FeatureManager.RegisterAllFeatures();
     }
 
     public int getIntFromColor(int Red, int Green, int Blue){

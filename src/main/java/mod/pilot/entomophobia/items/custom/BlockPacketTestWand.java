@@ -30,7 +30,7 @@ public class BlockPacketTestWand extends Item {
     public InteractionResult useOn(UseOnContext pContext) {
         if (!(pContext.getLevel() instanceof ServerLevel server)) return InteractionResult.SUCCESS;
 
-        BlockState generated = GBP.getRandomState();
+        BlockState generated = GBP.getRandomWeightedObject();
         if (generated == null){
             server.explode(null, null, null,
                     pContext.getClickLocation(), 5, false, Level.ExplosionInteraction.MOB);

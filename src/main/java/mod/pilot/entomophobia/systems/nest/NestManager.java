@@ -90,10 +90,8 @@ public class NestManager {
         HashMap<BlockState, Integer> NestBlocksHashmap = new HashMap<>();
         for (String ConfigEntry : Config.NEST.nest_build_materials.get()){
             String[] split = ConfigEntry.split(";");
-            System.out.println("Splicing " + ConfigEntry + "into " + split[0] + " and " + split[1]);
             Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(split[0]));
             int weight = Integer.parseInt(split[1]);
-            System.out.println("Weight for " + block + " is " + weight);
             if (block != null){
                 NestBlocksHashmap.put(block.defaultBlockState(), weight);
             }

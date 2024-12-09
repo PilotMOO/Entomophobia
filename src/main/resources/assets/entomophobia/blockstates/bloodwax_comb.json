@@ -1,0 +1,56 @@
+{
+  "variants": {
+    "facing=down,corpsedew=false": {
+      "model": "entomophobia:block/bloodwax_comb",
+      "x": 180
+    },
+    "facing=down,corpsedew=true": {
+      "model": "entomophobia:block/bloodwax_comb_full",
+      "x": 180
+    },
+    "facing=east,corpsedew=false": {
+      "model": "entomophobia:block/bloodwax_comb",
+      "x": 90,
+      "y": 90
+    },
+    "facing=east,corpsedew=true": {
+      "model": "entomophobia:block/bloodwax_comb_full",
+      "x": 90,
+      "y": 90
+    },
+    "facing=north,corpsedew=false": {
+      "model": "entomophobia:block/bloodwax_comb",
+      "x": 90
+    },
+    "facing=north,corpsedew=true": {
+      "model": "entomophobia:block/bloodwax_comb_full",
+      "x": 90
+    },
+    "facing=south,corpsedew=false": {
+      "model": "entomophobia:block/bloodwax_comb",
+      "x": 90,
+      "y": 180
+    },
+    "facing=south,corpsedew=true": {
+      "model": "entomophobia:block/bloodwax_comb_full",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up,corpsedew=false": {
+      "model": "entomophobia:block/bloodwax_comb"
+    },
+    "facing=up,corpsedew=true": {
+      "model": "entomophobia:block/bloodwax_comb_full"
+    },
+    "facing=west,corpsedew=false": {
+      "model": "entomophobia:block/bloodwax_comb",
+      "x": 90,
+      "y": 270
+    },
+    "facing=west,corpsedew=true": {
+      "model": "entomophobia:block/bloodwax_comb_full",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

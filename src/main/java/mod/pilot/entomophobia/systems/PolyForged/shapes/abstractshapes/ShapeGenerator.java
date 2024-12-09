@@ -201,7 +201,7 @@ public abstract class ShapeGenerator{
     }
     protected boolean ReplaceBlock(BlockPos pos){
         if (BuildingBlocks.size() > 0){
-            return ReplaceBlock(pos, BuildingBlocks.getRandomState(), 3);
+            return ReplaceBlock(pos, BuildingBlocks.getRandomWeightedObject(), 3);
         }
         return false;
     }

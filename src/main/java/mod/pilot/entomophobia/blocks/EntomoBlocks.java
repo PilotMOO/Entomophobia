@@ -28,6 +28,11 @@ public class EntomoBlocks {
     public static RegistryObject<Block> INFESTED_MYIATIC_FLESH = registryBlock("infested_myiatic_flesh",
             () -> new InfestedMyiaticFleshBlock(BlockBehaviour.Properties.copy(Blocks.MUD).requiresCorrectToolForDrops().destroyTime(0.25f)
             ));
+    public static RegistryObject<Block> BLOODWAX_COMB = registryBlock("bloodwax_comb",
+            () -> new BloodwaxCombBlock(BlockBehaviour.Properties.copy(Blocks.HONEYCOMB_BLOCK).requiresCorrectToolForDrops()
+            ));
+
+
     public static RegistryObject<Block> TWINED_FLESH = registryBlock("twined_flesh",
             () -> new TwinedFleshBlock(BlockBehaviour.Properties.copy(Blocks.CAVE_VINES).sound(EntomoSounds.TWINED_FLESH_STYPE)
             ));

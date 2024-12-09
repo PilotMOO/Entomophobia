@@ -114,6 +114,9 @@ public class Nest {
             DeadEnd = deadEnd;
         }
         protected ServerLevel server;
+        public ServerLevel server(){
+            return server;
+        }
         protected final Vec3 position;
 
         public boolean DeadEnd;

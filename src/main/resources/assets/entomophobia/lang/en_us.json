@@ -17,6 +17,7 @@
   "item.entomophobia.swarm_wand": "Swarm Wand™",
   "item.entomophobia.fly_wand": "Fly Particle Wand™",
   "item.entomophobia.block_packet_wand": "Random Block Packet Test Wand™",
+  "item.entomophobia.feature_wand": "Feature Wand™",
 
   "entomophobia.item.tooltip.bottled_corpsedew": "A bottle of a strange green substance extracted from within a nest. It is presumably very calorically dense, however consumption of this might not be the best idea, not in this state...",
 
@@ -25,6 +26,7 @@
   "block.entomophobia.infested_myiatic_flesh": "Infested Myiatic Flesh Block",
   "block.entomophobia.twined_flesh": "Twined Flesh",
   "block.entomophobia.luminous_flesh": "Luminous Flesh Bulb",
+  "block.entomophobia.bloodwax_comb": "Bloodwax Comb Block",
 
   "entity.entomophobia.myiatic_zombie": "Myiatic Zombie",
   "entity.entomophobia.myiatic_creeper": "Myiatic Creeper",
