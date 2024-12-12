@@ -115,6 +115,7 @@ public class WeightedRandomizer<T> extends ArrayList<T> {
     public void replaceEntriesWith(HashMap<T, Integer> replacement){
         clear();
         this.RawWeightHashmap = replacement;
+        super.addAll(replacement.keySet());
         CalculateTrueWeights();
     }
 

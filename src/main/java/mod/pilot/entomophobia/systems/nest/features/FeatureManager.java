@@ -1,13 +1,16 @@
 package mod.pilot.entomophobia.systems.nest.features;
 
 import mod.pilot.entomophobia.data.WeightedRandomizer;
-import mod.pilot.entomophobia.systems.nest.features.any.YesFeature;
+import mod.pilot.entomophobia.systems.nest.features.wall.ThickWallTestFeature;
+import mod.pilot.entomophobia.systems.nest.features.wall.WallTestFeature;
 
 import java.util.HashMap;
 
 public class FeatureManager {
     public static void RegisterAllFeatures() {
-        FeatureManager.FeatureTypeHolder.AddFeature(new YesFeature());
+        //FeatureManager.FeatureTypeHolder.AddFeature(new YesFeature());
+        FeatureManager.FeatureTypeHolder.AddFeature(new WallTestFeature());
+        FeatureManager.FeatureTypeHolder.AddFeature(new ThickWallTestFeature());
     }
 
     public static class FeatureTypeHolder {
@@ -65,6 +68,7 @@ public class FeatureManager {
                     gathered.putAll(CorridorOnly.getCeiling());
                 }
             }
+            System.out.println("Amount of Features gathered: " + gathered.size());
             randomizer.replaceEntriesWith(gathered);
             System.out.println("Amount of Features available for pulling: " + randomizer.size());
             return randomizer.getRandomWeightedObject();
@@ -110,17 +114,16 @@ public class FeatureManager {
 
             System.out.println("Adding Feature " + feature);
             switch (oType){
-                case Any -> HandleAnyOTypeAddition(feature, pPos, weight);
+                case Any -> {
+                    HandleChamberOTypeAddition(feature, pPos, weight);
+                    HandleCorridorOTypeAddition(feature, pPos, weight);
+                }
                 case Chamber -> HandleChamberOTypeAddition(feature, pPos, weight);
                 case Corridor -> HandleCorridorOTypeAddition(feature, pPos, weight);
             }
         }
-        private static void HandleAnyOTypeAddition(Feature feature, Feature.PlacementPositions pPos, int weight) {
-            HandleChamberOTypeAddition(feature, pPos, weight);
-            HandleCorridorOTypeAddition(feature, pPos, weight);
-        }
         private static void HandleChamberOTypeAddition(Feature feature, Feature.PlacementPositions pPos, int weight) {
-            System.out.println("Adding Feature to ChamberOnly");
+            System.out.println("Adding Feature to ChamberOnly with placement position " + pPos + " and weight " + weight);
             switch (pPos){
                 case Any -> {
                     ChamberOnly.addToGround(feature, weight);
@@ -133,7 +136,7 @@ public class FeatureManager {
             }
         }
         private static void HandleCorridorOTypeAddition(Feature feature, Feature.PlacementPositions pPos, int weight) {
-            System.out.println("Adding Feature to CorridorOnly");
+            System.out.println("Adding Feature to CorridorOnly with placement position " + pPos + " and weight " + weight);
             switch (pPos){
                 case Any -> {
                     CorridorOnly.addToGround(feature, weight);
@@ -161,13 +164,13 @@ public class FeatureManager {
             public HashMap<Feature, Integer> getGround() {return new HashMap<>(ground);}
             public void addToGround(Feature toAdd, int weight) {ground.put(toAdd, weight);}
 
-            private final HashMap<Feature, Integer> ceiling = new HashMap<>();
-            public HashMap<Feature, Integer> getCeiling() {return new HashMap<>(ceiling);}
-            public void addToCeiling(Feature toAdd, int weight) {ceiling.put(toAdd, weight);}
-
             private final HashMap<Feature, Integer> wall = new HashMap<>();
             public HashMap<Feature, Integer> getWall() {return new HashMap<>(wall);}
             public void addToWall(Feature toAdd, int weight) {wall.put(toAdd, weight);}
+
+            private final HashMap<Feature, Integer> ceiling = new HashMap<>();
+            public HashMap<Feature, Integer> getCeiling() {return new HashMap<>(ceiling);}
+            public void addToCeiling(Feature toAdd, int weight) {ceiling.put(toAdd, weight);}
         }
     }
 }

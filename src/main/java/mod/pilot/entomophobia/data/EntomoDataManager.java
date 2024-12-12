@@ -1,6 +1,8 @@
 package mod.pilot.entomophobia.data;
 
 import mod.pilot.entomophobia.Config;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -50,6 +52,16 @@ public class EntomoDataManager {
     }
     public static Vec3 getDirectionToAFromB(Vec3 target, Vec3 parent) {
         return target.subtract(parent).normalize();
+    }
+
+    public static BlockPos Vec3ToBPos(Vec3 position){
+        return new BlockPos((int)position.x, (int)position.y, (int)position.z);
+    }
+    public static Vec3 Vec3iToVec3(Vec3i position){
+        return new Vec3(position.getX(), position.getY(), position.getZ());
+    }
+    public static Vec3i Vec3ToVec3i(Vec3 position){
+        return new Vec3i((int)position.x, (int)position.y, (int)position.z);
     }
 
     public static boolean isThisGlass(BlockState state){
