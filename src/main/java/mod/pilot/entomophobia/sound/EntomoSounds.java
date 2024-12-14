@@ -26,6 +26,12 @@ public class EntomoSounds {
     public static final SoundType TWINED_FLESH_STYPE = new SoundType(1f, 1f,
             SoundEvents.HONEY_BLOCK_BREAK, SoundEvents.MUD_STEP,
             SoundEvents.MUD_PLACE, SoundEvents.MUD_PLACE, SoundEvents.MUD_FALL);
+    public static final SoundType BLOODWAX_PROTRUSION_STYPE = new SoundType(1f, 1f,
+            SoundEvents.HONEYCOMB_WAX_ON, SoundEvents.HONEY_BLOCK_STEP,
+            SoundEvents.MUD_STEP, SoundEvents.HONEYCOMB_WAX_ON, SoundEvents.HONEY_BLOCK_SLIDE);
+    public static final SoundType CONGEALED_BLOOD_STYPE = new SoundType(1f, 1f,
+            SoundEvents.HONEY_BLOCK_BREAK, SoundEvents.MUD_STEP,
+            SoundEvents.MUD_PLACE, SoundEvents.HONEY_BLOCK_SLIDE, SoundEvents.MUD_FALL);
 
 
     private static RegistryObject<SoundEvent> registerSoundEvents(String name) {

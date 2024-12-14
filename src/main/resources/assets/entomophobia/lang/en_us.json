@@ -10,7 +10,7 @@
   "item.entomophobia.milk_bucket": "Milk Bucket",
 
   "item.entomophobia.lustrous_tissue": "Lustrous Tissue",
-  "item.entomophobia.bottled_corpsedew": "Bottled Corpsedew",
+  "item.entomophobia.bottled_corpsedew": "§aBottled Corpsedew",
 
   "item.entomophobia.shape_wand": "Shape Wand™",
   "item.entomophobia.nest_wand": "Nest Wand™",
@@ -18,15 +18,20 @@
   "item.entomophobia.fly_wand": "Fly Particle Wand™",
   "item.entomophobia.block_packet_wand": "Random Block Packet Test Wand™",
   "item.entomophobia.feature_wand": "Feature Wand™",
+  "item.entomophobia.blood_drip_wand": "Blood Drip Wand™",
 
-  "entomophobia.item.tooltip.bottled_corpsedew": "A bottle of a strange green substance extracted from within a nest. It is presumably very calorically dense, however consumption of this might not be the best idea, not in this state...",
+  "item.entomophobia.tooltip.bottled_corpsedew": "§7A bottle of a §astrange green substance§7 extracted from §6within a nest.§7 It is presumably very calorically dense, however consumption of this might not be the best idea, not §6in this state...",
 
   "block.entomophobia.myiatic_flesh": "Myiatic Flesh Block",
   "block.entomophobia.rooted_myiatic_flesh": "Rooted Myiatic Flesh Block",
   "block.entomophobia.infested_myiatic_flesh": "Infested Myiatic Flesh Block",
+  "block.entomophobia.waxy_myiatic_flesh": "Waxy Myiatic Flesh Block",
+  "block.entomophobia.bloodwax_comb": "Bloodwax Comb Block",
+  "block.entomophobia.bloodwax_protrusions": "Bloodwax Comb Protrusions",
   "block.entomophobia.twined_flesh": "Twined Flesh",
   "block.entomophobia.luminous_flesh": "Luminous Flesh Bulb",
-  "block.entomophobia.bloodwax_comb": "Bloodwax Comb Block",
+  "block.entomophobia.congealed_blood": "Congealed Blood",
+
 
   "entity.entomophobia.myiatic_zombie": "Myiatic Zombie",
   "entity.entomophobia.myiatic_creeper": "Myiatic Creeper",

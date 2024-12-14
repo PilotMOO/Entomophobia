@@ -14,7 +14,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CaveVinesBlock;
@@ -22,7 +21,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 public class LuminousFleshBlock extends CaveVinesBlock {
     public static final BooleanProperty MIRRORED = EntomoBlockStateProperties.MIRRORED;
     public static final BooleanProperty ALIVE = EntomoBlockStateProperties.ALIVE;
+    public static final BooleanProperty BLOODY = EntomoBlockStateProperties.BLOODY;
     public LuminousFleshBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(BlockStateProperties.LIT, true)
@@ -38,6 +37,7 @@ public class LuminousFleshBlock extends CaveVinesBlock {
                 .setValue(BlockStateProperties.INVERTED, false)
                 .setValue(MIRRORED, false)
                 .setValue(ALIVE, true)
+                .setValue(BLOODY, true)
                 .setValue(AGE, 0));
     }
     @Override
@@ -53,6 +53,7 @@ public class LuminousFleshBlock extends CaveVinesBlock {
         builder.add(BlockStateProperties.INVERTED);
         builder.add(MIRRORED);
         builder.add(ALIVE);
+        builder.add(BLOODY);
     }
 
     @Override
@@ -66,7 +67,7 @@ public class LuminousFleshBlock extends CaveVinesBlock {
     @Override
     public @NotNull InteractionResult use(@NotNull BlockState bState, @NotNull Level level, @NotNull BlockPos bPos, @NotNull Player player,
                                           @NotNull InteractionHand hand, @NotNull BlockHitResult bHitResult) {
-        return InteractionResult.FAIL;
+        return InteractionResult.PASS;
     }
     @Override
     public boolean isValidBonemealTarget(@NotNull LevelReader levelReader, @NotNull BlockPos bPos, @NotNull BlockState bState, boolean client) {
@@ -86,13 +87,34 @@ public class LuminousFleshBlock extends CaveVinesBlock {
 
     @Override
     public boolean isRandomlyTicking(@NotNull BlockState bState) {
-        return bState.getValue(ALIVE);
+        return bState.getValue(ALIVE) || bState.getValue(BLOODY);
     }
 
     @Override
     public void randomTick(@NotNull BlockState bState, @NotNull ServerLevel server, @NotNull BlockPos bPos, @NotNull RandomSource random) {
         BlockPos below = bPos.below();
         BlockState belowState = server.getBlockState(below);
+
+        if (bState.getValue(BLOODY) && random.nextDouble() < 0.1){
+            BlockPos aboveGroundOrBlood = getAboveGroundOrCongealedBlood(bPos, server);
+            BlockState groundState = server.getBlockState(aboveGroundOrBlood);
+            if (groundState.is(EntomoBlocks.CONGEALED_BLOOD.get())){
+                server.setBlock(aboveGroundOrBlood, groundState.setValue(BlockStateProperties.LAYERS,
+                        groundState.getValue(BlockStateProperties.LAYERS) + 1), 3);
+            }
+            else if (groundState.isAir() && server.getBlockState(aboveGroundOrBlood.below())
+                    .isFaceSturdy(server, aboveGroundOrBlood.below(), Direction.UP)){
+                server.setBlock(aboveGroundOrBlood, EntomoBlocks.CONGEALED_BLOOD.get().defaultBlockState(), 3);
+            }
+
+            BlockState checkBeneath = server.getBlockState(aboveGroundOrBlood.below());
+            if ((checkBeneath.is(EntomoBlocks.CONGEALED_BLOOD.get()) && checkBeneath.getValue(BlockStateProperties.LAYERS) == 8)
+                    || random.nextDouble() < 0.025){
+                server.setBlock(bPos, bState.setValue(BLOODY, false), 2);
+            }
+        }
+
+        if (!bState.getValue(ALIVE)) return;
 
         if (bState.getValue(AGE) == 0){
             int lengthToGround = getLengthToGround(bPos, server);
@@ -124,15 +146,46 @@ public class LuminousFleshBlock extends CaveVinesBlock {
         }
     }
 
+    private static BlockPos getAboveGroundOrCongealedBlood(BlockPos bPos, Level level) {
+        bPos = bPos.below();
+        BlockState bState = level.getBlockState(bPos);
+        while (bState.isAir() && bPos.getY() > -64){
+            bPos = bPos.below();
+            bState = level.getBlockState(bPos);
+            if (bState.is(EntomoBlocks.CONGEALED_BLOOD.get())){
+                return bState.getValue(BlockStateProperties.LAYERS) == 8 ? getBloodTop(bPos, level) : bPos;
+            }
+        }
+        return bPos.above();
+    }
+
+    private static BlockPos getBloodTop(BlockPos bPos, Level level) {
+        BlockState bState = level.getBlockState(bPos);
+        while (bState.is(EntomoBlocks.CONGEALED_BLOOD.get()) && bState.getValue(BlockStateProperties.LAYERS) == 8){
+            bPos = bPos.above();
+            bState = level.getBlockState(bPos);
+        }
+        return bPos;
+    }
+
     @Override
     public void animateTick(@NotNull BlockState bState, @NotNull Level level, @NotNull BlockPos bPos, @NotNull RandomSource random) {
-        if (random.nextDouble() <= 0.1){
-            for (int i = 0; i < random.nextInt(2, 7); i++){
-                double x = bPos.getX() + random.nextDouble() * (random.nextBoolean() ? 1 : -1) * 0.25;
-                double y = bPos.getY() + random.nextDouble() * (random.nextBoolean() ? 1 : -1) * 0.25;
-                double z = bPos.getZ() + random.nextDouble() * (random.nextBoolean() ? 1 : -1) * 0.25;
+        if (random.nextDouble() <= 0.075){
+            for (int i = 0; i < random.nextInt(2, 5); i++){
+                double x = (bPos.getX() + random.nextDouble() * (random.nextBoolean() ? 1 : -1) * 0.25) + 0.5;
+                double y = (bPos.getY() + random.nextDouble() * (random.nextBoolean() ? 1 : -1) * 0.25);
+                double z = (bPos.getZ() + random.nextDouble() * (random.nextBoolean() ? 1 : -1) * 0.25) + 0.5;
 
                 level.addParticle(EntomoParticles.FLY_PARTICLE.get(), x, y, z, 0, 0, 0);
+            }
+        }
+        if (random.nextDouble() <= 0.1 && bState.getValue(BLOODY)){
+            for (int i = 0; i < random.nextInt(2, 5); i++){
+                double x = (bPos.getX() + random.nextDouble() * (random.nextBoolean() ? 1 : -1) * 0.25) + 0.5;
+                double y = bPos.getY();
+                double z = (bPos.getZ() + random.nextDouble() * (random.nextBoolean() ? 1 : -1) * 0.25) + 0.5;
+
+                level.addParticle(EntomoParticles.BLOOD_HANG_PARTICLE.get(), x, y, z, 0, 0, 0);
             }
         }
 

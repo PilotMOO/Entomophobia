@@ -2,6 +2,7 @@ package mod.pilot.entomophobia;
 
 import com.mojang.logging.LogUtils;
 import mod.pilot.entomophobia.blocks.EntomoBlocks;
+import mod.pilot.entomophobia.blocks.custom.BloodwaxProtrusions;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.data.worlddata.SwarmSaveData;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;

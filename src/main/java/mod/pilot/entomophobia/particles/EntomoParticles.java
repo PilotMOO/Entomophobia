@@ -14,6 +14,12 @@ public class EntomoParticles {
 
     public static final RegistryObject<SimpleParticleType> FLY_PARTICLE =
             PARTICLE_TYPES.register("fly_particle", () -> new SimpleParticleType(true));
+    public static final RegistryObject<SimpleParticleType> BLOOD_HANG_PARTICLE =
+            PARTICLE_TYPES.register("blood_hang_particle", () -> new SimpleParticleType(true));
+    public static final RegistryObject<SimpleParticleType> BLOOD_FALL_PARTICLE =
+            PARTICLE_TYPES.register("blood_fall_particle", () -> new SimpleParticleType(true));
+    public static final RegistryObject<SimpleParticleType> BLOOD_LAND_PARTICLE =
+            PARTICLE_TYPES.register("blood_land_particle", () -> new SimpleParticleType(true));
 
     public static void register(IEventBus eventBus) {
         PARTICLE_TYPES.register(eventBus);

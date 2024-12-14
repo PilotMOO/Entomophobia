@@ -1,0 +1,382 @@
+{
+  "variants": {
+    "facing=east": [
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "y": 270,
+        "x": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "y": 270,
+        "x": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "y": 270,
+        "x": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "y": 270,
+        "x": 90,
+        "z": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "y": 270,
+        "x": 90,
+        "z": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "y": 270,
+        "x": 90,
+        "z": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "y": 270,
+        "x": 90,
+        "z": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "y": 270,
+        "x": 90,
+        "z": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "y": 270,
+        "x": 90,
+        "z": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "y": 270,
+        "x": 90,
+        "z": 270
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "y": 270,
+        "x": 90,
+        "z": 270
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "y": 270,
+        "x": 90,
+        "z": 270
+      }
+    ],
+    "facing=north": [
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "y": 180,
+        "x": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "y": 180,
+        "x": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "y": 180,
+        "x": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "y": 180,
+        "x": 90,
+        "z": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "y": 180,
+        "x": 90,
+        "z": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "y": 180,
+        "x": 90,
+        "z": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "y": 180,
+        "x": 90,
+        "z": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "y": 180,
+        "x": 90,
+        "z": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "y": 180,
+        "x": 90,
+        "z": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "y": 180,
+        "x": 90,
+        "z": 270
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "y": 180,
+        "x": 90,
+        "z": 270
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "y": 180,
+        "x": 90,
+        "z": 270
+      }
+    ],
+    "facing=south": [
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "x": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "x": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "x": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "x": 90,
+        "z": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "x": 90,
+        "z": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "x": 90,
+        "z": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "x": 90,
+        "z": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "x": 90,
+        "z": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "x": 90,
+        "z": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "x": 90,
+        "z": 270
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "x": 90,
+        "z": 270
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "x": 90,
+        "z": 270
+      }
+    ],
+    "facing=west": [
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "y": 90,
+        "x": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "y": 90,
+        "x": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "y": 90,
+        "x": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "y": 90,
+        "x": 90,
+        "z": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "y": 90,
+        "x": 90,
+        "z": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "y": 90,
+        "x": 90,
+        "z": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "y": 90,
+        "x": 90,
+        "z": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "y": 90,
+        "x": 90,
+        "z": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "y": 90,
+        "x": 90,
+        "z": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "y": 90,
+        "x": 90,
+        "z": 270
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "y": 90,
+        "x": 90,
+        "z": 270
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "y": 90,
+        "x": 90,
+        "z": 270
+      }
+    ],
+    "facing=up": [
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "x": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "x": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "x": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "x": 180,
+        "y": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "x": 180,
+        "y": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "x": 180,
+        "y": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "x": 180,
+        "y": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "x": 180,
+        "y": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "x": 180,
+        "y": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "x": 180,
+        "y": 270
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "x": 180,
+        "y": 270
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "x": 180,
+        "y": 270
+      }
+    ],
+    "facing=down": [
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1"
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2"
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3"
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "y": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "y": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "y": 90
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "y": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "y": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "y": 180
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_1",
+        "y": 270
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_2",
+        "y": 270
+      },
+      {
+        "model": "entomophobia:block/bloodwax_protrusions_3",
+        "y": 270
+      }
+    ]
+  }
+}

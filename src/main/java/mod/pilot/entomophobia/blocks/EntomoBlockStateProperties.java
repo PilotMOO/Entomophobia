@@ -12,7 +12,11 @@ public record EntomoBlockStateProperties() {
      */
     public static final BooleanProperty MIRRORED = BooleanProperty.create("mirrored");
     /**
-     * If the given plant is "alive", ergo actively ticking and attempting to grow. For use in performance so dead-end plants wont continue to tick
+     * If the given block is "alive", ergo actively ticking and attempting to grow. For use in performance so dead-end plants won't continue to tick
      */
     public static final BooleanProperty ALIVE = BooleanProperty.create("alive");
+    /**
+     * If the given block is "bloody". For use in Luminous Flesh Bulbs to spawn blood particles and congealed blood
+     */
+    public static final BooleanProperty BLOODY = BooleanProperty.create("bloody");
 }

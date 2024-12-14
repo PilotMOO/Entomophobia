@@ -32,9 +32,12 @@ public class EntomoCreativeTabs {
                         register.accept(EntomoBlocks.MYIATIC_FLESH.get());
                         register.accept(EntomoBlocks.ROOTED_MYIATIC_FLESH.get());
                         register.accept(EntomoBlocks.INFESTED_MYIATIC_FLESH.get());
+                        register.accept(EntomoBlocks.WAXY_MYIATIC_FLESH.get());
                         register.accept(EntomoBlocks.BLOODWAX_COMB.get());
+                        register.accept(EntomoBlocks.BLOODWAX_PROTRUSIONS.get());
                         register.accept(EntomoBlocks.TWINED_FLESH.get());
                         register.accept(EntomoBlocks.LUMINOUS_FLESH.get());
+                        register.accept(EntomoBlocks.CONGEALED_BLOOD.get());
 
                         register.accept(EntomoItems.POISONOUS_MILK.get());
 
@@ -52,6 +55,7 @@ public class EntomoCreativeTabs {
                         register.accept(EntomoItems.FLY_WAND.get());
                         register.accept(EntomoItems.BLOCK_PACKET_WAND.get());
                         register.accept(EntomoItems.FEATURE_WAND.get());
+                        register.accept(EntomoItems.BLOOD_DRIP_WAND.get());
                     })
                     .build());
 }

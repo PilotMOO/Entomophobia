@@ -20,16 +20,28 @@ public class EntomoBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Entomophobia.MOD_ID);
 
     public static RegistryObject<Block> MYIATIC_FLESH = registryBlock("myiatic_flesh",
-            () -> new MyiaticFleshBlock(BlockBehaviour.Properties.copy(Blocks.MUD).requiresCorrectToolForDrops().destroyTime(0.5f)
+            () -> new MyiaticFleshBlock(BlockBehaviour.Properties.copy(Blocks.MUD).requiresCorrectToolForDrops()
+                    .destroyTime(0.5f)
             ));
     public static RegistryObject<Block> ROOTED_MYIATIC_FLESH = registryBlock("rooted_myiatic_flesh",
-            () -> new RootedMyiaticFleshBlock(BlockBehaviour.Properties.copy(Blocks.MUD).requiresCorrectToolForDrops().destroyTime(1f)
+            () -> new RootedMyiaticFleshBlock(BlockBehaviour.Properties.copy(Blocks.MUD).requiresCorrectToolForDrops()
+                    .destroyTime(1f)
             ));
     public static RegistryObject<Block> INFESTED_MYIATIC_FLESH = registryBlock("infested_myiatic_flesh",
-            () -> new InfestedMyiaticFleshBlock(BlockBehaviour.Properties.copy(Blocks.MUD).requiresCorrectToolForDrops().destroyTime(0.25f)
+            () -> new InfestedMyiaticFleshBlock(BlockBehaviour.Properties.copy(Blocks.MUD).requiresCorrectToolForDrops()
+                    .destroyTime(0.25f)
+            ));
+    public static RegistryObject<Block> WAXY_MYIATIC_FLESH = registryBlock("waxy_myiatic_flesh",
+            () -> new WaxyMyiaticFleshBlock(BlockBehaviour.Properties.copy(Blocks.HONEYCOMB_BLOCK).requiresCorrectToolForDrops()
+                    .destroyTime(6f)
             ));
     public static RegistryObject<Block> BLOODWAX_COMB = registryBlock("bloodwax_comb",
             () -> new BloodwaxCombBlock(BlockBehaviour.Properties.copy(Blocks.HONEYCOMB_BLOCK).requiresCorrectToolForDrops()
+                    .destroyTime(10f)
+            ));
+    public static RegistryObject<Block> BLOODWAX_PROTRUSIONS = registryBlock("bloodwax_protrusions",
+            () -> new BloodwaxProtrusions(BlockBehaviour.Properties.copy(Blocks.HONEYCOMB_BLOCK).requiresCorrectToolForDrops()
+                    .destroyTime(0.3f).sound(EntomoSounds.BLOODWAX_PROTRUSION_STYPE)
             ));
 
 
@@ -38,6 +50,11 @@ public class EntomoBlocks {
             ));
     public static RegistryObject<Block> LUMINOUS_FLESH = registryBlock("luminous_flesh",
             () -> new LuminousFleshBlock(BlockBehaviour.Properties.copy(Blocks.CAVE_VINES).sound(EntomoSounds.TWINED_FLESH_STYPE)
+            ));
+
+    public static RegistryObject<Block> CONGEALED_BLOOD = registryBlock("congealed_blood",
+            () -> new CongealedBloodLayer(BlockBehaviour.Properties.copy(Blocks.SNOW_BLOCK).sound(EntomoSounds.CONGEALED_BLOOD_STYPE)
+                    .destroyTime(0.25f)
             ));
 
     private static <T extends net.minecraft.world.level.block.Block> RegistryObject<T> registryBlock(String name, Supplier<T> block){

@@ -33,7 +33,7 @@ public class BottledCorpsedewItem extends HoneyBottleItem {
         if (!level.isClientSide){
             consumer.removeEffect(MobEffects.HUNGER);
             consumer.removeEffect(MobEffects.POISON);
-            consumer.removeEffect(MobEffects.MOVEMENT_SPEED);
+            consumer.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
         }
 
         if (itemStack.isEmpty()) {
@@ -53,8 +53,8 @@ public class BottledCorpsedewItem extends HoneyBottleItem {
 
     @Override
     public void appendHoverText(@NotNull ItemStack itemStack, @Nullable Level level,
-                                List<Component> tooltipComponents, TooltipFlag isAdvanced) {
-        tooltipComponents.add(Component.translatable("entomophobia.item.tooltip.bottled_corpsedew"));
+                                List<Component> tooltipComponents, @NotNull TooltipFlag isAdvanced) {
+        tooltipComponents.add(Component.translatable("item.entomophobia.tooltip.bottled_corpsedew"));
         super.appendHoverText(itemStack, level, tooltipComponents, isAdvanced);
     }
 }

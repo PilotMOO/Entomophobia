@@ -3,6 +3,7 @@ package mod.pilot.entomophobia.event;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.Entomophobia;
+import mod.pilot.entomophobia.blocks.custom.BloodwaxProtrusions;
 import mod.pilot.entomophobia.blocks.custom.MyiaticFleshBlock;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.data.worlddata.SwarmSaveData;
@@ -142,6 +143,8 @@ public class EntomoForgeEvents {
         for (String ID : Config.NEST.mobs_from_flesh_blocks.get()){
             MyiaticFleshBlock.RegisterAsFleshBlockPest(ID);
         }
+
+        BloodwaxProtrusions.registerAllPriorityBlocks();
     }
     @SubscribeEvent
     public static void ServerStartDataSetup(ServerStartedEvent event){
