@@ -9,15 +9,22 @@ import mod.pilot.entomophobia.systems.PolyForged.shapes.HollowSphereGenerator;
 import mod.pilot.entomophobia.systems.PolyForged.shapes.TunnelGenerator;
 import mod.pilot.entomophobia.systems.PolyForged.utility.GhostSphere;
 import mod.pilot.entomophobia.systems.PolyForged.utility.WorldShapeManager;
+import mod.pilot.entomophobia.systems.nest.features.Feature;
+import mod.pilot.entomophobia.systems.nest.features.FeatureManager;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import oshi.util.tuples.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Nest {
     public Nest(ServerLevel server, Vec3 start){
@@ -99,7 +106,7 @@ public class Nest {
             this.parent = parent;
             this.position = position;
             if (this instanceof Corridor){
-                DeadEnd = !ShouldThisBecomeAParent();
+                DeadEnd = !shouldThisBecomeAParent();
             }
 
             Enable();
@@ -118,6 +125,42 @@ public class Nest {
             return server;
         }
         protected final Vec3 position;
+        public Vec3 getPosition(){
+            return position;
+        }
+
+        @Nullable
+        public final Offshoot parent;
+        public int getChildIndex(){
+            if (parent == null || parent.children == null) return -1;
+            for (int i = 0; i < parent.children.size(); i++){
+                if (parent.children.get(i) == this){
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        @Nullable
+        public ArrayList<Offshoot> children;
+        public boolean AddToChildren(Offshoot child){
+            if (children == null){
+                children = new ArrayList<>();
+            }
+            if (child != null){
+                NestSaveData.Dirty();
+                return children.add(child);
+            }
+            return false;
+        }
+
+        protected ShapeGenerator generator;
+        public ShapeGenerator getGenerator(){
+            return generator;
+        }
+        protected final void setGenerator(ShapeGenerator newGenerator){
+            generator = newGenerator;
+        }
 
         public boolean DeadEnd;
         public int MaxChildCount = 0;
@@ -137,26 +180,11 @@ public class Nest {
             return layers;
         }
 
-        public boolean ShouldThisBecomeAParent(){
-            if (DeadEnd) return false;
-
-            if (this instanceof Corridor) return children == null;
-
-            if (parent == null){
-                return (children == null || children.size() < getMaxChildCount()) && !AreAnyOfMyChildrenAlive();
-            }
-
-            if (LayersDeep() > NestManager.getNestMaxLayers()){
-                return false;
-            }
-            else{
-                return children == null || children.size() < getMaxChildCount();
-            }
+        public int getMinAllowedFeatureCount(){
+            return 0;
         }
-
-        public Vec3 getPosition(){
-            return position;
-        }
+        public abstract int getMaxAllowedFeatureCount();
+        public abstract double getFeaturePlaceChance();
 
         public enum OffshootStates{
             disabled,
@@ -191,6 +219,9 @@ public class Nest {
         public boolean Dead(){
             return getOffshootState() == 0 || generator.isOfState(WorldShapeManager.GeneratorStates.disabled);
         }
+        public boolean Finished(){
+            return getOffshootState() == 2 && generator.isOfState(WorldShapeManager.GeneratorStates.done);
+        }
         public void Kill(boolean continuous) {
             setOffshootState((byte)0);
             if (generator != null){
@@ -204,45 +235,6 @@ public class Nest {
             NestSaveData.Dirty();
         }
 
-        @Nullable
-        public final Offshoot parent;
-        public int getChildIndex(){
-            if (parent == null || parent.children == null) return -1;
-            for (int i = 0; i < parent.children.size(); i++){
-                if (parent.children.get(i) == this){
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        @Nullable
-        public ArrayList<Offshoot> children;
-        public boolean AddToChildren(Offshoot child){
-            if (children == null){
-                children = new ArrayList<>();
-            }
-            if (child != null){
-                NestSaveData.Dirty();
-                return children.add(child);
-            }
-            return false;
-        }
-        public boolean AreAnyOfMyChildrenAlive(){
-            if (children == null) return false;
-            for (Offshoot child : children){
-                if (child.Alive()) return true;
-            }
-            return false;
-        }
-
-        protected ShapeGenerator generator;
-        public ShapeGenerator getGenerator(){
-            return generator;
-        }
-        protected final void setGenerator(ShapeGenerator newGenerator){
-            generator = newGenerator;
-        }
         protected ArrayList<GhostSphere> QueuedGhostPositions;
         public void addToQueuedGhostPositions(ArrayList<GhostSphere> ghostsLists){
             if (QueuedGhostPositions == null) QueuedGhostPositions = new ArrayList<>();
@@ -281,17 +273,122 @@ public class Nest {
             }
             removeQueuedGhosts(toRemove);
         }
+
+        protected boolean shouldGeneratorTick(){
+            return OffshootState == 1 && generator != null && generator.isActive();
+        }
+        public boolean areAnyOfMyChildrenAlive(){
+            if (children == null) return false;
+            for (Offshoot child : children){
+                if (child.Alive()) return true;
+            }
+            return false;
+        }
+        public boolean shouldThisBecomeAParent(){
+            if (DeadEnd) return false;
+
+            if (this instanceof Corridor) return children == null;
+
+            if (parent == null){
+                return (children == null || children.size() < getMaxChildCount()) && !areAnyOfMyChildrenAlive();
+            }
+
+            if (LayersDeep() > NestManager.getNestMaxLayers()){
+                return false;
+            }
+            else{
+                return children == null || children.size() < getMaxChildCount();
+            }
+        }
+        public abstract boolean canSupportFeatures();
+        protected boolean isFeaturePositionValid(Vec3 pos, Feature feature,
+                                                          @Nullable Direction facing, HashMap<Vec3, Feature> alreadyPlaced){
+            //ToDo: Add testing for wall features IF required, otherwise remove
+            if (children != null){
+                for (Offshoot o : children){
+                    int size = o instanceof Chamber c1 ? c1.radius : o instanceof Corridor c2 ? c2.weight : 0;
+                    Vec3i featureSize = feature.getTemplate(server, null).getSize();
+                    size += (featureSize.getX() + featureSize.getZ()) / 2;
+
+                    if (o.position.distanceTo(pos) < size) return false;
+                }
+            }
+            return testFeatureDistance(pos, feature, alreadyPlaced);
+        }
+        protected final boolean testFeatureDistance(Vec3 pos, Feature toTest, HashMap<Vec3, Feature> existing){
+            Vec3i toTestSize = toTest.getTemplate(server, null).getSize();
+            AABB toTestAABB = AABB.ofSize(pos, toTestSize.getX(), toTestSize.getY(), toTestSize.getZ());
+            for (Vec3 pos1 : existing.keySet()){
+                Feature f = existing.get(pos1);
+                Vec3i existingSize = f.size();
+                AABB existingAABB = AABB.ofSize(pos, existingSize.getX(), existingSize.getY(), existingSize.getZ());
+                if (toTestAABB.intersects(existingAABB)) return false;
+            }
+            return true;
+        }
+        protected abstract Vec3 generateFeaturePlacementPosition(byte placementPos);
+        protected abstract Pair<Vec3, Direction> generateFeaturePlacementPositionForWall(byte placementPos);
+
         public final void TickGenerator(){
             RegisterAllGhosts();
             generator.Build();
             if (generator.isOfState(WorldShapeManager.GeneratorStates.done)) Finish();
         }
-        protected boolean ShouldGeneratorTick(){
-            return OffshootState == 1 && generator != null && generator.isActive();
+        public void placeFeatures(){
+            HashMap<Vec3, Feature> placedFeaturePosHashmap = new HashMap<>();
+
+            for (int i = getMinAllowedFeatureCount(); i < getMaxAllowedFeatureCount(); i++){
+                Feature f = generateRandomValidFeature(); if (f == null) return;
+                Pair<Vec3, Direction> placePair = generateAndTestFeaturePosition(f, placedFeaturePosHashmap); if (placePair == null || placePair.getA() == null) return;
+
+                if (f.Place(placePair.getA(), server, null, placePair.getB())){
+                    placedFeaturePosHashmap.put(placePair.getA(), f);
+                }
+            }
         }
+        protected @Nullable Feature generateRandomValidFeature(){
+            Feature f;
+            byte placePosType;
+            int cycle = 0;
+            do{
+                placePosType = (byte)random.nextInt(1, 4);
+                f = FeatureManager.FeatureTypeHolder.getRandomFeature(getOffshootType(), placePosType);
+            } while (f != null && cycle++ < 10);
+            if (f == null){
+                System.out.println("An offshoot was unable to retrieve a random feature for Offshoot Type (" +
+                        getOffshootType() + ") and Placement Position (" + placePosType + ") in " + cycle + " attempts.");
+                return null;
+            }
+            return f;
+        }
+        protected @Nullable Pair<Vec3, Direction> generateAndTestFeaturePosition(Feature f, final HashMap<Vec3, Feature> alreadyPlaced){
+            Vec3 placePos;
+            @Nullable Direction facing = null;
+
+            int cycle = 0;
+            do {
+                if (f.isWallFeature()) {
+                    Pair<Vec3, Direction> placePair = generateFeaturePlacementPositionForWall(f.PlacementPos);
+                    placePos = placePair.getA();
+                    facing = placePair.getB();
+                }
+                else placePos = generateFeaturePlacementPosition(f.PlacementPos);
+            } while (!isFeaturePositionValid(placePos, f, facing, alreadyPlaced) && cycle++ < 10);
+
+            if (isFeaturePositionValid(placePos, f, facing, alreadyPlaced)){
+                return new Pair<>(placePos, facing);
+            }
+            else{
+                System.out.println("An offshoot was unable to place " + f
+                        + " because the offshoot failed to generate a valid placement position in " + cycle + " attempts.");
+                return null;
+            }
+        }
+
         public void OffshootTick(boolean tickChildren, boolean continuous, int layers){
-            if (ShouldGeneratorTick()){
+            if (shouldGeneratorTick()){
                 TickGenerator();
+                if (Finished() && canSupportFeatures()) placeFeatures();
             }
             if (tickChildren && children != null){
                 for (Offshoot child : children) {
@@ -390,11 +487,16 @@ public class Nest {
         }
 
         @Override
+        protected Pair<Vec3, Direction> generateFeaturePlacementPositionForWall(byte placementPos) {
+            return null;
+        }
+
+        @Override
         public void OffshootTick(boolean tickChildren, boolean continuous, int layers) {
             super.OffshootTick(tickChildren, continuous, layers);
             if (getGenerator() != null && getGenerator().isOfState(WorldShapeManager.GeneratorStates.done)
-                    && getOffshootState() == 2 && !AreAnyOfMyChildrenAlive()){
-                if (ShouldThisBecomeAParent()){
+                    && getOffshootState() == 2 && !areAnyOfMyChildrenAlive()){
+                if (shouldThisBecomeAParent()){
                     if (isMainChamber()){
                         boolean noEntrance = true;
                         if (children != null){
@@ -464,6 +566,54 @@ public class Nest {
                 flag = pos.distanceTo(tunnel.getEnd()) < tunnel.weight * 2;
             }
             return flag;
+        }
+
+        @Override
+        public int getMinAllowedFeatureCount() {
+            return 1;
+        }
+
+        @Override
+        public int getMaxAllowedFeatureCount() {
+            return 3;
+        }
+
+        @Override
+        public double getFeaturePlaceChance() {
+            return 0.75;
+        }
+
+        @Override
+        public boolean canSupportFeatures() {
+            return true;
+        }
+
+        @Override
+        protected Vec3 generateFeaturePlacementPosition(byte placementPos) {
+            int yOffset = switch (placementPos){
+                case 0 -> switch (random.nextIntBetweenInclusive(1, 3)){
+                    case 2 -> 0;
+                    case 3 -> radius - thickness;
+                    default -> -(radius - thickness);
+                };
+                case 2 -> 0;
+                case 3 -> radius - thickness;
+                default -> -(radius - thickness);
+            };
+
+            Vec3 offset;
+            if (placementPos != 2){
+                offset = new Vec3(random.nextIntBetweenInclusive(0, radius - thickness) * (random.nextBoolean() ? 1 : -1),
+                        yOffset,
+                        random.nextIntBetweenInclusive(0, radius - thickness) * (random.nextBoolean() ? 1 : -1));
+            }
+            else{
+                offset = Vec3.ZERO.yRot(random.nextInt(-180, 180))
+                        .xRot(random.nextInt(-30, 30))
+                        .scale(radius - thickness);
+            }
+
+            return position.add(offset);
         }
     }
     public static class Corridor extends Offshoot{
@@ -697,6 +847,7 @@ public class Nest {
                 return tunnel.getEnd();
             }
         }
+
         public Vec3 getStartDirect(){
             return position;
         }
@@ -714,7 +865,7 @@ public class Nest {
         }
 
         private void ManageExtension() {
-            if (ShouldThisBecomeAParent()){
+            if (shouldThisBecomeAParent()){
                 if (ShouldGetExtension()) {
                     this.AddToChildren(new Corridor(server, this, end, weight, thickness, isEntrance()));
                 }
@@ -750,5 +901,17 @@ public class Nest {
         private GhostSphere GenerateSurfaceGhost(Vec3 pos) {
             return new GhostSphere(pos, weight * 2);
         }
+
+        /*Corridors do NOT support features (as of now)*/
+        @Override
+        public int getMaxAllowedFeatureCount() {return 0;}
+        @Override
+        public double getFeaturePlaceChance() {return 0;}
+        @Override
+        public boolean canSupportFeatures() {return false;}
+        @Override
+        protected Vec3 generateFeaturePlacementPosition(byte placementPos) {return null;}
+        @Override
+        protected Pair<Vec3, Direction> generateFeaturePlacementPositionForWall(byte placementPos) {return null;}
     }
 }

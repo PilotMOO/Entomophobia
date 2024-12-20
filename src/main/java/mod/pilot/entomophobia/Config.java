@@ -125,16 +125,17 @@ public class Config
             this.nest_build_materials = builder.defineList("Blocks nests are built out of (key: \"modid:block;weight\")" +
                             "NOTE! Weights are how commonly that block appears, it is NOT X out of 100, " +
                             "a weight of 50 is NOT 50%, it's a fraction of the total cumulative weights " +
-                            "(Ergo weight 10 out of a total of 50 is 20% [weight/total = percentChance%/100])",
+                            "(Ergo weight 10 out of a total of 50 is 20% [1/total * weight = chance as decimal])",
                     Lists.newArrayList(
                             "entomophobia:myiatic_flesh;95",
                             "entomophobia:rooted_myiatic_flesh;7",
-                            "entomophobia:infested_myiatic_flesh;3"
+                            "entomophobia:infested_myiatic_flesh;2",
+                            "entomophobia:waxy_myiatic_flesh;2"
                     ), o -> o instanceof String);
             this.nest_tick_frequency = builder.defineInRange("The frequency at which nests tick (lower = faster, 1 is every tick, 2 is every other, etc)", 100, 1, Integer.MAX_VALUE);
-            this.nest_build_speed = builder.defineInRange("The rate at which the nests build per build tick (Supports decimals but any decimal position higher than point 5 will be rounded up)", 20, 0, Double.MAX_VALUE);
-            this.nest_max_hardness = builder.defineInRange("Maximum hardness of blocks that the nest can replace while building", 5, 0, Integer.MAX_VALUE);
-            this.max_nest_layers = builder.defineInRange("The maximum amount of layers a given branch of a nest can generate", 2, 1, Integer.MAX_VALUE);
+            this.nest_build_speed = builder.defineInRange("The rate at which the nests build per build tick (Supports decimals but any decimal position higher than point 5 will be rounded up)", 60, 0, Double.MAX_VALUE);
+            this.nest_max_hardness = builder.defineInRange("Maximum hardness of blocks that the nest can replace while building", 10, 0, Integer.MAX_VALUE);
+            this.max_nest_layers = builder.defineInRange("The maximum amount of layers a given branch of a nest can generate (manages max size)", 2, 1, Integer.MAX_VALUE);
             this.nest_y_build_priority = builder.defineInRange("The Y level at which nests will prioritize building up or down if below or above, respectfully", 0, -64, 320);
 
             this.mobs_from_flesh_blocks = builder.defineList("Mobs that have a small chance to spawn from breaking myiatic flesh blocks",

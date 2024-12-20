@@ -6,6 +6,8 @@ import mod.pilot.entomophobia.particles.EntomoParticles;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -108,8 +110,8 @@ public class LuminousFleshBlock extends CaveVinesBlock {
             }
 
             BlockState checkBeneath = server.getBlockState(aboveGroundOrBlood.below());
-            if ((checkBeneath.is(EntomoBlocks.CONGEALED_BLOOD.get()) && checkBeneath.getValue(BlockStateProperties.LAYERS) == 8)
-                    || random.nextDouble() < 0.025){
+            if (getLengthToGround(bPos, server) < 24 && (checkBeneath.is(EntomoBlocks.CONGEALED_BLOOD.get()) && checkBeneath.getValue(BlockStateProperties.LAYERS) == 8)
+                    || random.nextDouble() < 0.05){
                 server.setBlock(bPos, bState.setValue(BLOODY, false), 2);
             }
         }
@@ -141,6 +143,8 @@ public class LuminousFleshBlock extends CaveVinesBlock {
         if (totalLength < age && belowState.canBeReplaced()){
             server.setBlock(below, bState, 3);
             server.setBlock(bPos, updateBodyAfterConvertedFromHead(getBodyBlock().defaultBlockState(), bState), 3);
+            server.playSound(null, bPos, SoundEvents.HONEYCOMB_WAX_ON,
+                    SoundSource.BLOCKS, 1.0f, (float)random.nextInt(5, 16) / 10);
         }else{
             server.setBlock(bPos, bState.setValue(ALIVE, false), 3);
         }
@@ -226,6 +230,12 @@ public class LuminousFleshBlock extends CaveVinesBlock {
     public void setPlacedBy(@NotNull Level level, @NotNull BlockPos bPos, @NotNull BlockState bState,
                             @Nullable LivingEntity placer, @NotNull ItemStack itemStack) {
         level.setBlock(bPos, bState.setValue(MIRRORED, level.getRandom().nextBoolean()), 2);
+    }
+
+    @Override
+    public void onPlace(@NotNull BlockState bState, @NotNull Level level, @NotNull BlockPos bPos,
+                        @NotNull BlockState oldState, boolean piston) {
+        level.setBlock(bPos, bState.setValue(BLOODY, level.getRandom().nextDouble() < 0.2), 6);
     }
 
     public static int getTotalLength(BlockPos bPos, Level level){

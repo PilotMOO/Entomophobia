@@ -1,5 +1,6 @@
 package mod.pilot.entomophobia.blocks.custom;
 
+import mod.pilot.entomophobia.blocks.EntomoBlockStateProperties;
 import mod.pilot.entomophobia.blocks.EntomoBlocks;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import net.minecraft.core.BlockPos;
@@ -14,9 +15,14 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.EntityCollisionContext;
@@ -29,8 +35,6 @@ public class CongealedBloodLayer extends SnowLayerBlock {
     public CongealedBloodLayer(Properties pProperties) {
         super(pProperties);
     }
-
-
 
     public @NotNull VoxelShape getOcclusionShape(@NotNull BlockState bState, @NotNull BlockGetter level, @NotNull BlockPos bPos) {
         return Shapes.empty();
@@ -97,8 +101,15 @@ public class CongealedBloodLayer extends SnowLayerBlock {
     }
 
     @Override
-    public void onPlace(@NotNull BlockState bState, Level level, BlockPos bPos, @NotNull BlockState oldState, boolean pMovedByPiston) {
-        if (level.getBlockState(bPos.below()).isAir()) FallingBlockEntity.fall(level, bPos, bState);
+    public void onPlace(@NotNull BlockState bState, @NotNull Level level, @NotNull BlockPos bPos,
+                        @NotNull BlockState oldState, boolean pMovedByPiston) {
+        if (oldState.canBeReplaced() || oldState.is(this)){
+            BlockState belowState = level.getBlockState(bPos.below());
+            if (belowState.isAir()
+                    || (belowState.is(this) && belowState.getValue(LAYERS) < MAX_HEIGHT)) {
+                FallingBlockEntity.fall(level, bPos, bState);
+            }
+        }
     }
 
     private static final int layerSpreadThreshold = 3;
@@ -145,9 +156,10 @@ public class CongealedBloodLayer extends SnowLayerBlock {
                 continue;
             }
             BlockState beneath = server.getBlockState(poolPos.below());
-            if (poolState.canBeReplaced() && beneath.isFaceSturdy(server, poolPos.below(), Direction.UP)
-                    || beneath.isAir() || (beneath.is(this) && beneath.getValue(LAYERS) == MAX_HEIGHT)){
+            if ((poolState.canBeReplaced()) && (beneath.isFaceSturdy(server, poolPos.below(), Direction.UP)
+                    || beneath.isAir() || (beneath.is(this)))){
                 server.setBlock(poolPos, EntomoBlocks.CONGEALED_BLOOD.get().defaultBlockState().setValue(LAYERS, 1), 3);
+
                 if (bState.getValue(LAYERS) == MAX_HEIGHT){
                     BlockPos above = bPos.above();
                     BlockState aboveState = server.getBlockState(above);
@@ -175,12 +187,6 @@ public class CongealedBloodLayer extends SnowLayerBlock {
                 server.setBlock(bPos, bState.setValue(LAYERS, bState.getValue(LAYERS) - 1), 3);
             }
         }
-    }
-
-    @Override
-    public void spawnAfterBreak(@NotNull BlockState bState, @NotNull ServerLevel server,
-                                @NotNull BlockPos bPos, @NotNull ItemStack itemStack, boolean pDropExperience) {
-
     }
 
     @Override

@@ -87,21 +87,21 @@ public abstract class ShapeGenerator{
                 return state.canBeReplaced() && isNotInList(state.getBlock().defaultBlockState());
             }
             case 1 ->{
-                return ((MaxHardness >= state.getDestroySpeed(server, pos) && isNotInList(state.getBlock().defaultBlockState())) || state.canBeReplaced()) && state.getDestroySpeed(server, pos) != -1;
+                return ((MaxHardness >= state.getDestroySpeed(server, pos) && isNotInList(getDefault(state)) || state.canBeReplaced()) && state.getDestroySpeed(server, pos) != -1);
             }
             case 2 ->{
                 if (ReplaceWhitelist == null){
                     if (ReplaceBlacklist != null){
-                        return ((!ReplaceBlacklist.contains(state.getBlock().defaultBlockState()) && isNotInList(state.getBlock().defaultBlockState())) || state.canBeReplaced()) && state.getDestroySpeed(server, pos) != -1;
+                        return ((!ReplaceBlacklist.contains(getDefault(state)) && isNotInList(getDefault(state))) || state.canBeReplaced()) && state.getDestroySpeed(server, pos) != -1;
                     }
                     return false;
                 }
                 else{
-                    return (ReplaceWhitelist.contains(state.getBlock().defaultBlockState()) && (ReplaceBlacklist == null || !ReplaceBlacklist.contains(state.getBlock().defaultBlockState()))) && isNotInList(state.getBlock().defaultBlockState()) && state.getDestroySpeed(server, pos) != -1;
+                    return (ReplaceWhitelist.contains(getDefault(state)) && (ReplaceBlacklist == null || !ReplaceBlacklist.contains(getDefault(state)))) && isNotInList(getDefault(state)) && state.getDestroySpeed(server, pos) != -1;
                 }
             }
             case 3 ->{
-                return (isNotInList(state.getBlock().defaultBlockState()) || state.canBeReplaced()) && state.getDestroySpeed(server, pos) != -1;
+                return (isNotInList(getDefault(state)) || state.canBeReplaced()) && state.getDestroySpeed(server, pos) != -1;
             }
             default -> {
                 return false;
@@ -204,5 +204,9 @@ public abstract class ShapeGenerator{
             return ReplaceBlock(pos, BuildingBlocks.getRandomWeightedObject(), 3);
         }
         return false;
+    }
+
+    protected static BlockState getDefault(BlockState bState){
+        return bState.getBlock().defaultBlockState();
     }
 }

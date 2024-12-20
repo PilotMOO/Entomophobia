@@ -20,6 +20,7 @@ import java.util.Objects;
 import static mod.pilot.entomophobia.data.EntomoDataManager.Vec3ToBPos;
 
 public abstract class Feature {
+    @Deprecated
     public enum Types {
         Empty,
         Yes,
@@ -69,10 +70,10 @@ public abstract class Feature {
             return null;
         }
     }
-    protected Feature(byte type, byte offshootType, byte placementPos, ResourceLocation structureLocation){
+    protected Feature(String type, int offshootType, int placementPos, ResourceLocation structureLocation){
         this.Type = type;
-        this.OffshootType = offshootType;
-        this.PlacementPos = placementPos;
+        this.OffshootType = (byte)offshootType;
+        this.PlacementPos = (byte)placementPos;
         this.structureLocation = structureLocation;
     }
     protected void registerAsWallFeature(@Nullable Collection<? extends ResourceLocation> northStructures,
@@ -171,7 +172,7 @@ public abstract class Feature {
         }
         wallFeature = true;
     }
-    public final byte Type;
+    public final String Type;
     public final byte OffshootType;
     public final byte PlacementPos;
     public final ResourceLocation structureLocation;
@@ -182,14 +183,25 @@ public abstract class Feature {
     public final boolean isWallFeature(){
         return wallFeature;
     }
+    public final boolean isVariantPackage(){
+        return this instanceof FeatureVariantPackage;
+    }
     public Vec3i size(){
         return template.getSize();
     }
-    public void Place(Vec3 position, ServerLevel server, @Nullable Rotation rotation, @Nullable Direction facing){
-        StructureTemplate template =
-                Objects.requireNonNullElseGet(this.template,
-                        () -> this.template = server.getStructureManager().getOrCreate(structureLocation));
+    public boolean Place(Vec3 position, ServerLevel server, @Nullable Rotation rotation, @Nullable Direction facing){
+        StructureTemplate template = getTemplate(server, facing);
 
+        Vec3 offset = getPlaceOffset(template, facing);
+        BlockPos placePos = BlockPos.containing(position.subtract(offset));
+
+        StructurePlaceSettings settings = new StructurePlaceSettings().setIgnoreEntities(true);
+        if (!isWallFeature()) settings = settings.setRotationPivot(BlockPos.containing(offset))
+                .setRotation(rotation == null ? Rotation.getRandom(server.random) : rotation);
+
+        return template.placeInWorld(server, placePos, Vec3ToBPos(position), settings, server.random, 3);
+    }
+    public StructureTemplate getTemplate(ServerLevel server, @Nullable Direction facing){
         if (isWallFeature() && facing != null && wallStructureHashmap != null && wallResourceLocationHashmap != null){
             if (!wallStructureHashmap.containsKey(facing)){
                 wallResourceLocationHashmap.forEach((direction, resource) ->{
@@ -205,21 +217,13 @@ public abstract class Feature {
                     templateList.add(template1);
                 }
             });
-            template = templateList.size() == 0 ?
-                    this.template :
-                    templateList.get(server.random.nextInt(templateList.size()));
+            return template = templateList.size() == 0 ?
+                    this.template : templateList.get(server.random.nextInt(templateList.size()));
         }
-
-        Vec3 offset = getPlaceOffset(template, facing);
-        BlockPos placePos = BlockPos.containing(position.subtract(offset));
-
-        StructurePlaceSettings settings = new StructurePlaceSettings().setIgnoreEntities(true);
-        if (!isWallFeature()) settings = settings.setRotationPivot(BlockPos.containing(offset))
-                .setRotation(rotation == null ? Rotation.getRandom(server.random) : rotation);
-
-        template.placeInWorld(server, placePos, Vec3ToBPos(position), settings, server.random, 3);
+        else return Objects.requireNonNullElseGet(this.template,
+                () -> this.template = server.getStructureManager().getOrCreate(structureLocation));
     }
-    private Vec3 getPlaceOffset(StructureTemplate template, @Nullable Direction facing){
+    protected Vec3 getPlaceOffset(StructureTemplate template, @Nullable Direction facing){
         if (facing != null) {
             return EntomoDataManager.Vec3iToVec3(template.getSize()).multiply(
                                             facing.getStepX() == 0 ? 0.5 : facing.getStepX() == -1 ? 1 : 0,
@@ -233,10 +237,16 @@ public abstract class Feature {
     }
     @Override
     public String toString() {
-        return "Feature [Type: " + Types.fromByte(Type) +
+        return "Feature [Type: " + Type +
                 ", OffshootType: " + OffshootTypes.fromByte(OffshootType) +
                 ", PlacementPos: " + PlacementPositions.fromByte(PlacementPos) +
                 ", Template: " + template +
                 ", ResourceLocation: " + structureLocation + "]";
+    }
+    protected void printIllegalAction(String action){
+        System.out.println("WARNING! ILLEGAL ACTION: " + action);
+    }
+    protected String illegalActionPackageEmpty(){
+        return "Attempted to place " + this + " but getRandomInstance() returned null!";
     }
 }

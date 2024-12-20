@@ -5,8 +5,9 @@ import mod.pilot.entomophobia.systems.nest.features.Feature;
 import net.minecraft.resources.ResourceLocation;
 
 public class YesFeature extends Feature {
-    private static final ResourceLocation structureLocation = new ResourceLocation(Entomophobia.MOD_ID, "yes");
+    private static final String type = "yes";
+    private static final ResourceLocation structureLocation = new ResourceLocation(Entomophobia.MOD_ID, type);
     public YesFeature() {
-        super((byte)1, (byte)0, (byte)0, structureLocation);
+        super(type, (byte)0, (byte)0, structureLocation);
     }
 }

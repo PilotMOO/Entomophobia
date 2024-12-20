@@ -55,12 +55,14 @@ public class DEPRICATEDFeatureManager {
                 featureType = types;
                 return this;
             }
-            public @Nullable Feature.Types getFeatureType(){ return featureType; }
+            //Turned to string to satisfy the compiler,
+            // needs to be Feature.Types to be used properly but this class is Deprecated and unused so IDGAF
+            public @Nullable /*Feature.Types*/ String getFeatureType(){ return "featureType"; }
 
             public boolean filter(Feature feature){
                 if (getPlacement() == null || feature.PlacementPos == getPlacement().asByte()){
                     if (getOffshootType() == null || feature.OffshootType == getOffshootType().asByte()){
-                        return getFeatureType() == null || feature.Type == getFeatureType().asByte();
+                        return getFeatureType() == null || feature.Type == getFeatureType()/*.asByte()*/;
                     }
                     else return false;
                 }
@@ -106,7 +108,8 @@ public class DEPRICATEDFeatureManager {
             }
 
             public void update(Feature update){
-                add(Feature.Types.fromByte(update.Type));
+                //Commented out due to changes to Feature class
+                //add(Feature.Types.fromByte(update.Type));
                 add(Feature.OffshootTypes.fromByte(update.OffshootType));
                 add(Feature.PlacementPositions.fromByte(update.PlacementPos));
             }
@@ -130,7 +133,8 @@ public class DEPRICATEDFeatureManager {
                 return getVariantCollectiveType() == types;
             }
             public boolean testHolderFor(VariantArguments vArgs){
-                if (vArgs.getFeatureType() != null && !tag.has(vArgs.getFeatureType())) return false;
+                //Commented out due to changes in feature class
+                //if (vArgs.getFeatureType() != null && !tag.has(vArgs.getFeatureType())) return false;
                 if (vArgs.getOffshootType() != null && !tag.has(vArgs.getOffshootType())) return false;
                 if (vArgs.getPlacement() != null && !tag.has(vArgs.getPlacement())) return false;
 

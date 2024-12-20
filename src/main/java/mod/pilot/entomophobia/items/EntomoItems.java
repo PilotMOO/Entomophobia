@@ -4,17 +4,21 @@ import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.items.custom.*;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.HoneyBottleItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class EntomoItems {
     /*Food Properties*/
@@ -22,8 +26,8 @@ public class EntomoItems {
             .nutrition(1).saturationMod(0f)
             .effect(() -> new MobEffectInstance(MobEffects.GLOWING, 200), 0.75f)
             .effect(() -> new MobEffectInstance(MobEffects.NIGHT_VISION, 60), 1f)
-            .effect(() -> new MobEffectInstance(MobEffects.HUNGER, 600, 1), 0.5f)
-            .effect(() -> new MobEffectInstance(MobEffects.POISON, 80, 1), 0.25f)
+            .effect(() -> new MobEffectInstance(MobEffects.HUNGER, 600, 1), 1f)
+            .effect(() -> new MobEffectInstance(MobEffects.POISON, 120, 1), 0.9f)
             .build();
     public static final FoodProperties CORPSEDEW_FOOD = new FoodProperties.Builder().alwaysEat()
             .nutrition(6).saturationMod(1.5f)
@@ -53,7 +57,14 @@ public class EntomoItems {
             () -> new DangerousMilk(new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1)));
 
     public static final RegistryObject<Item> LUSTROUS_TISSUE = ITEMS.register("lustrous_tissue",
-            () -> new Item(new Item.Properties().food(LUSTROUS_TISSUE_FOOD)));
+            () -> new Item(new Item.Properties().food(LUSTROUS_TISSUE_FOOD)){
+                @Override
+                public void appendHoverText(@NotNull ItemStack itemStack, @Nullable Level level,
+                                            @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag isAdvanced) {
+                    tooltipComponents.add(Component.translatable("item.entomophobia.tooltip.lustrous_tissue"));
+                    super.appendHoverText(itemStack, level, tooltipComponents, isAdvanced);
+                }
+            });
     public static final RegistryObject<Item> BOTTLED_CORPSEDEW = ITEMS.register("bottled_corpsedew",
             () -> new BottledCorpsedewItem(new Item.Properties().food(CORPSEDEW_FOOD).stacksTo(8)));
 

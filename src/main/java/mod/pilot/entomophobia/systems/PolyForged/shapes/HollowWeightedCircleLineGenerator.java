@@ -52,7 +52,7 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
         return new ArrayList<>(GhostLinePositions);
     }
 
-    protected boolean isThisAGhostPos(BlockPos bPos){
+    protected boolean isThisAGhostPosition(BlockPos bPos){
         boolean flag = false;
         for (GhostSphere ghosts : GhostLinePositions){
             flag = ghosts.isGhost(bPos);
@@ -64,7 +64,7 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
     public boolean canThisBeReplaced(BlockState state, BlockPos pos) {
         ServerLevel server = getServer();
 
-        if (isThisAGhostPos(pos)){
+        if (isThisAGhostPosition(pos)){
             switch (getPlacementDetail()){
                 case 0 ->{
                     return state.canBeReplaced();
@@ -125,11 +125,11 @@ public class HollowWeightedCircleLineGenerator extends WeightedCircleVectorLineG
                         }
                         if (canThisBeReplaced(bState, bPos) && distanceToCore <= (double) weight / 2){
                             if (BuildTracker >= 1){
-                                succeeded = isThisAGhostPos(bPos) ? ReplaceBlock(bPos, Blocks.AIR.defaultBlockState()) : ReplaceBlock(bPos);
+                                succeeded = isThisAGhostPosition(bPos) ? ReplaceBlock(bPos, Blocks.AIR.defaultBlockState()) : ReplaceBlock(bPos);
                             }
                             else{
                                 if (getActiveTime() % (int)(1 / BuildTracker) == 0){
-                                    succeeded = isThisAGhostPos(bPos) ? ReplaceBlock(bPos, Blocks.AIR.defaultBlockState()) : ReplaceBlock(bPos);
+                                    succeeded = isThisAGhostPosition(bPos) ? ReplaceBlock(bPos, Blocks.AIR.defaultBlockState()) : ReplaceBlock(bPos);
                                 }
                                 else{
                                     succeeded = true;

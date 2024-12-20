@@ -1,20 +1,36 @@
 package mod.pilot.entomophobia.systems.nest.features;
 
 import mod.pilot.entomophobia.data.WeightedRandomizer;
+import mod.pilot.entomophobia.systems.nest.features.any.YesFeature;
+import mod.pilot.entomophobia.systems.nest.features.ground.BloodpitFeature;
+import mod.pilot.entomophobia.systems.nest.features.ground.CorpsedewCombFeaturePackage;
+import mod.pilot.entomophobia.systems.nest.features.ground.FleshClumpFeaturePackage;
+import mod.pilot.entomophobia.systems.nest.features.ground.WaxComblessFeaturePackage;
 import mod.pilot.entomophobia.systems.nest.features.wall.ThickWallTestFeature;
 import mod.pilot.entomophobia.systems.nest.features.wall.WallTestFeature;
 
 import java.util.HashMap;
 
+import static mod.pilot.entomophobia.systems.nest.features.FeatureManager.FeatureTypeHolder.AddFeature;
+
 public class FeatureManager {
     public static void RegisterAllFeatures() {
-        //FeatureManager.FeatureTypeHolder.AddFeature(new YesFeature());
-        FeatureManager.FeatureTypeHolder.AddFeature(new WallTestFeature());
-        FeatureManager.FeatureTypeHolder.AddFeature(new ThickWallTestFeature());
+        /*Testing Features*/
+        //AddFeature(new YesFeature());
+        //AddFeature(new WallTestFeature());
+        //AddFeature(new ThickWallTestFeature());
+
+        /*Variant Packages*/
+        AddFeature(new FleshClumpFeaturePackage());
+        AddFeature(new WaxComblessFeaturePackage(), 30);
+        AddFeature(new CorpsedewCombFeaturePackage(), 10);
+
+        /*Solo Features*/
+        AddFeature(new BloodpitFeature(), 5);
     }
 
     public static class FeatureTypeHolder {
-        private static final int defaultWeight = 10;
+        private static final int defaultWeight = 50;
         private static final WeightedRandomizer<Feature> randomizer = new WeightedRandomizer<>(defaultWeight);
         public static final OffshootSpecificHolder Any;
         public static final OffshootSpecificHolder ChamberOnly;
@@ -120,6 +136,10 @@ public class FeatureManager {
                 }
                 case Chamber -> HandleChamberOTypeAddition(feature, pPos, weight);
                 case Corridor -> HandleCorridorOTypeAddition(feature, pPos, weight);
+            }
+
+            if (feature instanceof FeatureVariantPackage fvp){
+                fvp.GenerateInstances();
             }
         }
         private static void HandleChamberOTypeAddition(Feature feature, Feature.PlacementPositions pPos, int weight) {

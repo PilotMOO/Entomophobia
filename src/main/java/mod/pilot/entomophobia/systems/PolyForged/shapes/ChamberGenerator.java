@@ -57,7 +57,7 @@ public class ChamberGenerator extends RandomizedHollowSphereGenerator{
                     BlockPos bPos = new BlockPos((int)(center.x + (x - radius) - 1), (int)(center.y + (y - radius) - 1), (int)(center.z + (z - radius) - 1));
                     double distance = center.distanceTo(bPos.getCenter());
                     BlockState bState = server.getBlockState(bPos);
-                    if (canThisBeReplaced(bState, bPos) && distance <= radius && (TrueHollow || distance > radius - thickness)){
+                    if ((canThisBeReplaced(bState, bPos)) && distance <= radius && (TrueHollow || distance > radius - thickness)){
                         if (BuildTracker > 1){
                             if (server.random.nextDouble() <= BuildChance){
                                 if (TrueHollow && distance <= radius - thickness){

@@ -5,6 +5,8 @@ import mod.pilot.entomophobia.blocks.EntomoBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -78,6 +80,8 @@ public class TwinedFleshBlock extends CaveVinesPlantBlock {
         if (BelowState.isAir()){
             BlockState newHead = updateHeadAfterConvertedFromBody(bState, getHeadBlock().defaultBlockState());
             server.setBlock(bPos, newHead, 3);
+            server.playSound(null, bPos, SoundEvents.HONEYCOMB_WAX_ON,
+                    SoundSource.BLOCKS, 1.0f, (float)random.nextInt(5, 16) / 10);
         }
         else{
             server.setBlock(bPos, bState.setValue(ALIVE, false), 2);

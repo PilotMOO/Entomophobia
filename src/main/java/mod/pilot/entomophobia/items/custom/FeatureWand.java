@@ -17,9 +17,9 @@ public class FeatureWand extends Item {
     @Override
     public @NotNull InteractionResult useOn(UseOnContext pContext) {
         if (pContext.getLevel() instanceof ServerLevel server){
-            Feature f = FeatureManager.FeatureTypeHolder.getRandomFeature((byte) 0, (byte) 0);
+            Feature f = FeatureManager.FeatureTypeHolder.getRandomFeature((byte)0, (byte)0);
             f.Place(pContext.getClickedPos().relative(pContext.getClickedFace()).getCenter(), server, null, pContext.getClickedFace());
-            pContext.getPlayer().displayClientMessage(Component.literal("Placed feature!"), true);
+            pContext.getPlayer().displayClientMessage(Component.literal("Placed " + f.Type), true);
         }
         return InteractionResult.SUCCESS;
     }
