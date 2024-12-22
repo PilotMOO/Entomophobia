@@ -220,6 +220,10 @@ public abstract class Feature {
             return template = templateList.size() == 0 ?
                     this.template : templateList.get(server.random.nextInt(templateList.size()));
         }
+        else if (structureLocation == null){
+            printIllegalAction(illegalActionResourceLocationEmpty());
+            return null;
+        }
         else return Objects.requireNonNullElseGet(this.template,
                 () -> this.template = server.getStructureManager().getOrCreate(structureLocation));
     }
@@ -243,10 +247,17 @@ public abstract class Feature {
                 ", Template: " + template +
                 ", ResourceLocation: " + structureLocation + "]";
     }
+
     protected void printIllegalAction(String action){
         System.out.println("WARNING! ILLEGAL ACTION: " + action);
     }
     protected String illegalActionPackageEmpty(){
         return "Attempted to place " + this + " but getRandomInstance() returned null!";
+    }
+    protected String illegalActionResourceLocationEmpty(){
+        if (isVariantPackage()){
+            return "Attempted to place " + this + " but it is a FeatureVariantPackage! Use getRandomInstance() instead!";
+        }
+        return "Attempted to place " + this + " but structureLocation was null!";
     }
 }

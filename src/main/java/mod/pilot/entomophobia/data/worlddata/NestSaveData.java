@@ -143,6 +143,8 @@ public class NestSaveData extends SavedData {
             tag.putByte(builder.append("state").toString(), toPack.getOffshootState()); builder.setLength(ID.length());
             tag.putByte(builder.append("type").toString(), toPack.getOffshootType()); builder.setLength(ID.length());
 
+            tag.putBoolean(builder.append("featuresdone").toString(), toPack.isFinishedWithFeatures()); builder.setLength(ID.length());
+
             if (toPack instanceof Nest.Chamber chamber){
                 tag.putInt(builder.append("size").toString(), chamber.radius); builder.setLength(ID.length());
                 tag.putInt(builder.append("thickness").toString(), chamber.thickness); builder.setLength(ID.length());
@@ -211,11 +213,14 @@ public class NestSaveData extends SavedData {
             int size = tag.getInt(builder.append("size").toString()); builder.setLength(ID.length());
             int thickness = tag.getInt(builder.append("thickness").toString()); builder.setLength(ID.length());
 
+            boolean featuresDone = tag.getBoolean(builder.append("featuresdone").toString()); builder.setLength(ID.length());
+
             switch (type){
                 case 1 ->{
                     System.out.println("Unpacking a Chamber with I.D. " + ID);
                     boolean isMain = tag.getBoolean(builder.append("main").toString()); builder.setLength(ID.length());
-                    toReturn = Nest.Chamber.ConstructFromBlueprint(getServer(), parent, pos, size, thickness, deadEnd, state, isMain);
+                    toReturn = Nest.Chamber.ConstructFromBlueprint(getServer(), parent, pos, size,
+                            thickness, deadEnd, state, isMain, featuresDone);
                 }
                 case 2 ->{
                     double x2 = tag.getDouble(builder.append("x2").toString()); builder.setLength(ID.length());
@@ -229,7 +234,8 @@ public class NestSaveData extends SavedData {
                         throw new RuntimeException("Can't unpack Corridor " + ID + " because assigned parent is null!");
                     }
                     System.out.println("Unpacking a Corridor with I.D. " + ID);
-                    toReturn = Nest.Corridor.ConstructFromBlueprint(getServer(), parent, pos, end, size, thickness, deadEnd, state, entrance);
+                    toReturn = Nest.Corridor.ConstructFromBlueprint(getServer(), parent, pos, end, size,
+                            thickness, deadEnd, state, entrance, featuresDone);
                 }
                 default -> {
                     System.out.println("Type did not match up, returning null...");

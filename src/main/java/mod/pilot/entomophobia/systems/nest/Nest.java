@@ -11,11 +11,13 @@ import mod.pilot.entomophobia.systems.PolyForged.utility.GhostSphere;
 import mod.pilot.entomophobia.systems.PolyForged.utility.WorldShapeManager;
 import mod.pilot.entomophobia.systems.nest.features.Feature;
 import mod.pilot.entomophobia.systems.nest.features.FeatureManager;
+import mod.pilot.entomophobia.systems.nest.features.FeatureVariantPackage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -180,9 +182,6 @@ public class Nest {
             return layers;
         }
 
-        public int getMinAllowedFeatureCount(){
-            return 0;
-        }
         public abstract int getMaxAllowedFeatureCount();
         public abstract double getFeaturePlaceChance();
 
@@ -211,6 +210,13 @@ public class Nest {
         private final byte OffshootType;
         public byte getOffshootType(){
             return OffshootType;
+        }
+        protected boolean finishedWithFeatures;
+        public boolean isFinishedWithFeatures(){
+            return finishedWithFeatures;
+        }
+        public void setFinishedPlacingFeatures(boolean flag){
+            finishedWithFeatures = flag;
         }
 
         public boolean Alive(){
@@ -301,16 +307,20 @@ public class Nest {
             }
         }
         public abstract boolean canSupportFeatures();
+        public boolean featurePlacePrecheck(){
+            return canSupportFeatures() && !isFinishedWithFeatures()
+                    && Finished() && !shouldThisBecomeAParent() && !areAnyOfMyChildrenAlive();
+        }
         protected boolean isFeaturePositionValid(Vec3 pos, Feature feature,
                                                           @Nullable Direction facing, HashMap<Vec3, Feature> alreadyPlaced){
             //ToDo: Add testing for wall features IF required, otherwise remove
             if (children != null){
                 for (Offshoot o : children){
-                    int size = o instanceof Chamber c1 ? c1.radius : o instanceof Corridor c2 ? c2.weight : 0;
-                    Vec3i featureSize = feature.getTemplate(server, null).getSize();
-                    size += (featureSize.getX() + featureSize.getZ()) / 2;
-
-                    if (o.position.distanceTo(pos) < size) return false;
+                    if (o.position.distanceTo(pos) < (o instanceof Chamber c1 ? c1.radius
+                            : o instanceof Corridor c2 ?(double)c2.weight / 2 : 0)){
+                        System.out.println("Position " + pos + " was invalid because it was too close to an offshoot");
+                        return false;
+                    }
                 }
             }
             return testFeatureDistance(pos, feature, alreadyPlaced);
@@ -322,7 +332,10 @@ public class Nest {
                 Feature f = existing.get(pos1);
                 Vec3i existingSize = f.size();
                 AABB existingAABB = AABB.ofSize(pos, existingSize.getX(), existingSize.getY(), existingSize.getZ());
-                if (toTestAABB.intersects(existingAABB)) return false;
+                if (toTestAABB.intersects(existingAABB)){
+                    System.out.println("Position " + pos + " was invalid because it was too close to a preexisting feature");
+                    return false;
+                }
             }
             return true;
         }
@@ -337,14 +350,25 @@ public class Nest {
         public void placeFeatures(){
             HashMap<Vec3, Feature> placedFeaturePosHashmap = new HashMap<>();
 
-            for (int i = getMinAllowedFeatureCount(); i < getMaxAllowedFeatureCount(); i++){
+            int cycle = 0; //TEMPORARY FOR DEBUGGING
+            for (int i = 0; i < getMaxAllowedFeatureCount(); i++){
+                if (getFeaturePlaceChance() < random.nextDouble()) continue;
+
                 Feature f = generateRandomValidFeature(); if (f == null) return;
-                Pair<Vec3, Direction> placePair = generateAndTestFeaturePosition(f, placedFeaturePosHashmap); if (placePair == null || placePair.getA() == null) return;
+                Pair<Vec3, Direction> placePair = generateAndTestFeaturePosition(f, placedFeaturePosHashmap);
+                if (placePair == null || placePair.getA() == null) return;
 
                 if (f.Place(placePair.getA(), server, null, placePair.getB())){
                     placedFeaturePosHashmap.put(placePair.getA(), f);
+                    System.out.println("Successfully placed " + f + " at " + placePair.getA());
+                    cycle++;
+                }
+                else{
+                    System.out.println("FAILED to place " + f + " at " + placePair.getA());
                 }
             }
+            System.out.println("Placed " + cycle + " features!");
+            setFinishedPlacingFeatures(true);
         }
         protected @Nullable Feature generateRandomValidFeature(){
             Feature f;
@@ -353,13 +377,13 @@ public class Nest {
             do{
                 placePosType = (byte)random.nextInt(1, 4);
                 f = FeatureManager.FeatureTypeHolder.getRandomFeature(getOffshootType(), placePosType);
-            } while (f != null && cycle++ < 10);
+            } while (f == null && cycle++ < 10);
             if (f == null){
                 System.out.println("An offshoot was unable to retrieve a random feature for Offshoot Type (" +
                         getOffshootType() + ") and Placement Position (" + placePosType + ") in " + cycle + " attempts.");
                 return null;
             }
-            return f;
+            return f.isVariantPackage() ? ((FeatureVariantPackage)f).getRandomInstance() : f;
         }
         protected @Nullable Pair<Vec3, Direction> generateAndTestFeaturePosition(Feature f, final HashMap<Vec3, Feature> alreadyPlaced){
             Vec3 placePos;
@@ -388,13 +412,13 @@ public class Nest {
         public void OffshootTick(boolean tickChildren, boolean continuous, int layers){
             if (shouldGeneratorTick()){
                 TickGenerator();
-                if (Finished() && canSupportFeatures()) placeFeatures();
             }
             if (tickChildren && children != null){
                 for (Offshoot child : children) {
                     child.OffshootTick(continuous, layers != 0, layers - 1);
                 }
             }
+            if (featurePlacePrecheck()) placeFeatures();
         }
 
         public final Offshoot ConstructNewChild(byte newShootType){
@@ -455,8 +479,10 @@ public class Nest {
         }
 
         //Blueprint Construction, for use in unpacking
-        public static Chamber ConstructFromBlueprint(ServerLevel server, @Nullable Offshoot parent, Vec3 pos, int radius, int thickness, boolean deadEnd, byte state, boolean main){
-            Chamber chamber = new Chamber(server, parent, pos, radius, thickness, deadEnd, state);
+        public static Chamber ConstructFromBlueprint(ServerLevel server, @Nullable Offshoot parent, Vec3 pos,
+                                                     int radius, int thickness, boolean deadEnd,
+                                                     byte state, boolean main, boolean featuresFinished){
+            Chamber chamber = new Chamber(server, parent, pos, radius, thickness, deadEnd, state, featuresFinished);
             if (main){
                 chamber.DenoteAsMain();
             }
@@ -466,11 +492,14 @@ public class Nest {
             return chamber;
         }
         //Private constructor for use in blueprint unpacking
-        private Chamber(ServerLevel server, @org.jetbrains.annotations.Nullable Nest.Offshoot parent, Vec3 pos, int radius, int thickness, boolean deadEnd, byte state) {
+        private Chamber(ServerLevel server, @org.jetbrains.annotations.Nullable Nest.Offshoot parent, Vec3 pos,
+                        int radius, int thickness, boolean deadEnd,
+                        byte state, boolean featuresFinished) {
             super(server, OffshootType, parent, pos, state, deadEnd);
             super.MaxChildCount = 2;
             this.radius = radius;
             this.thickness = thickness;
+            this.finishedWithFeatures = featuresFinished;
             ConstructGenerator(server, getPosition(), radius, thickness);
         }
 
@@ -484,11 +513,6 @@ public class Nest {
         private Chamber DenoteAsMain(){
             MainChamber = true;
             return this;
-        }
-
-        @Override
-        protected Pair<Vec3, Direction> generateFeaturePlacementPositionForWall(byte placementPos) {
-            return null;
         }
 
         @Override
@@ -569,18 +593,13 @@ public class Nest {
         }
 
         @Override
-        public int getMinAllowedFeatureCount() {
-            return 1;
-        }
-
-        @Override
         public int getMaxAllowedFeatureCount() {
-            return 3;
+            return 2;
         }
 
         @Override
         public double getFeaturePlaceChance() {
-            return 0.75;
+            return 0.5;
         }
 
         @Override
@@ -590,30 +609,50 @@ public class Nest {
 
         @Override
         protected Vec3 generateFeaturePlacementPosition(byte placementPos) {
+            int difference = (radius - (thickness * 2));
             int yOffset = switch (placementPos){
                 case 0 -> switch (random.nextIntBetweenInclusive(1, 3)){
                     case 2 -> 0;
-                    case 3 -> radius - thickness;
-                    default -> -(radius - thickness);
+                    case 3 -> difference;
+                    default -> -difference;
                 };
                 case 2 -> 0;
-                case 3 -> radius - thickness;
-                default -> -(radius - thickness);
+                case 3 -> difference;
+                default -> -difference;
             };
 
             Vec3 offset;
             if (placementPos != 2){
-                offset = new Vec3(random.nextIntBetweenInclusive(0, radius - thickness) * (random.nextBoolean() ? 1 : -1),
+                offset = new Vec3(random.nextIntBetweenInclusive(0, difference) * (random.nextBoolean() ? 1 : -1),
                         yOffset,
-                        random.nextIntBetweenInclusive(0, radius - thickness) * (random.nextBoolean() ? 1 : -1));
+                        random.nextIntBetweenInclusive(0, difference) * (random.nextBoolean() ? 1 : -1));
             }
             else{
                 offset = Vec3.ZERO.yRot(random.nextInt(-180, 180))
                         .xRot(random.nextInt(-30, 30))
-                        .scale(radius - thickness);
+                        .scale(difference);
+            }
+
+            int towards = placementPos == 1 ? 1 : placementPos == 3 ? -1 : 0;
+            if (towards != 0){
+                BlockPos.MutableBlockPos mBPos = new BlockPos.MutableBlockPos(offset.x, offset.y, offset.z);
+                while (!server.getBlockState(mBPos.offset(0, towards, 0)).isAir()){
+                    mBPos.move(0, towards, 0);
+                    if (placementPos == 1 && mBPos.getY() > 0) break;
+                    if (placementPos == 3 && mBPos.getY() < 0) break;
+                    if (Math.sqrt(mBPos.offset((int)position.x, (int)position.y, (int)position.z)
+                            .distToCenterSqr(position.x, position.y, position.z)) > difference) break;
+                }
+                mBPos.move(0, -towards * 2, 0);
+                offset = mBPos.getCenter();
             }
 
             return position.add(offset);
+        }
+
+        @Override
+        protected Pair<Vec3, Direction> generateFeaturePlacementPositionForWall(byte placementPos) {
+            return null;
         }
     }
     public static class Corridor extends Offshoot{
@@ -656,18 +695,23 @@ public class Nest {
         }
 
         //Blueprint Construction, for use in unpacking
-        public static Corridor ConstructFromBlueprint(ServerLevel server, @Nonnull Offshoot parent, Vec3 position, Vec3 end, int weight, int thickness, boolean deadEnd, byte state, boolean entrance){
-            Corridor corridor = new Corridor(server, parent, position, end, weight, thickness, deadEnd, state, entrance);
+        public static Corridor ConstructFromBlueprint(ServerLevel server, @Nonnull Offshoot parent, Vec3 position, Vec3 end,
+                                                      int weight, int thickness, boolean deadEnd,
+                                                      byte state, boolean entrance, boolean finishedFeatures){
+            Corridor corridor = new Corridor(server, parent, position, end, weight, thickness, deadEnd, state, entrance, finishedFeatures);
             parent.AddToChildren(corridor);
             return corridor;
         }
-        private Corridor(ServerLevel server, @Nonnull Nest.Offshoot parent, Vec3 position, Vec3 end, int weight, int thickness, boolean deadEnd, byte state, boolean isEntrance) {
+        private Corridor(ServerLevel server, @Nonnull Nest.Offshoot parent, Vec3 position, Vec3 end,
+                         int weight, int thickness, boolean deadEnd,
+                         byte state, boolean isEntrance, boolean finishedFeatures) {
             super(server, OffshootType, parent, position, state, deadEnd);
             if (isEntrance) denoteAsEntrance();
             super.MaxChildCount = 1;
             this.weight = weight;
             this.thickness = thickness;
             this.end = end;
+            this.finishedWithFeatures = finishedFeatures;
             ConstructGeneratorFromBlueprint(weight, thickness, end);
         }
         private void ConstructGeneratorFromBlueprint(int weight, int thickness, Vec3 end){
@@ -877,26 +921,29 @@ public class Nest {
 
         private Vec3 findSurface(Vec3 pos){
             int YTracker = (int)pos.y;
-            BlockPos bPos;
+            BlockPos.MutableBlockPos mBPos = new BlockPos.MutableBlockPos(pos.x, pos.y, pos.z);
             do{
-                bPos = new BlockPos((int)pos.x, YTracker, (int)pos.z);
+                mBPos.move(0, 1, 0);
                 YTracker++;
-            } while ((!CheckNearbyBlocksForSky(bPos) && YTracker < server.getMaxBuildHeight()) || !server.getBlockState(bPos).getFluidState().isEmpty());
-            while (!((server.getBlockState(bPos).isSolidRender(server, bPos) || !server.getBlockState(bPos).getFluidState().isEmpty())
-                    || NestManager.getNestBlocks().contains(server.getBlockState(bPos).getBlock().defaultBlockState()))
+            } while ((!CheckNearbyBlocksForSky(mBPos) && YTracker < server.getMaxBuildHeight()) || !server.getBlockState(mBPos).getFluidState().isEmpty());
+            while (!((server.getBlockState(mBPos).isSolidRender(server, mBPos) || !server.getBlockState(mBPos).getFluidState().isEmpty())
+                    || NestManager.getNestBlocks().contains(server.getBlockState(mBPos).getBlock().defaultBlockState()))
                     && YTracker > server.getMinBuildHeight()){
+                mBPos.move(0, -1, 0);
                 YTracker--;
-                bPos = new BlockPos((int)pos.x, YTracker, (int)pos.z);
             }
-            return bPos.getCenter();
+            return mBPos.getCenter();
         }
         private boolean CheckNearbyBlocksForSky(BlockPos start){
-            if (server.canSeeSky(start)) return true;
+            if (checkForSkyTransparentSensitive(start)) return true;
             for (int y = -weight / 2; y < weight / 2; y++){
                 BlockPos bPos = new BlockPos(start.getX(), start.getY() + y, start.getZ());
-                if (server.canSeeSky(bPos)) return true;
+                if (checkForSkyTransparentSensitive(bPos)) return true;
             }
             return false;
+        }
+        private boolean checkForSkyTransparentSensitive(BlockPos bPos){
+            return server.getBrightness(LightLayer.SKY, bPos) > 0;
         }
         private GhostSphere GenerateSurfaceGhost(Vec3 pos) {
             return new GhostSphere(pos, weight * 2);

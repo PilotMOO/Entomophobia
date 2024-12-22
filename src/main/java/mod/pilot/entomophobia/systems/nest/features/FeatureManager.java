@@ -45,11 +45,11 @@ public class FeatureManager {
             Feature.OffshootTypes oType = Feature.OffshootTypes.fromByte(oTypeB);
             Feature.PlacementPositions pPos = Feature.PlacementPositions.fromByte(pPosB);
             if (oType == null){
-                System.out.println("Warning! Argument byte oTypeB (" + oTypeB + ") holds an invalid value! Defaulting to \"Any\"...");
+                System.err.println("Warning! Argument byte oTypeB (" + oTypeB + ") holds an invalid value! Defaulting to \"Any\"...");
                 oType = Feature.OffshootTypes.Any;
             }
             if (pPos == null){
-                System.out.println("Warning! Argument byte pPosB (" + pPosB + ") holds an invalid value! Defaulting to \"Any\"...");
+                System.err.println("Warning! Argument byte pPosB (" + pPosB + ") holds an invalid value! Defaulting to \"Any\"...");
                 pPos = Feature.PlacementPositions.Any;
             }
             return getRandomFeature(oType, pPos);
@@ -84,9 +84,9 @@ public class FeatureManager {
                     gathered.putAll(CorridorOnly.getCeiling());
                 }
             }
-            System.out.println("Amount of Features gathered: " + gathered.size());
+            //System.out.println("Amount of Features gathered: " + gathered.size());
             randomizer.replaceEntriesWith(gathered);
-            System.out.println("Amount of Features available for pulling: " + randomizer.size());
+            //System.out.println("Amount of Features available for pulling: " + randomizer.size());
             return randomizer.getRandomWeightedObject();
         }
 
@@ -99,7 +99,7 @@ public class FeatureManager {
                 case Ceiling -> gathered = ChamberOnly.getCeiling();
             }
             randomizer.replaceEntriesWith(gathered);
-            System.out.println("Amount of Features available for pulling: " + randomizer.size());
+            //System.out.println("Amount of Features available for pulling: " + randomizer.size());
             return randomizer.getRandomWeightedObject();
         }
 
@@ -112,7 +112,7 @@ public class FeatureManager {
                 case Ceiling -> gathered = CorridorOnly.getCeiling();
             }
             randomizer.replaceEntriesWith(gathered);
-            System.out.println("Amount of Features available for pulling: " + randomizer.size());
+            //System.out.println("Amount of Features available for pulling: " + randomizer.size());
             return randomizer.getRandomWeightedObject();
         }
         public static void AddFeature(Feature feature){

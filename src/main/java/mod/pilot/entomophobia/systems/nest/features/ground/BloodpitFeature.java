@@ -17,6 +17,6 @@ public class BloodpitFeature extends Feature {
 
     @Override
     protected Vec3 getPlaceOffset(StructureTemplate template, @Nullable Direction facing) {
-        return super.getPlaceOffset(template, facing).add(0, 1, 0);
+        return super.getPlaceOffset(template, facing).add(0, 2, 0);
     }
 }

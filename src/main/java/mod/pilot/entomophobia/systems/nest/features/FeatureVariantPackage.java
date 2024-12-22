@@ -56,6 +56,13 @@ public abstract class FeatureVariantPackage extends Feature{
         return i.Place(position, server, rotation, facing);
     }
 
+    @Override
+    public @Nullable StructureTemplate getTemplate(ServerLevel server, @Nullable Direction facing) {
+        System.err.println("WARNING! AN ILLEGAL ATTEMPT TO CALL getTemplate(ServerLevel, Direction) IN A VARIANT PACKAGE WAS MADE!");
+        System.err.println("Call getRandomInstance() to get access to an instance of the package, or use FeatureVariantPackage.Place(args)");
+        return null;
+    }
+
     /**Generates all the Instances and then adds them to the WeightedRandomizer.
      Required to be overridden when creating a new FeatureVariantPackage*/
     public abstract void GenerateInstances();
@@ -81,7 +88,6 @@ public abstract class FeatureVariantPackage extends Feature{
 
         @Override
         public StructureTemplate getTemplate(ServerLevel server, @Nullable Direction facing) {
-            System.out.println("ResourceLocation for this Instance is " + structureLocation);
             return super.getTemplate(server, facing);
         }
     }
