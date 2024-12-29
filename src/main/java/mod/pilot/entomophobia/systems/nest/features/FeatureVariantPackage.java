@@ -13,8 +13,9 @@ import org.jetbrains.annotations.Nullable;
 /**A class that extends Feature, for use in variant management, allowing for weighted variants.*/
 public abstract class FeatureVariantPackage extends Feature{
     /**The "Common" String between all the variants.
-     This plus the Identifier (see Instance nested class) should refer to a structure NBT file*/
+     This, plus the Identifier (see Instance nested class) should refer to a structure NBT file in the Mod root's structure folder*/
     public final String Common;
+    /**The Mod ID the feature's structure is from. If not supplied in the constructor, defaults to {@code Entomophobia.MOD_ID}*/
     public final String ModRoot;
     /**Private reference to itself so nested classes can access the package's super values rather than their own
      * (since they both extend Feature)*/
@@ -84,11 +85,6 @@ public abstract class FeatureVariantPackage extends Feature{
                     new ResourceLocation(ModRoot, Common + identifier));
             this.Identifier = identifier;
             instances.add(this, weight);
-        }
-
-        @Override
-        public StructureTemplate getTemplate(ServerLevel server, @Nullable Direction facing) {
-            return super.getTemplate(server, facing);
         }
     }
 }

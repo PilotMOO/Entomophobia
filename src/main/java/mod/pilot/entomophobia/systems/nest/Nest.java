@@ -5,7 +5,6 @@ import mod.pilot.entomophobia.data.EntomoDataManager;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.systems.PolyForged.shapes.abstractshapes.ShapeGenerator;
 import mod.pilot.entomophobia.systems.PolyForged.shapes.ChamberGenerator;
-import mod.pilot.entomophobia.systems.PolyForged.shapes.HollowSphereGenerator;
 import mod.pilot.entomophobia.systems.PolyForged.shapes.TunnelGenerator;
 import mod.pilot.entomophobia.systems.PolyForged.utility.GhostSphere;
 import mod.pilot.entomophobia.systems.PolyForged.utility.WorldShapeManager;
@@ -313,7 +312,8 @@ public class Nest {
         }
         protected boolean isFeaturePositionValid(Vec3 pos, Feature feature,
                                                           @Nullable Direction facing, HashMap<Vec3, Feature> alreadyPlaced){
-            //ToDo: Add testing for wall features IF required, otherwise remove
+            if (pos == null) return false;
+            //ToDo: Add testing for wall features IF required, otherwise remove facing argument
             if (children != null){
                 for (Offshoot o : children){
                     if (o.position.distanceTo(pos) < (o instanceof Chamber c1 ? c1.radius
@@ -339,8 +339,8 @@ public class Nest {
             }
             return true;
         }
-        protected abstract Vec3 generateFeaturePlacementPosition(byte placementPos);
-        protected abstract Pair<Vec3, Direction> generateFeaturePlacementPositionForWall(byte placementPos);
+        protected abstract @Nullable Vec3 generateFeaturePlacementPosition(byte placementPos);
+        protected abstract @Nullable Pair<Vec3, Direction> generateFeaturePlacementPositionForWall();
 
         public final void TickGenerator(){
             RegisterAllGhosts();
@@ -354,9 +354,9 @@ public class Nest {
             for (int i = 0; i < getMaxAllowedFeatureCount(); i++){
                 if (getFeaturePlaceChance() < random.nextDouble()) continue;
 
-                Feature f = generateRandomValidFeature(); if (f == null) return;
+                Feature f = generateRandomValidFeature(); if (f == null) continue;
                 Pair<Vec3, Direction> placePair = generateAndTestFeaturePosition(f, placedFeaturePosHashmap);
-                if (placePair == null || placePair.getA() == null) return;
+                if (placePair == null || placePair.getA() == null) continue;
 
                 if (f.Place(placePair.getA(), server, null, placePair.getB())){
                     placedFeaturePosHashmap.put(placePair.getA(), f);
@@ -386,17 +386,22 @@ public class Nest {
             return f.isVariantPackage() ? ((FeatureVariantPackage)f).getRandomInstance() : f;
         }
         protected @Nullable Pair<Vec3, Direction> generateAndTestFeaturePosition(Feature f, final HashMap<Vec3, Feature> alreadyPlaced){
-            Vec3 placePos;
+            Vec3 placePos = null;
             @Nullable Direction facing = null;
 
             int cycle = 0;
             do {
                 if (f.isWallFeature()) {
-                    Pair<Vec3, Direction> placePair = generateFeaturePlacementPositionForWall(f.PlacementPos);
-                    placePos = placePair.getA();
-                    facing = placePair.getB();
+                    Pair<Vec3, Direction> placePair = generateFeaturePlacementPositionForWall();
+                    if (placePair != null){
+                        placePos = placePair.getA();
+                        facing = placePair.getB();
+                    }
                 }
                 else placePos = generateFeaturePlacementPosition(f.PlacementPos);
+                if (f.PlacementPos == 3 && placePos != null) {
+                    placePos = placePos.subtract(0, f.getTemplate(server, facing).getSize().getY(), 0);
+                }
             } while (!isFeaturePositionValid(placePos, f, facing, alreadyPlaced) && cycle++ < 10);
 
             if (isFeaturePositionValid(placePos, f, facing, alreadyPlaced)){
@@ -527,6 +532,7 @@ public class Nest {
                             for (Offshoot O : children){
                                 if (O instanceof Corridor c && c.isEntrance()){
                                     noEntrance = false;
+                                    break;
                                 }
                             }
                         }
@@ -547,7 +553,6 @@ public class Nest {
                             return;
                         }
                     }
-
                     ConstructNewChild((byte)2);
                 }
             }
@@ -555,24 +560,25 @@ public class Nest {
 
         @Override
         protected Vec3 getOffshootPosition() {
-            HollowSphereGenerator sphereGenerator = (HollowSphereGenerator)generator;
             Vec3 direction;
             Vec3 toReturn;
             int cycleCounter = 0;
             do{
-                direction = getPosition().yRot(random.nextInt(-20, 20)).xRot(random.nextInt(-180, 180)).zRot(random.nextInt(-180, 180)).normalize();
-                toReturn = getPosition().add(direction.scale(sphereGenerator.radius - sphereGenerator.thickness));
+                direction = getPosition().yRot(generateRadian(20, true))
+                        .xRot(generateRadian())
+                        .zRot(generateRadian()).normalize();
+                toReturn = getPosition().add(direction.scale(radius - thickness));
                 cycleCounter++;
             }
-            while (!TestOffshootPosition(toReturn) && cycleCounter < 10);
-            if (TestOffshootPosition(toReturn)) return toReturn;
+            while (!testOffshootPosition(toReturn) && cycleCounter < 10);
+            if (testOffshootPosition(toReturn)) return toReturn;
             else {
                 DeadEnd = true;
                 return null;
             }
         }
 
-        private boolean TestOffshootPosition(Vec3 pos){
+        private boolean testOffshootPosition(Vec3 pos){
             if (children == null){
                 return true;
             }
@@ -594,12 +600,12 @@ public class Nest {
 
         @Override
         public int getMaxAllowedFeatureCount() {
-            return 2;
+            return radius / 4;
         }
 
         @Override
         public double getFeaturePlaceChance() {
-            return 0.5;
+            return 0.75;
         }
 
         @Override
@@ -607,25 +613,56 @@ public class Nest {
             return true;
         }
 
+        //I probably could have just merged this with the ForWall variant and have it return a null for the Direction segment... or up or down.
+        //Yeah I'll just merge
         @Override
-        protected Vec3 generateFeaturePlacementPosition(byte placementPos) {
-            int difference = (radius - (thickness * 2));
+        protected @Nullable Vec3 generateFeaturePlacementPosition(byte placementPos) {
+            if (placementPos == 0) placementPos = (byte)random.nextIntBetweenInclusive(1, 3);
+            Vec3 direction = switch (placementPos){
+                case 1 -> new Vec3(0, -1, 0);
+                case 3 -> new Vec3(0, 1, 0);
+                default -> null;
+            };
+            if (direction == null){
+                //In theory not needed cuz this should never be the case, but better safe than sorry?
+                //Plus it prob helps people with debugging if they want to use this system in an addon or something...
+                System.err.println("WARNING! Invalid Placement Position type (" + placementPos +
+                        ") was fed as an argument into generateFeaturePlacementPosition(byte)! Discarding...");
+                System.err.println("INFO: Invalid Placement Position was of type "
+                        + Feature.PlacementPositions.fromByte(placementPos));
+                if (placementPos == 2) System.err.println("INFO: Wall features should use generateFeaturePlacementPositionForWall() instead!");
+                return null;
+            }
+
+            final int clamp = 30;
+            direction = direction.xRot(generateRadian(clamp, true));
+            direction = direction.zRot(generateRadian(clamp, true));
+
+            Vec3 toReturn = position;
+            do{
+                toReturn = toReturn.add(direction);
+            } while (server.getBlockState(BlockPos.containing(toReturn)).isAir());
+
+            return position.add(direction.scale(radius - thickness));
+
+            //Old code
+            /*int difference = radius - thickness;
             int yOffset = switch (placementPos){
                 case 0 -> switch (random.nextIntBetweenInclusive(1, 3)){
+                    default -> -(radius - (thickness * 2));
                     case 2 -> 0;
-                    case 3 -> difference;
-                    default -> -difference;
+                    case 3 -> radius - (thickness * 2);
                 };
+                default -> -(radius - (thickness * 2));
                 case 2 -> 0;
-                case 3 -> difference;
-                default -> -difference;
+                case 3 -> radius - (thickness * 2);
             };
 
             Vec3 offset;
             if (placementPos != 2){
-                offset = new Vec3(random.nextIntBetweenInclusive(0, difference) * (random.nextBoolean() ? 1 : -1),
+                offset = new Vec3(random.nextIntBetweenInclusive(-difference, difference),
                         yOffset,
-                        random.nextIntBetweenInclusive(0, difference) * (random.nextBoolean() ? 1 : -1));
+                        random.nextIntBetweenInclusive(-difference, difference));
             }
             else{
                 offset = Vec3.ZERO.yRot(random.nextInt(-180, 180))
@@ -636,22 +673,22 @@ public class Nest {
             int towards = placementPos == 1 ? 1 : placementPos == 3 ? -1 : 0;
             if (towards != 0){
                 BlockPos.MutableBlockPos mBPos = new BlockPos.MutableBlockPos(offset.x, offset.y, offset.z);
-                while (!server.getBlockState(mBPos.offset(0, towards, 0)).isAir()){
+                do{
                     mBPos.move(0, towards, 0);
-                    if (placementPos == 1 && mBPos.getY() > 0) break;
-                    if (placementPos == 3 && mBPos.getY() < 0) break;
-                    if (Math.sqrt(mBPos.offset((int)position.x, (int)position.y, (int)position.z)
-                            .distToCenterSqr(position.x, position.y, position.z)) > difference) break;
                 }
-                mBPos.move(0, -towards * 2, 0);
+                while (!server.getBlockState(mBPos).is(EntomoTags.Blocks.MYIATIC_FLESH_BLOCKTAG)
+                        || !server.getBlockState(mBPos.offset(0, towards, 0)).isAir()
+                        || Vec3.ZERO.distanceTo(mBPos.getCenter()) < radius);
+
+                //mBPos.move(0, -towards * 2, 0);
                 offset = mBPos.getCenter();
             }
 
-            return position.add(offset);
+            return position.add(offset);*/
         }
 
         @Override
-        protected Pair<Vec3, Direction> generateFeaturePlacementPositionForWall(byte placementPos) {
+        protected @Nullable Pair<Vec3, Direction> generateFeaturePlacementPositionForWall() {
             return null;
         }
     }
@@ -782,13 +819,21 @@ public class Nest {
                 Vec3 surface = findSurface(getPosition());
                 do{
                     Vec3 direction = EntomoDataManager.getDirectionToAFromB(surface, getPosition())
-                            .yRot(random.nextIntBetweenInclusive(-180, 180))
-                            .xRot(random.nextIntBetweenInclusive(-45, 45))
-                            .zRot(random.nextIntBetweenInclusive(-45, 45))
+                            .yRot(generateRadian())
+                            .xRot(generateRadian(30, true))
+                            .zRot(generateRadian(30, true))
                             .normalize();
-                    direction = direction.multiply(1,
-                            direction.y < 0 ? getPosition().y < surface.y ? -1 : 1
-                                    : getPosition().y > surface.y ? -1 : 1, 1);
+
+                    int yFactor;
+                    if (direction.y < 0){
+                        yFactor = getPosition().y < surface.y ? -1 : 1;
+                    }
+                    else yFactor = getPosition().y > surface.y ? -1 : 1;
+                    direction = direction.multiply(1, yFactor, 1);
+
+                    /*direction = direction.multiply(1, direction.y < 0 ? getPosition().y < surface.y ? -1 : 1
+                        : getPosition().y > surface.y ? -1 : 1, 1);*/
+
                     toReturn = getPosition().add(direction.scale((double)NestManager.getRandomCorridorLength(random) / 2));
                     Vec3 surfaceFromReturn = findSurface(toReturn);
                     if (toReturn.y > surfaceFromReturn.y) {
@@ -796,7 +841,7 @@ public class Nest {
                     }
                     cycleCounter++;
                 }
-                while (IsThisEndPositionInvalid(toReturn) && cycleCounter < 10);
+                while (isThisEndPositionInvalid(toReturn) && cycleCounter < 10);
                 if (toReturn.y >= surface.y) {
                     DeadEnd = true;
                     addToQueuedGhostPosition(GenerateSurfaceGhost(toReturn));
@@ -805,43 +850,69 @@ public class Nest {
             else{
                 do{
                     Vec3 direction = EntomoDataManager.getDirectionToAFromB(getPosition(), getComparePosition())
-                            .yRot(random.nextIntBetweenInclusive(-25, 25))
-                            .xRot(random.nextIntBetweenInclusive(0, 25))
-                            .zRot(random.nextIntBetweenInclusive(0, 25))
+                            .yRot(generateRadian(25, true))
+                            .xRot(generateRadian(25, true))
+                            .zRot(generateRadian(25, true))
                             .normalize();
-                    direction = direction.multiply(1,
-                            getPosition().y > NestManager.getNestYBuildPriority() ? direction.y > 0 ? -1 : 1 :
-                                    direction.y < 0 ? -1 : 1, 1);
+
+                    int yFactor;
+                    final int yPriority = NestManager.getNestYBuildPriority();
+
+                    if (direction.y < 0){
+                        yFactor = getPosition().y < yPriority ? -1 : 1;
+                    }
+                    else yFactor = getPosition().y > yPriority ? -1 : 1;
+                    direction = direction.multiply(1, yFactor, 1);
+                    /*direction = direction.multiply(1, getPosition().y > NestManager.getNestYBuildPriority() ? direction.y > 0 ? -1 : 1
+                            : direction.y < 0 ? -1 : 1, 1);*/
+
                     toReturn = getPosition().add(direction.scale(NestManager.getRandomCorridorLength(random)));
                     cycleCounter++;
                 }
-                while (IsThisEndPositionInvalid(toReturn) && cycleCounter < 10);
+                while (isThisEndPositionInvalid(toReturn) && cycleCounter < 10);
             }
-            if (IsThisEndPositionInvalid(toReturn)){
+            if (isThisEndPositionInvalid(toReturn)){
                 this.Kill(false);
             }
             NestSaveData.Dirty();
             return end = toReturn;
         }
-        private boolean IsThisEndPositionInvalid(Vec3 toTest){
+        private boolean isThisEndPositionInvalid(Vec3 toTest){
+            //ToDo: ALL OF THIS NEEDS TESTING BUT I HAD TO LEAVE SO BOWOMP. TEST IT WHEN YOU GET BACK DAMMIT
+
+            //The start position of the corridor
             Vec3 start = getStartDirect();
+            //A vector pointing from the start towards the position to test
             Vec3 direction = EntomoDataManager.getDirectionFromAToB(start, toTest);
-            int thicknessScale = 0;
+
+            //final int fluff = 6;
+            int parentThickness = 0;
+            int parentScale = 0;
             if (parent instanceof Chamber c){
-                thicknessScale = c.radius + c.thickness;
+                parentScale = c.radius * 2;
+                parentThickness = c.thickness;
             }
             if (parent instanceof Corridor c){
-                thicknessScale = c.weight + c.thickness;
+                parentScale = c.weight;
+                parentThickness = c.thickness;
             }
+            //parentScale += fluff;
+
+            //Checks every block in front of it (from the start to the position to test)
+            //for any blocks that the nest builds out of, to prevent intersections.
+            //Only checks a 1 block thick line for performance reasons
+            //P.S. making this exclusive for entrances only was a duct-tape fix to ensure that entrances could reach the surface...
             if (!isEntrance()){
-                start = start.add(direction.scale(thicknessScale));
-                int distance = (int)start.distanceTo(toTest);
+                //Sets the start's position to be offset towards the end position 2x the thickness of the parent to prevent false flags
+                start = start.add(direction.scale(parentThickness * 2));
+                //Is casting it to an int needed...? (no, probably not. Removed)
+                double distance = start.distanceTo(toTest);
                 for (int i = 0; i < distance; i++){
                     Vec3 buildPos = i == 0 ? start : start.add(direction.scale(i));
                     BlockPos bPos = new BlockPos((int)buildPos.x - 1, (int)buildPos.y - 1, (int)buildPos.z - 1);
-                    BlockState bState = server.getBlockState(bPos);
+                    BlockState bState = server.getBlockState(bPos).getBlock().defaultBlockState();
                     for (BlockState placementBlocks : NestManager.getNestBlocks()){
-                        if (bState.getBlock().defaultBlockState() == placementBlocks){
+                        if (bState == placementBlocks){
                             return true;
                         }
                     }
@@ -849,22 +920,34 @@ public class Nest {
             }
 
 
+            //Checks the end point for any blocks the nests are built out of to prevent it from colliding
+            //Entrances have a lot more leniency to ensure it can reach the surface (duct tape ass execution smh)
             int checkSize = isEntrance() ? NestManager.getNestLargeCorridorMaxRadius() : NestManager.getNestLargeChamberMaxRadius();
+            //Shrimple 3d for-loop
             for (int x = -checkSize / 2; x < checkSize / 2; x++){
                 for (int y = -checkSize / 2; y < checkSize / 2; y++){
                     for (int z = -checkSize / 2; z < checkSize / 2; z++){
-                        BlockState bState = server.getBlockState(new BlockPos((int)toTest.x + x, (int)toTest.y + y, (int)toTest.z + z));
+                        BlockState bState = server.getBlockState(new BlockPos((int)toTest.x + x, (int)toTest.y + y, (int)toTest.z + z))
+                                        .getBlock().defaultBlockState();
                         for (BlockState placementBlocks : NestManager.getNestBlocks()){
-                            if (bState.getBlock().defaultBlockState() == placementBlocks){
+                            if (bState == placementBlocks){
                                 return true;
                             }
                         }
                     }
                 }
             }
+
+            //ToDo: add sibling check to ensure that it doesn't generate too close to siblings (offshoots that share the same parent)
+
+            //Finally, test if the position would run straight through the fucking parent
+            //this is a duct tape fix once again, to fix a bug that was present because my ass didn't know that xRot, yRot, and zRot expects radians
+            //Probably isn't needed anymore...
             Vec3 pos = getPosition();
             Vec3 midpoint = new Vec3((pos.x + toTest.x) / 2, (pos.y + toTest.y) / 2, (pos.y + toTest.y) / 2);
-            if (parent == null) return false;
+            if (parent == null) return false; //if the parent is null just don't give a fuck
+            //Checks to ensure that the middle position (between child position and testing position) is farther away than the child pos and parent pos
+            //Probably doesn't work 100% of the time and is also likely useless now but oh well :shrug:
             return midpoint.distanceTo(parent.getPosition()) < pos.distanceTo(parent.getPosition());
         }
 
@@ -959,6 +1042,19 @@ public class Nest {
         @Override
         protected Vec3 generateFeaturePlacementPosition(byte placementPos) {return null;}
         @Override
-        protected Pair<Vec3, Direction> generateFeaturePlacementPositionForWall(byte placementPos) {return null;}
+        protected Pair<Vec3, Direction> generateFeaturePlacementPositionForWall() {return null;}
+    }
+
+    protected static float generateRadian(){
+        return generateRadian(180, true);
+    }
+    protected static float generateRadian(int bounds){
+        return generateRadian(bounds, false);
+    }
+    protected static float generateRadian(int bounds, boolean invert){
+        return generateRadian(invert ? -bounds : 0, bounds);
+    }
+    protected static float generateRadian(int lowerBound, int upperBound){
+        return (float)Math.toRadians(random.nextIntBetweenInclusive(lowerBound, upperBound));
     }
 }

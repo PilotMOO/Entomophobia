@@ -2,6 +2,7 @@ package mod.pilot.entomophobia.systems.nest.features;
 
 import mod.pilot.entomophobia.data.WeightedRandomizer;
 import mod.pilot.entomophobia.systems.nest.features.any.YesFeature;
+import mod.pilot.entomophobia.systems.nest.features.ceiling.FleshClumpCeilingFeaturePackage;
 import mod.pilot.entomophobia.systems.nest.features.ground.BloodpitFeature;
 import mod.pilot.entomophobia.systems.nest.features.ground.CorpsedewCombFeaturePackage;
 import mod.pilot.entomophobia.systems.nest.features.ground.FleshClumpFeaturePackage;
@@ -21,9 +22,12 @@ public class FeatureManager {
         //AddFeature(new ThickWallTestFeature());
 
         /*Variant Packages*/
+        //Ground
         AddFeature(new FleshClumpFeaturePackage());
         AddFeature(new WaxComblessFeaturePackage(), 30);
         AddFeature(new CorpsedewCombFeaturePackage(), 10);
+        //Ceiling
+        AddFeature(new FleshClumpCeilingFeaturePackage());
 
         /*Solo Features*/
         AddFeature(new BloodpitFeature(), 5);

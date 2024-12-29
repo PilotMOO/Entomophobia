@@ -81,25 +81,25 @@ public abstract class Feature {
                                          @Nullable Collection<? extends ResourceLocation> southStructures,
                                          @Nullable Collection<? extends ResourceLocation> westStructures){
         if (PlacementPos != PlacementPositions.Wall.asByte() && PlacementPos != PlacementPositions.Any.asByte()){
-            System.out.println();
-            System.out.println("---------------");
-            System.out.println("Warning! An attempt to assign a Non-Wall or Non-Any feature as a Wall Feature!");
-            System.out.println("Attempted to register " + this + " as a Wall Feature which is not denoted as Wall or Any, denote this Feature as "
+            System.err.println();
+            System.err.println("---------------");
+            System.err.println("Warning! An attempt to assign a Non-Wall or Non-Any feature as a Wall Feature!");
+            System.err.println("Attempted to register " + this + " as a Wall Feature which is not denoted as Wall or Any, denote this Feature as "
                     + PlacementPositions.Wall + " or " + PlacementPositions.Any + " if you wish to register this Feature as a Wall Feature");
-            System.out.println("Canceling registration...");
-            System.out.println("---------------");
-            System.out.println();
+            System.err.println("Canceling registration...");
+            System.err.println("---------------");
+            System.err.println();
             return;
         }
         if (northStructures == null && eastStructures == null && southStructures == null && westStructures == null){
-            System.out.println();
-            System.out.println("---------------");
-            System.out.println("Warning! An attempt to assign a feature as a Wall Feature without any assigned structures!");
-            System.out.println("Attempted to register " + this + " as a Wall Feature without any registered structures for the walls! "
+            System.err.println();
+            System.err.println("---------------");
+            System.err.println("Warning! An attempt to assign a feature as a Wall Feature without any assigned structures!");
+            System.err.println("Attempted to register " + this + " as a Wall Feature without any registered structures for the walls! "
                     + "ensure that AT LEAST one argument in the wall registration is NOT null");
-            System.out.println("Canceling registration...");
-            System.out.println("---------------");
-            System.out.println();
+            System.err.println("Canceling registration...");
+            System.err.println("---------------");
+            System.err.println();
             return;
         }
 
@@ -237,19 +237,20 @@ public abstract class Feature {
                             facing.getStepY() == -1 ? 1 : 0,
                             facing.getStepZ() == -1 ? 1 : 0);
         }
-        return EntomoDataManager.Vec3iToVec3(template.getSize()).multiply(0.5,0,0.5);
+        Vec3 toReturn = EntomoDataManager.Vec3iToVec3(template.getSize()).multiply(0.5,0,0.5);
+        if (PlacementPos == 3) toReturn.add(0, size().getY(), 0);
+        return toReturn;
     }
     @Override
     public String toString() {
         return "Feature [Type: " + Type +
                 ", OffshootType: " + OffshootTypes.fromByte(OffshootType) +
                 ", PlacementPos: " + PlacementPositions.fromByte(PlacementPos) +
-                ", Template: " + template +
                 ", ResourceLocation: " + structureLocation + "]";
     }
 
     protected void printIllegalAction(String action){
-        System.out.println("WARNING! ILLEGAL ACTION: " + action);
+        System.err.println("WARNING! ILLEGAL ACTION: " + action);
     }
     protected String illegalActionPackageEmpty(){
         return "Attempted to place " + this + " but getRandomInstance() returned null!";
