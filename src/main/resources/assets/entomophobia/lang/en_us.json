@@ -23,6 +23,12 @@
   "item.entomophobia.tooltip.lustrous_tissue": "§7A rotting mass of flesh, taken from the \"fruit\" of a §6luminous fleshy \"plant\"§7 found §6deep in the bowels of a nest.§7 It glows faintly, but reeks horribly. §4Consumption is not recommended.",
   "item.entomophobia.tooltip.bottled_corpsedew": "§7A bottle of a §astrange green substance§7 extracted from §6within a nest.§7 It is presumably very calorically dense, however §4consumption of this might not be the best idea,§7 not §6in this state...",
 
+  "item.entomophobia.tooltip.dev_wand": "§4[DEV WAND]",
+
+  "item.entomophobia.tooltip.nest_wand": "§7Creates a nest around Y=0 when clicked on a block, or at the set Y position if shift is held.\n\nShift-clicking the air kills the nearest nest.",
+  "item.entomophobia.tooltip.swarm_wand": "§7Hit a myiatic with it to create a swarm of the selected type, assigning it as the captain, shift-hit to get info about the current swarm.\n\nRight-click air to highlight all captains, shift-click to cycle through swarm types.",
+  "item.entomophobia.tooltip.shape_wand": "§7Creates shapes out of a given block list.\n\nRight-click air to cycle through shapes, right-click block to create a shape on top of the clicked face, shift-click to generate inside of.\n\nHit a block to add it to the building list, shift while hitting to remove.\n\nShift-right-click air to remove all blocks from the list.\n\n[Specifics about shapes-- like size-- are unconfigurable]",
+
   "block.entomophobia.myiatic_flesh": "Myiatic Flesh Block",
   "block.entomophobia.rooted_myiatic_flesh": "Rooted Myiatic Flesh Block",
   "block.entomophobia.infested_myiatic_flesh": "Infested Myiatic Flesh Block",
@@ -31,8 +37,9 @@
   "block.entomophobia.bloodwax_protrusions": "Bloodwax Comb Protrusions",
   "block.entomophobia.twined_flesh": "Twined Flesh",
   "block.entomophobia.luminous_flesh": "Luminous Flesh Bulb",
-  "block.entomophobia.congealed_blood": "Congealed Blood",
+  "block.entomophobia.congealed_blood": "§4Congealed Blood",
 
+  "block.entomophobia.tooltip.congealed_blood": "§7A clump of congealed blood extracted from a puddle condensing beneath the various §6glowing masses of tissue§7 faintly illuminating a §6sprawling underground labyrinth of flesh.",
 
   "entity.entomophobia.myiatic_zombie": "Myiatic Zombie",
   "entity.entomophobia.myiatic_creeper": "Myiatic Creeper",

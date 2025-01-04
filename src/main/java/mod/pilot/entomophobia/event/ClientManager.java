@@ -10,6 +10,7 @@ import mod.pilot.entomophobia.particles.BloodDripParticle;
 import mod.pilot.entomophobia.particles.EntomoParticles;
 import mod.pilot.entomophobia.particles.FlyParticle;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
@@ -33,6 +34,7 @@ public class ClientManager {
 
         event.registerEntityRenderer(EntomoEntities.STRING_GRAPPLE.get(), StringGrappleRenderer::new);
 
+        event.registerEntityRenderer(EntomoEntities.CONGEALED_BLOOD.get(), ThrownItemRenderer::new);
         /*
         event.registerBlockEntityRenderer(EntomoBlockEntities.EXAMPLE_BLOCK_ENTITY.get(),
                 (BlockEntityRendererProvider.Context rendererDispatcherIn) -> new ExampleBlockEntityRenderer());

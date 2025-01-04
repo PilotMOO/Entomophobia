@@ -52,18 +52,23 @@ public class EntomoBlocks {
             () -> new LuminousFleshBlock(BlockBehaviour.Properties.copy(Blocks.CAVE_VINES).sound(EntomoSounds.TWINED_FLESH_STYPE)
             ));
 
-    public static RegistryObject<Block> CONGEALED_BLOOD = registryBlock("congealed_blood",
+    public static RegistryObject<Block> CONGEALED_BLOOD = registerBlockWithCustomItem("congealed_blood",
             () -> new CongealedBloodLayer(BlockBehaviour.Properties.copy(Blocks.SNOW_BLOCK).sound(EntomoSounds.CONGEALED_BLOOD_STYPE)
-                    .destroyTime(0.25f)
-            ));
+                    .destroyTime(0.25f)),
+            () -> new CongealedBloodLayer.CongealedBloodItem(new Item.Properties()));
 
-    private static <T extends net.minecraft.world.level.block.Block> RegistryObject<T> registryBlock(String name, Supplier<T> block){
+    private static <T extends Block> RegistryObject<T> registryBlock(String name, Supplier<T> block){
         RegistryObject<T> toReturn = BLOCKS.register(name, block);
         RegisterBlockItem(name, toReturn);
         return toReturn;
     }
+    private static <T extends Block, J extends BlockItem> RegistryObject<T> registerBlockWithCustomItem(String name, Supplier<T> block, Supplier<J> blockItem){
+        RegistryObject<T> toReturn = BLOCKS.register(name, block);
+        EntomoItems.ITEMS.register(name, blockItem);
+        return toReturn;
+    }
 
-    private static <T extends net.minecraft.world.level.block.Block>RegistryObject<Item> RegisterBlockItem(String name, RegistryObject<T> block) {
+    private static <T extends Block> RegistryObject<Item> RegisterBlockItem(String name, RegistryObject<T> block) {
         return EntomoItems.ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
     }
 

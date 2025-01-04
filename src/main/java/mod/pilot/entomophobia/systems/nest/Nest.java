@@ -18,7 +18,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import oshi.util.tuples.Pair;
 
@@ -317,8 +316,7 @@ public class Nest {
             if (children != null){
                 for (Offshoot o : children){
                     if (o.position.distanceTo(pos) < (o instanceof Chamber c1 ? c1.radius
-                            : o instanceof Corridor c2 ?(double)c2.weight / 2 : 0)){
-                        System.out.println("Position " + pos + " was invalid because it was too close to an offshoot");
+                            : o instanceof Corridor c2 ? (double)c2.weight / 2 : 0)){
                         return false;
                     }
                 }
@@ -327,13 +325,14 @@ public class Nest {
         }
         protected final boolean testFeatureDistance(Vec3 pos, Feature toTest, HashMap<Vec3, Feature> existing){
             Vec3i toTestSize = toTest.getTemplate(server, null).getSize();
-            AABB toTestAABB = AABB.ofSize(pos, toTestSize.getX(), toTestSize.getY(), toTestSize.getZ());
+            //AABB toTestAABB = AABB.ofSize(pos, toTestSize.getX(), toTestSize.getY(), toTestSize.getZ());
             for (Vec3 pos1 : existing.keySet()){
                 Feature f = existing.get(pos1);
                 Vec3i existingSize = f.size();
-                AABB existingAABB = AABB.ofSize(pos, existingSize.getX(), existingSize.getY(), existingSize.getZ());
-                if (toTestAABB.intersects(existingAABB)){
-                    System.out.println("Position " + pos + " was invalid because it was too close to a preexisting feature");
+                double cumulativeSize = (double)(toTestSize.getX() + toTestSize.getY() + toTestSize.getZ()
+                        + existingSize.getX() + existingSize.getY() + existingSize.getZ()) / 6;
+                //AABB existingAABB = AABB.ofSize(pos, existingSize.getX(), existingSize.getY(), existingSize.getZ());
+                if (toTestSize.closerThan(existingSize, cumulativeSize) /*toTestAABB.intersects(existingAABB)*/){
                     return false;
                 }
             }
@@ -463,7 +462,7 @@ public class Nest {
     }
     public static class Chamber extends Offshoot{
         private static final byte OffshootType = 1;
-        public Chamber(ServerLevel server, @org.jetbrains.annotations.Nullable Nest.Offshoot parent, Vec3 pos, int radius, int thickness) {
+        public Chamber(ServerLevel server, @Nullable Nest.Offshoot parent, Vec3 pos, int radius, int thickness) {
             super(server, OffshootType, parent, pos);
             super.MaxChildCount = 2;
             this.radius = radius;
@@ -585,7 +584,7 @@ public class Nest {
             boolean flag = true;
             for (Offshoot offshoot : children){
                 if (offshoot.getGenerator() instanceof TunnelGenerator tunnel){
-                    if (pos.distanceTo(offshoot.getPosition()) < tunnel.weight * 2){
+                    if (pos.distanceTo(offshoot.getPosition()) < NestManager.getNestLargeCorridorMaxRadius() * 2){
                         flag = false;
                         break;
                     }
@@ -593,14 +592,14 @@ public class Nest {
             }
             if (parent == null) return flag;
             if (flag && parent.getGenerator() instanceof TunnelGenerator tunnel){
-                flag = pos.distanceTo(tunnel.getEnd()) < tunnel.weight * 2;
+                flag = pos.distanceTo(tunnel.getEnd()) < NestManager.getNestLargeCorridorMaxRadius() * 2;
             }
             return flag;
         }
 
         @Override
         public int getMaxAllowedFeatureCount() {
-            return radius / 4;
+            return radius / 2;
         }
 
         @Override
@@ -615,6 +614,7 @@ public class Nest {
 
         //I probably could have just merged this with the ForWall variant and have it return a null for the Direction segment... or up or down.
         //Yeah I'll just merge
+        //ToDo: finish setting up features by adding wall features, also merge the "ForWall" generate position and normal variants
         @Override
         protected @Nullable Vec3 generateFeaturePlacementPosition(byte placementPos) {
             if (placementPos == 0) placementPos = (byte)random.nextIntBetweenInclusive(1, 3);
@@ -815,13 +815,14 @@ public class Nest {
             Vec3 toReturn;
 
             int cycleCounter = 0;
+            //Entrance Specific generation
             if (isEntrance()){
                 Vec3 surface = findSurface(getPosition());
                 do{
                     Vec3 direction = EntomoDataManager.getDirectionToAFromB(surface, getPosition())
-                            .yRot(generateRadian())
-                            .xRot(generateRadian(30, true))
-                            .zRot(generateRadian(30, true))
+                            .yRot(generateRadian(90, true))
+                            .xRot(generateRadian(45, true))
+                            .zRot(generateRadian(45, true))
                             .normalize();
 
                     int yFactor;
@@ -837,16 +838,17 @@ public class Nest {
                     toReturn = getPosition().add(direction.scale((double)NestManager.getRandomCorridorLength(random) / 2));
                     Vec3 surfaceFromReturn = findSurface(toReturn);
                     if (toReturn.y > surfaceFromReturn.y) {
-                        toReturn = toReturn.multiply(1, 0, 1).add(0, surfaceFromReturn.y, 0);
+                        toReturn = toReturn.multiply(1, 0, 1).add(0, surfaceFromReturn.y + weight, 0);
                     }
-                    cycleCounter++;
                 }
-                while (isThisEndPositionInvalid(toReturn) && cycleCounter < 10);
+                //given 20 attempts to generate a valid position because it's an entrance
+                while (testEndPositionInvalidity(toReturn) && cycleCounter++ < 20);
                 if (toReturn.y >= surface.y) {
                     DeadEnd = true;
                     addToQueuedGhostPosition(GenerateSurfaceGhost(toReturn));
                 }
             }
+            //Normal Corridor Generation
             else{
                 do{
                     Vec3 direction = EntomoDataManager.getDirectionToAFromB(getPosition(), getComparePosition())
@@ -867,45 +869,38 @@ public class Nest {
                             : direction.y < 0 ? -1 : 1, 1);*/
 
                     toReturn = getPosition().add(direction.scale(NestManager.getRandomCorridorLength(random)));
-                    cycleCounter++;
                 }
-                while (isThisEndPositionInvalid(toReturn) && cycleCounter < 10);
+                while (testEndPositionInvalidity(toReturn) && cycleCounter++ < 10);
             }
-            if (isThisEndPositionInvalid(toReturn)){
+
+            if (testEndPositionInvalidity(toReturn)){
+                System.err.println("Corridor End Position was still invalid after " + cycleCounter + " attempts! Killing...");
                 this.Kill(false);
             }
             NestSaveData.Dirty();
             return end = toReturn;
         }
-        private boolean isThisEndPositionInvalid(Vec3 toTest){
-            //ToDo: ALL OF THIS NEEDS TESTING BUT I HAD TO LEAVE SO BOWOMP. TEST IT WHEN YOU GET BACK DAMMIT
-
-            //The start position of the corridor
-            Vec3 start = getStartDirect();
-            //A vector pointing from the start towards the position to test
-            Vec3 direction = EntomoDataManager.getDirectionFromAToB(start, toTest);
-
-            //final int fluff = 6;
-            int parentThickness = 0;
-            int parentScale = 0;
-            if (parent instanceof Chamber c){
-                parentScale = c.radius * 2;
-                parentThickness = c.thickness;
-            }
-            if (parent instanceof Corridor c){
-                parentScale = c.weight;
-                parentThickness = c.thickness;
-            }
-            //parentScale += fluff;
-
+        private boolean testEndPositionInvalidity(Vec3 toTest){
             //Checks every block in front of it (from the start to the position to test)
             //for any blocks that the nest builds out of, to prevent intersections.
             //Only checks a 1 block thick line for performance reasons
             //P.S. making this exclusive for entrances only was a duct-tape fix to ensure that entrances could reach the surface...
             if (!isEntrance()){
-                //Sets the start's position to be offset towards the end position 2x the thickness of the parent to prevent false flags
-                start = start.add(direction.scale(parentThickness * 2));
-                //Is casting it to an int needed...? (no, probably not. Removed)
+                //The start position of the corridor
+                Vec3 start = getStartDirect();
+                //A vector pointing from the start towards the position to test
+                Vec3 direction = EntomoDataManager.getDirectionFromAToB(start, toTest);
+
+                //Gets the size of the parent, for offsetting checks to ensure it doesn't falsely return parent blocks
+                int parentScale = 0;
+                if (parent instanceof Chamber c){
+                    parentScale = (c.radius * 2) + c.thickness;
+                }
+                if (parent instanceof Corridor c){
+                    parentScale = c.weight + c.thickness;
+                }
+
+                start = start.add(direction.scale(parentScale));
                 double distance = start.distanceTo(toTest);
                 for (int i = 0; i < distance; i++){
                     Vec3 buildPos = i == 0 ? start : start.add(direction.scale(i));
@@ -918,7 +913,6 @@ public class Nest {
                     }
                 }
             }
-
 
             //Checks the end point for any blocks the nests are built out of to prevent it from colliding
             //Entrances have a lot more leniency to ensure it can reach the surface (duct tape ass execution smh)
@@ -938,20 +932,69 @@ public class Nest {
                 }
             }
 
-            //ToDo: add sibling check to ensure that it doesn't generate too close to siblings (offshoots that share the same parent)
+            //Ew this seems laggy as FUCK
+            //Checks all siblings to ensure that this end position won't make them crash into each other
+            //Sadly it's a mess of for loops and seems like a lagfest...
+            //Won't get called if either the parent is null (impossible) or if the children of the parent is null (also impossible...)
+            if (parent != null && parent.children != null){
+                //Looping through all the children
+                for (Offshoot o : parent.children){
+                    //No need to falsely raise flags checking ourselves!
+                    if (o == this) continue;
+                    //Or if the child is not a corridor. Technically not possible with the current setup but nicer looking than a cast imo
+                    if (!(o instanceof Corridor c)) continue;
+                    //How far is unacceptable for it to collide
+                    double distanceCheck = (double) Math.max(weight, c.weight) / 2;
+
+                    //Start position of us
+                    Vec3 start = getStartDirect();
+                    //Direction towards the position to check
+                    Vec3 direction = EntomoDataManager.getDirectionFromAToB(start, toTest);
+
+                    //Start position of our sibling
+                    Vec3 oStart = c.getStartDirect();
+                    //Direction from start to end of the sibling
+                    Vec3 oDirection = EntomoDataManager.getDirectionFromAToB(oStart, c.end);
+
+                    //How long we are from start to testing position
+                    double distance = start.distanceTo(toTest);
+                    //How long our sibling is
+                    double oDistance = oStart.distanceTo(c.end);
+
+                    //Looping through each position on the line to the testing position
+                    for (int i = 0; i < distance; i++){
+                        //said position
+                        Vec3 pos = start.add(direction.scale(i));
+                        //Looping through each position on the sibling's line
+                        //This is where things get nasty, we're looping through this in its entirety for every position to check for the new position
+                        //At max length for both sibling and us, that could be upwards of 48^2, or 2304 cycles... FOR ONE SIBLING
+                        for (int j = 0; j < oDistance; j++){
+                            //Said position
+                            Vec3 oPos = oStart.add(oDirection.scale(j));
+                            //If we're too close, return true (it's invalid)
+                            if (oPos.distanceTo(pos) < distanceCheck) {
+                                System.err.println("Runs through a sibling between " + pos + " and " + oPos
+                                        + " (Distance between: " + oPos.distanceTo(pos) + ")");
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
 
             //Finally, test if the position would run straight through the fucking parent
             //this is a duct tape fix once again, to fix a bug that was present because my ass didn't know that xRot, yRot, and zRot expects radians
             //Probably isn't needed anymore...
+            if (parent == null) return false; //if the parent is null just don't give a fuck
             Vec3 pos = getPosition();
             Vec3 midpoint = new Vec3((pos.x + toTest.x) / 2, (pos.y + toTest.y) / 2, (pos.y + toTest.y) / 2);
-            if (parent == null) return false; //if the parent is null just don't give a fuck
             //Checks to ensure that the middle position (between child position and testing position) is farther away than the child pos and parent pos
             //Probably doesn't work 100% of the time and is also likely useless now but oh well :shrug:
             return midpoint.distanceTo(parent.getPosition()) < pos.distanceTo(parent.getPosition());
         }
 
         private Vec3 getComparePosition(){
+            if (parent == null) return null;
             if (getGenerator() == null || !getGenerator().isOfState(WorldShapeManager.GeneratorStates.done)){
                 if (parent instanceof Corridor corridor && corridor.getGenerator() instanceof TunnelGenerator tunnel){
                     return tunnel.getStart();
@@ -980,6 +1023,7 @@ public class Nest {
         }
         @Override
         protected Vec3 getOffshootPosition() {
+            if (parent == null) return null;
             return getPosition().add(EntomoDataManager.getDirectionToAFromB(getPosition(), parent.getPosition()).scale((double)weight / 2));
         }
 

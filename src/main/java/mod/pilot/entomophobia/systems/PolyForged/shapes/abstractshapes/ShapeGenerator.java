@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -159,6 +160,8 @@ public abstract class ShapeGenerator{
     protected BlockPos lastBlock;
     protected SoundEvent getLastBlockPlaceSFX(){
         if (lastBlock != null){
+            BlockState bState = server.getBlockState(lastBlock);
+            if (getDefault(bState) == Blocks.AIR.defaultBlockState()) return null;
             return server.getBlockState(lastBlock).getSoundType().getPlaceSound();
         }
         return null;
@@ -188,7 +191,6 @@ public abstract class ShapeGenerator{
             }
         }
         return placed;
-
     }
     protected boolean ReplaceBlock(BlockPos pos, BlockState state){
         return ReplaceBlock(pos, state, 3);

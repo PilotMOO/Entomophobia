@@ -1,5 +1,6 @@
 {
   "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "entomophobia:item/congealed_blood"
-  }}
+    "layer0": "entomophobia:item/dev/shape_wand"
+  }
+}

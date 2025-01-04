@@ -11,9 +11,13 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class NestWand extends Item {
     public NestWand(Properties pProperties) {
@@ -65,5 +69,12 @@ public class NestWand extends Item {
         }
         player.getCooldowns().addCooldown(this, 5);
         return super.use(level, player, pUsedHand);
+    }
+
+    @Override
+    public void appendHoverText(@NotNull ItemStack stack, @Nullable Level pLevel, @NotNull List<Component> components, @NotNull TooltipFlag isAdvanced) {
+        components.add(Component.translatable("item.entomophobia.tooltip.dev_wand"));
+        components.add(Component.translatable("item.entomophobia.tooltip.nest_wand"));
+        super.appendHoverText(stack, pLevel, components, isAdvanced);
     }
 }

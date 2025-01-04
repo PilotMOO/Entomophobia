@@ -52,10 +52,10 @@ public class EntomoCreativeTabs {
                         register.accept(EntomoItems.SHAPE_WAND.get());
                         register.accept(EntomoItems.NEST_WAND.get());
                         register.accept(EntomoItems.SWARM_WAND.get());
-                        register.accept(EntomoItems.FLY_WAND.get());
+                        /*register.accept(EntomoItems.FLY_WAND.get());
                         register.accept(EntomoItems.BLOCK_PACKET_WAND.get());
                         register.accept(EntomoItems.FEATURE_WAND.get());
-                        register.accept(EntomoItems.BLOOD_DRIP_WAND.get());
+                        register.accept(EntomoItems.BLOOD_DRIP_WAND.get());*/
                     })
                     .build());
 }

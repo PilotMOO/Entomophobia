@@ -4,6 +4,7 @@ import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.entity.myiatic.*;
 import mod.pilot.entomophobia.entity.pheromones.PheromoneFrenzyEntity;
 import mod.pilot.entomophobia.entity.pheromones.PheromonePreyHuntEntity;
+import mod.pilot.entomophobia.entity.projectile.CongealedBloodProjectile;
 import mod.pilot.entomophobia.entity.projectile.StringGrappleProjectile;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -51,6 +52,9 @@ public class EntomoEntities {
     public static final RegistryObject<EntityType<StringGrappleProjectile>> STRING_GRAPPLE =
             ENTITY_TYPES.register("string_grapple", () -> EntityType.Builder.of(StringGrappleProjectile::new, MobCategory.MISC)
                     .sized(0.5f, 0.5f).build("string_grapple"));
+    public static final RegistryObject<EntityType<CongealedBloodProjectile>> CONGEALED_BLOOD =
+            ENTITY_TYPES.register("congealed_blood", () -> EntityType.Builder.of(CongealedBloodProjectile::new, MobCategory.MISC)
+                    .sized(0.5f, 0.5f).build("congealed_blood"));
 
     public static void register(IEventBus eventBus){
         ENTITY_TYPES.register(eventBus);

@@ -14,11 +14,14 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -189,5 +192,13 @@ public class ShapeWand extends Item {
             player.displayClientMessage(Component.literal(states.values()[StateGhost].name()), true);
             player.playSound(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
         }
+    }
+
+    @Override
+    public void appendHoverText(@NotNull ItemStack stack, @Nullable Level pLevel, @NotNull List<Component> components, @NotNull TooltipFlag isAdvanced) {
+        components.add(Component.translatable("item.entomophobia.tooltip.dev_wand"));
+        components.add(Component.literal("Shape: " + states.values()[state]));
+        components.add(Component.translatable("item.entomophobia.tooltip.shape_wand"));
+        super.appendHoverText(stack, pLevel, components, isAdvanced);
     }
 }
