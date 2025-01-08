@@ -317,12 +317,18 @@ public class Nest {
                 for (Offshoot o : children){
                     if (o.position.distanceTo(pos) < (o instanceof Chamber c1 ? c1.radius
                             : o instanceof Corridor c2 ? (double)c2.weight / 2 : 0)){
+                        System.err.println("DISTANCE IS TOO CLOSE YOU BITCH");
                         return false;
                     }
                 }
             }
+            System.out.println("Distance to an offshoot is safe");
             return testFeatureDistance(pos, feature, alreadyPlaced);
         }
+        //THIS ENTIRE FUCKING METHOD IS SHIT
+        //HOW DID I NOT NOTICE
+        //THAT'S WHY ONLY ONE FEATURE WAS GENERATING
+        //fixed now (?)
         protected final boolean testFeatureDistance(Vec3 pos, Feature toTest, HashMap<Vec3, Feature> existing){
             Vec3i toTestSize = toTest.getTemplate(server, null).getSize();
             //AABB toTestAABB = AABB.ofSize(pos, toTestSize.getX(), toTestSize.getY(), toTestSize.getZ());
@@ -332,14 +338,17 @@ public class Nest {
                 double cumulativeSize = (double)(toTestSize.getX() + toTestSize.getY() + toTestSize.getZ()
                         + existingSize.getX() + existingSize.getY() + existingSize.getZ()) / 6;
                 //AABB existingAABB = AABB.ofSize(pos, existingSize.getX(), existingSize.getY(), existingSize.getZ());
-                if (toTestSize.closerThan(existingSize, cumulativeSize) /*toTestAABB.intersects(existingAABB)*/){
+                if (pos.closerThan(pos1, cumulativeSize) /*toTestAABB.intersects(existingAABB)*/){
+                    System.err.println("TOO CLOSE TO A FEATURE YOU SHIT");
+                    System.err.println("Distance: " + pos.distanceTo(pos1));
+                    System.err.println("Cumulative size: " + cumulativeSize);
                     return false;
                 }
             }
+            System.out.println("It was NOT too close to another feature! Yippe!");
             return true;
         }
-        protected abstract @Nullable Vec3 generateFeaturePlacementPosition(byte placementPos);
-        protected abstract @Nullable Pair<Vec3, Direction> generateFeaturePlacementPositionForWall();
+        protected abstract @Nullable Pair<Vec3, Direction> generateFeaturePlacementPosition(byte placementPos);
 
         public final void TickGenerator(){
             RegisterAllGhosts();
@@ -390,17 +399,20 @@ public class Nest {
 
             int cycle = 0;
             do {
-                if (f.isWallFeature()) {
-                    Pair<Vec3, Direction> placePair = generateFeaturePlacementPositionForWall();
-                    if (placePair != null){
-                        placePos = placePair.getA();
-                        facing = placePair.getB();
+                Pair<Vec3, Direction> placePair = generateFeaturePlacementPosition(f.PlacementPos);
+                if (placePair != null){
+                    placePos = placePair.getA();
+                    facing = placePair.getB();
+                }
+                if (placePos != null){
+                    if (f.PlacementPos == 1) {
+                        placePos = placePos.add(0, f.getTemplate(server, facing).getSize().getY(), 0);
+                    }
+                    if (f.PlacementPos == 3) {
+                        placePos = placePos.subtract(0, f.getTemplate(server, facing).getSize().getY(), 0);
                     }
                 }
-                else placePos = generateFeaturePlacementPosition(f.PlacementPos);
-                if (f.PlacementPos == 3 && placePos != null) {
-                    placePos = placePos.subtract(0, f.getTemplate(server, facing).getSize().getY(), 0);
-                }
+
             } while (!isFeaturePositionValid(placePos, f, facing, alreadyPlaced) && cycle++ < 10);
 
             if (isFeaturePositionValid(placePos, f, facing, alreadyPlaced)){
@@ -496,7 +508,7 @@ public class Nest {
             return chamber;
         }
         //Private constructor for use in blueprint unpacking
-        private Chamber(ServerLevel server, @org.jetbrains.annotations.Nullable Nest.Offshoot parent, Vec3 pos,
+        private Chamber(ServerLevel server, @Nullable Nest.Offshoot parent, Vec3 pos,
                         int radius, int thickness, boolean deadEnd,
                         byte state, boolean featuresFinished) {
             super(server, OffshootType, parent, pos, state, deadEnd);
@@ -599,6 +611,7 @@ public class Nest {
 
         @Override
         public int getMaxAllowedFeatureCount() {
+            System.out.println("Allowed features: " + radius / 2);
             return radius / 2;
         }
 
@@ -612,38 +625,58 @@ public class Nest {
             return true;
         }
 
-        //I probably could have just merged this with the ForWall variant and have it return a null for the Direction segment... or up or down.
-        //Yeah I'll just merge
-        //ToDo: finish setting up features by adding wall features, also merge the "ForWall" generate position and normal variants
+        //ToDo: Test the rework on the feature placement generation
+        //Might need some swapping of values or some getOpposite() calls
         @Override
-        protected @Nullable Vec3 generateFeaturePlacementPosition(byte placementPos) {
+        protected @Nullable Pair<Vec3, Direction> generateFeaturePlacementPosition(byte placementPos) {
+            //If the placement position is 0 (A.K.A. "Any"), generate a new random placement position
             if (placementPos == 0) placementPos = (byte)random.nextIntBetweenInclusive(1, 3);
-            Vec3 direction = switch (placementPos){
-                case 1 -> new Vec3(0, -1, 0);
-                case 3 -> new Vec3(0, 1, 0);
-                default -> null;
+
+            //Establishing the direction of the feature
+            Direction facing;
+            if (placementPos == 2){
+                do{
+                    facing = Direction.getRandom(random);
+                } while (facing.getStepY() != 0);
+            }
+            else facing = placementPos == 1 ? Direction.UP : Direction.DOWN;
+
+            //Generating the default direction (up, down, north, south, east, west, whatever demanded of the facing direction)
+            //Let's hope that changing this to use the direction rather than the placementPos won't break everything...
+            Vec3 direction = switch (facing){
+                case UP -> new Vec3(0, -1, 0);
+                case DOWN -> new Vec3(0, 1, 0);
+                case NORTH -> new Vec3(0, 0, -1);
+                case SOUTH -> new Vec3(0, 0, 1);
+                case WEST -> new Vec3(-1, 0, 0);
+                case EAST -> new Vec3(1, 0, 0);
             };
-            if (direction == null){
-                //In theory not needed cuz this should never be the case, but better safe than sorry?
-                //Plus it prob helps people with debugging if they want to use this system in an addon or something...
-                System.err.println("WARNING! Invalid Placement Position type (" + placementPos +
-                        ") was fed as an argument into generateFeaturePlacementPosition(byte)! Discarding...");
-                System.err.println("INFO: Invalid Placement Position was of type "
-                        + Feature.PlacementPositions.fromByte(placementPos));
-                if (placementPos == 2) System.err.println("INFO: Wall features should use generateFeaturePlacementPositionForWall() instead!");
-                return null;
+
+            //Generating a randomized rotation based off of the direction of it
+            final int clamp = 30; //Our clamp, how much it can turn from the original direction
+            final int wallClamp = 15;
+            if (placementPos == 2){
+                //If it's a wall feature, add some Y Rotation on it (left-right turning)
+                direction = direction.yRot(generateRadian(wallClamp, true));
+                //Also reduce the range of randomized positions
+                direction = direction.xRot(generateRadian(wallClamp, true));
+                direction = direction.zRot(generateRadian(wallClamp, true));
+            }
+            else{
+                //Apply random X and Z Rotations for normal features
+                direction = direction.xRot(generateRadian(clamp, true));
+                direction = direction.zRot(generateRadian(clamp, true));
             }
 
-            final int clamp = 30;
-            direction = direction.xRot(generateRadian(clamp, true));
-            direction = direction.zRot(generateRadian(clamp, true));
-
+            //Our position to return
             Vec3 toReturn = position;
             do{
+                //Continuously add the direction to the position until we hit a solid block
                 toReturn = toReturn.add(direction);
             } while (server.getBlockState(BlockPos.containing(toReturn)).isAir());
 
-            return position.add(direction.scale(radius - thickness));
+            //Package it all up and send it off to be reviewed!
+            return new Pair<>(toReturn, facing.getOpposite());
 
             //Old code
             /*int difference = radius - thickness;
@@ -685,11 +718,6 @@ public class Nest {
             }
 
             return position.add(offset);*/
-        }
-
-        @Override
-        protected @Nullable Pair<Vec3, Direction> generateFeaturePlacementPositionForWall() {
-            return null;
         }
     }
     public static class Corridor extends Offshoot{
@@ -1084,9 +1112,7 @@ public class Nest {
         @Override
         public boolean canSupportFeatures() {return false;}
         @Override
-        protected Vec3 generateFeaturePlacementPosition(byte placementPos) {return null;}
-        @Override
-        protected Pair<Vec3, Direction> generateFeaturePlacementPositionForWall() {return null;}
+        protected Pair<Vec3, Direction> generateFeaturePlacementPosition(byte placementPos) {return null;}
     }
 
     protected static float generateRadian(){

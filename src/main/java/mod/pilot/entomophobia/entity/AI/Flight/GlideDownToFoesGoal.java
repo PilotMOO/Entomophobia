@@ -9,6 +9,7 @@ public class GlideDownToFoesGoal extends FlyToHostileTargetGoal{
 
     @Override
     boolean WantsToTakeOff() {
+        if (parent.getTarget() == null) return false;
         return FlightState != FlightStates.Disabled.ordinal() && parent.getTarget().blockPosition().getY() + 3 < parent.blockPosition().getY() && !IsFlying && FlightCD == 0;
     }
 

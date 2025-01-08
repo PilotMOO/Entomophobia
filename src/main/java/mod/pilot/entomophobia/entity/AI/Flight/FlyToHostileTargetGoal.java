@@ -18,6 +18,7 @@ public class FlyToHostileTargetGoal extends FlyToGoal{
     }
     @Override
     boolean WantsToTakeOff() {
+        if (parent.getTarget() == null) return false;
         return IsMyTargetTooHigh(parent.getTarget()) || parent.distanceTo(parent.getTarget()) > 20;
     }
     @Override
@@ -38,11 +39,11 @@ public class FlyToHostileTargetGoal extends FlyToGoal{
         PathNavigation nav = parent.getNavigation();
         Path path = nav.getPath();
         Node endNode = path != null ? path.getEndNode() : null;
-        if (nav.isDone() ||
-                (path != null && endNode != null && endNode.asVec3().distanceTo(parent.getTarget().position()) > 5)){
+        if (parent.getTarget() != null && (nav.isDone() ||
+                (path != null && endNode != null && endNode.asVec3().distanceTo(parent.getTarget().position()) > 5))){
             parent.getNavigation().moveTo(parent.getTarget(), 1);
         }
-        if (FlightState != FlightStates.Gliding.ordinal()){
+        if (parent.getTarget() != null && FlightState != FlightStates.Gliding.ordinal()){
             parent.lookAt(parent.getTarget(), parent.getMaxHeadYRot(), parent.getMaxHeadXRot());
             parent.getLookControl().tick();
         }

@@ -1,36 +1,44 @@
 package mod.pilot.entomophobia.systems.nest.features;
 
 import mod.pilot.entomophobia.data.WeightedRandomizer;
-import mod.pilot.entomophobia.systems.nest.features.any.YesFeature;
 import mod.pilot.entomophobia.systems.nest.features.ceiling.FleshClumpCeilingFeaturePackage;
 import mod.pilot.entomophobia.systems.nest.features.ground.BloodpitFeature;
 import mod.pilot.entomophobia.systems.nest.features.ground.CorpsedewCombFeaturePackage;
 import mod.pilot.entomophobia.systems.nest.features.ground.FleshClumpFeaturePackage;
 import mod.pilot.entomophobia.systems.nest.features.ground.WaxComblessFeaturePackage;
-import mod.pilot.entomophobia.systems.nest.features.wall.ThickWallTestFeature;
-import mod.pilot.entomophobia.systems.nest.features.wall.WallTestFeature;
+import mod.pilot.entomophobia.systems.nest.features.wall.FleshClumpWallFeature;
 
 import java.util.HashMap;
 
-import static mod.pilot.entomophobia.systems.nest.features.FeatureManager.FeatureTypeHolder.AddFeature;
+import static mod.pilot.entomophobia.systems.nest.features.FeatureManager.FeatureTypeHolder.RegisterFeature;
 
 public class FeatureManager {
+    //Private constructor because we don't need to ever create an instance of this class-- it's effectively static by C#'s rules.
+    //Extends to nested classes
+    private FeatureManager(){}
+
     public static void RegisterAllFeatures() {
         /*Testing Features*/
-        //AddFeature(new YesFeature());
-        //AddFeature(new WallTestFeature());
-        //AddFeature(new ThickWallTestFeature());
+        //RegisterFeature(new YesFeature());
+        //RegisterFeature(new WallTestFeature());
+        //RegisterFeature(new ThickWallTestFeature());
 
         /*Variant Packages*/
-        //Ground
-        AddFeature(new FleshClumpFeaturePackage());
-        AddFeature(new WaxComblessFeaturePackage(), 30);
-        AddFeature(new CorpsedewCombFeaturePackage(), 10);
-        //Ceiling
-        AddFeature(new FleshClumpCeilingFeaturePackage());
+        /*Ground*/
+        RegisterFeature(new FleshClumpFeaturePackage());
+        RegisterFeature(new WaxComblessFeaturePackage(), 30);
+        RegisterFeature(new CorpsedewCombFeaturePackage(), 10);
+        /*Wall*/
+        //Empty :[
+        /*Ceiling*/
+        RegisterFeature(new FleshClumpCeilingFeaturePackage());
 
         /*Solo Features*/
-        AddFeature(new BloodpitFeature(), 5);
+        /*Ground*/
+        RegisterFeature(new BloodpitFeature(), 5);
+        /*Wall*/
+        RegisterFeature(new FleshClumpWallFeature());
+        /*Ceiling*/
     }
 
     public static class FeatureTypeHolder {
@@ -39,6 +47,8 @@ public class FeatureManager {
         public static final OffshootSpecificHolder Any;
         public static final OffshootSpecificHolder ChamberOnly;
         public static final OffshootSpecificHolder CorridorOnly;
+
+        private FeatureTypeHolder(){}
 
         static{
             Any = new OffshootSpecificHolder((byte)0);
@@ -59,13 +69,11 @@ public class FeatureManager {
             return getRandomFeature(oType, pPos);
         }
         public static Feature getRandomFeature(Feature.OffshootTypes oType, Feature.PlacementPositions pPos){
-            Feature f = null;
-            switch (oType){
-                case Any -> f = HandleGatherOTypeAny(pPos);
-                case Chamber -> f = HandleGatherOTypeChamber(pPos);
-                case Corridor -> f = HandleGatherOTypeCorridor(pPos);
-            }
-            return f;
+            return switch (oType){
+                case Any -> HandleGatherOTypeAny(pPos);
+                case Chamber -> HandleGatherOTypeChamber(pPos);
+                case Corridor -> HandleGatherOTypeCorridor(pPos);
+            };
         }
 
         private static Feature HandleGatherOTypeAny(Feature.PlacementPositions pPos) {
@@ -119,10 +127,10 @@ public class FeatureManager {
             //System.out.println("Amount of Features available for pulling: " + randomizer.size());
             return randomizer.getRandomWeightedObject();
         }
-        public static void AddFeature(Feature feature){
-            AddFeature(feature, defaultWeight);
+        public static void RegisterFeature(Feature feature){
+            RegisterFeature(feature, defaultWeight);
         }
-        public static void AddFeature(Feature feature, int weight){
+        public static void RegisterFeature(Feature feature, int weight){
             Feature.OffshootTypes oType =  Feature.OffshootTypes.fromByte(feature.OffshootType);
             Feature.PlacementPositions pPos =  Feature.PlacementPositions.fromByte(feature.PlacementPos);
             if (oType == null || pPos == null){

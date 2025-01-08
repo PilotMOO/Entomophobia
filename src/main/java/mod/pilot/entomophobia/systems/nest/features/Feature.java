@@ -133,25 +133,25 @@ public abstract class Feature {
                                          @Nullable ResourceLocation southStructure,
                                          @Nullable ResourceLocation westStructure){
         if (PlacementPos != PlacementPositions.Wall.asByte() && PlacementPos != PlacementPositions.Any.asByte()){
-            System.out.println();
-            System.out.println("---------------");
-            System.out.println("Warning! An attempt to assign a Non-Wall or Non-Any feature as a Wall Feature!");
-            System.out.println("Attempted to register " + this + " as a Wall Feature which is not denoted as Wall or Any, denote this Feature as "
+            System.err.println();
+            System.err.println("---------------");
+            System.err.println("Warning! An attempt to assign a Non-Wall or Non-Any feature as a Wall Feature!");
+            System.err.println("Attempted to register " + this + " as a Wall Feature which is not denoted as Wall or Any, denote this Feature as "
                     + PlacementPositions.Wall + " or " + PlacementPositions.Any + " if you wish to register this Feature as a Wall Feature");
-            System.out.println("Canceling registration...");
-            System.out.println("---------------");
-            System.out.println();
+            System.err.println("Canceling registration...");
+            System.err.println("---------------");
+            System.err.println();
             return;
         }
         if (northStructure == null && eastStructure == null && southStructure == null && westStructure == null){
-            System.out.println();
-            System.out.println("---------------");
-            System.out.println("Warning! An attempt to assign a feature as a Wall Feature without any assigned structures!");
-            System.out.println("Attempted to register " + this + " as a Wall Feature without any registered structures for the walls! "
+            System.err.println();
+            System.err.println("---------------");
+            System.err.println("Warning! An attempt to assign a feature as a Wall Feature without any assigned structures!");
+            System.err.println("Attempted to register " + this + " as a Wall Feature without any registered structures for the walls! "
                     + "ensure that AT LEAST one argument in the wall registration is NOT null");
-            System.out.println("Canceling registration...");
-            System.out.println("---------------");
-            System.out.println();
+            System.err.println("Canceling registration...");
+            System.err.println("---------------");
+            System.err.println();
             return;
         }
 

@@ -27,7 +27,7 @@ public class Myiasis extends MobEffect {
         super(MobEffectCategory.HARMFUL, 0);
     }
 
-    private static HashMap<Entity, Integer> RotMashmap = new HashMap<>();
+    private static final HashMap<Entity, Integer> RotMashmap = new HashMap<>();
 
     private static int infectedDuration(LivingEntity target) {
         var check = RotMashmap.get(target);
@@ -83,8 +83,6 @@ public class Myiasis extends MobEffect {
                 else{
                     TickDamage(target, amp);
                 }
-
-
             }
             else{
                 ConvertMob(target);
@@ -94,6 +92,7 @@ public class Myiasis extends MobEffect {
             TickDamage(target, amp);
         }
         else{
+            System.out.println("Target is not infectable! Target entity I.D: " + target.getEncodeId());
             target.removeEffect(this);
         }
 

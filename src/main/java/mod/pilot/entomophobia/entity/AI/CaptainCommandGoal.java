@@ -29,7 +29,6 @@ public class CaptainCommandGoal extends Goal implements ISwarmOrder {
 
     @Override
     public void tick() {
-
         if (captain.tickCount % MergeCheckFrequency == 0 && SwarmManager.getSwarms().size() > 1){
             CheckForMerge();
         }
