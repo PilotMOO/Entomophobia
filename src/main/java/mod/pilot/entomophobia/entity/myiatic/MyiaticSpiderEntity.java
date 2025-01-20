@@ -104,10 +104,6 @@ public class MyiaticSpiderEntity extends MyiaticBase{
     }
 
     @Override
-    public boolean causeFallDamage(float pFallDistance, float pMultiplier, DamageSource pSource) {
-        return super.causeFallDamage(pFallDistance, pMultiplier, pSource);
-    }
-    @Override
     public boolean doHurtTarget(@Nullable Entity pEntity) {
         if (getAIState() != state.other.ordinal()){
             if (pEntity instanceof LivingEntity){

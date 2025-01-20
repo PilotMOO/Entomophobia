@@ -6,6 +6,10 @@ import mod.pilot.entomophobia.entity.pheromones.PheromoneFrenzyEntity;
 import mod.pilot.entomophobia.entity.pheromones.PheromonePreyHuntEntity;
 import mod.pilot.entomophobia.entity.projectile.CongealedBloodProjectile;
 import mod.pilot.entomophobia.entity.projectile.StringGrappleProjectile;
+import mod.pilot.entomophobia.entity.truepest.CentipedePestEntity;
+import mod.pilot.entomophobia.entity.truepest.CockroachPestEntity;
+import mod.pilot.entomophobia.entity.truepest.GrubPestEntity;
+import mod.pilot.entomophobia.entity.truepest.SpiderPestEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -39,6 +43,20 @@ public class EntomoEntities {
     public static final RegistryObject<EntityType<MyiaticChickenEntity>> MYIATIC_CHICKEN =
             ENTITY_TYPES.register("myiatic_chicken", () -> EntityType.Builder.of(MyiaticChickenEntity::new, MobCategory.MONSTER)
                     .sized(0.75f, 0.5f).build("myiatic_chicken"));
+
+    //Pests
+    public static final RegistryObject<EntityType<SpiderPestEntity>> SPIDER_PEST =
+            ENTITY_TYPES.register("spider_pest", () -> EntityType.Builder.of(SpiderPestEntity::new, MobCategory.MONSTER)
+                    .sized(0.75f, 0.3f).build("spider_pest"));
+    public static final RegistryObject<EntityType<GrubPestEntity>> GRUB_PEST =
+            ENTITY_TYPES.register("grub_pest", () -> EntityType.Builder.of(GrubPestEntity::new, MobCategory.MONSTER)
+                    .sized(1f, 0.3f).build("grub_pest"));
+    public static final RegistryObject<EntityType<CockroachPestEntity>> COCKROACH_PEST =
+            ENTITY_TYPES.register("cockroach_pest", () -> EntityType.Builder.of(CockroachPestEntity::new, MobCategory.MONSTER)
+                    .sized(0.5f, 0.2f).build("cockroach_pest"));
+    public static final RegistryObject<EntityType<CentipedePestEntity>> CENTIPEDE_PEST =
+            ENTITY_TYPES.register("centipede_pest", () -> EntityType.Builder.of(CentipedePestEntity::new, MobCategory.MONSTER)
+                    .sized(1f, 0.2f).build("centipede_pest"));
 
     //Pheromone Entities
     public static final RegistryObject<EntityType<PheromonePreyHuntEntity>> PREYHUNT =

@@ -7,17 +7,19 @@ import net.minecraft.world.phys.Vec3;
 public interface IDodgable {
     double getDodgeChance();
     default boolean TryToDodge(Mob parent) {
-        if (CanDodge(parent)){
+        if (canDodge(parent)){
             if (parent.getRandom().nextDouble() <= getDodgeChance()){
-                int Direction = parent.getRandom().nextIntBetweenInclusive(0, 1) != 0 ? -1 : 1;
-                parent.setDeltaMovement(parent.getDeltaMovement().add(Vec3.directionFromRotation(new Vec2(parent.getRotationVector().x, parent.getRotationVector().y + 135 * Direction)).multiply(1.25, 0, 1.25)));
+                int Direction = parent.getRandom().nextBoolean() ? -1 : 1;
+                parent.setDeltaMovement(parent.getDeltaMovement().add(Vec3.directionFromRotation(
+                        new Vec2(parent.getRotationVector().x, parent.getRotationVector().y + 135 * Direction))
+                        .multiply(1.25, 0, 1.25)));
                 return true;
             }
         }
         return false;
     }
 
-    default boolean CanDodge(Mob parent){
+    default boolean canDodge(Mob parent){
         return parent.onGround() && parent.verticalCollisionBelow && !parent.horizontalCollision;
     }
 }

@@ -1,10 +1,8 @@
 package mod.pilot.entomophobia.blocks.custom;
 
-import mod.pilot.entomophobia.data.EntomoDataManager;
+import mod.pilot.entomophobia.entity.PestManager;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -13,8 +11,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
 
 public class MyiaticFleshBlock extends Block {
     public MyiaticFleshBlock(Properties pProperties) {
@@ -33,25 +29,8 @@ public class MyiaticFleshBlock extends Block {
         }
     }
 
-    public static final ArrayList<EntityType<?>> Pests = new ArrayList<>();
-    public static void RegisterAsFleshBlockPest(String ID){
-        RegisterAsFleshBlockPest(EntomoDataManager.getEntityFromString(ID));
-    }
-    public static void RegisterAsFleshBlockPest(EntityType<?> toRegister){
-        if (Pests.contains(toRegister) || toRegister == null) return;
-        Pests.add(toRegister);
-    }
-    public static EntityType<?> getRandomPestEntityType(RandomSource random){
-        return Pests.get(random.nextInt(Pests.size()));
-    }
     public static void SpawnPestFromBlock(@NotNull BlockPos bPos, @NotNull Level level, @Nullable LivingEntity target){
-        Entity toReturn = getRandomPestEntityType(level.random).create(level);
-        if (toReturn == null) return;
-        toReturn.setPos(bPos.getCenter());
-        if (toReturn instanceof Mob M){
-            M.setTarget(target);
-        }
-        level.addFreshEntity(toReturn);
+        PestManager.createPestAt(level, bPos.getCenter(), 1, 2800, target);
     }
 
     @Override

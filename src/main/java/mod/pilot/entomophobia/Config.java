@@ -107,8 +107,6 @@ public class Config
         public final ForgeConfigSpec.ConfigValue<Double> corridor_extension_chance;
         public final ForgeConfigSpec.ConfigValue<Integer> nest_y_build_priority;
 
-        public final ForgeConfigSpec.ConfigValue<List<? extends String>> mobs_from_flesh_blocks;
-
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> nest_spawn_messages;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> nest_joke_spawn_messages;
         public final ForgeConfigSpec.ConfigValue<Boolean> enable_joke_messages;
@@ -137,11 +135,6 @@ public class Config
             this.nest_max_hardness = builder.defineInRange("Maximum hardness of blocks that the nest can replace while building", 10, 0, Integer.MAX_VALUE);
             this.max_nest_layers = builder.defineInRange("The maximum amount of layers a given branch of a nest can generate (manages max size)", 2, 1, Integer.MAX_VALUE);
             this.nest_y_build_priority = builder.defineInRange("The Y level at which nests will prioritize building up or down if below or above, respectfully", 0, -64, 320);
-
-            this.mobs_from_flesh_blocks = builder.defineList("Mobs that have a small chance to spawn from breaking myiatic flesh blocks",
-                    Lists.newArrayList(
-                            "minecraft:silverfish"
-                    ), o -> o instanceof String);
 
             builder.push("Nest Message Configuration");
             this.nest_spawn_messages = builder.defineList("Messages displayed in chat when a nest is formed",

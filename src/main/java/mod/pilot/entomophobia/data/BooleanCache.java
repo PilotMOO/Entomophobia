@@ -6,7 +6,7 @@ import java.util.function.Predicate;
 /**
  * A simple Boolean Cache for better performance in areas where booleans are calculated and recalculated frequently.
  * Remembers prior visitors and returns the precomputed values associated with that visitor to save on performance.
- * <p>
+ * <p></p>
  * Special thanks to WinVic the GOAT for teaching me about Caches
  * @param <T> T is the type of object to be evaluated
  */
@@ -57,7 +57,7 @@ public class BooleanCache<T>{
 
     /**
      * If the Cache has already evaluated the given Object T, checks the cache for the flag of that object.
-     * <p>
+     * <p></p>
      * Otherwise, tests the given object, updates the Cache with the new flag, and returns the flag.
      * @param t The object to test, where T is defined as the parameter of the Cache
      * @return The flag of the object from the Cache, or computes the flag and updates the Cache before returning

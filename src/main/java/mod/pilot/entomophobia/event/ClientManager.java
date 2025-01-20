@@ -6,6 +6,11 @@ import mod.pilot.entomophobia.entity.client.myiatic.*;
 import mod.pilot.entomophobia.entity.client.pheromones.PheromoneFrenzyRenderer;
 import mod.pilot.entomophobia.entity.client.pheromones.PheromonePreyHuntRenderer;
 import mod.pilot.entomophobia.entity.client.projectile.StringGrappleRenderer;
+import mod.pilot.entomophobia.entity.client.truepest.CentipedePestRenderer;
+import mod.pilot.entomophobia.entity.client.truepest.CockroachPestRenderer;
+import mod.pilot.entomophobia.entity.client.truepest.GrubPestRenderer;
+import mod.pilot.entomophobia.entity.client.truepest.SpiderPestRenderer;
+import mod.pilot.entomophobia.entity.truepest.SpiderPestEntity;
 import mod.pilot.entomophobia.particles.BloodDripParticle;
 import mod.pilot.entomophobia.particles.EntomoParticles;
 import mod.pilot.entomophobia.particles.FlyParticle;
@@ -28,6 +33,11 @@ public class ClientManager {
         event.registerEntityRenderer(EntomoEntities.MYIATIC_SHEEP.get(), MyiaticSheepRenderer::new);
         event.registerEntityRenderer(EntomoEntities.MYIATIC_PIG.get(), MyiaticPigRenderer::new);
         event.registerEntityRenderer(EntomoEntities.MYIATIC_CHICKEN.get(), MyiaticChickenRenderer::new);
+
+        event.registerEntityRenderer(EntomoEntities.SPIDER_PEST.get(), SpiderPestRenderer::new);
+        event.registerEntityRenderer(EntomoEntities.GRUB_PEST.get(), GrubPestRenderer::new);
+        event.registerEntityRenderer(EntomoEntities.COCKROACH_PEST.get(), CockroachPestRenderer::new);
+        event.registerEntityRenderer(EntomoEntities.CENTIPEDE_PEST.get(), CentipedePestRenderer::new);
 
         event.registerEntityRenderer(EntomoEntities.PREYHUNT.get(), PheromonePreyHuntRenderer::new);
         event.registerEntityRenderer(EntomoEntities.FRENZY.get(), PheromoneFrenzyRenderer::new);

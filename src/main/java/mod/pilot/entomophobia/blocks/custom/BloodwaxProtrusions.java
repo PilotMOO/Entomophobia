@@ -136,7 +136,7 @@ public class BloodwaxProtrusions extends DirectionalBlock {
     }
 
     @Override
-    public boolean canSurvive(BlockState bState, LevelReader level, BlockPos bPos) {
+    public boolean canSurvive(BlockState bState, @NotNull LevelReader level, BlockPos bPos) {
         BlockPos relative = bPos.relative(bState.getValue(FACING));
         return !blacklist.contains(defaultFrom(bState)) && level.getBlockState(relative)
                 .isFaceSturdy(level, relative, bState.getValue(FACING));
@@ -148,6 +148,10 @@ public class BloodwaxProtrusions extends DirectionalBlock {
     public static final ArrayList<BlockState> blacklist = new ArrayList<>();
 
     public static void registerAllPriorityBlocks(){
+        primaryList.clear();
+        secondaryList.clear();
+        ternaryList.clear();
+
         primaryList.add(EntomoBlocks.WAXY_MYIATIC_FLESH.get().defaultBlockState());
         primaryList.add(EntomoBlocks.BLOODWAX_COMB.get().defaultBlockState());
 

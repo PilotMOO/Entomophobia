@@ -244,8 +244,6 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             }
 
             return flag;
-
-
         }
         return false;
     }
@@ -457,7 +455,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     private static boolean CachePredicate(LivingEntity e) {
         if (e instanceof Player p) return !(p.isCreative() || p.isSpectator());
         if (e instanceof MyiaticBase) return false;
-        if ( e instanceof AbstractFish) return false;
+        if (e instanceof AbstractFish) return false;
         else return !isInsideOfTargetBlacklist(e);
     }
     public static boolean isInsideOfTargetBlacklist(LivingEntity e){
@@ -479,7 +477,8 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     }
     public boolean TestValidEntity(LivingEntity e) {
         if (e instanceof Creeper && !isInsideOfTargetBlacklist(e)) return hasEffect(EntomoMobEffects.FRENZY.get());
-        else return TargetCache.Test(e);
+        else return CachePredicate(e); //Disabled the Cache because of issues with targeting players switching to and fro creative mode
+        /*else return TargetCache.Test(e);*/
     }
     /**/
 

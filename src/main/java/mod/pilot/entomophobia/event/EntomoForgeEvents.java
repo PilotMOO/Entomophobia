@@ -9,8 +9,10 @@ import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.data.worlddata.SwarmSaveData;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.effects.IStacking;
+import mod.pilot.entomophobia.entity.PestManager;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticCowEntity;
+import mod.pilot.entomophobia.entity.truepest.PestBase;
 import mod.pilot.entomophobia.items.EntomoItems;
 import mod.pilot.entomophobia.data.EntomoDataManager;
 import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
@@ -48,12 +50,12 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -64,7 +66,8 @@ import java.util.List;
 public class EntomoForgeEvents {
     @SubscribeEvent
     public static void onLivingSpawned(EntityJoinLevelEvent event) {
-        if (event.getEntity() instanceof MyiaticBase && event.getLevel() instanceof ServerLevel server && server.getServer().isReady()){
+        if (event.getEntity() instanceof MyiaticBase  && !(event.getEntity() instanceof PestBase)
+                && event.getLevel() instanceof ServerLevel s && s.getServer().isReady()){
             Entomophobia.activeData.AddToMyiaticCount();
             System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
             return;
@@ -80,6 +83,31 @@ public class EntomoForgeEvents {
             villager.targetSelector.addGoal(1, new AvoidEntityGoal<>(villager, MyiaticBase.class, 16, 0.8D, 1.0D));
         }
     }
+
+
+    @SubscribeEvent
+    public static void onEntityLeave(EntityLeaveLevelEvent event){
+        if (event.getLevel() instanceof ServerLevel EServer){
+            if (!EServer.getServer().isRunning()) return;
+
+            Entity E = event.getEntity();
+            if (E instanceof MyiaticBase M && !(E instanceof PestBase)){
+                if (!M.isDeadOrDying()){
+                    System.out.println("Adding " + M.getEncodeId() + " to storage!");
+                    Entomophobia.activeData.AddToStorage(M.getEncodeId());
+                }
+                Entomophobia.activeData.RemoveFromMyiaticCount();
+                System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
+            }
+        }
+    }
+    /*@SubscribeEvent
+    public static void onEntityDeath(LivingDeathEvent event){
+        if (event.getEntity() instanceof MyiaticBase M && M.level() instanceof ServerLevel){
+            Entomophobia.activeData.RemoveFromMyiaticCount();
+            System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
+        }
+    }*/
     @SubscribeEvent
     public static void HandleSwarmUnpacking(EntityJoinLevelEvent event){
         if (!(event.getLevel() instanceof ServerLevel s)) return;
@@ -105,31 +133,6 @@ public class EntomoForgeEvents {
         }
     }
 
-    @SubscribeEvent
-    public static void onEntityLeave(EntityLeaveLevelEvent event){
-        if (event.getLevel() instanceof ServerLevel EServer){
-            if (!EServer.getServer().isRunning()) return;
-
-            Entity E = event.getEntity();
-            if (E instanceof MyiaticBase M){
-                if (!M.isDeadOrDying()){
-                    System.out.println("Adding " + M.getEncodeId() + " to storage!");
-                    Entomophobia.activeData.AddToStorage(M.getEncodeId());
-                }
-                Entomophobia.activeData.RemoveFromMyiaticCount();
-                System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
-            }
-        }
-    }
-    @SubscribeEvent
-    public static void onEntityDeath(LivingDeathEvent event){
-        if (event.getEntity() instanceof MyiaticBase M && M.level() instanceof ServerLevel){
-            Entomophobia.activeData.RemoveFromMyiaticCount();
-            System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
-        }
-    }
-
-
     private static ServerLevel server;
     public static ServerLevel getServer(){
         return server;
@@ -138,16 +141,13 @@ public class EntomoForgeEvents {
     public static void ServerStarting(ServerStartingEvent event){
         NestManager.setNestConstructionDetails();
         SwarmManager.setSwarmDetails();
-        server = event.getServer().overworld();
-
-        for (String ID : Config.NEST.mobs_from_flesh_blocks.get()){
-            MyiaticFleshBlock.RegisterAsFleshBlockPest(ID);
-        }
-
+        PestManager.RegisterAll();
         BloodwaxProtrusions.registerAllPriorityBlocks();
+
+        server = event.getServer().overworld();
     }
     @SubscribeEvent
-    public static void ServerStartDataSetup(ServerStartedEvent event){
+    public static void ServerDataSetup(ServerStartedEvent event){
         ServerLevel server = event.getServer().overworld();
         EntomoGeneralSaveData.SetActiveData(server);
         NestSaveData.SetActiveNestData(server);
@@ -156,10 +156,12 @@ public class EntomoForgeEvents {
     }
     @SubscribeEvent
     public static void PostServerCleanup(ServerStoppedEvent event){
-        System.out.println("Clearing out all nests!");
+        System.out.println("[NEST MANAGER] Clearing out all nests!");
         NestManager.ClearNests();
-        System.out.println("Clearing out all swarms!");
+        System.out.println("[SWARM MANAGER] Clearing out all swarms!");
         SwarmManager.PurgeAllSwarms();
+        System.out.println("[PEST MANAGER] Clearing out all registered pests!");
+        PestManager.FlushList();
     }
 
 
@@ -170,24 +172,24 @@ public class EntomoForgeEvents {
         MobEffectInstance newEffect = event.getEffectInstance();
         if (oldEffect != null && oldEffect.getEffect() instanceof IStacking stacking){
             LivingEntity target = event.getEntity();
-            int CumulativeDuration = oldEffect.getDuration() + newEffect.getDuration();
+            int cumulativeDuration = oldEffect.getDuration() + newEffect.getDuration();
             int amp = (int) Mth.absMax(oldEffect.getAmplifier(), newEffect.getAmplifier());
-            while (CumulativeDuration > stacking.getWrapAroundThreshold()){
+            while (cumulativeDuration > stacking.getWrapAroundThreshold()){
                 if (stacking.hasCap() && stacking.getMaxCap() <= amp) break;
 
-                CumulativeDuration -= stacking.getWrapAroundThreshold();
+                cumulativeDuration -= stacking.getWrapAroundThreshold();
                 amp++;
             }
             if (!stacking.hasCap() || stacking.canDurationExtendIfCapped() || stacking.getMaxCap() > amp){
-                CumulativeDuration = Math.max(CumulativeDuration, stacking.getMinimumWrapDuration());
+                cumulativeDuration = Math.max(cumulativeDuration, stacking.getMinimumWrapDuration());
             }
             else{
-                CumulativeDuration = Math.min(stacking.getWrapAroundThreshold(),
-                        Math.max(CumulativeDuration, stacking.getMinimumWrapDuration()));
+                cumulativeDuration = Math.min(stacking.getWrapAroundThreshold(),
+                        Math.max(cumulativeDuration, stacking.getMinimumWrapDuration()));
             }
 
             target.removeEffect(oldEffect.getEffect());
-            target.addEffect(new MobEffectInstance(oldEffect.getEffect(), CumulativeDuration, amp));
+            target.addEffect(new MobEffectInstance(oldEffect.getEffect(), cumulativeDuration, amp));
         }
     }
     @SubscribeEvent
@@ -244,6 +246,14 @@ public class EntomoForgeEvents {
             NestManager.TickAllActiveNests();
         }
     }
+    private static int nextSwitch = 0;
+    @SubscribeEvent
+    public static void OverlayTicker(TickEvent.ServerTickEvent event){
+        if (nextSwitch == 0){
+            regenerateOverlayHashmap();
+            nextSwitch = 20 + random.nextInt(-10, 50);
+        } else nextSwitch--;
+    }
 
     private static final int LoadRadius = 1;
 
@@ -281,72 +291,212 @@ public class EntomoForgeEvents {
         }
     }
 
-    private static final ResourceLocation HEART_EFFECT_OVERLAY = new ResourceLocation(Entomophobia.MOD_ID,
+    private static final ResourceLocation OVERSTIM_EFFECT_OVERLAY = new ResourceLocation(Entomophobia.MOD_ID,
             "textures/gui/overstimulated_heart_overlay.png");
+    private static final ResourceLocation NEURO_EFFECT_OVERLAY = new ResourceLocation(Entomophobia.MOD_ID,
+            "textures/gui/neuro_heart_overlays.png");
+    private static final NeuroHeartOverlayPackage[] overlays = new NeuroHeartOverlayPackage[10];
+    public static void regenerateOverlayHashmap(){
+        for (int i = 0; i < 10; i++){
+            overlays[i] = NeuroHeartOverlayPackage.generateRandom();
+        }
+    }
+
     private static final RandomSource random = RandomSource.create();
+
+
+    @SubscribeEvent
+    public static void disableHeartRendering(RenderGuiOverlayEvent.Pre event){
+        if (event.getOverlay().id().equals(VanillaGuiOverlay.PLAYER_HEALTH.id())
+                && Minecraft.getInstance().gameMode.canHurtPlayer()
+                && Minecraft.getInstance().getCameraEntity() instanceof Player player
+                && player.hasEffect(EntomoMobEffects.NEUROINTOXICATION.get())){
+            int leftHeight = 39;
+            int width = event.getWindow().getGuiScaledWidth();
+            int height = event.getWindow().getGuiScaledHeight();
+
+            int left = width / 2 - 91;
+            int top = height - leftHeight;
+            event.getGuiGraphics().enableScissor(left, top, left - 81, top - 9);
+        }
+    }
     @SubscribeEvent
     public static void renderEffectOverlays(RenderGuiOverlayEvent.Post event){
         //This is directly stolen from Alex's Caves irradiated heart rendering.
         // Credit where credit is due, thank you Mr Alex for having a public GitHub, that was a godsend
         if (event.getOverlay().id().equals(VanillaGuiOverlay.PLAYER_HEALTH.id())
                 && Minecraft.getInstance().gameMode.canHurtPlayer()
-                && Minecraft.getInstance().getCameraEntity() instanceof Player player
-                && player.hasEffect(EntomoMobEffects.OVERSTIMULATION.get())) {
+                && Minecraft.getInstance().getCameraEntity() instanceof Player player) {
 
-            int leftHeight = 39;
-            int width = event.getWindow().getGuiScaledWidth();
-            int height = event.getWindow().getGuiScaledHeight();
-            int health = Mth.ceil(player.getHealth());
-            int forgeGuiTick = Minecraft.getInstance().gui instanceof ForgeGui forgeGui ? forgeGui.getGuiTicks() : 0;
-            AttributeInstance attrMaxHealth = player.getAttribute(Attributes.MAX_HEALTH);
-            float healthMax = (float) attrMaxHealth.getValue();
-            float absorb = (float) Math.ceil(player.getAbsorptionAmount());
+            //Neurointox. overlay management
+            if (player.hasEffect(EntomoMobEffects.NEUROINTOXICATION.get())) {
+                event.getGuiGraphics().disableScissor();
 
-            int healthRows = Mth.ceil((healthMax + absorb) / 2.0F / 10.0F);
-            int rowHeight = Math.max(10 - (healthRows - 2), 3);
+                int leftHeight = 39;
+                int width = event.getWindow().getGuiScaledWidth();
+                int height = event.getWindow().getGuiScaledHeight();
+                int forgeGuiTick = Minecraft.getInstance().gui instanceof ForgeGui forgeGui ? forgeGui.getGuiTicks() : 0;
+                float healthMax = 20;
 
-            //ClientProxy.random.setSeed(forgeGuiTick * 312871L);
-            int left = width / 2 - 91;
-            int top = height - leftHeight;
-            int regen = -1;
-            if (player.hasEffect(MobEffects.REGENERATION)) {
-                regen = forgeGuiTick % Mth.ceil(healthMax + 5.0F);
+                int rowHeight = 11;
+
+                int left = width / 2 - 91;
+                int top = height - leftHeight;
+                int regen = -1;
+                if (player.hasEffect(MobEffects.REGENERATION)) {
+                    regen = forgeGuiTick % Mth.ceil(healthMax + 5.0F);
+                }
+
+                event.getGuiGraphics().pose().pushPose();
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.setShader(GameRenderer::getPositionTexShader);
+                RenderSystem.setShaderTexture(0, NEURO_EFFECT_OVERLAY);
+                for (int i = 9; i >= 0; --i) {
+                    NeuroHeartOverlayPackage nPackage = overlays[i];
+                    int row = Mth.ceil((float) (i + 1) / 10.0F) - 1;
+                    int x = left + i % 10 * 8;
+                    int y = top - row * rowHeight;
+                    if (nPackage.shaking) {
+                        y += random.nextInt(2);
+                    }
+                    if (i == regen) {
+                        y -= 2;
+                    }
+
+                    if (nPackage.isSolo){
+                        //Blit Solo
+                        event.getGuiGraphics().blit(NEURO_EFFECT_OVERLAY, x, y, 50,
+                                nPackage.soloH ,NeuroHeartOverlayPackage.soloV,
+                                9, 9, 81, 81);
+                    }
+                    else{
+                        //Blit background
+                        event.getGuiGraphics().blit(NEURO_EFFECT_OVERLAY, x, y, 50,
+                                nPackage.heartBackH ,NeuroHeartOverlayPackage.heartBackV,
+                                9, 9, 81, 81);
+                        //Blit base
+                        event.getGuiGraphics().blit(NEURO_EFFECT_OVERLAY, x, y, 50,
+                                nPackage.heartBaseH, nPackage.heartBaseV,
+                                nPackage.halved ? 5 : 9, 9, 81, 81);
+                        //Blit overlay
+                        event.getGuiGraphics().blit(NEURO_EFFECT_OVERLAY, x, y, 50,
+                                nPackage.heartOverlayH, NeuroHeartOverlayPackage.heartOverlayV,
+                                9, 9, 81, 81);
+                    }
+                }
+                event.getGuiGraphics().blit(NEURO_EFFECT_OVERLAY, left, top, 50,
+                        0, 45, 81, 9, 81, 81);
+
+                event.getGuiGraphics().pose().popPose();
             }
-            final int heartV = player.level().getLevelData().isHardcore() ? 9 : 0;
-            int heartU = 0;
-            float absorbRemaining = absorb;
-            event.getGuiGraphics().pose().pushPose();
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderTexture(0, HEART_EFFECT_OVERLAY);
-            for (int i = Mth.ceil((healthMax + absorb) / 2.0F) - 1; i >= 0; --i) {
-                int row = Mth.ceil((float) (i + 1) / 10.0F) - 1;
-                int x = left + i % 10 * 8;
-                int y = top - row * rowHeight;
-                if (health <= 4) {
-                    y += random.nextInt(2);
+            //Over. Stim. overlay management
+            else if (player.hasEffect(EntomoMobEffects.OVERSTIMULATION.get())){
+                int leftHeight = 39;
+                int width = event.getWindow().getGuiScaledWidth();
+                int height = event.getWindow().getGuiScaledHeight();
+                int health = Mth.ceil(player.getHealth());
+                int forgeGuiTick = Minecraft.getInstance().gui instanceof ForgeGui forgeGui ? forgeGui.getGuiTicks() : 0;
+                AttributeInstance attrMaxHealth = player.getAttribute(Attributes.MAX_HEALTH);
+                float healthMax = (float) attrMaxHealth.getValue();
+                float absorb = (float) Math.ceil(player.getAbsorptionAmount());
+
+                int healthRows = Mth.ceil((healthMax + absorb) / 2.0F / 10.0F);
+                int rowHeight = Math.max(10 - (healthRows - 2), 3);
+
+                //ClientProxy.random.setSeed(forgeGuiTick * 312871L);
+                int left = width / 2 - 91;
+                int top = height - leftHeight;
+                int regen = -1;
+                if (player.hasEffect(MobEffects.REGENERATION)) {
+                    regen = forgeGuiTick % Mth.ceil(healthMax + 5.0F);
                 }
-                if (i == regen) {
-                    y -= 2;
-                }
-                event.getGuiGraphics().blit(HEART_EFFECT_OVERLAY, x, y, 50, heartU, heartV + 18, 9, 9, 32, 32);
-                if (absorbRemaining > 0.0F) {
-                    if (absorbRemaining == absorb && absorb % 2.0F == 1.0F) {
-                        event.getGuiGraphics().blit(HEART_EFFECT_OVERLAY, x, y, 50, heartU + 9, heartV, 9, 9, 32, 32);
-                        absorbRemaining -= 1.0F;
+                final int heartV = player.level().getLevelData().isHardcore() ? 9 : 0;
+                int heartU = 0;
+                float absorbRemaining = absorb;
+                event.getGuiGraphics().pose().pushPose();
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.setShader(GameRenderer::getPositionTexShader);
+                RenderSystem.setShaderTexture(0, OVERSTIM_EFFECT_OVERLAY);
+                for (int i = Mth.ceil((healthMax + absorb) / 2.0F) - 1; i >= 0; --i) {
+                    int row = Mth.ceil((float) (i + 1) / 10.0F) - 1;
+                    int x = left + i % 10 * 8;
+                    int y = top - row * rowHeight;
+                    if (health <= 4) {
+                        y += random.nextInt(2);
+                    }
+                    if (i == regen) {
+                        y -= 2;
+                    }
+                    event.getGuiGraphics().blit(OVERSTIM_EFFECT_OVERLAY, x, y, 50, heartU, heartV + 18, 9, 9, 32, 32);
+                    if (absorbRemaining > 0.0F) {
+                        if (absorbRemaining == absorb && absorb % 2.0F == 1.0F) {
+                            event.getGuiGraphics().blit(OVERSTIM_EFFECT_OVERLAY, x, y, 50, heartU + 9, heartV, 9, 9, 32, 32);
+                            absorbRemaining -= 1.0F;
+                        } else {
+                            event.getGuiGraphics().blit(OVERSTIM_EFFECT_OVERLAY, x, y, 50, heartU, heartV, 9, 9, 32, 32);
+                            absorbRemaining -= 2.0F;
+                        }
                     } else {
-                        event.getGuiGraphics().blit(HEART_EFFECT_OVERLAY, x, y, 50, heartU, heartV, 9, 9, 32, 32);
-                        absorbRemaining -= 2.0F;
-                    }
-                } else {
-                    if (i * 2 + 1 < health) {
-                        event.getGuiGraphics().blit(HEART_EFFECT_OVERLAY, x, y, 50, heartU, heartV, 9, 9, 32, 32);
-                    } else if (i * 2 + 1 == health) {
-                        event.getGuiGraphics().blit(HEART_EFFECT_OVERLAY, x, y, 50, heartU + 9, heartV, 9, 9, 32, 32);
+                        if (i * 2 + 1 < health) {
+                            event.getGuiGraphics().blit(OVERSTIM_EFFECT_OVERLAY, x, y, 50, heartU, heartV, 9, 9, 32, 32);
+                        } else if (i * 2 + 1 == health) {
+                            event.getGuiGraphics().blit(OVERSTIM_EFFECT_OVERLAY, x, y, 50, heartU + 9, heartV, 9, 9, 32, 32);
+                        }
                     }
                 }
+                event.getGuiGraphics().pose().popPose();
             }
-            event.getGuiGraphics().pose().popPose();
+        }
+    }
+
+    private static class NeuroHeartOverlayPackage{
+        private static final RandomSource random = RandomSource.create();
+
+        public static final int heartBackV = 9 * 2;
+        public final int heartBackH;
+        public final int heartBaseV;
+        public final int heartBaseH;
+        public static final int heartOverlayV = 9 * 3;
+        public final int heartOverlayH;
+        public final boolean isSolo;
+        public static final int soloV = 9 * 4;
+        public final int soloH;
+        public final boolean shaking;
+        public final boolean halved;
+
+        private NeuroHeartOverlayPackage(int soloH, boolean shaking) {
+            this(-1, -1, -1, -1, true, soloH, shaking, false);
+        }
+        private NeuroHeartOverlayPackage(int heartBackH, int heartBaseV, int heartBaseH, int heartOverlayH, boolean shaking, boolean halved) {
+            this(heartBackH, heartBaseV, heartBaseH, heartOverlayH, false, -1, shaking, halved);
+        }
+        private NeuroHeartOverlayPackage(int heartBackH, int heartBaseV, int heartBaseH, int heartOverlayH,
+                                         boolean isSolo, int soloH, boolean shaking, boolean halved) {
+            this.heartBackH = heartBackH;
+            this.heartBaseV = heartBaseV;
+            this.heartBaseH = heartBaseH;
+            this.heartOverlayH = heartOverlayH;
+            this.isSolo = isSolo;
+            this.soloH = soloH;
+            this.shaking = shaking;
+            this.halved = halved;
+        }
+
+        public static NeuroHeartOverlayPackage generateRandom(){
+            NeuroHeartOverlayPackage toReturn;
+
+            boolean shaking = random.nextInt(4) == 0;
+            boolean halved = random.nextBoolean();
+            boolean isSolo = random.nextDouble() < 0.1;
+            if (isSolo) toReturn = new NeuroHeartOverlayPackage(random.nextInt(2) * 9, shaking);
+            else{
+                toReturn = new NeuroHeartOverlayPackage(
+                        random.nextInt(3) * 9,
+                        random.nextInt(2) * 9,
+                        random.nextInt(5) * 9,
+                        random.nextInt(3) * 9, shaking, halved);
+            }
+            return toReturn;
         }
     }
 }

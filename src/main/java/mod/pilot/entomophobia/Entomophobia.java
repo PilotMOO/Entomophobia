@@ -44,8 +44,6 @@ public class Entomophobia
         EntomoEntities.register(modEventBus);
         EntomoParticles.register(modEventBus);
 
-        System.out.println("Color: " + getIntFromColor(149, 168, 38));
-
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SERVER_SPEC, "entomo_common_config.toml");
         Config.loadConfig(Config.SERVER_SPEC, FMLPaths.CONFIGDIR.get().resolve("entomo_common_config.toml").toString());
 
@@ -54,13 +52,5 @@ public class Entomophobia
 
         SwarmManager.PopulateNameHashmap();
         FeatureManager.RegisterAllFeatures();
-    }
-
-    public int getIntFromColor(int Red, int Green, int Blue){
-        Red = (Red << 16) & 0x00FF0000;
-        Green = (Green << 8) & 0x0000FF00;
-        Blue = Blue & 0x000000FF;
-
-        return 0xFF000000 | Red | Green | Blue;
     }
 }
