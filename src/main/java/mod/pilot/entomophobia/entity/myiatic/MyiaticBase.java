@@ -8,6 +8,7 @@ import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.AI.*;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.interfaces.IDodgable;
+import mod.pilot.entomophobia.entity.pathfinding.GroundedNestNavigation;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
 import mod.pilot.entomophobia.data.BooleanCache;
 import mod.pilot.entomophobia.systems.nest.Nest;
@@ -27,6 +28,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.AbstractFish;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Monster;
@@ -49,6 +51,10 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         super(pEntityType, pLevel);
         this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, -3.0f);
         this.setPathfindingMalus(BlockPathTypes.LEAVES, 4.0f);
+    }
+    @Override
+    protected @NotNull PathNavigation createNavigation(@NotNull Level level) {
+        return new GroundedNestNavigation(this, level);
     }
 
     //NBT

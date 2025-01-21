@@ -570,7 +570,7 @@ public class Nest {
         }
 
         @Override
-        protected Vec3 getOffshootPosition() {
+        protected @Nullable Vec3 getOffshootPosition() {
             Vec3 direction;
             Vec3 toReturn;
             int cycleCounter = 0;
@@ -581,37 +581,72 @@ public class Nest {
                 toReturn = getPosition().add(direction.scale(radius - thickness));
                 cycleCounter++;
             }
-            while (!testOffshootPosition(toReturn) && cycleCounter < 10);
+            while (!testOffshootPosition(toReturn) && cycleCounter < 20);
             if (testOffshootPosition(toReturn)) return toReturn;
             else {
+                System.err.println("[NEST SYSTEM] Attempt to generate a valid Offshoot position FAILED in [" + cycleCounter + "] attempts!");
+                System.err.println("[NEST SYSTEM] From: Corridor, At: " + position);
+                System.err.println("[NEST SYSTEM] Running testOffshootPosition debugger on final result...");
+                System.err.println("[NEST SYSTEM] testOffshootPosition debugger finished, result was " + testOffshootPositionWithDebug(toReturn));
                 DeadEnd = true;
                 return null;
             }
         }
 
         private boolean testOffshootPosition(Vec3 pos){
-            if (children == null){
-                return true;
-            }
-            boolean flag = true;
+            if (children == null) return true;
+
             for (Offshoot offshoot : children){
                 if (offshoot.getGenerator() instanceof TunnelGenerator tunnel){
-                    if (pos.distanceTo(offshoot.getPosition()) < NestManager.getNestLargeCorridorMaxRadius() * 2){
-                        flag = false;
-                        break;
+                    if (pos.distanceTo(offshoot.getPosition()) < NestManager.getNestLargeCorridorMaxRadius()){
+                        return false;
                     }
                 }
             }
-            if (parent == null) return flag;
-            if (flag && parent.getGenerator() instanceof TunnelGenerator tunnel){
-                flag = pos.distanceTo(tunnel.getEnd()) < NestManager.getNestLargeCorridorMaxRadius() * 2;
+
+            if (parent == null) return true;
+            if (parent.getGenerator() instanceof TunnelGenerator tunnel){
+                return pos.distanceTo(tunnel.getEnd()) > NestManager.getNestLargeCorridorMaxRadius();
             }
-            return flag;
+            else return true;
+        }
+        private boolean testOffshootPositionWithDebug(Vec3 pos){
+            final String methodName = "testOffshootPosition";
+            if (children == null){
+                System.err.println("[NEST SYSTEM DEBUGGER] " + methodName + " returned [TRUE] because children was null");
+                return true;
+            }
+            for (Offshoot offshoot : children){
+                if (offshoot.getGenerator() instanceof TunnelGenerator tunnel){
+                    if (pos.distanceTo(offshoot.getPosition()) < NestManager.getNestLargeCorridorMaxRadius()){
+                        System.err.println("[NEST SYSTEM DEBUGGER] " + methodName + " returned [FALSE]" +
+                                " because the distance from the position to test and a pre-existing child was TOO SMALL");
+                        System.err.println("[NEST SYSTEM DEBUGGER] [INFO] Position to test: " + position +
+                                ", Conflicting Offshoot Position: " + offshoot.position +
+                                ", Distance: " + pos.distanceTo(offshoot.getPosition()) +
+                                ", Penalty: " + NestManager.getNestLargeCorridorMaxRadius() * 1.5);
+                        return false;
+                    }
+                }
+            }
+            if (parent == null) {
+                System.err.println("[NEST SYSTEM DEBUGGER] " + methodName + " returned [TRUE] because parent was null");
+                return true;
+            }
+            if (parent.getGenerator() instanceof TunnelGenerator tunnel){
+                boolean flag = pos.distanceTo(tunnel.getEnd()) > NestManager.getNestLargeCorridorMaxRadius();
+                System.err.println("[NEST SYSTEM DEBUGGER] " + methodName + " returned [" + flag + "] when comparing distances to parent");
+                if (!flag) System.err.println("[NEST SYSTEM DEBUGGER] [INFO] Position to test: " + position +
+                        ", Conflicting Offshoot Position: " + tunnel.getEnd() +
+                        ", Distance: " + pos.distanceTo(tunnel.getEnd()) +
+                        ", Penalty: " + NestManager.getNestLargeCorridorMaxRadius() * 1.5);
+                return flag;
+            }else return true;
         }
 
         @Override
         public int getMaxAllowedFeatureCount() {
-            System.out.println("Allowed features: " + radius / 2);
+            //System.out.println("Allowed features: " + radius / 2);
             return radius / 2;
         }
 
@@ -625,8 +660,6 @@ public class Nest {
             return true;
         }
 
-        //ToDo: Test the rework on the feature placement generation
-        //Might need some swapping of values or some getOpposite() calls
         @Override
         protected @Nullable Pair<Vec3, Direction> generateFeaturePlacementPosition(byte placementPos) {
             //If the placement position is 0 (A.K.A. "Any"), generate a new random placement position
@@ -1001,7 +1034,7 @@ public class Nest {
                             Vec3 oPos = oStart.add(oDirection.scale(j));
                             //If we're too close, return true (it's invalid)
                             if (oPos.distanceTo(pos) < distanceCheck) {
-                                System.err.println("Runs through a sibling between " + pos + " and " + oPos
+                                System.err.println("[NEST SYSTEM] Runs through a sibling between " + pos + " and " + oPos
                                         + " (Distance between: " + oPos.distanceTo(pos) + ")");
                                 return true;
                             }

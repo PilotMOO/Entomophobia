@@ -32,8 +32,8 @@ public class SpiderPestEntity extends PestBase{
     public SpiderPestEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
-    protected @NotNull PathNavigation createNavigation(@NotNull Level pLevel) {
-        return new WallClimberNavigation(this, pLevel);
+    protected @NotNull PathNavigation createNavigation(@NotNull Level level) {
+        return new WallClimberNavigation(this, level);
     }
 
     public static AttributeSupplier.Builder createAttributes(){

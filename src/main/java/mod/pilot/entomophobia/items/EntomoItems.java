@@ -84,6 +84,8 @@ public class EntomoItems {
             () -> new BloodDripWand(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> PEST_WAND = ITEMS.register("pest_wand",
             () -> new RandomPestWand(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> NEST_NAV_WAND = ITEMS.register("nest_nav_wand",
+            () -> new NestNavWand(new Item.Properties().stacksTo(1)));
 
     public static void register(IEventBus eventBus){
         ITEMS.register(eventBus);

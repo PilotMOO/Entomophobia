@@ -75,8 +75,8 @@ public class MyiaticSpiderEntity extends MyiaticBase{
                 .add(Attributes.ATTACK_SPEED, 2D);
     }
 
-    protected @NotNull PathNavigation createNavigation(@NotNull Level pLevel) {
-        return new WallClimberNavigation(this, pLevel);
+    protected @NotNull PathNavigation createNavigation(@NotNull Level level) {
+        return new WallClimberNavigation(this, level);
     }
 
     //Overridden methods

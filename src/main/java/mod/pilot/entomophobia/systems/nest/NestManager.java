@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -35,6 +36,22 @@ public class NestManager {
     }
     public static ArrayList<Nest> getActiveNests(){
         return new ArrayList<>(ActiveNests);
+    }
+    public static @Nullable Nest getClosestNest(Vec3 position){
+        return getClosestNest(position, -1);
+    }
+    public static @Nullable Nest getClosestNest(Vec3 position, double within){
+        if (ActiveNests.size() == 0) return null;
+        Nest toReturn = null;
+        double dist = Double.MAX_VALUE;
+        for (Nest n : getActiveNests()){
+            double dist1 = position.distanceTo(n.origin);
+            if ((within == -1 || dist1 <= within) && dist1 < dist){
+                toReturn = n;
+                dist = dist1;
+            }
+        }
+        return toReturn;
     }
     public static void ClearNests(){
         ActiveNests.clear();
