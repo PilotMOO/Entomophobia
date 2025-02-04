@@ -299,13 +299,9 @@ public class CongealedBloodLayer extends SnowLayerBlock {
 
     private BlockPos getTopLayer(BlockPos bPos, Level level){
         BlockPos.MutableBlockPos mBPos = bPos.mutable();
-        System.out.println("Original position is " + mBPos);
         while (level.getBlockState(mBPos.offset(0, 1, 0)).is(this)){
-            System.out.println("Above was the same block! Moving up!");
             mBPos.move(0, 1, 0);
-            System.out.println("New position is " + mBPos);
         }
-        System.out.println("returning " + mBPos);
         return mBPos.immutable();
     }
 

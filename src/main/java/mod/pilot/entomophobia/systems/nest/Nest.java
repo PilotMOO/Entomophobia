@@ -317,12 +317,10 @@ public class Nest {
                 for (Offshoot o : children){
                     if (o.position.distanceTo(pos) < (o instanceof Chamber c1 ? c1.radius
                             : o instanceof Corridor c2 ? (double)c2.weight / 2 : 0)){
-                        System.err.println("DISTANCE IS TOO CLOSE YOU BITCH");
                         return false;
                     }
                 }
             }
-            System.out.println("Distance to an offshoot is safe");
             return testFeatureDistance(pos, feature, alreadyPlaced);
         }
         //THIS ENTIRE FUCKING METHOD IS SHIT
@@ -339,13 +337,13 @@ public class Nest {
                         + existingSize.getX() + existingSize.getY() + existingSize.getZ()) / 6;
                 //AABB existingAABB = AABB.ofSize(pos, existingSize.getX(), existingSize.getY(), existingSize.getZ());
                 if (pos.closerThan(pos1, cumulativeSize) /*toTestAABB.intersects(existingAABB)*/){
-                    System.err.println("TOO CLOSE TO A FEATURE YOU SHIT");
+                    /*System.err.println("TOO CLOSE TO A FEATURE YOU SHIT");
                     System.err.println("Distance: " + pos.distanceTo(pos1));
-                    System.err.println("Cumulative size: " + cumulativeSize);
+                    System.err.println("Cumulative size: " + cumulativeSize);*/
                     return false;
                 }
             }
-            System.out.println("It was NOT too close to another feature! Yippe!");
+            //System.out.println("It was NOT too close to another feature! Yippe!");
             return true;
         }
         protected abstract @Nullable Pair<Vec3, Direction> generateFeaturePlacementPosition(byte placementPos);
@@ -934,14 +932,22 @@ public class Nest {
                 while (testEndPositionInvalidity(toReturn) && cycleCounter++ < 10);
             }
 
-            if (testEndPositionInvalidity(toReturn)){
-                System.err.println("Corridor End Position was still invalid after " + cycleCounter + " attempts! Killing...");
+            if (testEndPositionInvalidity(toReturn, true)){
+                System.err.println("[NEST SYSTEM] Corridor End Position was still invalid after " + cycleCounter + " attempts! Killing...");
+                if (isEntrance()) System.err.println("[NEST SYSTEM] [INFO] failed end position was for an entrance!");
                 this.Kill(false);
             }
             NestSaveData.Dirty();
             return end = toReturn;
         }
+        //Temp for testing
         private boolean testEndPositionInvalidity(Vec3 toTest){
+            return testEndPositionInvalidity(toTest, false);
+        }
+        //Remove debug parameter after testing
+        private boolean testEndPositionInvalidity(Vec3 toTest, boolean debug){
+            final String methodName = "testEndPositionInvalidity";
+
             //Checks every block in front of it (from the start to the position to test)
             //for any blocks that the nest builds out of, to prevent intersections.
             //Only checks a 1 block thick line for performance reasons
@@ -969,6 +975,12 @@ public class Nest {
                     BlockState bState = server.getBlockState(bPos).getBlock().defaultBlockState();
                     for (BlockState placementBlocks : NestManager.getNestBlocks()){
                         if (bState == placementBlocks){
+                            if (debug) {
+                                System.err.println("[NEST SYSTEM DEBUGGER] " + methodName
+                                        + " returned [TRUE] because directional line check located an invalid block");
+                                System.err.println("[NEST SYSTEM DEBUGGER] [INFO] Block position: " + bPos);
+                                System.err.println("[NEST SYSTEM DEBUGGER] [INFO] Block type: " + bState.getBlock());
+                            }
                             return true;
                         }
                     }
@@ -986,6 +998,13 @@ public class Nest {
                                         .getBlock().defaultBlockState();
                         for (BlockState placementBlocks : NestManager.getNestBlocks()){
                             if (bState == placementBlocks){
+                                if (debug) {
+                                    System.err.println("[NEST SYSTEM DEBUGGER] " + methodName
+                                            + " returned [TRUE] because end position area check located an invalid block");
+                                    System.err.println("[NEST SYSTEM DEBUGGER] [INFO] Block position: " +
+                                            new BlockPos((int) toTest.x + x, (int) toTest.y + y, (int) toTest.z + z));
+                                    System.err.println("[NEST SYSTEM DEBUGGER] [INFO] Block type: " + bState.getBlock());
+                                }
                                 return true;
                             }
                         }
@@ -1034,7 +1053,7 @@ public class Nest {
                             Vec3 oPos = oStart.add(oDirection.scale(j));
                             //If we're too close, return true (it's invalid)
                             if (oPos.distanceTo(pos) < distanceCheck) {
-                                System.err.println("[NEST SYSTEM] Runs through a sibling between " + pos + " and " + oPos
+                                if (debug) System.err.println("[NEST SYSTEM DEBUGGER] Runs through a sibling between " + pos + " and " + oPos
                                         + " (Distance between: " + oPos.distanceTo(pos) + ")");
                                 return true;
                             }
@@ -1046,12 +1065,22 @@ public class Nest {
             //Finally, test if the position would run straight through the fucking parent
             //this is a duct tape fix once again, to fix a bug that was present because my ass didn't know that xRot, yRot, and zRot expects radians
             //Probably isn't needed anymore...
+            if (parent == null && debug){
+                System.err.println("[NEST SYSTEM DEBUGGER] " + methodName +
+                        " returned [FALSE] because all checks were valid and the parent was null");
+            }
             if (parent == null) return false; //if the parent is null just don't give a fuck
             Vec3 pos = getPosition();
             Vec3 midpoint = new Vec3((pos.x + toTest.x) / 2, (pos.y + toTest.y) / 2, (pos.y + toTest.y) / 2);
             //Checks to ensure that the middle position (between child position and testing position) is farther away than the child pos and parent pos
             //Probably doesn't work 100% of the time and is also likely useless now but oh well :shrug:
-            return midpoint.distanceTo(parent.getPosition()) < pos.distanceTo(parent.getPosition());
+            boolean flag = midpoint.distanceTo(parent.getPosition()) < pos.distanceTo(parent.getPosition());
+            if (debug) {
+                String msg = "[NEST SYSTEM DEBUGGER] midpoint distance check in " + methodName + " returned [" + flag + "]";
+                if (flag) System.err.println(msg);
+                else System.out.println(msg);
+            }
+            return flag; //Inline after removal of debug option
         }
 
         private Vec3 getComparePosition(){

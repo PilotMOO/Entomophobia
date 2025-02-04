@@ -25,30 +25,6 @@ public class WorldShapeManager {
         Y,
         Z
     }
-    public enum SignedAxis{
-        UNDEFINED,
-        PosX,
-        NegX,
-        PosY,
-        NegY,
-        PosZ,
-        NegZ,
-    }
-    public static boolean isPositive(Axis toCheck){
-        return toCheck.ordinal() % 2 == 1;
-    }
-    public static boolean isPositive(byte toCheck){
-        return toCheck % 2 == 1;
-    }
-    public static boolean isX(byte check){
-        return check > 0 && check < 3;
-    }
-    public static boolean isY(byte check){
-        return check > 2 && check < 5;
-    }
-    public static boolean isZ(byte check){
-        return check > 4 && check < 7;
-    }
 
     public static SquareGenerator CreateSquare(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, Vec3 pos, boolean hydrophobic,
                                                boolean replaceableOnly, int size, Axis excluded){

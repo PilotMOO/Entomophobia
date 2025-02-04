@@ -5,9 +5,9 @@
     "entomophobia:infested_myiatic_flesh",
     "entomophobia:waxy_myiatic_flesh",
     "entomophobia:bloodwax_comb",
-    "entomophobia:bloodwax_comb_protrusions",
-    "entomophobia:congealed_blood",
+    "entomophobia:bloodwax_protrusions",
     "entomophobia:twined_flesh",
-    "entomophobia:luminous_flesh"
+    "entomophobia:luminous_flesh",
+    "entomophobia:congealed_blood"
   ]
 }

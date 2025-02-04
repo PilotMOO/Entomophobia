@@ -17,7 +17,7 @@ public class Overstimulation extends MobEffect implements IStacking {
     @Override
     public void applyEffectTick(@NotNull LivingEntity target, int amp) {
         if (target instanceof Player player){
-            player.causeFoodExhaustion(amp + 1);
+            player.causeFoodExhaustion((float)((amp + 1) * 0.25));
         }
 
         if (target.tickCount % 10 == 0){

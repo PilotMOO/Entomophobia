@@ -8,17 +8,21 @@ import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.AI.*;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.interfaces.IDodgable;
-import mod.pilot.entomophobia.entity.pathfinding.GroundedNestNavigation;
+import mod.pilot.entomophobia.entity.pathfinding.ConjoinedPathfinder;
+import mod.pilot.entomophobia.entity.pathfinding.WallClimbingNestNavigation;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
 import mod.pilot.entomophobia.data.BooleanCache;
 import mod.pilot.entomophobia.systems.nest.Nest;
 import mod.pilot.entomophobia.systems.nest.NestManager;
 import mod.pilot.entomophobia.systems.swarm.Swarm;
+import mod.pilot.entomophobia.util.EntomoTags;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -28,13 +32,16 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.AbstractFish;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
@@ -51,10 +58,31 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         super(pEntityType, pLevel);
         this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, -3.0f);
         this.setPathfindingMalus(BlockPathTypes.LEAVES, 4.0f);
+        //moveControl = new CeilingClimbingMoveControl(this, 0.5d);
     }
     @Override
     protected @NotNull PathNavigation createNavigation(@NotNull Level level) {
-        return new GroundedNestNavigation(this, level);
+        /*return new ConjoinedPathfinder<>(this, level(),
+                new GroundPathNavigation(this, level()),
+                new WallClimbingNestNavigation(this, level),
+                (m) ->{
+                    if (m instanceof MyiaticBase M && false){
+                        ConjoinedPathfinder<?, ?> cNav = M.getNavAsConjoined();
+                        BlockPos end;
+                        if (isNestBlock(m.getOnPos())){
+                            return true;
+                        } else if ((end = cNav.wantedPosition) != null){
+                            BlockPos navTarget = cNav.getTargetPos();
+                            return (navTarget != null && (isNestBlock(navTarget) || isNestBlock(navTarget.below())))
+                                    && (isNestBlock(end) || isNestBlock(end.below()));
+                        }
+                    }
+                    return true; //set BACK to false later
+                });*/
+        return new WallClimbingNestNavigation(this, level);
+    }
+    protected ConjoinedPathfinder<?, ?> getNavAsConjoined(){
+        return (ConjoinedPathfinder<?, ?>)getNavigation();
     }
 
     //NBT
@@ -191,7 +219,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         super.aiStep();
     }
 
-    /*Damage-related*/
+        /*Damage-related*/
     @Override
     public boolean hurt(DamageSource pSource, float pAmount) {
         boolean superFlag = true;
@@ -266,9 +294,12 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     public void travel(@NotNull Vec3 pTravelVector) {
         if (isInFluidType() && getTarget() != null){
             double waterMoveSpeed = (getAttributeValue(Attributes.MOVEMENT_SPEED) * getWaterSlowDown()) * 0.5;
-            setDeltaMovement(getDeltaMovement().add(getDirectionToTarget()).multiply(waterMoveSpeed, waterMoveSpeed, waterMoveSpeed));
+            Vec3 directTo = getDirectionToTarget();
+            if (directTo != null){
+                addDeltaMovement(directTo.scale(waterMoveSpeed));
+            }
 
-            if (getTarget().getY() < getY() && getAirSupply() > getMaxAirSupply() / 4){
+            if (getTarget().getY() < getY() && getAirSupply() > getMaxAirSupply() / 2){
                 double newYSpeed = getDeltaMovement().y / 0.8;
                 setDeltaMovement(getDeltaMovement().x, newYSpeed, getDeltaMovement().y);
             }
@@ -277,6 +308,116 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         }
         super.travel(pTravelVector);
     }
+
+    //Unused-- from old duct-taped climbing AI
+    public boolean ShouldBeCrawlingOnCeiling;
+    private int lungeUpAge;
+    public BlockPos hole;
+
+    private @Nullable BlockPos LocateValidCeilingGap(int ceilingY, int layerCount) {
+        ArrayList<BlockPos> current = new ArrayList<>();
+        ArrayList<BlockPos> next = new ArrayList<>();
+        current.add(blockPosition().mutable().setY(ceilingY));
+
+        for (int i = 0; i < layerCount; i++){
+            for (BlockPos bPos : current){
+                if (!level().getBlockState(bPos).isSolidRender(level(), bPos)) {
+                    System.out.println("Valid position at " + bPos + "!");
+                    return bPos;
+                }
+
+                next.add(bPos.relative(Direction.NORTH));
+                next.add(bPos.relative(Direction.EAST));
+                next.add(bPos.relative(Direction.SOUTH));
+                next.add(bPos.relative(Direction.WEST));
+            }
+            current.clear(); current.addAll(next);
+            next.clear();
+        }
+        return null;
+    }
+    /**/
+
+    private int aboveBreakTime = 0;
+    private int oldBreakTime = 0;
+    @Override
+    public boolean onClimbable() {
+        if (getNavigation() instanceof WallClimbingNestNavigation gNav
+                && gNav.targetPosition != null
+                && gNav.targetPosition.getY() > position().y){
+
+            /*if (ShouldBeCrawlingOnCeiling){
+                lungeUpAge = 5;
+            } else if (lungeUpAge > 0) --lungeUpAge;*/
+
+            if (!onGround()) {
+                if (verticalCollision) {
+                    /*setNoGravity(true);
+                    boolean visible = level().clip(new ClipContext(getEyePosition(), gNav.targetPosition.getCenter(),
+                            ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, this)).getType() == HitResult.Type.MISS;
+                    BlockPos above = BlockPos.containing(position().add(0, getBbHeight() + 0.5, 0));
+                    BlockState bState = level().getBlockState(above);
+                    boolean blockFlag = bState.is(EntomoTags.Blocks.MYIATIC_FLESH_BLOCKTAG);
+
+                    if (blockFlag) {
+                        if (visible) {
+                            return ShouldBeCrawlingOnCeiling = true;
+                        } else {
+                            if (hole == null || tickCount % 60 == 0) {
+                                hole = LocateValidCeilingGap(above.getY(), 3);
+                            }
+                            return ShouldBeCrawlingOnCeiling = hole != null;
+                        }
+                    } else ShouldBeCrawlingOnCeiling = false;*/
+                    BlockPos above = BlockPos.containing(position().add(0, getBbHeight()/* + 0.5*/, 0));
+                    BlockState bState = level().getBlockState(above);
+                    boolean blockFlag = bState.is(EntomoTags.Blocks.MYIATIC_FLESH_BLOCKTAG)
+                            || NestManager.getNestBlocks().contains(bState.getBlock().defaultBlockState());
+                    if (blockFlag){
+                        ++this.aboveBreakTime;
+                        int i = (int)((float)this.aboveBreakTime / bState.getDestroySpeed(level(), above) * 100.0F);
+                        if (i != this.oldBreakTime) {
+                            level().destroyBlockProgress(getId(), above, i);
+                            this.oldBreakTime = i;
+                        }
+
+                        if (this.aboveBreakTime >= bState.getDestroySpeed(level(), above) * 10) {
+                            level().removeBlock(above, false);
+                            level().playSound(null, above, bState.getSoundType().getBreakSound(), SoundSource.BLOCKS);
+                            level().levelEvent(2001, above, Block.getId(bState));
+                            aboveBreakTime = 0;
+                            oldBreakTime = 0;
+                        }
+                    }
+                }
+                else {
+                    aboveBreakTime = 0;
+                    oldBreakTime = 0;
+                }
+            } else {
+                aboveBreakTime = 0;
+                oldBreakTime = 0;
+            }
+
+
+            if (horizontalCollision){
+
+                Vec3 facing = getForward();
+                Direction towards = Direction.getNearest(facing.x, facing.y, facing.z);
+
+                BlockPos.MutableBlockPos mBPos = blockPosition().relative(towards).mutable();
+                final int oldY = blockPosition().getY();
+                for (int i = -1; i < getBbHeight() + 1; i++){
+                    mBPos.setY(oldY + i);
+                    if (level().getBlockState(mBPos).is(EntomoTags.Blocks.MYIATIC_FLESH_BLOCKTAG)){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
 
         /*Despawning*/
     @Override
@@ -301,7 +442,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         return EntomoGeneralSaveData.GetMyiaticCount() < Config.SERVER.mob_cap.get() || getTarget() != null;
     }
 
-    /*Booleans*/
+        /*Booleans*/
     @Override
     public boolean canBeAffected(MobEffectInstance effect) {
         if (effect.getEffect() == MobEffects.POISON) {
@@ -322,13 +463,13 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     //Helper Methods and Shorthands
         /*Movement*/
     public boolean isChasing(){
-        return getTarget() != null && this.getDeltaMovement().x != 0 || this.getDeltaMovement().z != 0;
+        return getTarget() != null && this.isMoving();
     }
     public boolean isMoving(){
         return this.getDeltaMovement().x != 0 || this.getDeltaMovement().z != 0;
     }
 
-    /*Positional Helpers*/
+        /*Positional Helpers*/
     public ArrayList<LivingEntity> getValidTargets(int searchRange){
         AABB nearby = getBoundingBox().inflate(searchRange);
         return new ArrayList<>(level().getEntitiesOfClass(LivingEntity.class, nearby, this::TestValidEntity));
@@ -345,15 +486,10 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         double distance = Double.MAX_VALUE;
 
         for (LivingEntity L : getNearbyPrey()){
-            if (closest != null){
-                if (L.distanceTo(this) < distance){
-                    closest = L;
-                    distance = L.distanceTo(this);
-                }
-            }
-            else{
+            double distance1 = L.distanceTo(this);
+            if (distance1 < distance){
                 closest = L;
-                distance = L.distanceTo(this);
+                distance = distance1;
             }
         }
         return closest;
@@ -376,15 +512,10 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         double distance = Double.MAX_VALUE;
 
         for (MyiaticBase M : getNearbyMyiatics(searchRange)){
-            if (closest != null){
-                if (M.distanceTo(this) < distance){
-                    closest = M;
-                    distance = M.distanceTo(this);
-                }
-            }
-            else{
+            double distance1 = M.distanceTo(this);
+            if (distance1 < distance){
                 closest = M;
-                distance = M.distanceTo(this);
+                distance = distance1;
             }
         }
         return closest;
@@ -395,36 +526,22 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     public boolean isThereAPheromoneOfTypeXNearby(EntityType<? extends PheromonesEntityBase> type, int searchRange){
         String instance = type.create(level()).getEncodeId();
 
-        AABB nearby = getBoundingBox().inflate(searchRange);
-        ArrayList<PheromonesEntityBase> AllPheromones = new ArrayList<>(level().getEntitiesOfClass(PheromonesEntityBase.class, nearby));
-
-        for (PheromonesEntityBase P : AllPheromones){
-            if (Objects.equals(P.getEncodeId(), instance)){
-                return true;
-            }
-        }
-        return false;
+        return level().getEntitiesOfClass(PheromonesEntityBase.class,
+                getBoundingBox().inflate(searchRange),
+                (p) -> Objects.equals(p.getEncodeId(), instance))
+                .size() > 0;
     }
     public boolean isThereAPheromoneOfTypeXNearby(EntityType<? extends PheromonesEntityBase> type){
         return isThereAPheromoneOfTypeXNearby(type, (int)getAttributeValue(Attributes.FOLLOW_RANGE));
     }
-    public Vec3 getDirectionTo(Vec3 pos){
-        if (pos != null){
-            return pos.subtract(position()).normalize();
-        }
-        return null;
+    public @Nullable Vec3 getDirectionTo(Vec3 pos){
+        return pos != null ? pos.subtract(position()).normalize() : null;
     }
-    public Vec3 getDirectionFrom(Vec3 pos){
-        if (pos != null){
-            return position().subtract(pos).normalize();
-        }
-        return null;
+    public @Nullable Vec3 getDirectionFrom(Vec3 pos){
+        return pos != null ? position().subtract(pos).normalize() : null;
     }
-    public Vec3 getDirectionToTarget(){
-        if (getTarget() != null){
-            return getDirectionTo(getTarget().position());
-        }
-        return null;
+    public @Nullable Vec3 getDirectionToTarget(){
+        return getTarget() != null ? getDirectionTo(getTarget().position()) : null;
     }
     public Vec3 getDirectionFromTarget(){
         if (getTarget() != null){
@@ -441,21 +558,33 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         }
         return distance;
     }
-    public boolean isThereABlockUnderMe(int VerticalSearchRange){
+    public boolean isThereABlockUnderMe(int vSearchRange){
         BlockPos pos = blockPosition();
-        for (int i = 1; i < VerticalSearchRange + 1; i++){
+        for (int i = 1; i < vSearchRange + 1; i++){
             Level world = level();
             BlockPos newPos = new BlockPos(pos.getX(), pos.getY() - i, pos.getZ());
             BlockState state = world.getBlockState(newPos);
-            if (!state.isAir() && state.entityCanStandOn(world.getChunkForCollisions((int)this.position().x / 16, (int)this.position().z / 16),
-                    newPos, this)){
+
+            BlockGetter chunk = world.getChunkForCollisions((int)this.position().x / 16, (int)this.position().z / 16);
+            if (!state.isAir() && chunk != null
+                    && state.entityCanStandOn(chunk, newPos, this)){
                 return true;
             }
         }
         return false;
     }
 
-    /*Targeting*/
+    public boolean isNestBlock(@Nullable BlockPos bPos){
+        return isNestBlock(bPos, level());
+    }
+    public static boolean isNestBlock(@Nullable BlockPos bPos, Level level){
+        if (bPos == null) return false;
+        BlockState bState = level.getBlockState(bPos);
+        return bState.is(EntomoTags.Blocks.MYIATIC_FLESH_BLOCKTAG)
+                || NestManager.getNestBlocks().contains(bState.getBlock().defaultBlockState());
+    }
+
+        /*Targeting*/
     private static final BooleanCache<LivingEntity> TargetCache = new BooleanCache<>(256, MyiaticBase::CachePredicate);
     private static final Set<String> blacklist = new HashSet<>(Config.SERVER.blacklisted_targets.get());
     private static boolean CachePredicate(LivingEntity e) {
@@ -519,7 +648,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             swarm.AssignAllOrdersFor(this);
             currentSwarm = swarm;
         }
-        System.out.println(this + " was forced to join " + swarm + " against their will!");
+        //System.out.println(this + " was forced to join " + swarm + " against their will!");
     }
     public void LeaveSwarm(boolean disbandIfCaptain){
         if (getSwarm() != null){

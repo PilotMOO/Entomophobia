@@ -120,7 +120,7 @@ public class Config
             builder.push("Entomophobia Nest Config");
 
             builder.push("General Nest Configuration");
-            this.nest_build_materials = builder.defineList("Blocks nests are built out of (key: \"modid:block;weight\")" +
+            this.nest_build_materials = builder.defineList("Blocks nests are built out of (key: \"modid:block;weight\") " +
                             "NOTE! Weights are how commonly that block appears, it is NOT X out of 100, " +
                             "a weight of 50 is NOT 50%, it's a fraction of the total cumulative weights " +
                             "(Ergo weight 10 out of a total of 50 is 20% [1/total * weight = chance as decimal])",
@@ -191,20 +191,20 @@ public class Config
             builder.pop();
 
             builder.push("Small Corridor Configuration");
-            this.small_corridor_min_size = builder.defineInRange("Minimum radius size for small corridors", 9, 0, Integer.MAX_VALUE);
-            this.small_corridor_max_size = builder.defineInRange("Maximum radius size for small corridors", 10, 0, Integer.MAX_VALUE);
+            this.small_corridor_min_size = builder.defineInRange("Minimum diameter for small corridors", 9, 0, Integer.MAX_VALUE);
+            this.small_corridor_max_size = builder.defineInRange("Maximum diameter for small corridors", 10, 0, Integer.MAX_VALUE);
             this.small_corridor_thickness = builder.defineInRange("Thickness of the walls for small corridors", 2, 1, Integer.MAX_VALUE);
             builder.pop();
 
             builder.push("Medium Chamber Configuration");
-            this.medium_corridor_min_size = builder.defineInRange("Minimum radius size for medium corridors", 9, 0, Integer.MAX_VALUE);
-            this.medium_corridor_max_size = builder.defineInRange("Maximum radius size for medium corridors", 11, 0, Integer.MAX_VALUE);
+            this.medium_corridor_min_size = builder.defineInRange("Minimum diameter for medium corridors", 9, 0, Integer.MAX_VALUE);
+            this.medium_corridor_max_size = builder.defineInRange("Maximum diameter for medium corridors", 11, 0, Integer.MAX_VALUE);
             this.medium_corridor_thickness = builder.defineInRange("Thickness of the walls for medium corridors", 2, 1, Integer.MAX_VALUE);
             builder.pop();
 
             builder.push("Large Chamber Configuration");
-            this.large_corridor_min_size = builder.defineInRange("Minimum radius size for large corridors", 11, 0, Integer.MAX_VALUE);
-            this.large_corridor_max_size = builder.defineInRange("Maximum radius size for large corridors", 13, 0, Integer.MAX_VALUE);
+            this.large_corridor_min_size = builder.defineInRange("Minimum diameter for large corridors", 11, 0, Integer.MAX_VALUE);
+            this.large_corridor_max_size = builder.defineInRange("Maximum diameter for large corridors", 13, 0, Integer.MAX_VALUE);
             this.large_corridor_thickness = builder.defineInRange("Thickness of the walls for large corridors", 3, 1, Integer.MAX_VALUE);
             builder.pop(3);
         }

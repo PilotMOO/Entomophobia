@@ -1,21 +1,37 @@
 package mod.pilot.entomophobia.entity.pathfinding;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.ai.navigation.WallClimberNavigation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.pathfinder.Path;
+import org.jetbrains.annotations.NotNull;
 
-public class GroundedNestNavigation extends GroundPathNavigation implements INestPathfinding {
-    public GroundedNestNavigation(Mob pMob, Level pLevel) {
+public class WallClimbingNestNavigation extends WallClimberNavigation implements INestPathfinding {
+    public WallClimbingNestNavigation(Mob pMob, Level pLevel) {
         super(pMob, pLevel);
     }
+    public BlockPos targetPosition;
 
     @Override
     public void tick() {
         super.tick();
         if (isDone() && getNestMap() != null && getMoveDirections() != null && guesstimateIfImInANest()) UpdateNavigationAfterMovement();
         if (shouldIReorientateMyself()) HeadBackToCenterToReorientateMyself(1);
+    }
+
+    @Override
+    public Path createPath(@NotNull BlockPos pPos, int pAccuracy) {
+        targetPosition = pPos;
+        return super.createPath(pPos, pAccuracy);
+    }
+    @Override
+    public Path createPath(Entity pEntity, int pAccuracy) {
+        targetPosition = pEntity.blockPosition();
+        return super.createPath(pEntity, pAccuracy);
     }
 
     @Override
