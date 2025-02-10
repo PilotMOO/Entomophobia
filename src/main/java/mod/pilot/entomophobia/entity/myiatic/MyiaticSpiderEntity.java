@@ -9,6 +9,7 @@ import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.AI.AttackWithAnimationGoal;
 import mod.pilot.entomophobia.entity.AI.LatchOntoTargetGoal;
+import mod.pilot.entomophobia.entity.pathfinding.WallClimbingNestNavigation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -73,10 +74,6 @@ public class MyiaticSpiderEntity extends MyiaticBase{
                 .add(Attributes.ATTACK_DAMAGE, 4D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0.5D)
                 .add(Attributes.ATTACK_SPEED, 2D);
-    }
-
-    protected @NotNull PathNavigation createNavigation(@NotNull Level level) {
-        return new WallClimberNavigation(this, level);
     }
 
     //Overridden methods
@@ -160,13 +157,12 @@ public class MyiaticSpiderEntity extends MyiaticBase{
 
     @Override
     public boolean onClimbable() {
-        if (getTarget() != null){
-            return horizontalCollision && getTarget().position().y > position().y && getAIState() != state.other.ordinal();
-        }
-        return false;
+        return horizontalCollision
+                && (getTarget() == null || getTarget().position().y > position().y)
+                && getAIState() != state.other.ordinal();
     }
     @Override
-    public void makeStuckInBlock(BlockState pState, Vec3 pMotionMultiplier) {
+    public void makeStuckInBlock(BlockState pState, @NotNull Vec3 pMotionMultiplier) {
         if (!pState.is(Blocks.COBWEB)) {
             super.makeStuckInBlock(pState, pMotionMultiplier);
         }
@@ -186,7 +182,7 @@ public class MyiaticSpiderEntity extends MyiaticBase{
         return SoundEvents.SPIDER_DEATH;
     }
     @Override
-    protected SoundEvent getHurtSound(DamageSource pDamageSource) {
+    protected SoundEvent getHurtSound(@NotNull DamageSource pDamageSource) {
         return SoundEvents.SPIDER_HURT;
     }
     /**/

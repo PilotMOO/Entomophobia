@@ -4,7 +4,7 @@ import mod.pilot.entomophobia.systems.nest.Nest;
 import mod.pilot.entomophobia.systems.nest.NestManager;
 import mod.pilot.entomophobia.util.EntomoTags;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +15,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public interface INestPathfinding {
-    LivingEntity getUser();
+    Mob getUser();
     PathNavigation getNavigation();
     NestMap getNestMap();
     void setNestMap(NestMap newMap);
@@ -53,6 +53,21 @@ public interface INestPathfinding {
         Vec3 pos = end && corridor.end != null ? corridor.end : corridor.getStartDirect();
         getNavigation().moveTo(pos.x, pos.y - (((double)corridor.weight / 2) - corridor.thickness), pos.z, speed);
     }
+    default void HeadTo(Nest.Offshoot offshoot, boolean ifCorridorHeadToEnd, double speed){
+        if (offshoot instanceof Nest.Chamber c){
+            HeadTo(c, speed);
+            return;
+        }
+        if (offshoot instanceof Nest.Corridor c){
+            HeadTo(c, ifCorridorHeadToEnd, speed);
+            return;
+        }
+        System.err.println("[NEST NAVIGATION MANAGER] ERROR! Somehow, the inputted offshoot wasn't an instance of Chamber or Corridor." +
+                " Did you add a new offshoot without updating the navigation? Method invoke HeadTo(offshoot (" +
+                offshoot + "), boolean (" +
+                ifCorridorHeadToEnd + "), double (" +
+                speed + ")) did nothing");
+    }
     default void HeadToMoveDirections(){
         HeadToMoveDirections(1);
     }
@@ -73,7 +88,7 @@ public interface INestPathfinding {
         return guesstimateIfImInANest(8);
     }
     default boolean guesstimateIfImInANest(int wantedNestBlocks){
-        Entity e = getUser();
+        Mob e = getUser();
         //for checking if entity is on a flesh block or in the air, ensure that's there's a nest in range, and there's enough flesh blocks nearby
         boolean flag1, flag2, flag3;
         flag1 = !e.onGround() || e.getFeetBlockState().is(EntomoTags.Blocks.MYIATIC_FLESH_BLOCKTAG);
@@ -100,11 +115,17 @@ public interface INestPathfinding {
     static @Nullable Nest getClosestNest(Vec3 pos, double withinDistance){
         return NestManager.getClosestNest(pos, withinDistance);
     }
+    default @Nullable Nest getClosestNest(){
+        return INestPathfinding.getClosestNest(getUser(), this);
+    }
 
     record NestMap(Nest currentNest, Nest.Offshoot currentOffshoot){
         /**Returns a NestMap of the given nest, with the Entrance Corridor as the Offshoot*/
         public static NestMap MapOf(Nest nest){
             return new NestMap(nest, getLastEntranceCorridor(nest));
+        }
+        public static NestMap MapAtMain(Nest nest){
+            return new NestMap(nest, nest.MainChamber);
         }
         public @Nullable Nest.Offshoot getParentOfCurrent(){
             return currentOffshoot != null ? currentOffshoot.parent : null;

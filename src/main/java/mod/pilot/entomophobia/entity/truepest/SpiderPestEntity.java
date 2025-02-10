@@ -38,7 +38,7 @@ public class SpiderPestEntity extends PestBase{
 
     public static AttributeSupplier.Builder createAttributes(){
         return MyiaticZombieEntity.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 8D)
+                .add(Attributes.MAX_HEALTH, 6D)
                 .add(Attributes.ARMOR, 1)
                 .add(Attributes.FOLLOW_RANGE, 16)
                 .add(Attributes.MOVEMENT_SPEED, 0.2D)
@@ -62,10 +62,7 @@ public class SpiderPestEntity extends PestBase{
 
     @Override
     public boolean onClimbable() {
-        if (getTarget() != null){
-            return horizontalCollision && getTarget().position().y > position().y;
-        }
-        return false;
+        return horizontalCollision && getTarget() != null && getTarget().position().y > position().y;
     }
     @Override
     public void makeStuckInBlock(BlockState pState, @NotNull Vec3 pMotionMultiplier) {

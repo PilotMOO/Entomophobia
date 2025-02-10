@@ -1,14 +1,20 @@
 package mod.pilot.entomophobia.entity.truepest;
 
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
 
@@ -109,6 +115,35 @@ public abstract class PestBase extends MyiaticBase {
         super.onAddedToWorld();
     }
 
+    @Nullable
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return SoundEvents.SILVERFISH_AMBIENT;
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(@NotNull DamageSource pDamageSource) {
+        return SoundEvents.SILVERFISH_HURT;
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return SoundEvents.SILVERFISH_DEATH;
+    }
+
+    @Override
+    public float getVoicePitch() {
+        return 1.25f;
+    }
+    @Override
+    protected float getSoundVolume() {
+        return 0.75f;
+    }
+
+    @Override
+    protected void playStepSound(@NotNull BlockPos pPos, @NotNull BlockState pState) {
+        this.playSound(SoundEvents.SPIDER_STEP, 0.15F, getVoicePitch());
+    }
     @Override
     public boolean canSwarm() {
         return false;

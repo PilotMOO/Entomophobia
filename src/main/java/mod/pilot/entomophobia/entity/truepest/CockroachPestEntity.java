@@ -24,11 +24,11 @@ public class CockroachPestEntity extends PestBase {
 
     public static AttributeSupplier.Builder createAttributes(){
         return MyiaticZombieEntity.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 6D)
+                .add(Attributes.MAX_HEALTH, 4D)
                 .add(Attributes.ARMOR, 3)
                 .add(Attributes.FOLLOW_RANGE, 16)
                 .add(Attributes.MOVEMENT_SPEED, 0.3D)
-                .add(Attributes.ATTACK_DAMAGE, 2D)
+                .add(Attributes.ATTACK_DAMAGE, 2.5D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D)
                 .add(Attributes.ATTACK_SPEED, 2D);
     }

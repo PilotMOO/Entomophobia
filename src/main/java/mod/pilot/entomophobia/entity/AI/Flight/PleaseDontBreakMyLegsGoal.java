@@ -7,12 +7,13 @@ import net.minecraft.world.phys.Vec3;
 
 public class PleaseDontBreakMyLegsGoal extends FlyToGoal{
     public PleaseDontBreakMyLegsGoal(MyiaticBase parent, int maxGlideTime, int targetHeightThreshold, double vFlightSpeed, double hFlightSpeed) {
-        super(parent, parent.position().add(parent.getForward().multiply(hFlightSpeed, 0, hFlightSpeed)), 0, 0, maxGlideTime, targetHeightThreshold, vFlightSpeed, hFlightSpeed);
+        super(parent, parent.position().add(parent.getForward().multiply(hFlightSpeed, 0, hFlightSpeed)),
+                0, 0, maxGlideTime, targetHeightThreshold, vFlightSpeed, hFlightSpeed);
     }
 
     @Override
     public boolean canUse() {
-        return !IsFlying && FlightState != FlightStates.Falling.ordinal() && parent.fallDistance > 5 && !parent.isInFluidType();
+        return !isFlying && FlightState != FlightStates.Falling.ordinal() && parent.fallDistance > TargetHeightThreshold && !parent.isInFluidType();
     }
 
     @Override

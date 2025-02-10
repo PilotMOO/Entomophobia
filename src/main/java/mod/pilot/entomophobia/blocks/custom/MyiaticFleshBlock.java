@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia.blocks.custom;
 
 import mod.pilot.entomophobia.entity.PestManager;
+import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.*;
@@ -36,5 +37,10 @@ public class MyiaticFleshBlock extends Block {
     @Override
     public boolean isValidSpawn(BlockState state, BlockGetter level, BlockPos pos, SpawnPlacements.Type type, EntityType<?> entityType) {
         return false;
+    }
+
+    @Override
+    public void fallOn(@NotNull Level pLevel, @NotNull BlockState pState, @NotNull BlockPos pPos, @NotNull Entity pEntity, float pFallDistance) {
+        if (!(pEntity instanceof MyiaticBase)) super.fallOn(pLevel, pState, pPos, pEntity, pFallDistance);
     }
 }

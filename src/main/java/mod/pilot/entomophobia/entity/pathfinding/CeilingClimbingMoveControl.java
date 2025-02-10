@@ -5,6 +5,7 @@ import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.phys.Vec3;
 
+@Deprecated
 public class CeilingClimbingMoveControl extends MoveControl {
     private final double ceilingSpeed;
     public CeilingClimbingMoveControl(MyiaticBase parent, double ceilingSpeedMultiplier) {

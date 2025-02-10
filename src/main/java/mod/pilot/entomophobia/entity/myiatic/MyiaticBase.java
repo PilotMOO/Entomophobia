@@ -8,7 +8,7 @@ import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.AI.*;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.interfaces.IDodgable;
-import mod.pilot.entomophobia.entity.pathfinding.ConjoinedPathfinder;
+import mod.pilot.entomophobia.entity.pathfinding.INestPathfinding;
 import mod.pilot.entomophobia.entity.pathfinding.WallClimbingNestNavigation;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
 import mod.pilot.entomophobia.data.BooleanCache;
@@ -60,31 +60,19 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         this.setPathfindingMalus(BlockPathTypes.LEAVES, 4.0f);
         //moveControl = new CeilingClimbingMoveControl(this, 0.5d);
     }
+        //Pathfinding
     @Override
     protected @NotNull PathNavigation createNavigation(@NotNull Level level) {
-        /*return new ConjoinedPathfinder<>(this, level(),
-                new GroundPathNavigation(this, level()),
-                new WallClimbingNestNavigation(this, level),
-                (m) ->{
-                    if (m instanceof MyiaticBase M && false){
-                        ConjoinedPathfinder<?, ?> cNav = M.getNavAsConjoined();
-                        BlockPos end;
-                        if (isNestBlock(m.getOnPos())){
-                            return true;
-                        } else if ((end = cNav.wantedPosition) != null){
-                            BlockPos navTarget = cNav.getTargetPos();
-                            return (navTarget != null && (isNestBlock(navTarget) || isNestBlock(navTarget.below())))
-                                    && (isNestBlock(end) || isNestBlock(end.below()));
-                        }
-                    }
-                    return true; //set BACK to false later
-                });*/
         return new WallClimbingNestNavigation(this, level);
     }
-    protected ConjoinedPathfinder<?, ?> getNavAsConjoined(){
-        return (ConjoinedPathfinder<?, ?>)getNavigation();
+    @Override
+    public int getMaxFallDistance() {
+        if (getNavigation() instanceof INestPathfinding nestPath && nestPath.guesstimateIfImInANest(4)){
+            return 20;
+        }
+        return getFeetBlockState().is(EntomoTags.Blocks.MYIATIC_FLESH_BLOCKTAG) ? 5 : super.getMaxFallDistance();
     }
-
+        /**/
     //NBT
     public enum state{
         idle,
@@ -416,6 +404,10 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             }
         }
         return false;
+    }
+
+    public void Jump(){
+        if (verticalCollisionBelow) jumpFromGround();
     }
 
 

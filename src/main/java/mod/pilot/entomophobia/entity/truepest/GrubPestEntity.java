@@ -24,7 +24,7 @@ public class GrubPestEntity extends PestBase {
 
     public static AttributeSupplier.Builder createAttributes(){
         return MyiaticZombieEntity.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 12D)
+                .add(Attributes.MAX_HEALTH, 10D)
                 .add(Attributes.ARMOR, 3)
                 .add(Attributes.FOLLOW_RANGE, 16)
                 .add(Attributes.MOVEMENT_SPEED, 0.15D)

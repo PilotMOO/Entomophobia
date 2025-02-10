@@ -5,9 +5,7 @@ import mod.pilot.entomophobia.sound.EntomoSounds;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +15,7 @@ public class FlyToGoal extends Goal {
     Vec3 finalPos;
     int ActiveFlightTime;
     int FlightState;
-    boolean IsFlying;
+    boolean isFlying;
     int FlightCD;
     final int MaxFlightCD;
     final int MaxAscensionTime;
@@ -33,7 +31,7 @@ public class FlyToGoal extends Goal {
         Falling
     }
     boolean CheckFly(){
-        return FlightState != FlightStates.Disabled.ordinal() && !IsFlying && FlightCD <= 0 && WantsToTakeOff();
+        return FlightState != FlightStates.Disabled.ordinal() && !isFlying && FlightCD <= 0 && WantsToTakeOff();
     }
     boolean WantsToTakeOff(){
         if (parent.getNavigation().getPath() != null && parent.getNavigation().getPath().getEndNode() != null){
@@ -55,7 +53,7 @@ public class FlyToGoal extends Goal {
         finalPos = targetPos;
         ActiveFlightTime = 0;
         FlightState = 1;
-        IsFlying = false;
+        isFlying = false;
         FlightCD = 0;
         MaxFlightCD = maxFlightCD;
         MaxAscensionTime = maxAscensionTime;
@@ -72,7 +70,7 @@ public class FlyToGoal extends Goal {
         }
         ActiveFlightTime = 0;
         FlightState = 1;
-        IsFlying = false;
+        isFlying = false;
         FlightCD = 0;
         MaxFlightCD = maxFlightCD;
         MaxAscensionTime = maxAscensionTime;
@@ -100,7 +98,7 @@ public class FlyToGoal extends Goal {
         if (CheckFly()){
             StartFlyCycle();
         }
-        else if (IsFlying){
+        else if (isFlying){
             FlightManager();
         }
         if (FlightState == FlightStates.Falling.ordinal() && parent.verticalCollisionBelow){
@@ -137,7 +135,7 @@ public class FlyToGoal extends Goal {
         if (flightStates.ordinal() != FlightState){
             switch (flightStates.ordinal()){
                 case 0 ->{
-                    IsFlying = false;
+                    isFlying = false;
                     FlightState = -1;
                     ActiveFlightTime = -1;
                     parent.setAIState(MyiaticBase.state.idle.ordinal());
@@ -145,21 +143,21 @@ public class FlyToGoal extends Goal {
                 }
                 case 1 -> HandleLand(FlightState);
                 case 2 ->{
-                    IsFlying = true;
+                    isFlying = true;
                     FlightState = 2;
                     ActiveFlightTime = MaxAscensionTime;
                     parent.setAIState(MyiaticBase.state.flying.ordinal());
                     parent.setNoGravity(true);
                 }
                 case 3 ->{
-                    IsFlying = true;
+                    isFlying = true;
                     FlightState = 3;
                     ActiveFlightTime = MaxGlideTime;
                     parent.setAIState(MyiaticBase.state.flying.ordinal());
                     parent.setNoGravity(false);
                 }
                 case 4 ->{
-                    IsFlying = false;
+                    isFlying = false;
                     FlightState = 4;
                     ActiveFlightTime = -1;
                     FlightCD = MaxFlightCD;
@@ -208,7 +206,7 @@ public class FlyToGoal extends Goal {
         }
     }
     protected void HandleLand(int priorState){
-        IsFlying = false;
+        isFlying = false;
         FlightState = 1;
         ActiveFlightTime = MaxAscensionTime;
         FlightCD = MaxFlightCD;

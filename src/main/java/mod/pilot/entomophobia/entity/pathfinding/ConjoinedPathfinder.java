@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+@Deprecated //(this doesn't work)
 public class ConjoinedPathfinder<I extends PathNavigation, J extends PathNavigation> extends PathNavigation{
     public ConjoinedPathfinder(Mob mob, Level level, I primaryPathfinder, J secondaryPathfinder, Predicate<Mob> secondaryPredicate) {
         super(mob, level);

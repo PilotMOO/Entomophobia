@@ -7,6 +7,7 @@ import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.util.AzureLibUtil;
 import mod.pilot.entomophobia.entity.AI.DashAttackWithAnimationGoal;
 import mod.pilot.entomophobia.entity.interfaces.IDodgable;
+import mod.pilot.entomophobia.entity.pathfinding.INestPathfinding;
 import mod.pilot.entomophobia.sound.EntomoSounds;
 import mod.pilot.entomophobia.util.EntomoTags;
 import net.minecraft.sounds.SoundEvent;
@@ -75,7 +76,7 @@ public class MyiaticZombieEntity extends MyiaticBase implements IDodgable {
     @Override
     protected void registerFlightGoals() {
         this.targetSelector.addGoal(1, new FlyToHostileTargetGoal(this,100, 40, 100, 4, 0.5, 0.5));
-        this.targetSelector.addGoal(1, new PleaseDontBreakMyLegsGoal(this, 100, 5, 0.5, 0.5));
+        this.targetSelector.addGoal(1, new PleaseDontBreakMyLegsGoal(this, 100, 3, 0.5, 0.5));
         this.targetSelector.addGoal(2, new GlideDownToFoesGoal(this, 100, 5, 0.5, 0.5));
     }
 
@@ -101,11 +102,5 @@ public class MyiaticZombieEntity extends MyiaticBase implements IDodgable {
     @Override
     public double getDodgeChance() {
         return 0.3d;
-    }
-
-    //Temporary until pathfinding is reworked
-    @Override
-    public int getMaxFallDistance() {
-        return getFeetBlockState().is(EntomoTags.Blocks.MYIATIC_FLESH_BLOCKTAG) ? 5 : super.getMaxFallDistance();
     }
 }

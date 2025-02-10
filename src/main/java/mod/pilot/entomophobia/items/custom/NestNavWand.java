@@ -26,14 +26,14 @@ public class NestNavWand extends Item {
                 player.displayClientMessage(Component.literal("Assigned the NestMap of this Myiatic to the Closest Entrance"), true);
             }
             else {
-                Nest.Offshoot o = nNav.getNestMap().currentOffshoot();
+                Nest.Offshoot o = nNav.getNestMap().getParentOfCurrent();
                 if (o instanceof Nest.Chamber c){
                     nNav.HeadTo(c, 1);
                 }
                 else if (o instanceof Nest.Corridor c){
                     nNav.HeadTo(c, false, 1);
                 }
-                player.displayClientMessage(Component.literal("he's heading to the place defined by the map"), true);
+                player.displayClientMessage(Component.literal("he's heading to the parent of the fucking idk aHSJGHA"), true);
             }
         }
         return super.interactLivingEntity(stack, player, target, hand);

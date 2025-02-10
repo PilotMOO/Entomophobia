@@ -1,10 +1,8 @@
 package mod.pilot.entomophobia.entity.AI.Flight;
 
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
-import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
@@ -23,7 +21,7 @@ public class FlyToHostileTargetGoal extends FlyToGoal{
     }
     @Override
     boolean CheckFly(){
-        return FlightState != FlightStates.Disabled.ordinal() && !IsFlying && FlightCD <= 0 && WantsToTakeOff();
+        return FlightState != FlightStates.Disabled.ordinal() && !isFlying && FlightCD <= 0 && WantsToTakeOff();
     }
 
     @Override
@@ -53,7 +51,7 @@ public class FlyToHostileTargetGoal extends FlyToGoal{
         if (CheckFly() && parent.getLookControl().isLookingAtTarget()){
             StartFlyCycle();
         }
-        if (IsFlying){
+        if (isFlying){
             FlightManager();
             StrikeWhileGliding(parent.getTarget());
         }
