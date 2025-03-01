@@ -253,7 +253,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             boolean flag = pEntity.hurt(getDamageSource(), f);
             if (flag) {
                 if (pEntity instanceof LivingEntity LEntity){
-                    LEntity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 1200));
+                    LEntity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 200));
 
                     if (f1 > 0.0F) {
                         ((LivingEntity)pEntity).knockback((f1 * 0.5F), Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), (-Mth.cos(this.getYRot() * ((float)Math.PI / 180F))));

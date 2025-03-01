@@ -9,7 +9,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class Overstimulation extends MobEffect implements IStacking {
+public class Overstimulation extends MobEffect implements IStackingEffect {
     protected Overstimulation() {
         super(MobEffectCategory.NEUTRAL, 0);
     }

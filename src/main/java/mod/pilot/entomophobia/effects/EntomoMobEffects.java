@@ -36,6 +36,8 @@ public class EntomoMobEffects {
     public static final RegistryObject<MobEffect> OVERSTIMULATION = MOB_EFFECTS.register("overstimulation", () ->
             new Overstimulation().addAttributeModifier(Attributes.MOVEMENT_SPEED, "5276572d-53ca-4f42-a024-765c164b3a21", 1f, AttributeModifier.Operation.MULTIPLY_TOTAL)
                     .addAttributeModifier(Attributes.ATTACK_SPEED, "e00418a6-1dbb-4d23-bb6f-84608f7fc32f", 0.5f, AttributeModifier.Operation.MULTIPLY_TOTAL));
+    public static final RegistryObject<MobEffect> INFATUATION = MOB_EFFECTS.register("infatuation",
+            Infatuation::new);
 
 
     public static void register(IEventBus eventBus) {

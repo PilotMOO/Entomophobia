@@ -115,7 +115,7 @@ public class MyiaticCowEntity extends MyiaticBase{
             boolean flag = pEntity.hurt(getDamageSource(), f);
             if (flag) {
                 if (pEntity instanceof LivingEntity LEntity){
-                    LEntity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 1200));
+                    LEntity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 200));
                     int duration = 100;
                     int amp = 2;
                     if (LEntity.hasEffect(MobEffects.POISON)){

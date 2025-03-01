@@ -124,7 +124,7 @@ public class MyiaticSpiderEntity extends MyiaticBase{
                 boolean flag = pEntity.hurt(EntomoDamageTypes.latch(this), f);
                 if (flag) {
                     if (pEntity instanceof LivingEntity LEntity){
-                        LEntity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 1200));
+                        LEntity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 100));
                         LEntity.addEffect(new MobEffectInstance(EntomoMobEffects.NEUROINTOXICATION.get(), 100));
                         int duration = 100;
                         int amp = 0;

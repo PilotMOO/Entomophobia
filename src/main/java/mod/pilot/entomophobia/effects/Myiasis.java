@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
-public class Myiasis extends MobEffect {
+public class Myiasis extends MobEffect implements IStackingEffect {
     public Myiasis() {
         super(MobEffectCategory.HARMFUL, 0);
     }
@@ -139,5 +139,20 @@ public class Myiasis extends MobEffect {
     @Override
     public boolean isDurationEffectTick(int pDuration, int pAmplifier) {
         return pDuration > 0;
+    }
+
+
+    @Override
+    public int getWrapAroundThreshold() {
+        return 1200;
+    }
+
+    @Override
+    public int getMinimumWrapDuration() {
+        return 80;
+    }
+    @Override
+    public boolean isDegradable() {
+        return true;
     }
 }

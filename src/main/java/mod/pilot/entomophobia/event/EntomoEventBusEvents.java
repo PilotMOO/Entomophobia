@@ -2,6 +2,7 @@ package mod.pilot.entomophobia.event;
 
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.entity.EntomoEntities;
+import mod.pilot.entomophobia.entity.celestial.CelestialCarrionEntity;
 import mod.pilot.entomophobia.entity.myiatic.*;
 import mod.pilot.entomophobia.entity.truepest.CentipedePestEntity;
 import mod.pilot.entomophobia.entity.truepest.CockroachPestEntity;
@@ -22,6 +23,8 @@ public class EntomoEventBusEvents {
         event.put(EntomoEntities.MYIATIC_SHEEP.get(), MyiaticSheepEntity.createAttributes().build());
         event.put(EntomoEntities.MYIATIC_PIG.get(), MyiaticPigEntity.createAttributes().build());
         event.put(EntomoEntities.MYIATIC_CHICKEN.get(), MyiaticChickenEntity.createAttributes().build());
+
+        event.put(EntomoEntities.CELESTIAL_CARRION.get(), CelestialCarrionEntity.createAttributes().build());
 
         event.put(EntomoEntities.SPIDER_PEST.get(), SpiderPestEntity.createAttributes().build());
         event.put(EntomoEntities.GRUB_PEST.get(), GrubPestEntity.createAttributes().build());

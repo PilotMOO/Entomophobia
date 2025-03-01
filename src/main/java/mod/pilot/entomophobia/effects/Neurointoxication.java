@@ -8,7 +8,7 @@ import oshi.util.tuples.Pair;
 
 import java.util.HashMap;
 
-public class Neurointoxication extends MobEffect implements IStacking {
+public class Neurointoxication extends MobEffect implements IStackingEffect {
     public Neurointoxication() {
         super(MobEffectCategory.HARMFUL, -8182798);
     }

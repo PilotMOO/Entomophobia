@@ -13,6 +13,7 @@ import mod.pilot.entomophobia.particles.EntomoParticles;
 import mod.pilot.entomophobia.sound.EntomoSounds;
 import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
 import mod.pilot.entomophobia.systems.nest.features.FeatureManager;
+import mod.pilot.entomophobia.systems.screentextdisplay.TextDisplayManager;
 import mod.pilot.entomophobia.systems.swarm.SwarmManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -27,12 +28,14 @@ import org.slf4j.Logger;
 public class Entomophobia
 {
     public static final String MOD_ID = "entomophobia";
-    private static final Logger LOGGER = LogUtils.getLogger();
+
     public static EntomoGeneralSaveData activeData;
     public static NestSaveData activeNestData;
     public static SwarmSaveData activeSwarmData;
 
     public Entomophobia() {
+        System.out.println("[MOD LOADING] Constructing Entomophobia mod class...");
+
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         MinecraftForge.EVENT_BUS.register(this);
@@ -52,5 +55,8 @@ public class Entomophobia
 
         SwarmManager.PopulateNameHashmap();
         FeatureManager.RegisterAllFeatures();
+        TextDisplayManager.Setup();
+
+        System.out.println("[MOD LOADING] Entomophobia mod class has been constructed!");
     }
 }

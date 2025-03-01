@@ -4,12 +4,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.blocks.custom.BloodwaxProtrusions;
-import mod.pilot.entomophobia.blocks.custom.MyiaticFleshBlock;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.data.worlddata.SwarmSaveData;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
-import mod.pilot.entomophobia.effects.IStacking;
+import mod.pilot.entomophobia.effects.IStackingEffect;
 import mod.pilot.entomophobia.entity.PestManager;
+import mod.pilot.entomophobia.entity.celestial.CelestialCarrionEntity;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticCowEntity;
 import mod.pilot.entomophobia.entity.truepest.PestBase;
@@ -55,7 +55,6 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
-import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -77,11 +76,16 @@ public class EntomoForgeEvents {
                 MyiaticBase.isInsideOfTargetBlacklist(LE)) return;
 
         if (event.getEntity() instanceof Animal animal){
-            animal.targetSelector.addGoal(1, new AvoidEntityGoal<>(animal, MyiaticBase.class, 16, 1.0D, 1.3D));
+            animal.targetSelector.addGoal(1, new AvoidEntityGoal<>(animal, MyiaticBase.class, EntomoForgeEvents::NotCarrion,
+                    16, 1.0D, 1.3D, (e) -> true));
         }
         else if (event.getEntity() instanceof AbstractVillager villager){
-            villager.targetSelector.addGoal(1, new AvoidEntityGoal<>(villager, MyiaticBase.class, 16, 0.8D, 1.0D));
+            villager.targetSelector.addGoal(1, new AvoidEntityGoal<>(villager, MyiaticBase.class, EntomoForgeEvents::NotCarrion,
+                    16, 0.8D, 1.0D, (e) -> true));
         }
+    }
+    private static boolean NotCarrion(LivingEntity le){
+        return !(le instanceof CelestialCarrionEntity);
     }
 
 
@@ -170,7 +174,7 @@ public class EntomoForgeEvents {
     public static void StackingPotionApplication(MobEffectEvent.Added event){
         MobEffectInstance oldEffect = event.getOldEffectInstance();
         MobEffectInstance newEffect = event.getEffectInstance();
-        if (oldEffect != null && oldEffect.getEffect() instanceof IStacking stacking){
+        if (oldEffect != null && oldEffect.getEffect() instanceof IStackingEffect stacking){
             LivingEntity target = event.getEntity();
             int cumulativeDuration = oldEffect.getDuration() + newEffect.getDuration();
             int amp = (int) Mth.absMax(oldEffect.getAmplifier(), newEffect.getAmplifier());
@@ -195,7 +199,7 @@ public class EntomoForgeEvents {
     @SubscribeEvent
     public static void StackingPotionExpiration(MobEffectEvent.Expired event){
         MobEffectInstance effect = event.getEffectInstance();
-        if (effect != null && effect.getEffect() instanceof IStacking stacking
+        if (effect != null && effect.getEffect() instanceof IStackingEffect stacking
                 && stacking.isDegradable() && effect.getAmplifier() > 0){
             event.getEntity().removeEffect(effect.getEffect());
             event.getEntity().addEffect(new MobEffectInstance(effect.getEffect(),

@@ -303,7 +303,7 @@ public class NestManager {
     }
     public static String getRandomNestMessage(RandomSource random){
         if (NestMessages == null || NestMessages.size() == 0) return "";
-        return NestMessages.get(random.nextIntBetweenInclusive(0, NestMessages.size()));
+        return NestMessages.get(random.nextInt(0, NestMessages.size()));
     }
 
     private static boolean JokeMessagesEnabled;
@@ -321,7 +321,7 @@ public class NestManager {
     }
     public static String getRandomJokeNestMessage(RandomSource random){
         if (JokeNestMessages == null || JokeNestMessages.size() == 0 || !isJokeMessagesEnabled()) return "";
-        return JokeNestMessages.get(random.nextIntBetweenInclusive(0, JokeNestMessages.size()));
+        return JokeNestMessages.get(random.nextInt(0, JokeNestMessages.size()));
     }
 
     public static String getRandomNestMessageForChatDisplay(RandomSource random){

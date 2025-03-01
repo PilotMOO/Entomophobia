@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.effects;
 
-public interface IStacking {
+public interface IStackingEffect {
     int getWrapAroundThreshold();
     int getMinimumWrapDuration();
     default int getMaxCap(){
