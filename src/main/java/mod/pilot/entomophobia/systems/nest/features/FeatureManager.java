@@ -59,11 +59,11 @@ public class FeatureManager {
             Feature.OffshootTypes oType = Feature.OffshootTypes.fromByte(oTypeB);
             Feature.PlacementPositions pPos = Feature.PlacementPositions.fromByte(pPosB);
             if (oType == null){
-                System.err.println("Warning! Argument byte oTypeB (" + oTypeB + ") holds an invalid value! Defaulting to \"Any\"...");
+                System.err.println("[FEATURE MANAGER] Warning! Argument byte oTypeB (" + oTypeB + ") holds an invalid value! Defaulting to \"Any\"...");
                 oType = Feature.OffshootTypes.Any;
             }
             if (pPos == null){
-                System.err.println("Warning! Argument byte pPosB (" + pPosB + ") holds an invalid value! Defaulting to \"Any\"...");
+                System.err.println("[FEATURE MANAGER] Warning! Argument byte pPosB (" + pPosB + ") holds an invalid value! Defaulting to \"Any\"...");
                 pPos = Feature.PlacementPositions.Any;
             }
             return getRandomFeature(oType, pPos);
@@ -96,9 +96,7 @@ public class FeatureManager {
                     gathered.putAll(CorridorOnly.getCeiling());
                 }
             }
-            //System.out.println("Amount of Features gathered: " + gathered.size());
             randomizer.replaceEntriesWith(gathered);
-            //System.out.println("Amount of Features available for pulling: " + randomizer.size());
             return randomizer.getRandomWeightedObject();
         }
 
@@ -111,7 +109,6 @@ public class FeatureManager {
                 case Ceiling -> gathered = ChamberOnly.getCeiling();
             }
             randomizer.replaceEntriesWith(gathered);
-            //System.out.println("Amount of Features available for pulling: " + randomizer.size());
             return randomizer.getRandomWeightedObject();
         }
 
@@ -124,7 +121,6 @@ public class FeatureManager {
                 case Ceiling -> gathered = CorridorOnly.getCeiling();
             }
             randomizer.replaceEntriesWith(gathered);
-            //System.out.println("Amount of Features available for pulling: " + randomizer.size());
             return randomizer.getRandomWeightedObject();
         }
         public static void RegisterFeature(Feature feature){
@@ -134,13 +130,12 @@ public class FeatureManager {
             Feature.OffshootTypes oType =  Feature.OffshootTypes.fromByte(feature.OffshootType);
             Feature.PlacementPositions pPos =  Feature.PlacementPositions.fromByte(feature.PlacementPos);
             if (oType == null || pPos == null){
-                System.out.println("WARNING! Argument Feature " + feature + " is invalid!" +
+                System.err.println("[FEATURE MANAGER] WARNING! Argument Feature " + feature + " is invalid!" +
                         "because either OffshootType ( " + oType + ") OR PlacementPos (" + pPos + ") contained an invalid value.");
-                System.out.println("Terminating addition...");
+                System.err.println("[FEATURE MANAGER] Terminating addition...");
                 return;
             }
 
-            System.out.println("Adding Feature " + feature);
             switch (oType){
                 case Any -> {
                     HandleChamberOTypeAddition(feature, pPos, weight);
@@ -155,7 +150,6 @@ public class FeatureManager {
             }
         }
         private static void HandleChamberOTypeAddition(Feature feature, Feature.PlacementPositions pPos, int weight) {
-            System.out.println("Adding Feature to ChamberOnly with placement position " + pPos + " and weight " + weight);
             switch (pPos){
                 case Any -> {
                     ChamberOnly.addToGround(feature, weight);
@@ -168,7 +162,6 @@ public class FeatureManager {
             }
         }
         private static void HandleCorridorOTypeAddition(Feature feature, Feature.PlacementPositions pPos, int weight) {
-            System.out.println("Adding Feature to CorridorOnly with placement position " + pPos + " and weight " + weight);
             switch (pPos){
                 case Any -> {
                     CorridorOnly.addToGround(feature, weight);

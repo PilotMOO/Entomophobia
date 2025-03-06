@@ -14,10 +14,12 @@ import mod.pilot.entomophobia.entity.client.truepest.SpiderPestRenderer;
 import mod.pilot.entomophobia.particles.BloodDripParticle;
 import mod.pilot.entomophobia.particles.EntomoParticles;
 import mod.pilot.entomophobia.particles.FlyParticle;
+import mod.pilot.entomophobia.systems.screentextdisplay.TextOverlay;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -64,5 +66,12 @@ public class ClientManager {
                 BloodDripParticle.FallProvider::new);
         Minecraft.getInstance().particleEngine.register(EntomoParticles.BLOOD_HANG_PARTICLE.get(),
                 BloodDripParticle.HangProvider::new);
+    }
+
+    private static final String OverlayID = "entomo_text_overlay";
+    @SubscribeEvent
+    public static void registerOverlayTest(RegisterGuiOverlaysEvent event){
+        TextOverlay.instance = new TextOverlay();
+        event.registerBelowAll(OverlayID, TextOverlay.instance);
     }
 }
