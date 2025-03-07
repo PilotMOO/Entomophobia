@@ -157,7 +157,7 @@ public class TextInstance{
     public boolean XShake = true;
     public boolean YShake = true;
 
-    public TextInstance withMaxAgeOf(int maxAge){
+    public TextInstance aged(int maxAge){
         this.maxAge = maxAge;
         return this;
     }

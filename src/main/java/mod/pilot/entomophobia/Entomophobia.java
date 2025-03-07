@@ -5,6 +5,7 @@ import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.data.worlddata.SwarmSaveData;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.EntomoEntities;
+import mod.pilot.entomophobia.entity.celestial.CelestialCarrionEntity;
 import mod.pilot.entomophobia.items.EntomoCreativeTabs;
 import mod.pilot.entomophobia.items.EntomoItems;
 import mod.pilot.entomophobia.particles.EntomoParticles;
@@ -51,5 +52,6 @@ public class Entomophobia
         SwarmManager.PopulateNameHashmap();
         FeatureManager.RegisterAllFeatures();
         TextOverlay.Setup();
+        CelestialCarrionEntity.CreateVoices();
     }
 }
