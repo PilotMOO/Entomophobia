@@ -1,5 +1,6 @@
 package mod.pilot.entomophobia.systems.screentextdisplay;
 
+import mod.pilot.entomophobia.systems.screentextdisplay.keyframes.TextKeyframe;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import org.jetbrains.annotations.NotNull;
@@ -66,10 +67,17 @@ public abstract class PhantomTextInstance extends TextInstance{
         }
 
         @Override
+        public TextInstance addKeyframe(TextKeyframe kFrame) {
+            if (trailingPhantom != null) trailingPhantom.addKeyframeRecursively(kFrame);
+            return super.addKeyframe(kFrame);
+        }
+
+        @Override
         public void Tick() {
             super.Tick();
             if (trailingPhantom != null){
                 trailingPhantom.CopyFrom(this, true, true);
+                trailingPhantom.TickRecursively();
             }
         }
     }
@@ -83,6 +91,7 @@ public abstract class PhantomTextInstance extends TextInstance{
             this.withAlphaDifference(parent.alphaDifference)
                     .withIncrementalSize(parent.incrementalSizeScale)
                     .updateRate(parent.updateFrequency);
+            this.withColor(new Color(parent.color.getRed(), parent.color.getBlue(), parent.color.getGreen(), 0));
 
             this.age = -2;
         }
@@ -105,6 +114,21 @@ public abstract class PhantomTextInstance extends TextInstance{
             else if (parent instanceof Mother m) m.ActuallyRender(gui, guiGraphics, partialTick, screenWidth, screenHeight);
         }
 
+        public void addKeyframeRecursively(TextKeyframe kFrame){
+            this.addKeyframe(kFrame);
+            if (trailingPhantom != null) trailingPhantom.addKeyframeRecursively(kFrame);
+        }
+
+        public void TickRecursively(){
+            this.Tick();
+            if (trailingPhantom != null) trailingPhantom.TickRecursively();
+        }
+        //Tick method overridden to remove the aging and lerping calls-- those aren't needed because the daughters just copy from the mother
+        @Override
+        public void Tick() {
+            volatileKeyframes.forEach(TextKeyframe::Tick);
+            updateVolatileList();
+        }
         public void CopyFrom(PhantomTextInstance from, boolean pushOldToChildren, boolean recursive){
             if (pushOldToChildren && trailingPhantom != null){
                 trailingPhantom.CopyFrom(this, recursive, recursive);
@@ -115,7 +139,7 @@ public abstract class PhantomTextInstance extends TextInstance{
                         .withColor(new Color(from.color.getRed(), from.color.getBlue(), from.color.getGreen(),
                                 Math.min(Math.max(from.color.getAlpha() - from.alphaDifference, 0), 255)))
                         .withFont(from.font)
-                        .Shadowed(from.shadow)
+                        .shadowed(from.shadow)
                         .ofSize(from.size * from.incrementalSizeScale)
                         .withShaking(from.shakingStrength);
 

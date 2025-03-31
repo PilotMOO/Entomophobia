@@ -1,5 +1,6 @@
 package mod.pilot.entomophobia.entity.celestial;
 
+import com.google.common.collect.Lists;
 import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.core.animation.AnimationController;
@@ -8,21 +9,22 @@ import mod.azure.azurelib.util.AzureLibUtil;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticPigEntity;
+import mod.pilot.entomophobia.sound.EntomoSounds;
+import mod.pilot.entomophobia.systems.screentextdisplay.PhantomTextInstance;
 import mod.pilot.entomophobia.systems.screentextdisplay.TextInstance;
 import mod.pilot.entomophobia.systems.screentextdisplay.TextOverlay;
+import mod.pilot.entomophobia.systems.screentextdisplay.keyframes.ColorKeyframe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
@@ -106,7 +108,7 @@ public class CelestialCarrionEntity extends MyiaticBase {
     @Override
     public void onAddedToWorld() {
         super.onAddedToWorld();
-        if (level() instanceof ServerLevel && getMTypeRaw() == 0) {
+        if (!level().isClientSide() && getMTypeRaw() == 0) {
             setMType(random.nextInt(1, ModelType.totalCount));
         }
     }
@@ -178,82 +180,208 @@ public class CelestialCarrionEntity extends MyiaticBase {
             if (_shouldGenerateTextAtDistance(dist)){
                 String text = getRandomVoiceAtDistance(dist);
                 String prepend = _generatePrependText(dist);
-                String append = /*Might not be needed, but maybe generate different punctuations? E.G. '...', '.', '!', etc.*/ "";
-                int widthPoint9 = (int)(TextOverlay.width * 0.1);
-                int heightPoint9 = (int)(TextOverlay.height * 0.1);
-                int x = random.nextInt(widthPoint9, TextOverlay.width - widthPoint9); //x and y positions
-                int y = random.nextInt(heightPoint9, TextOverlay.width - heightPoint9); // ditto
-                Color color = /*Make a color!!! very dark grey at start until white at like 16~, then turn slightly red as you approach 0*/
-                        Color.WHITE;
-                Color shiftColor = /*this is the color that it will shift to, usually the same color but with a higher alpha...0*/
-                        Color.BLACK;
-                int shiftSpeed = /*how fast the color shifts. Slower at first but faster as dist decreases*/ 30;
-                /*Fuck I need to make an option to have it to bleed out alpha as its age approaches the end... bwahhh*/
-                /*P.S. make the shift alpha start at like 10~ and slowly increase to 255 as you get within 4 blocks*/
-                /*Starting color alpha NEEDS to be 0 so it's not too sudden...*/
-                //no changes to font or shadowing
-                float size = /*start at like... 0.2f size at first then slowly scale to 1.5f-2.0f as you get to around 6*/ 1f;
-                int shaking = /*No shaking until like... 12? 14? and very minor shaking (like strength 1)*/ 0;
-                int maxAge = /*max age sitting around... uhhh 40? at max dist. then up to 120 or so at 8 dist.*/ 80;
-                boolean phantom = /*Should this text instance be a phantom?
-                 make it a pretty low chance, slightly increasing with lowered distance*/ false;
+                String append = _generateAppendText(dist);
+
+                int widthClamp = 0; //Clamps on the X and Y positions so they don't render clipping off of the screen
+                int heightClamp = 0; //ditto
+                if (dist > Threshold3VoiceRange){
+                    //Making the clamps withing 0.9 of the dimensions of the screen IF the distance is great enough
+                    //Otherwise it lets the text spill over the screen if you are close enough which looks cool :)
+                    widthClamp = (int)(TextOverlay.width * 0.1d);
+                    heightClamp = (int)(TextOverlay.height * 0.1d);
+                }
+                int x = random.nextInt(widthClamp, TextOverlay.width - widthClamp); //x and y positions
+                int y = random.nextInt(heightClamp, TextOverlay.height - heightClamp); // ditto
+                Color color;
+                Color shiftColor = _generateEndColor(dist);
+                color = withNoAlpha(shiftColor);
+                int shiftSpeed = _generateShiftSpeed(dist);
+                float size = _generateStartingSize(dist);
+                int shaking = _generateShakingAmount(dist);
+                int maxAge = _generateMaxAge(dist);
+                boolean phantom = _generatePhantom(dist);
+                TextInstance instance;
                 if (phantom){
                     //Manage the parameters if it's a phantom...
+
+                    int phantomCount = _generatePhantomCount(dist);
+                    int alphaDifference = random.nextInt(50);
+                    int updateFreq = _generateUpdateRate(dist);
+                    float incSize = /*the scaling in size (multiplicative of total) from one daughter to the next.
+                        Likely static or unused here...*/ 1.1f;
+                    instance = PhantomTextInstance.create(text, prepend, append, phantomCount)
+                            .withAlphaDifference(alphaDifference)
+                            .updateRate(updateFreq)
+                            .withIncrementalSize(incSize)
+                            .at(x, y)
+                            .withColor(color).shiftColor(shiftColor, shiftSpeed)
+                            .ofSize(size)
+                            .withShaking(shaking)
+                            .aged(maxAge);
                 } else {
                     //Otherwise, just make a normal one
-                    TextOverlay.instance.textInstances.add(
-                            TextInstance.create(text, prepend, append)
+                    instance = TextInstance.create(text, prepend, append)
                                     .at(x, y)
-                                    .withColor(color).ShiftColor(shiftColor, shiftSpeed)
+                                    .withColor(color).shiftColor(shiftColor, shiftSpeed)
                                     .ofSize(size)
                                     .withShaking(shaking)
-                                    .aged(maxAge)
-                    );
+                                    .aged(maxAge);
                 }
-            }
 
-            if (e instanceof Player player) {
-                player.displayClientMessage(Component.literal(String.valueOf((int)this.distanceTo(player))), true);
+                //Manage keyframes
+                instance.addKeyframe(new ColorKeyframe(instance, maxAge - 20, withNoAlpha(shiftColor), 20));
+                /**/
+
+                //Finally add to overlay
+                TextOverlay.instance.textInstances.add(instance);
+
+                //Dont forget to play the sound!
+                SoundEvent event;
+                float volume, pitch;
+                volume = _generateVoiceVolume(dist);
+                pitch = _generateVoicePitch(dist);
+                if (volume <= 0 || text == null || (event = EntomoSounds.getVoice(text)) == null) return;
+                cameraEntity.playSound(event, volume, pitch);
             }
+            break;
         }
-    }
-
-
-
-    /*generate prepend based on distance, E.G. adding obfuscation if greater than 12 or smth, etc.*/
-    private @Nullable String _generatePrependText(double dist) {
-        if (dist > Threshold1VoiceRange) return null;
-        if (random.nextDouble() < 1 - (1d / (dist / 2))) return "§k";
-        return null;
     }
     private boolean _shouldGenerateTextAtDistance(double dist) {
         if (dist > Threshold1VoiceRange) return false;
-        double chance = 1d / dist;
-        return random.nextDouble() < chance;
+        double chance = 1d / (dist / 8);
+        return random.nextDouble() < (chance * 0.25) + 0.025;
+    }
+
+    /*generate prepend based on distance, E.G. adding obfuscation if greater than 12 or smth, etc.*/
+    private @Nullable String _generatePrependText(double dist) {
+        if (dist > Threshold1VoiceRange || dist < Threshold2VoiceRangeMin) return null;
+        if (random.nextDouble() < 1 - (1d / ((dist - Threshold2VoiceRangeMin) / 8))) return "§k";
+        return null;
+    }
+    /*Might not be needed, but maybe generate different punctuations? E.G. '...', '.', '!', etc.*/
+    private static final ArrayList<String> appends = Lists.newArrayList(
+            "", ".", "...", "!", "...!");
+    private @Nullable String _generateAppendText(double dist) {
+        if (dist > Threshold1VoiceRangeMin) return "...";
+        if (dist < Threshold3VoiceRange) return switch (random.nextInt(3)){
+            case 0 -> "!";
+            case 1 -> "...!";
+            case 2 -> "!!!";
+            default -> null;
+        };
+        return appends.get(random.nextInt(appends.size()));
+    }
+    /*Make a color!!! very dark grey at start until white at like 16~, then turn slightly red as you approach 0*/
+    /*private Color _generateStartColor(double dist){
+        final int cumulativeStartingHex = 80;
+        int r, g, b;
+        int difference = 225 - cumulativeStartingHex;
+        if (dist > Threshold2VoiceRangeMin){
+            double ratio = (double)difference / (Threshold1VoiceRange - Threshold2VoiceRangeMin);
+            r = g = b = (int)Math.min(225 - (dist - Threshold2VoiceRangeMin) * ratio, 225);
+        } else {
+            r = g = b = 225;
+            final double maxBleed = 225d;
+            double bleed = maxBleed / Threshold2VoiceRangeMin;
+            g = b -= (int)((Threshold2VoiceRangeMin - dist) * bleed);
+            r += (int)(dist * (1 / (30 / Threshold2VoiceRangeMin)));
+        }
+        return new Color(r, g, b, 0);
+    }*/
+    /*this is the color that it will shift to, usually the same color but with a higher alpha...*/
+    private Color _generateEndColor(double dist){
+        final int cumulativeStartingHex = 80;
+        int r, g, b, a;
+        int difference = 225 - cumulativeStartingHex;
+        if (dist > Threshold2VoiceRangeMin){
+            double ratio = (double)difference / (Threshold1VoiceRange - Threshold2VoiceRangeMin);
+            r = g = b = (int)Math.min(225 - (dist - Threshold2VoiceRangeMin) * ratio, 225);
+        } else {
+            r = g = b = 225;
+            final double maxBleed = 225d;
+            double bleed = maxBleed / Threshold2VoiceRangeMin;
+            g = b -= (int)((Threshold2VoiceRangeMin - dist) * bleed);
+            r += (int)(dist * (1 / (30 / Threshold2VoiceRangeMin)));
+        }
+        a = (int) Math.min(255 - (255d / Threshold1VoiceRange) * (dist / 2), 255);
+        return new Color(r, g, b, a);
+    }
+    /*how fast the color shifts. Slower at first but faster as dist decreases*/
+    /*Fuck I need to make an option to have it to bleed out alpha as its age approaches the end... bwahhh*/
+    /*P.S. make the shift alpha start at like 10~ and slowly increase to 255 as you get within 4 blocks*/
+    /*Starting color alpha NEEDS to be 0 so it's not too sudden...*/
+    //no changes to font or shadowing
+    private int _generateShiftSpeed(double dist){
+        return (int) Math.max((100d / Threshold1VoiceRange) * dist, 10) * 2;
+    }
+    /*start at like... 0.2f size at first then slowly scale to 1.5f-2.0f as you get to around 6*/
+    private float _generateStartingSize(double dist){
+        float deviate = 0;
+        if (dist < Threshold2VoiceRange) {
+            deviate += (this.random.nextFloat() * 0.2) * (this.random.nextBoolean() ? -1 : 1);
+        }
+        return (float) Math.max((0.75f * ((Threshold1VoiceRange / dist) * 0.33)) + deviate, 0.75f);
+    }
+    /*No shaking until like... 12? 14? and very minor shaking (like strength 1)*/
+    private int _generateShakingAmount(double dist){
+        if (dist >= Threshold1VoiceRangeMin) return 0;
+        else return (int)(3 - (3d / Threshold1VoiceRangeMin) * dist);
+    }
+    /*max age sitting around... uhhh 40? at max dist. then up to 120 or so at 8 dist.*/
+    private int _generateMaxAge(double dist){
+        final int base = 40;
+        final int additionCap = 240;
+        return (int)((additionCap / Threshold1VoiceRange) * dist) + base;
+    }
+    /*Should this text instance be a phantom? make it a pretty low chance, slightly increasing with lowered distance*/
+    private boolean _generatePhantom(double dist){
+        if (dist >= Threshold1VoiceRangeMin) return false;
+        else return random.nextDouble() < 1 - ((1d / Threshold1VoiceRangeMin) * dist);
+    }
+    /*How many daughters this phantom will get. Min 1, up to like 4?*/
+    /*set to 5 here because it is almost impossible for this to return 5 due to integer rounding*/
+    private int _generatePhantomCount(double dist){
+        if (dist >= Threshold1VoiceRangeMin) return 0;
+        return (int)(5 - (5d / Threshold1VoiceRangeMin) * dist);
+    }
+    /*how frequently (in ticks) that the daughters will update themselves prob start at like... 20? then slowly shift down to 10~*/
+    private int _generateUpdateRate(double dist){
+        if (dist >= Threshold1VoiceRangeMin) return 20;
+        //Adding ten so the origin-bound is 10-20 rather than 0-10
+        return (int)(10 + (10d / Threshold1VoiceRangeMin) * dist);
+    }
+
+    private float _generateVoiceVolume(double dist) {
+        float base = -0.5f;
+        return (float)(base + (4f / Threshold1VoiceRange) * dist);
+    }
+    private float _generateVoicePitch(double dist) {
+        float base = 1f;
+        return (float)(base - (0.25f / Threshold1VoiceRange) * dist);
     }
 
     public static final int Threshold1VoiceRange = 64;
-    public static final int Threshold1VoiceRangeMin = 24;
+    public static final int Threshold1VoiceRangeMin = 28;
     public static final int Threshold2VoiceRange = 32;
-    public static final int Threshold2VoiceRangeMin = 12;
+    public static final int Threshold2VoiceRangeMin = 14;
     public static final int Threshold3VoiceRange = 16;
     public static final ArrayList<ArrayList<String>> AstralVoices = new ArrayList<>();
     public static void CreateVoices(){
         ArrayList<String> threshold1 = new ArrayList<>();
-        threshold1.add("Closer...");
-        threshold1.add("Come...");
+        threshold1.add("Closer");
+        threshold1.add("Come");
 
         ArrayList<String> threshold2 = new ArrayList<>();
-        threshold2.add("Free me...");
-        threshold2.add("Join us...");
-        threshold2.add("Fallen.");
-        threshold2.add("Defeat.");
-        threshold2.add("Pain.");
+        threshold2.add("Free me");
+        threshold2.add("Join us");
+        threshold2.add("Fallen");
+        threshold2.add("Defeat");
+        threshold2.add("Pain");
 
         ArrayList<String> threshold3 = new ArrayList<>();
-        threshold3.add("They know my name.");
+        threshold3.add("They know my name");
         threshold3.add("They watched me BLEED");
-        threshold3.add("Reclaim me...");
+        threshold3.add("Reclaim me");
         threshold3.add("Salvation");
         threshold3.add("Revive");
         threshold3.add("FIX US");
@@ -290,8 +418,8 @@ public class CelestialCarrionEntity extends MyiaticBase {
         if (voices == null || voices.isEmpty()) return null;
         else return voices.get(random.nextInt(voices.size()));
     }
-    //ToDo: set up the rest of the values after testing
-    public static boolean ObfuscateAt(double distance){
-        return  false;
+
+    private Color withNoAlpha(Color color){
+        return new Color(color.getRed(), color.getBlue(), color.getGreen(), 0);
     }
 }

@@ -32,7 +32,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.AbstractFish;
 import net.minecraft.world.entity.monster.Creeper;
@@ -226,7 +225,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
                 superFlag = false;
             }
             if (this instanceof IDodgable dodgable && sourceEntity == getTarget()){
-                superFlag = !dodgable.TryToDodge(this);
+                superFlag = !dodgable.tryToDodge(this);
             }
         }
         if (superFlag){
@@ -237,7 +236,6 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     @Override
     public boolean doHurtTarget(@Nullable Entity pEntity) {
         if (pEntity != null){
-
             float f = (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE);
             float f1 = (float)this.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
             if (pEntity instanceof LivingEntity) {
@@ -412,26 +410,28 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
 
 
         /*Despawning*/
+    public static final int PlayerDespawnRange = Config.SERVER.distance_to_player_until_despawn.get();
+    public static final int MobCap = Config.SERVER.mob_cap.get();
     @Override
     public void checkDespawn() {
         if (getTarget() != null) return;
         if (getEncouragedDespawn()) this.discard();
 
         Entity player = this.level().getNearestPlayer(this, -1.0D);
-        if (player != null && player.distanceTo(this) < Config.SERVER.distance_to_player_until_despawn.get()){
+        if (player != null && player.distanceTo(this) < PlayerDespawnRange){
             super.checkDespawn();
         }
-        else if (EntomoGeneralSaveData.GetMyiaticCount() > Config.SERVER.mob_cap.get()){
+        else if (EntomoGeneralSaveData.GetMyiaticCount() > MobCap){
             this.discard();
         }
     }
     @Override
     public boolean removeWhenFarAway(double pDistanceToClosestPlayer) {
-        return EntomoGeneralSaveData.GetMyiaticCount() > Config.SERVER.mob_cap.get() && getTarget() == null;
+        return EntomoGeneralSaveData.GetMyiaticCount() > MobCap && getTarget() == null;
     }
     @Override
     public boolean isPersistenceRequired() {
-        return EntomoGeneralSaveData.GetMyiaticCount() < Config.SERVER.mob_cap.get() || getTarget() != null;
+        return EntomoGeneralSaveData.GetMyiaticCount() < MobCap || getTarget() != null;
     }
 
         /*Booleans*/
@@ -542,13 +542,8 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         return null;
     }
     public double getDistanceToClosestNest() {
-        double distance = -1;
-        for (Nest nest : NestManager.getActiveNests()){
-            if (distance == -1 || distance > nest.origin.distanceTo(position())) {
-                distance = nest.origin.distanceTo(position());
-            }
-        }
-        return distance;
+        Nest n = NestManager.getClosestNest(position());
+        return n == null ? -1 : n.origin.distanceTo(position());
     }
     public boolean isThereABlockUnderMe(int vSearchRange){
         BlockPos pos = blockPosition();
@@ -610,7 +605,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     /**/
 
     //Swarm Management
-    private Swarm currentSwarm;
+    private @Nullable Swarm currentSwarm;
     public boolean canSwarm() {
         return true;
     }
@@ -640,7 +635,6 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             swarm.AssignAllOrdersFor(this);
             currentSwarm = swarm;
         }
-        //System.out.println(this + " was forced to join " + swarm + " against their will!");
     }
     public void LeaveSwarm(boolean disbandIfCaptain){
         if (getSwarm() != null){
@@ -649,10 +643,12 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         currentSwarm = null;
     }
     public void SwitchSwarm(Swarm newSwarm, boolean disbandIfCaptain){
-        getSwarm().DropMember(this, disbandIfCaptain);
-        boolean joinFlag = newSwarm.AttemptToRecruit(this);
-        if (joinFlag){
-            currentSwarm = newSwarm;
+        if (isInSwarm()) {
+            getSwarm().DropMember(this, disbandIfCaptain);
+            boolean joinFlag = newSwarm.AttemptToRecruit(this);
+            if (joinFlag) {
+                currentSwarm = newSwarm;
+            }
         }
     }
     /**/

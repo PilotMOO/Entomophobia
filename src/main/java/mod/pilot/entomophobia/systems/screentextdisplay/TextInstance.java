@@ -1,5 +1,6 @@
 package mod.pilot.entomophobia.systems.screentextdisplay;
 
+import mod.pilot.entomophobia.systems.screentextdisplay.keyframes.TextKeyframe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -7,6 +8,7 @@ import net.minecraftforge.client.gui.overlay.ForgeGui;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class TextInstance{
@@ -46,14 +48,14 @@ public class TextInstance{
     public float XAge;
     public float getXForRendering(float partial){
         float x1 = (TextInstance.Lerp(oldX, x, partial) / size);
-        if (Shaking() && XShake) x1 += random.nextInt(-shakingStrength, shakingStrength + 1);
+        if (shaking() && XShake) x1 += random.nextInt(-shakingStrength, shakingStrength + 1);
         x1 -= (font.width(TextWithAppends()) / 2f);
         return x1;
     }
-    public TextInstance ShiftX(float newX){
-        return ShiftX(newX, Math.abs(newX - x) / 20d);
+    public TextInstance shiftX(float newX){
+        return shiftX(newX, Math.abs(newX - x) / 20d);
     }
-    public TextInstance ShiftX(float newX, double duration){
+    public TextInstance shiftX(float newX, double duration){
         wantedX = newX;
         XShiftDuration = duration;
         XAge = 0;
@@ -68,46 +70,40 @@ public class TextInstance{
     private float YAge;
     public float getYForRendering(float partial){
         float y1 = (TextInstance.Lerp(oldY, y, partial) / size);
-        if (Shaking() && YShake) y1 += random.nextInt(-shakingStrength, shakingStrength + 1);
+        if (shaking() && YShake) y1 += random.nextInt(-shakingStrength, shakingStrength + 1);
         y1 -= (font.lineHeight / 2f);
         return y1;
     }
-    public TextInstance ShiftY(float newY){
-        return ShiftY(newY, Math.abs(newY - x) / 20d);
+    public TextInstance shiftY(float newY){
+        return shiftY(newY, Math.abs(newY - x) / 20d);
     }
-    public TextInstance ShiftY(float newY, double duration){
+    public TextInstance shiftY(float newY, double duration){
         wantedY = newY;
         YShiftDuration = duration;
         YAge = 0;
         return this;
     }
 
-    public TextInstance ShiftPosition(float x, float y){
-        return ShiftPosition(x, y, false);
+    public TextInstance shiftPosition(float x, float y){
+        return shiftPosition(x, y, false);
     }
-    public TextInstance ShiftPosition(float x, float y, boolean calculateSeparate){
-        return ShiftPosition(x, y, calculateSeparate ? -1 : getAverageBetweenDifferences(this.x, x, this.y, y) / 20d);
+    public TextInstance shiftPosition(float x, float y, boolean calculateSeparate){
+        return shiftPosition(x, y, calculateSeparate ? -1 : getAverageBetweenDifferences(this.x, x, this.y, y) / 20d);
     }
-    public TextInstance ShiftPosition(float x, float y, double duration){
-        return ShiftPosition(x, y, duration, duration);
+    public TextInstance shiftPosition(float x, float y, double duration){
+        return shiftPosition(x, y, duration, duration);
     }
-    public TextInstance ShiftPosition(float x, float y, double XDuration, double YDuration){
-        if (XDuration < 0) ShiftX(x);
-        else ShiftX(x, XDuration);
-        if (YDuration < 0) ShiftY(y);
-        else ShiftY(y, YDuration);
+    public TextInstance shiftPosition(float x, float y, double XDuration, double YDuration){
+        if (XDuration < 0) shiftX(x);
+        else shiftX(x, XDuration);
+        if (YDuration < 0) shiftY(y);
+        else shiftY(y, YDuration);
 
         return this;
     }
 
     public TextInstance withColor(Color color){
         this.color = this.oldColor = this.wantedColor = color;
-        if (color.getAlpha() < 255){
-            int delay = 8 - (8 * (color.getAlpha() / 255));
-            if (age > 0 || -age < delay){
-                DelayOf(delay);
-            }
-        }
         return this;
     }
     public Color oldColor = Color.WHITE;
@@ -121,10 +117,10 @@ public class TextInstance{
     public int getRGBAForRendering(float partial){
         return getColorForRendering(partial).getRGB();
     }
-    public TextInstance ShiftColor(int newColor, boolean hasAlpha, double duration){
-        return ShiftColor(new Color(newColor, hasAlpha), duration);
+    public TextInstance shiftColor(int newColor, boolean hasAlpha, double duration){
+        return shiftColor(new Color(newColor, hasAlpha), duration);
     }
-    public TextInstance ShiftColor(Color newColor, double duration){
+    public TextInstance shiftColor(Color newColor, double duration){
         wantedColor = newColor;
         ColorShiftDuration = duration;
         ColorAge = 0;
@@ -132,13 +128,13 @@ public class TextInstance{
         return this;
     }
 
-    public TextInstance withFont(net.minecraft.client.gui.Font font){
+    public TextInstance withFont(Font font){
         this.font = font;
         return this;
     }
     public Font font = Minecraft.getInstance().font;
 
-    public TextInstance Shadowed(boolean shadow){
+    public TextInstance shadowed(boolean shadow){
         this.shadow = shadow;
         return this;
     }
@@ -152,7 +148,7 @@ public class TextInstance{
         this.shakingStrength = strength;
         return this;
     }
-    public boolean Shaking() {return shakingStrength > 0;}
+    public boolean shaking() {return shakingStrength > 0;}
     public int shakingStrength = -1;
     public boolean XShake = true;
     public boolean YShake = true;
@@ -161,12 +157,12 @@ public class TextInstance{
         this.maxAge = maxAge;
         return this;
     }
-    public TextInstance DelayOf(int ticks){
+    public TextInstance delayOf(int ticks){
         age = -ticks;
         return this;
     }
     public int maxAge = -1;
-    public int age;
+    public int age = 0;
     boolean remove = false;
     public boolean shouldBeRemoved(){
         return remove || altRemoveCheck();
@@ -175,15 +171,34 @@ public class TextInstance{
         return maxAge != -1 && maxAge < age;
     }
 
+    public TextInstance addKeyframe(TextKeyframe kFrame){
+        this.keyframes.add(kFrame);
+        return this;
+    }
+    public TextInstance discardKeyframe(TextKeyframe kFrame){
+        if (keyframes.contains(kFrame)) discardedKeyframes.add(kFrame);
+        return this;
+    }
+    protected ArrayList<TextKeyframe> keyframes = new ArrayList<>();
+    protected ArrayList<TextKeyframe> discardedKeyframes = new ArrayList<>();
+    protected final ArrayList<TextKeyframe> volatileKeyframes = new ArrayList<>();
+    protected void updateVolatileList(){
+        keyframes.removeAll(discardedKeyframes);
+        volatileKeyframes.clear();
+        volatileKeyframes.addAll(keyframes);
+    }
+
+
     public void Render(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight){
-        if (age <= 0) return;
+        Color renderColor;
+        if (age <= 0 || (renderColor = getColorForRendering(partialTick)).getAlpha() <= 4) return;
 
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(size, size, size);
         font.drawInBatch(TextWithAppends(),
                 getXForRendering(partialTick),
                 getYForRendering(partialTick),
-                getRGBAForRendering(partialTick),
+                renderColor.getRGB(),
                 shadow, guiGraphics.pose().last().pose(),
                 guiGraphics.bufferSource(), Font.DisplayMode.NORMAL,
                 0x00FFFFFF, 15728880);
@@ -192,6 +207,8 @@ public class TextInstance{
     public void Tick(){
         Age();
         LerpAndSetValues();
+        volatileKeyframes.forEach(TextKeyframe::Tick);
+        updateVolatileList();
     }
     public void Age() {
         if (XShiftDuration > 0) {
@@ -215,28 +232,28 @@ public class TextInstance{
         if (x != wantedX) {
             x = Lerp(x, wantedX, XAge);
         } else if (XShiftDuration != 0) {
-            OnReachingX();
-            OnReachingXOrY(true, y == wantedY);
+            onReachingX();
+            onReachingXOrY(true, y == wantedY);
             XShiftDuration = 0;
         }
         if (y != wantedY){
             y = Lerp(y, wantedY, YAge);
         } else if (YShiftDuration != 0) {
-            OnReachingY();
-            OnReachingXOrY(x == wantedX, true);
+            onReachingY();
+            onReachingXOrY(x == wantedX, true);
             YShiftDuration = 0;
         }
         if (!color.equals(wantedColor)) {
             color = LerpColors(color, wantedColor, ColorAge);
         } else if (ColorShiftDuration == 0) {
-            OnReachingColor();
+            onReachingColor();
             ColorShiftDuration = 0;
         }
     }
-    public void OnReachingX(){}
-    public void OnReachingY(){}
-    public void OnReachingXOrY(boolean x, boolean y){}
-    public void OnReachingColor(){}
+    public void onReachingX(){}
+    public void onReachingY(){}
+    public void onReachingXOrY(boolean x, boolean y){}
+    public void onReachingColor(){}
 
     public static int Lerp(int from, int to, float partial){
         return (int)(from + (to - from) * partial);

@@ -6,7 +6,7 @@ import net.minecraft.world.phys.Vec3;
 
 public interface IDodgable {
     double getDodgeChance();
-    default boolean TryToDodge(Mob parent) {
+    default boolean tryToDodge(Mob parent) {
         if (canDodge(parent)){
             if (parent.getRandom().nextDouble() <= getDodgeChance()){
                 int Direction = parent.getRandom().nextBoolean() ? -1 : 1;

@@ -10,6 +10,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.Nullable;
 
 public class EntomoSounds {
     public static final DeferredRegister<SoundEvent> SOUND_EVENTS =
@@ -21,8 +22,39 @@ public class EntomoSounds {
     public static final RegistryObject<SoundEvent> MYIATIC_SHEEP_IDLE = registerSoundEvents("myiatic_sheep_idle");
     public static final RegistryObject<SoundEvent> MYIATIC_FLYING = registerSoundEvents("myiatic_flying");
 
-    public static final ForgeSoundType TEST_SOUND_TYPE = new ForgeSoundType(1f, 1f,
-            null, null, null, null, null); //Replace Null with actual sounds
+    public static final RegistryObject<SoundEvent> CLOSER = registerSoundEvents("closer");
+    public static final RegistryObject<SoundEvent> COME = registerSoundEvents("come");
+    public static final RegistryObject<SoundEvent> DEFEAT = registerSoundEvents("defeat");
+    public static final RegistryObject<SoundEvent> FALLEN = registerSoundEvents("fallen");
+    public static final RegistryObject<SoundEvent> FIX_US = registerSoundEvents("fix_us");
+    public static final RegistryObject<SoundEvent> FREE_ME = registerSoundEvents("free_me");
+    public static final RegistryObject<SoundEvent> JOIN_US = registerSoundEvents("join_us");
+    public static final RegistryObject<SoundEvent> PAIN = registerSoundEvents("pain");
+    public static final RegistryObject<SoundEvent> RECLAIM_ME = registerSoundEvents("reclaim_me");
+    public static final RegistryObject<SoundEvent> REVIVE = registerSoundEvents("revive");
+    public static final RegistryObject<SoundEvent> SALVATION = registerSoundEvents("salvation");
+    public static final RegistryObject<SoundEvent> THEY_KNOW_MY_NAME = registerSoundEvents("they_know_my_name");
+    public static final RegistryObject<SoundEvent> THEY_WATCHED_ME_BLEED = registerSoundEvents("they_watched_me_bleed");
+
+    public static @Nullable SoundEvent getVoice(String id){
+        return switch (id) {
+            default -> null;
+            case "Closer" -> CLOSER.get();
+            case "Come" -> COME.get();
+            case "Defeat" -> DEFEAT.get();
+            case "Fallen" -> FALLEN.get();
+            case "FIX US" -> FIX_US.get();
+            case "Free me" -> FREE_ME.get();
+            case "Join us" -> JOIN_US.get();
+            case "Pain" -> PAIN.get();
+            case "Reclaim me" -> RECLAIM_ME.get();
+            case "Revive" -> REVIVE.get();
+            case "Salvation" -> SALVATION.get();
+            case "They know my name" -> THEY_KNOW_MY_NAME.get();
+            case "They watched me BLEED" -> THEY_WATCHED_ME_BLEED.get();
+        };
+    }
+
     public static final SoundType TWINED_FLESH_STYPE = new SoundType(1f, 1f,
             SoundEvents.HONEY_BLOCK_BREAK, SoundEvents.MUD_STEP,
             SoundEvents.MUD_PLACE, SoundEvents.MUD_PLACE, SoundEvents.MUD_FALL);

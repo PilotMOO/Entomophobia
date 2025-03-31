@@ -28,5 +28,83 @@
     "sounds": [
       "entomophobia:myiatic_flying"
     ]
+  },
+  "closer": {
+    "subtitles": "sounds.entomophobia:astral_voices",
+    "sounds": [
+      "entomophobia:voices/closer"
+    ]
+  },
+  "come": {
+    "subtitles": "sounds.entomophobia:astral_voices",
+    "sounds": [
+      "entomophobia:voices/come"
+    ]
+  },
+  "defeat": {
+    "subtitles": "sounds.entomophobia:astral_voices",
+    "sounds": [
+      "entomophobia:voices/defeat"
+    ]
+  },
+  "fallen": {
+    "subtitles": "sounds.entomophobia:astral_voices",
+    "sounds": [
+      "entomophobia:voices/fallen"
+    ]
+  },
+  "fix_us": {
+    "subtitles": "sounds.entomophobia:astral_voices",
+    "sounds": [
+      "entomophobia:voices/fix_us"
+    ]
+  },
+  "free_me": {
+    "subtitles": "sounds.entomophobia:astral_voices",
+    "sounds": [
+      "entomophobia:voices/free_me"
+    ]
+  },
+  "join_us": {
+    "subtitles": "sounds.entomophobia:astral_voices",
+    "sounds": [
+      "entomophobia:voices/join_us"
+    ]
+  },
+  "pain": {
+    "subtitles": "sounds.entomophobia:astral_voices",
+    "sounds": [
+      "entomophobia:voices/pain"
+    ]
+  },
+  "reclaim_me": {
+    "subtitles": "sounds.entomophobia:astral_voices",
+    "sounds": [
+      "entomophobia:voices/reclaim_me"
+    ]
+  },
+  "revive": {
+    "subtitles": "sounds.entomophobia:astral_voices",
+    "sounds": [
+      "entomophobia:voices/revive"
+    ]
+  },
+  "salvation": {
+    "subtitles": "sounds.entomophobia:astral_voices",
+    "sounds": [
+      "entomophobia:voices/salvation"
+    ]
+  },
+  "they_know_my_name": {
+    "subtitles": "sounds.entomophobia:astral_voices",
+    "sounds": [
+      "entomophobia:voices/they_know_my_name"
+    ]
+  },
+  "they_watched_me_bleed": {
+    "subtitles": "sounds.entomophobia:astral_voices",
+    "sounds": [
+      "entomophobia:voices/they_watched_me_bleed"
+    ]
   }
 }

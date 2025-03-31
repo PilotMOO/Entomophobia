@@ -2,6 +2,7 @@ package mod.pilot.entomophobia.entity;
 
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.entity.celestial.CelestialCarrionEntity;
+import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
 import mod.pilot.entomophobia.entity.myiatic.*;
 import mod.pilot.entomophobia.entity.pheromones.PheromoneFrenzyEntity;
 import mod.pilot.entomophobia.entity.pheromones.PheromonePreyHuntEntity;
@@ -45,9 +46,13 @@ public class EntomoEntities {
             ENTITY_TYPES.register("myiatic_chicken", () -> EntityType.Builder.of(MyiaticChickenEntity::new, MobCategory.MONSTER)
                     .sized(0.75f, 0.5f).build("myiatic_chicken"));
 
+    //Celestial
     public static final RegistryObject<EntityType<CelestialCarrionEntity>> CELESTIAL_CARRION =
             ENTITY_TYPES.register("celestial_carrion", () -> EntityType.Builder.of(CelestialCarrionEntity::new, MobCategory.MONSTER)
                     .sized(1, 1).build("celestial_carrion"));
+    public static final RegistryObject<EntityType<HiveHeartEntity>> HIVE_HEART =
+            ENTITY_TYPES.register("hive_heart", () -> EntityType.Builder.of(HiveHeartEntity::new, MobCategory.MONSTER)
+                    .sized(1.5f, 1.75f).build("hive_heart"));
 
     //Pests
     public static final RegistryObject<EntityType<SpiderPestEntity>> SPIDER_PEST =

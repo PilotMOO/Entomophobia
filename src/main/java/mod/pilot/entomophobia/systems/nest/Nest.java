@@ -1,8 +1,8 @@
 package mod.pilot.entomophobia.systems.nest;
 
-import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.data.EntomoDataManager;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
+import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
 import mod.pilot.entomophobia.systems.PolyForged.shapes.abstractshapes.ShapeGenerator;
 import mod.pilot.entomophobia.systems.PolyForged.shapes.ChamberGenerator;
 import mod.pilot.entomophobia.systems.PolyForged.shapes.TunnelGenerator;
@@ -25,6 +25,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 public class Nest {
     public Nest(ServerLevel server, Vec3 start){
@@ -87,7 +88,7 @@ public class Nest {
     public final Chamber MainChamber;
     private Chamber CreateMainChamber(){
         return new Chamber(server, null, origin,
-                Config.NEST.large_chamber_max_size.get(), Config.NEST.large_chamber_thickness.get()).DenoteAsMain();
+                NestManager.getNestLargeChamberMaxRadius(), NestManager.getNestLargeChamberThickness()).DenoteAsMain();
     }
 
     public void NestTick(){
@@ -529,6 +530,40 @@ public class Nest {
             return this;
         }
 
+        private @Nullable HiveHeartEntity hiveHeart;
+        private @Nullable UUID hiveHeartUUID;
+        public @Nullable HiveHeartEntity getHiveHeart(){
+            if (isMainChamber()){
+                if (hiveHeart != null) return hiveHeart;
+                else if (hiveHeartUUID != null) return hiveHeart = (HiveHeartEntity)server.getEntity(hiveHeartUUID);
+            }
+            return null;
+        }
+        public void setHiveHeart(HiveHeartEntity hh){
+            setHiveHeart(hh, false);
+        }
+        public void setHiveHeart(UUID hhUUID){
+            setHiveHeart(hhUUID, false);
+        }
+        public void setHiveHeart(HiveHeartEntity hh, boolean quiet){
+            if (isMainChamber()) {
+                this.hiveHeart = hh;
+                this.hiveHeartUUID = hh.getUUID();
+            } else if (!quiet) _printInvalidHeartAssignmentMessage();
+        }
+        public void setHiveHeart(UUID hhUUID, boolean quiet){
+            if (isMainChamber()) {
+                this.hiveHeartUUID = hhUUID;
+            } else if (!quiet) _printInvalidHeartAssignmentMessage();
+        }
+        private void _printInvalidHeartAssignmentMessage(){
+            System.err.println("[NEST MANAGER] Attempted to assign a " +
+                    "Hive Heart entity to a Chamber that ISN'T a Main Chamber!");
+            System.err.println("[NEST MANAGER] Info-- if this message appears," +
+                    " ensure that you are assigning it to the right chamber OR" +
+                    " you have the \"quiet\" argument set to true!");
+        }
+
         @Override
         public void OffshootTick(boolean tickChildren, boolean continuous, int layers) {
             super.OffshootTick(tickChildren, continuous, layers);
@@ -561,10 +596,19 @@ public class Nest {
                             AddToChildren(C);
                             return;
                         }
+                        if (getHiveHeart() == null){
+                            GenerateHiveHeart();
+                        }
                     }
                     ConstructNewChild((byte)2);
                 }
             }
+        }
+
+        private void GenerateHiveHeart() {
+            System.out.println("Attempted to generate a Hive Heart.");
+            System.out.println("BUT!");
+            System.out.println("That part isn't coded yet smh.");
         }
 
         @Override
@@ -583,9 +627,10 @@ public class Nest {
             if (testOffshootPosition(toReturn)) return toReturn;
             else {
                 System.err.println("[NEST SYSTEM] Attempt to generate a valid Offshoot position FAILED in [" + cycleCounter + "] attempts!");
-                System.err.println("[NEST SYSTEM] From: Corridor, At: " + position);
-                System.err.println("[NEST SYSTEM] Running testOffshootPosition debugger on final result...");
-                System.err.println("[NEST SYSTEM] testOffshootPosition debugger finished, result was " + testOffshootPositionWithDebug(toReturn));
+                System.err.println("[NEST SYSTEM] Info-- From: Corridor, At: " + position);
+                System.err.println("[NEST SYSTEM] Debugger-- Running testOffshootPosition debugger on final result...");
+                System.err.println("[NEST SYSTEM] Debugger-- Info-- testOffshootPosition debugger finished, result was "
+                        + testOffshootPositionWithDebug(toReturn));
                 DeadEnd = true;
                 return null;
             }
@@ -644,7 +689,6 @@ public class Nest {
 
         @Override
         public int getMaxAllowedFeatureCount() {
-            //System.out.println("Allowed features: " + radius / 2);
             return radius / 2;
         }
 
@@ -924,6 +968,7 @@ public class Nest {
                     }
                     else yFactor = getPosition().y > yPriority ? -1 : 1;
                     direction = direction.multiply(1, yFactor, 1);
+
                     /*direction = direction.multiply(1, getPosition().y > NestManager.getNestYBuildPriority() ? direction.y > 0 ? -1 : 1
                             : direction.y < 0 ? -1 : 1, 1);*/
 
@@ -978,8 +1023,8 @@ public class Nest {
                             if (debug) {
                                 System.err.println("[NEST SYSTEM DEBUGGER] " + methodName
                                         + " returned [TRUE] because directional line check located an invalid block");
-                                System.err.println("[NEST SYSTEM DEBUGGER] [INFO] Block position: " + bPos);
-                                System.err.println("[NEST SYSTEM DEBUGGER] [INFO] Block type: " + bState.getBlock());
+                                System.err.println("[NEST SYSTEM DEBUGGER] Info-- Block position: " + bPos);
+                                System.err.println("[NEST SYSTEM DEBUGGER] Info-- Block type: " + bState.getBlock());
                             }
                             return true;
                         }
@@ -1001,9 +1046,9 @@ public class Nest {
                                 if (debug) {
                                     System.err.println("[NEST SYSTEM DEBUGGER] " + methodName
                                             + " returned [TRUE] because end position area check located an invalid block");
-                                    System.err.println("[NEST SYSTEM DEBUGGER] [INFO] Block position: " +
+                                    System.err.println("[NEST SYSTEM DEBUGGER] Info-- Block position: " +
                                             new BlockPos((int) toTest.x + x, (int) toTest.y + y, (int) toTest.z + z));
-                                    System.err.println("[NEST SYSTEM DEBUGGER] [INFO] Block type: " + bState.getBlock());
+                                    System.err.println("[NEST SYSTEM DEBUGGER] Info-- Block type: " + bState.getBlock());
                                 }
                                 return true;
                             }
