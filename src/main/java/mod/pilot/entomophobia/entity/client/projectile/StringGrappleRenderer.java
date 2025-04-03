@@ -34,14 +34,14 @@ public class StringGrappleRenderer extends GeoEntityRenderer<StringGrappleProjec
             pPoseStack.pushPose();
             pPoseStack.translate(0.0F, eyeHeight, 0.0F);
             Vec3 Position = this.getPosition(parent, (double)parent.getBbHeight() * 0.5D, pPartialTicks);
-            Vec3 PosAtEye = this.getPosition(grapple, eyeHeight, pPartialTicks);
-            Vec3 PosEyeDirection = Position.subtract(PosAtEye);
-            float PosEyeDistanceP1 = (float)(PosEyeDirection.length() + 1.0D);
-            PosEyeDirection = PosEyeDirection.normalize();
-            float AcosOfPED = (float)Math.acos(PosEyeDirection.y);
-            float AtanOfPED = (float)Math.atan2(PosEyeDirection.z, PosEyeDirection.x);
-            pPoseStack.mulPose(Axis.YP.rotationDegrees((((float)Math.PI / 2F) - AtanOfPED) * (180F / (float)Math.PI)));
-            pPoseStack.mulPose(Axis.XP.rotationDegrees(AcosOfPED * (180F / (float)Math.PI)));
+            Vec3 ProjectilePosition = this.getPosition(grapple, eyeHeight, pPartialTicks);
+            Vec3 PosSubPPos = Position.subtract(ProjectilePosition);
+            float PSPPPlus1 = (float)(PosSubPPos.length() + 1.0D);
+            PosSubPPos = PosSubPPos.normalize();
+            float AcosOfPSPP = (float)Math.acos(PosSubPPos.y);
+            float AtanOfPSPP = (float)Math.atan2(PosSubPPos.z, PosSubPPos.x);
+            pPoseStack.mulPose(Axis.YP.rotationDegrees((((float)Math.PI / 2F) - AtanOfPSPP) * (180F / (float)Math.PI)));
+            pPoseStack.mulPose(Axis.XP.rotationDegrees(AcosOfPSPP * (180F / (float)Math.PI)));
             int Unused = 1;
             float CSAAPPReduced = ClientSideAttackAnimPlusPartial * 0.05F * -1.5F;
             float AnimScaleSqr = AnimScale * AnimScale;
@@ -68,29 +68,29 @@ public class StringGrappleRenderer extends GeoEntityRenderer<StringGrappleProjec
             float f26 = Mth.sin(CSAAPPReduced + ((float)Math.PI * 1.5F)) * 0.2F;
             float UnusedFour = 0.0F;
             float UnusedFive = 0.4999F;
-            float f29 = -1.0F + CSAAPPButchered;
-            float f30 = PosEyeDistanceP1 * 2.5F + f29;
+            float CSAAPPBMin1 = -1.0F + CSAAPPButchered;
+            float idfk = PSPPPlus1 * 2.5F + CSAAPPBMin1;
             VertexConsumer vertexconsumer = pBuffer.getBuffer(GRAPPLE_RENDER_TYPE);
             PoseStack.Pose posestack$pose = pPoseStack.last();
             Matrix4f matrix4f = posestack$pose.pose();
             Matrix3f matrix3f = posestack$pose.normal();
-            vertex(vertexconsumer, matrix4f, matrix3f, f19, PosEyeDistanceP1, f20, 255, 255, 255, 0.4999F, f30);
-            vertex(vertexconsumer, matrix4f, matrix3f, f19, 0.0F, f20, 255, 255, 255, 0.4999F, f29);
-            vertex(vertexconsumer, matrix4f, matrix3f, f21, 0.0F, f22, 255, 255, 255, 0.0F, f29);
-            vertex(vertexconsumer, matrix4f, matrix3f, f21, PosEyeDistanceP1, f22, 255, 255, 255, 0.0F, f30);
-            vertex(vertexconsumer, matrix4f, matrix3f, f23, PosEyeDistanceP1, f24, 255, 255, 255, 0.4999F, f30);
-            vertex(vertexconsumer, matrix4f, matrix3f, f23, 0.0F, f24, 255, 255, 255, 0.4999F, f29);
-            vertex(vertexconsumer, matrix4f, matrix3f, f25, 0.0F, f26, 255, 255, 255, 0.0F, f29);
-            vertex(vertexconsumer, matrix4f, matrix3f, f25, PosEyeDistanceP1, f26, 255, 255, 255, 0.0F, f30);
+            vertex(vertexconsumer, matrix4f, matrix3f, f19, PSPPPlus1, f20, 255, 255, 255, 0.4999F, idfk);
+            vertex(vertexconsumer, matrix4f, matrix3f, f19, 0.0F, f20, 255, 255, 255, 0.4999F, CSAAPPBMin1);
+            vertex(vertexconsumer, matrix4f, matrix3f, f21, 0.0F, f22, 255, 255, 255, 0.0F, CSAAPPBMin1);
+            vertex(vertexconsumer, matrix4f, matrix3f, f21, PSPPPlus1, f22, 255, 255, 255, 0.0F, idfk);
+            vertex(vertexconsumer, matrix4f, matrix3f, f23, PSPPPlus1, f24, 255, 255, 255, 0.4999F, idfk);
+            vertex(vertexconsumer, matrix4f, matrix3f, f23, 0.0F, f24, 255, 255, 255, 0.4999F, CSAAPPBMin1);
+            vertex(vertexconsumer, matrix4f, matrix3f, f25, 0.0F, f26, 255, 255, 255, 0.0F, CSAAPPBMin1);
+            vertex(vertexconsumer, matrix4f, matrix3f, f25, PSPPPlus1, f26, 255, 255, 255, 0.0F, idfk);
             float f31 = 0.0F;
             if (grapple.tickCount % 2 == 0) {
                 f31 = 0.5F;
             }
 
-            vertex(vertexconsumer, matrix4f, matrix3f, f11, PosEyeDistanceP1, f12, 255, 255, 255, 0.5F, f31 + 0.5F);
-            vertex(vertexconsumer, matrix4f, matrix3f, f13, PosEyeDistanceP1, f14, 255, 255, 255, 1.0F, f31 + 0.5F);
-            vertex(vertexconsumer, matrix4f, matrix3f, f17, PosEyeDistanceP1, f18, 255, 255, 255, 1.0F, f31);
-            vertex(vertexconsumer, matrix4f, matrix3f, f15, PosEyeDistanceP1, f16, 255, 255, 255, 0.5F, f31);
+            vertex(vertexconsumer, matrix4f, matrix3f, f11, PSPPPlus1, f12, 255, 255, 255, 0.5F, f31 + 0.5F);
+            vertex(vertexconsumer, matrix4f, matrix3f, f13, PSPPPlus1, f14, 255, 255, 255, 1.0F, f31 + 0.5F);
+            vertex(vertexconsumer, matrix4f, matrix3f, f17, PSPPPlus1, f18, 255, 255, 255, 1.0F, f31);
+            vertex(vertexconsumer, matrix4f, matrix3f, f15, PSPPPlus1, f16, 255, 255, 255, 0.5F, f31);
             pPoseStack.popPose();
         }
     }
