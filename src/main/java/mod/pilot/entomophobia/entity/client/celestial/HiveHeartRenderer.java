@@ -51,14 +51,18 @@ public class HiveHeartRenderer extends GeoEntityRenderer<HiveHeartEntity> {
                        @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
 
-        for (Vec3 arteryPos : entity.getOrCreateArteryHooks()) {
+        for (Vec3 arteryOffset : entity.getOrCreateArteryHooks()) {
+            //Invert because minecraft fucked up the Y axis so you gotta invert shit >:[
+            Vec3 offsetSubPos = arteryOffset.subtract(entity.position());
+            arteryOffset = arteryOffset.subtract(offsetSubPos.scale(2));
+
             float AnimScale = 1;
             float ClientSideAttackAnimPlusPartial = 0.5f;
             float CSAAPPButchered = ClientSideAttackAnimPlusPartial * 0.5F % 1.0F;
             poseStack.pushPose();
             Vec3 heartPos = this.getPosition(entity, (double)entity.getBbHeight() * 0.5D, partialTick);
-            Vec3 PosSubEnd = heartPos.subtract(arteryPos);
-            Vec3 directTo = EntomoDataManager.getDirectionToAFromB(heartPos, arteryPos).scale(0.75f);
+            Vec3 PosSubEnd = heartPos.subtract(arteryOffset);
+            Vec3 directTo = EntomoDataManager.getDirectionFromAToB(heartPos, arteryOffset).scale(0.75f);
             poseStack.translate(directTo.x, directTo.y, directTo.z);
             float PosSubEndDistPlus1 = (float)(PosSubEnd.length() + 1.0D);
             PosSubEnd = PosSubEnd.normalize();
@@ -74,47 +78,53 @@ public class HiveHeartRenderer extends GeoEntityRenderer<HiveHeartEntity> {
             int AminSSReduced = 128 - (int)(AnimScaleSqr * 64.0F);
             float UnusedTwo = 0.2F;
             float UnusedThree = 0.282F;
-            float f11 = Mth.cos(CSAAPPReduced + 2.3561945F) * 0.282F;
+            float arteryScale = 0.25f; //Used to be 0.2f
+            //Was used for rendering tip
+            /*float f11 = Mth.cos(CSAAPPReduced + 2.3561945F) * 0.282F;
             float f12 = Mth.sin(CSAAPPReduced + 2.3561945F) * 0.282F;
             float f13 = Mth.cos(CSAAPPReduced + ((float)Math.PI / 4F)) * 0.282F;
             float f14 = Mth.sin(CSAAPPReduced + ((float)Math.PI / 4F)) * 0.282F;
             float f15 = Mth.cos(CSAAPPReduced + 3.926991F) * 0.282F;
             float f16 = Mth.sin(CSAAPPReduced + 3.926991F) * 0.282F;
             float f17 = Mth.cos(CSAAPPReduced + 5.4977875F) * 0.282F;
-            float f18 = Mth.sin(CSAAPPReduced + 5.4977875F) * 0.282F;
-            float f19 = Mth.cos(CSAAPPReduced + (float)Math.PI) * 0.2F;
-            float f20 = Mth.sin(CSAAPPReduced + (float)Math.PI) * 0.2F;
-            float f21 = Mth.cos(CSAAPPReduced + 0.0F) * 0.2F;
-            float f22 = Mth.sin(CSAAPPReduced + 0.0F) * 0.2F;
-            float f23 = Mth.cos(CSAAPPReduced + ((float)Math.PI / 2F)) * 0.2F;
-            float f24 = Mth.sin(CSAAPPReduced + ((float)Math.PI / 2F)) * 0.2F;
-            float f25 = Mth.cos(CSAAPPReduced + ((float)Math.PI * 1.5F)) * 0.2F;
-            float f26 = Mth.sin(CSAAPPReduced + ((float)Math.PI * 1.5F)) * 0.2F;
+            float f18 = Mth.sin(CSAAPPReduced + 5.4977875F) * 0.282F;*/
+            float f19 = Mth.cos(CSAAPPReduced + (float)Math.PI) * arteryScale;
+            float f20 = Mth.sin(CSAAPPReduced + (float)Math.PI) * arteryScale;
+            float f21 = Mth.cos(CSAAPPReduced + 0.0F) * arteryScale;
+            float f22 = Mth.sin(CSAAPPReduced + 0.0F) * arteryScale;
+            float f23 = Mth.cos(CSAAPPReduced + ((float)Math.PI / 2F)) * arteryScale;
+            float f24 = Mth.sin(CSAAPPReduced + ((float)Math.PI / 2F)) * arteryScale;
+            float f25 = Mth.cos(CSAAPPReduced + ((float)Math.PI * 1.5F)) * arteryScale;
+            float f26 = Mth.sin(CSAAPPReduced + ((float)Math.PI * 1.5F)) * arteryScale;
             float UnusedFour = 0.0F;
             float UnusedFive = 0.4999F;
-            float f29 = -1.0F + CSAAPPButchered;
-            float f30 = PosSubEndDistPlus1 * 2.5F + f29;
+            //These (two) MIGHT manage UV texture height...
+            float f29 = -1.0F + CSAAPPButchered; //This should stay the same
+            float f30 = (PosSubEndDistPlus1 / (arteryScale * 2)) + f29; //This changes the height of the UV, E.G. vertical stretch
             VertexConsumer vertexconsumer = bufferSource.getBuffer(ARTERY_RENDER_TYPE);
             PoseStack.Pose posestack$pose = poseStack.last();
             Matrix4f matrix4f = posestack$pose.pose();
             Matrix3f matrix3f = posestack$pose.normal();
-            vertex(vertexconsumer, matrix4f, matrix3f, f19, PosSubEndDistPlus1, f20, 255, 255, 255, 0.4999F, f30);
-            vertex(vertexconsumer, matrix4f, matrix3f, f19, 0.0F, f20, 255, 255, 255, 0.4999F, f29);
-            vertex(vertexconsumer, matrix4f, matrix3f, f21, 0.0F, f22, 255, 255, 255, 0.0F, f29);
-            vertex(vertexconsumer, matrix4f, matrix3f, f21, PosSubEndDistPlus1, f22, 255, 255, 255, 0.0F, f30);
-            vertex(vertexconsumer, matrix4f, matrix3f, f23, PosSubEndDistPlus1, f24, 255, 255, 255, 0.4999F, f30);
-            vertex(vertexconsumer, matrix4f, matrix3f, f23, 0.0F, f24, 255, 255, 255, 0.4999F, f29);
-            vertex(vertexconsumer, matrix4f, matrix3f, f25, 0.0F, f26, 255, 255, 255, 0.0F, f29);
-            vertex(vertexconsumer, matrix4f, matrix3f, f25, PosSubEndDistPlus1, f26, 255, 255, 255, 0.0F, f30);
+            float textureUVWidth = 1f; //How much of the texture, in percent, is shown
+            float pU2 = 0.0f; //keep it as 0
+            vertex(vertexconsumer, matrix4f, matrix3f, f19, PosSubEndDistPlus1, f20, 255, 255, 255, textureUVWidth, f30);
+            vertex(vertexconsumer, matrix4f, matrix3f, f19, 0.0F, f20, 255, 255, 255, textureUVWidth, f29);
+            vertex(vertexconsumer, matrix4f, matrix3f, f21, 0.0F, f22, 255, 255, 255, pU2, f29);
+            vertex(vertexconsumer, matrix4f, matrix3f, f21, PosSubEndDistPlus1, f22, 255, 255, 255, pU2, f30);
+            vertex(vertexconsumer, matrix4f, matrix3f, f23, PosSubEndDistPlus1, f24, 255, 255, 255, textureUVWidth, f30);
+            vertex(vertexconsumer, matrix4f, matrix3f, f23, 0.0F, f24, 255, 255, 255, textureUVWidth, f29);
+            vertex(vertexconsumer, matrix4f, matrix3f, f25, 0.0F, f26, 255, 255, 255, pU2, f29);
+            vertex(vertexconsumer, matrix4f, matrix3f, f25, PosSubEndDistPlus1, f26, 255, 255, 255, pU2, f30);
             float f31 = 0.0F;
             if (entity.tickCount % 2 == 0) {
                 f31 = 0.5F;
             }
 
-            vertex(vertexconsumer, matrix4f, matrix3f, f11, PosSubEndDistPlus1, f12, 255, 255, 255, 0.5F, f31 + 0.5F);
+            //Attempt to remove the weird glitchy tip
+            /*vertex(vertexconsumer, matrix4f, matrix3f, f11, PosSubEndDistPlus1, f12, 255, 255, 255, 0.5F, f31 + 0.5F);
             vertex(vertexconsumer, matrix4f, matrix3f, f13, PosSubEndDistPlus1, f14, 255, 255, 255, 1.0F, f31 + 0.5F);
             vertex(vertexconsumer, matrix4f, matrix3f, f17, PosSubEndDistPlus1, f18, 255, 255, 255, 1.0F, f31);
-            vertex(vertexconsumer, matrix4f, matrix3f, f15, PosSubEndDistPlus1, f16, 255, 255, 255, 0.5F, f31);
+            vertex(vertexconsumer, matrix4f, matrix3f, f15, PosSubEndDistPlus1, f16, 255, 255, 255, 0.5F, f31);*/
             poseStack.popPose();
         }
     }
