@@ -69,11 +69,12 @@ public class HiveHeartEntity extends MyiaticBase {
     //This just returns an arraylist of positions, you need to actually assign it for it to work...
     public ArrayList<Vec3> createArteries(int count, int maxRange, int maxTries){
         //ToDo: Shoot out raycasts to locate blocks around the entity in a set radius for rendering arteries
-        //Rn just creates one vector like 10 blocks above the heart for testing reasons
+        //Rn just creates a few vectors around the heart for testing reasons
         return Lists.newArrayList(position().add(5, 10, 2),
                 position().add(4, -3, -6),
                 position().add(-5, -5, 6),
-                position().add(15, 2, -16));
+                position().add(15, 2, -16),
+                position().add(0, 10, 0));
     }
 
     //Animation handling
