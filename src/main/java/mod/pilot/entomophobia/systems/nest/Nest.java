@@ -19,6 +19,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import oshi.util.tuples.Pair;
 
 import javax.annotation.Nonnull;
@@ -310,10 +312,8 @@ public class Nest {
             return canSupportFeatures() && !isFinishedWithFeatures()
                     && Finished() && !shouldThisBecomeAParent() && !areAnyOfMyChildrenAlive();
         }
-        protected boolean isFeaturePositionValid(Vec3 pos, Feature feature,
-                                                          @Nullable Direction facing, HashMap<Vec3, Feature> alreadyPlaced){
+        protected boolean isFeaturePositionValid(Vec3 pos, Feature feature, HashMap<Vec3, Feature> alreadyPlaced){
             if (pos == null) return false;
-            //ToDo: Add testing for wall features IF required, otherwise remove facing argument
             if (children != null){
                 for (Offshoot o : children){
                     if (o.position.distanceTo(pos) < (o instanceof Chamber c1 ? c1.radius
@@ -412,9 +412,9 @@ public class Nest {
                     }
                 }
 
-            } while (!isFeaturePositionValid(placePos, f, facing, alreadyPlaced) && cycle++ < 10);
+            } while (!isFeaturePositionValid(placePos, f, alreadyPlaced) && cycle++ < 10);
 
-            if (isFeaturePositionValid(placePos, f, facing, alreadyPlaced)){
+            if (isFeaturePositionValid(placePos, f, alreadyPlaced)){
                 return new Pair<>(placePos, facing);
             }
             else{
@@ -627,7 +627,7 @@ public class Nest {
             if (testOffshootPosition(toReturn)) return toReturn;
             else {
                 System.err.println("[NEST SYSTEM] Attempt to generate a valid Offshoot position FAILED in [" + cycleCounter + "] attempts!");
-                System.err.println("[NEST SYSTEM] Info-- From: Corridor, At: " + position);
+                System.err.println("[NEST SYSTEM] Info-- From: Chamber, At: " + position);
                 System.err.println("[NEST SYSTEM] Debugger-- Running testOffshootPosition debugger on final result...");
                 System.err.println("[NEST SYSTEM] Debugger-- Info-- testOffshootPosition debugger finished, result was "
                         + testOffshootPositionWithDebug(toReturn));
@@ -717,7 +717,6 @@ public class Nest {
             else facing = placementPos == 1 ? Direction.UP : Direction.DOWN;
 
             //Generating the default direction (up, down, north, south, east, west, whatever demanded of the facing direction)
-            //Let's hope that changing this to use the direction rather than the placementPos won't break everything...
             Vec3 direction = switch (facing){
                 case UP -> new Vec3(0, -1, 0);
                 case DOWN -> new Vec3(0, 1, 0);
@@ -729,7 +728,7 @@ public class Nest {
 
             //Generating a randomized rotation based off of the direction of it
             final int clamp = 30; //Our clamp, how much it can turn from the original direction
-            final int wallClamp = 15;
+            final int wallClamp = 15; //Clamp for wall features specifically
             if (placementPos == 2){
                 //If it's a wall feature, add some Y Rotation on it (left-right turning)
                 direction = direction.yRot(generateRadian(wallClamp, true));
@@ -748,51 +747,15 @@ public class Nest {
             do{
                 //Continuously add the direction to the position until we hit a solid block
                 toReturn = toReturn.add(direction);
+                if (toReturn.y < server.getMinBuildHeight() && toReturn.y > server.getMaxBuildHeight()){
+                    //If the vector is higher or lower than the build limits, return null
+                    //(so a hole inside a nest won't make this run forever and freeze the server)
+                    return null;
+                }
             } while (server.getBlockState(BlockPos.containing(toReturn)).isAir());
 
             //Package it all up and send it off to be reviewed!
             return new Pair<>(toReturn, facing.getOpposite());
-
-            //Old code
-            /*int difference = radius - thickness;
-            int yOffset = switch (placementPos){
-                case 0 -> switch (random.nextIntBetweenInclusive(1, 3)){
-                    default -> -(radius - (thickness * 2));
-                    case 2 -> 0;
-                    case 3 -> radius - (thickness * 2);
-                };
-                default -> -(radius - (thickness * 2));
-                case 2 -> 0;
-                case 3 -> radius - (thickness * 2);
-            };
-
-            Vec3 offset;
-            if (placementPos != 2){
-                offset = new Vec3(random.nextIntBetweenInclusive(-difference, difference),
-                        yOffset,
-                        random.nextIntBetweenInclusive(-difference, difference));
-            }
-            else{
-                offset = Vec3.ZERO.yRot(random.nextInt(-180, 180))
-                        .xRot(random.nextInt(-30, 30))
-                        .scale(difference);
-            }
-
-            int towards = placementPos == 1 ? 1 : placementPos == 3 ? -1 : 0;
-            if (towards != 0){
-                BlockPos.MutableBlockPos mBPos = new BlockPos.MutableBlockPos(offset.x, offset.y, offset.z);
-                do{
-                    mBPos.move(0, towards, 0);
-                }
-                while (!server.getBlockState(mBPos).is(EntomoTags.Blocks.MYIATIC_FLESH_BLOCKTAG)
-                        || !server.getBlockState(mBPos.offset(0, towards, 0)).isAir()
-                        || Vec3.ZERO.distanceTo(mBPos.getCenter()) < radius);
-
-                //mBPos.move(0, -towards * 2, 0);
-                offset = mBPos.getCenter();
-            }
-
-            return position.add(offset);*/
         }
     }
     public static class Corridor extends Offshoot{

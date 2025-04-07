@@ -1,6 +1,5 @@
 package mod.pilot.entomophobia.entity.celestial;
 
-import com.google.common.collect.Lists;
 import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.core.animation.AnimationController;
@@ -8,13 +7,17 @@ import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.util.AzureLibUtil;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticPigEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import oshi.util.tuples.Pair;
 
+import javax.swing.text.Style;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -58,23 +61,94 @@ public class HiveHeartEntity extends MyiaticBase {
     }
 
     //Artery rendering
-    private ArrayList<Vec3> _arteryHooks;
-    public ArrayList<Vec3> getOrCreateArteryHooks(){
-        return Objects.requireNonNullElse(_arteryHooks, (_arteryHooks = createArteries()));
+    private ArrayList<Artery> _arteryHooks;
+    public ArrayList<Artery> getOrCreateArteryHooks(){
+        if (!hasArteries()) _arteryHooks = createArteries();
+        return _arteryHooks;
     }
     public boolean hasArteries(){return _arteryHooks != null && !_arteryHooks.isEmpty();}
-    public ArrayList<Vec3> createArteries(){
+    public ArrayList<Artery> createArteries(){
         return createArteries(random.nextInt(6, 9),32, 10);
     }
     //This just returns an arraylist of positions, you need to actually assign it for it to work...
-    public ArrayList<Vec3> createArteries(int count, int maxRange, int maxTries){
-        //ToDo: Shoot out raycasts to locate blocks around the entity in a set radius for rendering arteries
-        //Rn just creates a few vectors around the heart for testing reasons
-        return Lists.newArrayList(position().add(5, 10, 2),
-                position().add(4, -3, -6),
-                position().add(-5, -5, 6),
-                position().add(15, 2, -16),
-                position().add(0, 10, 0));
+    public ArrayList<Artery> createArteries(int count, int maxRange, int maxTries){
+        ArrayList<Artery> toReturn = new ArrayList<>();
+        for (; count > 0; --count){
+            Vec3 pos;
+            Vec3 direction;
+            int cycle = maxTries;
+            boolean valid = false;
+            do{
+                pos = position();
+                direction = new Vec3(0, 1, 0)
+                        .xRot((float)Math.toRadians(random.nextIntBetweenInclusive(-180, 180)))
+                        .yRot((float)Math.toRadians(random.nextIntBetweenInclusive(-180, 180)))
+                        .zRot((float)Math.toRadians(random.nextIntBetweenInclusive(-180, 180)));
+                int i = maxRange;
+                boolean flag = true;
+                BlockState bState;
+                while (--i >= 0 && flag){
+                    pos = pos.add(direction);
+                    bState = level().getBlockState(BlockPos.containing(pos));
+                    flag = bState.canBeReplaced();
+                }
+                if (!flag){
+                    valid = true;
+                    break;
+                }
+            }while(--cycle >= 0);
+            if (valid){
+                Pair<Float, Float> pair = randomArterySizePair();
+                boolean flip = random.nextBoolean();
+                float a = flip ? pair.getB() : pair.getA();
+                float b = flip ? pair.getA() : pair.getB();
+                toReturn.add(new Artery(_blockPosCenterOf(pos), a, b));
+            }
+        }
+        return toReturn;
+    }
+
+    public Pair<Float, Float> randomArterySizePair(){
+        float a, b;
+        switch (random.nextInt(6)){
+            case 0 ->{
+                a = 0.3f; b = 0.75f;
+            }
+            case 1 ->{
+                a = 0.1f; b = 0.3f;
+            }
+            case 2 ->{
+                a = 0.25f; b = 0.4f;
+            }
+            case 3 ->{
+                a = 0.35f; b = 0.5f;
+            }
+            case 4 ->{
+                a = 0.25f; b = 0.5f;
+            }
+            case 5 ->{
+                a = 0.15f; b = 0.4f;
+            }
+            default ->{
+                a = 0.25f; b = 0.25f;
+            }
+        }
+        return new Pair<>(a, b);
+    }
+
+    /**
+     * Floors the supplied Vec3 argument, adds 0.5 to the Y, then returns the new Vec3--
+     *  rounding all of its positions to an integer before having 0.5 added to all values.
+     *  Mimics the same result as BlockPos.containing(Vec3).getCenter(), while being less performance-hungry.
+     * @param vec The Vec3 to mimic the blockCenter of
+     * @return A Vec3 identical to if BlockPos.containing(Vec3).getCenter() was called on it instead.
+     */
+    private Vec3 _blockPosCenterOf(Vec3 vec){
+        double x, y, z;
+        x = Math.floor(vec.x) + 0.5d;
+        y = Math.floor(vec.y) + 0.5d;
+        z = Math.floor(vec.z) + 0.5d;
+        return new Vec3(x, y, z);
     }
 
     //Animation handling
@@ -89,4 +163,6 @@ public class HiveHeartEntity extends MyiaticBase {
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return cache;
     }
+
+    public record Artery(Vec3 position, float startThickness, float endThickness){}
 }

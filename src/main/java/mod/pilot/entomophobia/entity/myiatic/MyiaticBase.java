@@ -13,6 +13,7 @@ import mod.pilot.entomophobia.entity.pathfinding.WallClimbingNestNavigation;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
 import mod.pilot.entomophobia.data.BooleanCache;
 import mod.pilot.entomophobia.systems.nest.Nest;
+import mod.pilot.entomophobia.systems.nest.NestClientErrorLogger;
 import mod.pilot.entomophobia.systems.nest.NestManager;
 import mod.pilot.entomophobia.systems.swarm.Swarm;
 import mod.pilot.entomophobia.util.EntomoTags;

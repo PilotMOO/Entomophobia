@@ -51,7 +51,8 @@ public class HiveHeartRenderer extends GeoEntityRenderer<HiveHeartEntity> {
                        @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
 
-        for (Vec3 arteryPos : entity.getOrCreateArteryHooks()) {
+        for (HiveHeartEntity.Artery artery : entity.getOrCreateArteryHooks()) {
+            Vec3 arteryPos = artery.position();
             //Invert because minecraft fucked up the Y axis so you gotta invert shit >:[
             Vec3 offsetSubPos = arteryPos.subtract(entity.position());
             arteryPos = arteryPos.subtract(offsetSubPos.scale(2));
@@ -69,7 +70,8 @@ public class HiveHeartRenderer extends GeoEntityRenderer<HiveHeartEntity> {
             poseStack.mulPose(Axis.YP.rotationDegrees((((float)Math.PI / 2F) - AtanOfPSE) * (180F / (float)Math.PI)));
             poseStack.mulPose(Axis.XP.rotationDegrees(AcosOfPSE * (180F / (float)Math.PI)));
 
-            float arteryScale = 0.25f;
+            float arteryStartScale = artery.startThickness();
+            float arteryEndScale = artery.endThickness();
 
             VertexConsumer vertexconsumer = bufferSource.getBuffer(ARTERY_RENDER_TYPE);
             PoseStack.Pose posestack$pose = poseStack.last();
@@ -78,12 +80,12 @@ public class HiveHeartRenderer extends GeoEntityRenderer<HiveHeartEntity> {
             float U1 = 0.0f; //Horizontal UV width min
             float U2 = 1f; //Horizontal UV width max
             float V1 = 0.0f; //Vertical UV width min
-            float V2 = (PosSubEndDistPlus1 / (arteryScale * 2)) + V1; //Vertical UV width max
-            //Calculate the height of the wanted UV rather than just setting it to 1 makes it repeat rather than stretch
+            float V2 = (PosSubEndDistPlus1 / (arteryStartScale * 2)) + V1; //Vertical UV width max
+            //Calculate the height of the wanted UV rather than just setting it to 1 makes it repeat instead of stretch
 
             drawTaperedCube(vertexconsumer, matrix4f, matrix3f, posestack$pose,
-                    arteryScale, arteryScale, arteryScale, arteryScale,
-                    PosSubEndDistPlus1, OverlayTexture.NO_OVERLAY, 15728880,
+                    arteryStartScale, arteryStartScale, arteryEndScale, arteryEndScale,
+                    PosSubEndDistPlus1, OverlayTexture.NO_OVERLAY, getPackedLightCoords(entity, partialTick),
                     1.0f, 1.0f, 1.0f, 1.0f,
                     U1, U2, V1, V2);
             poseStack.popPose();
