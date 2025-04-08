@@ -28,8 +28,9 @@ public class SkyboxModelManager {
             _packagesInQue = false;
         }
 
-        Quaternionf q = new Quaternionf()/*.setFromUnnormalized(projectionMatrix)*/;
+        Quaternionf q = new Quaternionf();
         _vPackages.forEach((renderPackage -> renderPackage.render(poseStack, projectionMatrix, partialTick, camera, isFoggy, q)));
+        //GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
     }
 
     public static class RenderPackage{
@@ -92,8 +93,8 @@ public class SkyboxModelManager {
             this.monkeyWrenchFixes = false;
             return this;
         }
-        public Vec3 bobOffsetScaleBy = new Vec3(10, 25, 10);
-        public Vec3 BobInflateScaleBy = new Vec3(64, 64, 64);
+        public Vec3 bobOffsetScaleBy = new Vec3(100, 200, 100);
+        public Vec3 BobInflateScaleBy = new Vec3(25, 25, 25);
 
         public RenderPackage(IGenericModel m){
             this.model = m;
