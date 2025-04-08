@@ -21,7 +21,10 @@ public class SkyCrabWand extends Item {
     public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pUsedHand) {
         if (!pLevel.isClientSide()) return super.use(pLevel, pPlayer, pUsedHand);
         if (skycrab == null) skycrab = new HorseshoeCrabModel(GenericModelHub.ModelSet.bakeLayer(HorseshoeCrabModel.LAYER_LOCATION));
-        new SkyboxModelManager.RenderPackage(skycrab).offset(1, 1, 1).rotate(-45, 0, 0).que();
+        new SkyboxModelManager.RenderPackage(skycrab)
+                .orbit(-70, 45)
+                .offset(0, 1, 0)
+                .rotate(0, 0, 0).que();
 
         return super.use(pLevel, pPlayer, pUsedHand);
     }

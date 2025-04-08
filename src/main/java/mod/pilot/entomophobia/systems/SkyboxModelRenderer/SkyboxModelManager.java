@@ -28,9 +28,9 @@ public class SkyboxModelManager {
             _packagesInQue = false;
         }
 
-        Quaternionf q = new Quaternionf();
-        _vPackages.forEach((renderPackage -> renderPackage.render(poseStack, projectionMatrix, partialTick, camera, isFoggy, q)));
-        //GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        Quaternionf orbit = new Quaternionf();
+        Quaternionf rotate = new Quaternionf();
+        _vPackages.forEach((renderPackage -> renderPackage.render(poseStack, projectionMatrix, partialTick, camera, isFoggy, orbit, rotate)));
     }
 
     public static class RenderPackage{
@@ -50,11 +50,24 @@ public class SkyboxModelManager {
         }
         public void translatePoseStack(PoseStack poseStack){
             Vec3 _translate = offset;
-            if (monkeyWrenchFixes) {
-                //if (_translate.y == 0) _translate = _translate.add(0, 1, 0);
+            if (ductTapeFixes) {
                 _translate = _translate.multiply(bobOffsetScaleBy);
             }
             poseStack.translate(_translate.x, _translate.y, _translate.z);
+        }
+        public float xOrbit, zOrbit;
+        public RenderPackage orbit(float x, float z){
+            this.xOrbit = x;
+            this.zOrbit = z;
+            return this;
+        }
+        public void orbitPoseStack(PoseStack poseStack){
+            this.orbitPoseStack(poseStack, null);
+        }
+        public void orbitPoseStack(PoseStack poseStack, @Nullable Quaternionf q){
+            q = q != null ? q : new Quaternionf();
+            q.rotateXYZ(xOrbit, 0, zOrbit);
+            poseStack.mulPose(q);
         }
 
         public float xRot, yRot, zRot = 0f;
@@ -69,7 +82,9 @@ public class SkyboxModelManager {
         }
         public void rotatePoseStack(PoseStack poseStack, @Nullable Quaternionf q){
             q = q != null ? q : new Quaternionf();
-            q.rotateXYZ(xRot, yRot, zRot);
+            float x, y, z;
+            x = xRot; y = yRot; z = zRot;
+            q.rotateXYZ(x, y, z);
             poseStack.mulPose(q);
         }
         public static final Vec3 defaultScale = new Vec3(1, 1, 1);
@@ -80,7 +95,7 @@ public class SkyboxModelManager {
         }
         public void scalePoseStack(PoseStack poseStack){
             Vec3 _scale = scale;
-            if (monkeyWrenchFixes) {
+            if (ductTapeFixes) {
                 _scale = _scale.multiply(1, -1, 1);
                 _scale = _scale.multiply(BobInflateScaleBy);
             }
@@ -88,9 +103,9 @@ public class SkyboxModelManager {
         }
 
 
-        public boolean monkeyWrenchFixes = true;
+        public boolean ductTapeFixes = true;
         public RenderPackage disableFixes(){
-            this.monkeyWrenchFixes = false;
+            this.ductTapeFixes = false;
             return this;
         }
         public Vec3 bobOffsetScaleBy = new Vec3(100, 200, 100);
@@ -100,16 +115,17 @@ public class SkyboxModelManager {
             this.model = m;
         }
 
-        public void ModifyPoseStack(PoseStack poseStack, @Nullable Quaternionf q){
+        public void ModifyPoseStack(PoseStack poseStack, @Nullable Quaternionf orbit, @Nullable Quaternionf rotate){
+            this.orbitPoseStack(poseStack, orbit);
             this.translatePoseStack(poseStack);
-            this.rotatePoseStack(poseStack, q);
+            this.rotatePoseStack(poseStack, rotate);
             this.scalePoseStack(poseStack);
         }
 
         public void render(PoseStack poseStack, Matrix4f projectionMatrix,
-                           float partialTick, Camera camera, boolean isFoggy, @Nullable Quaternionf q){
+                           float partialTick, Camera camera, boolean isFoggy, @Nullable Quaternionf orbit, @Nullable Quaternionf rotate){
             poseStack.pushPose();
-            ModifyPoseStack(poseStack, q);
+            ModifyPoseStack(poseStack, orbit, rotate);
             getModel().renderToBuffer(poseStack, model.getVertexConsumer(),
                     15728880, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
             poseStack.popPose();
