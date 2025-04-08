@@ -366,7 +366,7 @@ public class CelestialCarrionEntity extends MyiaticBase {
     public static final int Threshold2VoiceRangeMin = 14;
     public static final int Threshold3VoiceRange = 16;
     public static final ArrayList<ArrayList<String>> AstralVoices = new ArrayList<>();
-    public static void CreateVoices(){
+    public static void createVoices(){
         ArrayList<String> threshold1 = new ArrayList<>();
         threshold1.add("Closer");
         threshold1.add("Come");

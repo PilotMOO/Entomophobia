@@ -11,6 +11,7 @@ import mod.pilot.entomophobia.items.EntomoItems;
 import mod.pilot.entomophobia.particles.EntomoParticles;
 import mod.pilot.entomophobia.sound.EntomoSounds;
 import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
+import mod.pilot.entomophobia.systems.GenericModelRegistry.GenericModelHub;
 import mod.pilot.entomophobia.systems.nest.features.FeatureManager;
 import mod.pilot.entomophobia.systems.screentextdisplay.TextOverlay;
 import mod.pilot.entomophobia.systems.swarm.SwarmManager;
@@ -49,9 +50,10 @@ public class Entomophobia
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.NEST_SPEC, "entomo_nest_config.toml");
         Config.loadConfig(Config.NEST_SPEC, FMLPaths.CONFIGDIR.get().resolve("entomo_nest_config.toml").toString());
 
-        SwarmManager.PopulateNameHashmap();
-        FeatureManager.RegisterAllFeatures();
-        TextOverlay.Setup();
-        CelestialCarrionEntity.CreateVoices();
+        GenericModelHub.setup();
+        SwarmManager.populateNameHashmap();
+        FeatureManager.registerAllFeatures();
+        TextOverlay.setup();
+        CelestialCarrionEntity.createVoices();
     }
 }

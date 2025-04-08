@@ -7,16 +7,12 @@ import mod.pilot.entomophobia.entity.AI.FollowCaptainGoal;
 import mod.pilot.entomophobia.entity.AI.Interfaces.ISwarmOrder;
 import mod.pilot.entomophobia.entity.AI.RecruitNearbyGoal;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
-import mod.pilot.entomophobia.systems.nest.Nest;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import oshi.util.tuples.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.UUID;
 
 public class SwarmManager {
     public enum SwarmTypes{
@@ -29,7 +25,7 @@ public class SwarmManager {
     }
     private static final HashMap<Integer, String> SwarmNames = new HashMap<>();
 
-    public static void PopulateNameHashmap(){
+    public static void populateNameHashmap(){
         SwarmNames.put(0, "Team Rocket");
         SwarmNames.put(1, "The United States of Bugtopia");
         SwarmNames.put(2, "Literally 1984");

@@ -17,7 +17,7 @@ public class FeatureManager {
     //Extends to nested classes
     private FeatureManager(){}
 
-    public static void RegisterAllFeatures() {
+    public static void registerAllFeatures() {
         /*Testing Features*/
         //RegisterFeature(new YesFeature());
         //RegisterFeature(new WallTestFeature());

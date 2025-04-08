@@ -9,7 +9,7 @@ import net.minecraftforge.event.TickEvent;
 import java.util.ArrayList;
 
 public class TextOverlay implements IGuiOverlay {
-    public static void Setup(){
+    public static void setup(){
         MinecraftForge.EVENT_BUS.addListener(TextOverlay::TickAllInstances);
     }
 
