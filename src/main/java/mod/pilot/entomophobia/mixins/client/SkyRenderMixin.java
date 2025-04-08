@@ -37,6 +37,10 @@ public abstract class SkyRenderMixin implements ResourceManagerReloadListener, A
         RenderBufferAccess.registerAccess(pRenderBuffers);
     }
 
+
+    //ToDo: Attempt to figure out how to stop the models from rendering too close and clipping with the environment
+    //Probably just requires me to scale the models even more and push them out further... I'll deal with that tomorrow :P
+    //-- 7/4/2025
     @Inject(method = "renderSky", at = @At(value = "INVOKE",
             target = "Lcom/mojang/blaze3d/systems/RenderSystem;blendFuncSeparate(Lcom/mojang/blaze3d/platform/GlStateManager$SourceFactor;Lcom/mojang/blaze3d/platform/GlStateManager$DestFactor;Lcom/mojang/blaze3d/platform/GlStateManager$SourceFactor;Lcom/mojang/blaze3d/platform/GlStateManager$DestFactor;)V"))
     private void InjectSkyModelRendering(PoseStack poseStack, Matrix4f projectionMatrix, float partialTick,
