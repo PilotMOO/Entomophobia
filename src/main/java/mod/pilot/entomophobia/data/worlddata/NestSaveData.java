@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 public class NestSaveData extends SavedData {
     public static final String NAME = Entomophobia.MOD_ID + "_nest_world_data";
@@ -149,6 +150,10 @@ public class NestSaveData extends SavedData {
                 tag.putInt(builder.append("size").toString(), chamber.radius); builder.setLength(ID.length());
                 tag.putInt(builder.append("thickness").toString(), chamber.thickness); builder.setLength(ID.length());
                 tag.putBoolean(builder.append("main").toString(), chamber.isMainChamber()); builder.setLength(ID.length());
+                UUID hhUUID = chamber.getHiveHeartUUID();
+                if (hhUUID != null){
+                    tag.putUUID(builder.append("hiveheart").toString(), chamber.getHiveHeartUUID()); builder.setLength(ID.length());
+                }
             }
             if (toPack instanceof Nest.Corridor corridor){
                 Vec3 end = corridor.end;
@@ -221,6 +226,11 @@ public class NestSaveData extends SavedData {
                     boolean isMain = tag.getBoolean(builder.append("main").toString()); builder.setLength(ID.length());
                     toReturn = Nest.Chamber.ConstructFromBlueprint(getServer(), parent, pos, size,
                             thickness, deadEnd, state, isMain, featuresDone);
+                    if (tag.contains(builder.append("hiveheart").toString())){
+                        UUID hhUUID = tag.getUUID(builder.toString());
+                        ((Nest.Chamber)toReturn).setHiveHeart(hhUUID);
+                    }
+                    builder.setLength(ID.length());
                 }
                 case 2 ->{
                     double x2 = tag.getDouble(builder.append("x2").toString()); builder.setLength(ID.length());

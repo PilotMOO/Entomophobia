@@ -58,14 +58,10 @@ public class NestManager {
     public static void ClearNests(){
         ActiveNests.clear();
     }
-    public static Nest ConstructNewNest(ServerLevel server, Vec3 start, boolean quiet){
+    public static Nest ConstructNewNest(ServerLevel server, Vec3 start){
         Nest nest = new Nest(server, start);
         addToActiveNests(nest);
         NestSaveData.Dirty();
-        if (!quiet){
-            server.getServer().getPlayerList().broadcastSystemMessage(
-                    Component.literal(getRandomNestMessageForChatDisplay(server.getRandom())), false);
-        }
         return nest;
     }
     public static Nest ConstructFromBlueprint(ServerLevel server, Vec3 start, byte state, Nest.Chamber mainChamber){

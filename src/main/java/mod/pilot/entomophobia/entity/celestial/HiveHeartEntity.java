@@ -4,14 +4,19 @@ import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
+import mod.azure.azurelib.core.keyframe.event.SoundKeyframeEvent;
 import mod.azure.azurelib.util.AzureLibUtil;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticPigEntity;
+import mod.pilot.entomophobia.sound.EntomoSounds;
 import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -159,7 +164,29 @@ public class HiveHeartEntity extends MyiaticBase {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "HeartManager", 2, event ->
-                event.setAndContinue(RawAnimation.begin().thenLoop("beat"))));
+                event.setAndContinue(RawAnimation.begin().thenLoop("beat")))
+                .setSoundKeyframeHandler(event -> {
+                    String soundID = event.getKeyframeData().getSound();
+                    SoundEvent sound = null;
+                    if (soundID.equals("beat1")) sound = EntomoSounds.BEAT1.get();
+                    else if (soundID.equals("beat2")) sound = EntomoSounds.BEAT2.get();
+
+                    if (sound != null){
+                        for (Player p : level().getEntitiesOfClass(Player.class,
+                                getBoundingBox().inflate(32))){
+                            double dist = p.distanceTo(this);
+                            p.playSound(sound, _generateBeatVolume(dist), _generateBeatPitch(dist));
+                        }
+                    }
+                }));
+    }
+    private float _generateBeatVolume(double dist) {
+        float base = 3f;
+        return (float)(base - (2f / 32) * dist);
+    }
+    private float _generateBeatPitch(double dist) {
+        float base = 1f;
+        return (float)(base - (0.5f / 32) * dist);
     }
 
     private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);

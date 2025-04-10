@@ -139,11 +139,12 @@ public class Config
             builder.push("Nest Message Configuration");
             this.nest_spawn_messages = builder.defineList("Messages displayed in chat when a nest is formed",
                     Lists.newArrayList(
-                            "You feel the world pulse as if something alive is buried nearby...",
-                            "Something foul takes root...",
-                            "The sickly-sweet smell of rot emanates from the ground",
-                            "It grows.",
-                            "A faint yet aggressive rustling permeates throughout the area"
+                            "§4You feel the world pulse as if something alive is buried nearby...",
+                            "§4Something foul takes root...",
+                            "§4The sickly-sweet smell of rot emanates from the ground.",
+                            "§4It grows.",
+                            "§4A faint yet aggressive rustling permeates throughout the area...",
+                            "§4A dull heartbeat resonates from below."
                     ), o -> o instanceof String);
             this.enable_joke_messages = builder.define("should there be a a small chance to select and display joke messages for nests forming?",
                     false);

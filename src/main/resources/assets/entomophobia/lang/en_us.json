@@ -101,6 +101,7 @@
   "sounds.entomophobia:myiatic_pig_idle": "Myiatic Pig squeals",
   "sounds.entomophobia:myiatic_shhep_idle": "Myiatic Sheep baas",
   "sounds.entomophobia:myiatic_flying": "Myiatic takes flight",
+  "sounds.entomophobia:beat": "§4Arrhythmic heartbeat",
 
   "entomophobia.system.infection_start": "The stench of rot and trepidation floods the air... something's off.",
   "entomophobia.item.nest_builder_finish": "Built!"

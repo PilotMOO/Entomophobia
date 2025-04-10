@@ -106,5 +106,17 @@
     "sounds": [
       "entomophobia:voices/they_watched_me_bleed"
     ]
+  },
+  "beat1": {
+    "subtitles": "sounds.entomophobia:heart_beat",
+    "sounds": [
+      "entomophobia:beat1"
+    ]
+  },
+  "beat2": {
+    "subtitles": "sounds.entomophobia:heart_beat",
+    "sounds": [
+      "entomophobia:beat2"
+    ]
   }
 }

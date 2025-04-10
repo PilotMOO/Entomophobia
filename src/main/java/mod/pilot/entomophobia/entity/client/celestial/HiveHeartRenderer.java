@@ -7,15 +7,18 @@ import mod.azure.azurelib.renderer.GeoEntityRenderer;
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.data.EntomoDataManager;
 import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -91,9 +94,20 @@ public class HiveHeartRenderer extends GeoEntityRenderer<HiveHeartEntity> {
             float V2 = (PosSubEndDistPlus1 / (arteryStartScale * 2)) + V1; //Vertical UV width max
             //Calculate the height of the wanted UV rather than just setting it to 1 makes it repeat instead of stretch
 
+            int light;
+            double x, y, z;
+            x = (arteryPos.x + heartPos.x) / 2;
+            y = (arteryPos.y + heartPos.y) / 2;
+            z = (arteryPos.z + heartPos.z) / 2;
+            BlockPos bPos = BlockPos.containing(new Vec3(x, y, z));
+
+            if (entity.level().getBrightness(LightLayer.SKY, bPos) == 0){
+                light = LightTexture.pack(this.getBlockLightLevel(entity, bPos), this.getSkyLightLevel(entity, bPos));
+            } else light = getPackedLightCoords(entity, partialTick);
+
             drawTaperedCube(vertexconsumer, matrix4f, matrix3f, posestack$pose,
                     arteryStartScale, arteryStartScale, arteryEndScale, arteryEndScale,
-                    PosSubEndDistPlus1, OverlayTexture.NO_OVERLAY, getPackedLightCoords(entity, partialTick),
+                    PosSubEndDistPlus1, OverlayTexture.NO_OVERLAY, light,
                     1.0f, 1.0f, 1.0f, 1.0f,
                     U1, U2, V1, V2);
             poseStack.popPose();

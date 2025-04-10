@@ -2,6 +2,7 @@ package mod.pilot.entomophobia.systems.nest;
 
 import mod.pilot.entomophobia.data.EntomoDataManager;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
+import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
 import mod.pilot.entomophobia.systems.PolyForged.shapes.abstractshapes.ShapeGenerator;
 import mod.pilot.entomophobia.systems.PolyForged.shapes.ChamberGenerator;
@@ -14,13 +15,12 @@ import mod.pilot.entomophobia.systems.nest.features.FeatureVariantPackage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import oshi.util.tuples.Pair;
 
 import javax.annotation.Nonnull;
@@ -539,6 +539,9 @@ public class Nest {
             }
             return null;
         }
+        public @Nullable UUID getHiveHeartUUID(){
+            return hiveHeartUUID;
+        }
         public void setHiveHeart(HiveHeartEntity hh){
             setHiveHeart(hh, false);
         }
@@ -571,6 +574,10 @@ public class Nest {
                     && getOffshootState() == 2 && !areAnyOfMyChildrenAlive()){
                 if (shouldThisBecomeAParent()){
                     if (isMainChamber()){
+                        if (getHiveHeart() == null){
+                            generateHiveHeart();
+                        }
+
                         boolean noEntrance = true;
                         if (children != null){
                             for (Offshoot O : children){
@@ -596,19 +603,21 @@ public class Nest {
                             AddToChildren(C);
                             return;
                         }
-                        if (getHiveHeart() == null){
-                            GenerateHiveHeart();
-                        }
                     }
                     ConstructNewChild((byte)2);
                 }
             }
         }
 
-        private void GenerateHiveHeart() {
-            System.out.println("Attempted to generate a Hive Heart.");
-            System.out.println("BUT!");
-            System.out.println("That part isn't coded yet smh.");
+        private void generateHiveHeart() {
+            HiveHeartEntity hh = new HiveHeartEntity(EntomoEntities.HIVE_HEART.get(), server);
+            hh.setPos(position);
+            hh.setYRot(random.nextIntBetweenInclusive(-180, 180));
+            this.setHiveHeart(hh, false);
+            server.addFreshEntity(hh);
+
+            server.getServer().getPlayerList().broadcastSystemMessage(
+                    Component.literal(NestManager.getRandomNestMessageForChatDisplay(server.getRandom())), false);
         }
 
         @Override
@@ -617,9 +626,9 @@ public class Nest {
             Vec3 toReturn;
             int cycleCounter = 0;
             do{
-                direction = getPosition().yRot(generateRadian(20, true))
-                        .xRot(generateRadian())
-                        .zRot(generateRadian()).normalize();
+                direction = getPosition().yRot(generateRadian())
+                        .xRot(generateRadian(20, true))
+                        .zRot(generateRadian(20, true)).normalize();
                 toReturn = getPosition().add(direction.scale(radius - thickness));
                 cycleCounter++;
             }
@@ -886,7 +895,7 @@ public class Nest {
                 Vec3 surface = findSurface(getPosition());
                 do{
                     Vec3 direction = EntomoDataManager.getDirectionToAFromB(surface, getPosition())
-                            .yRot(generateRadian(90, true))
+                            .yRot(generateRadian(60, true))
                             .xRot(generateRadian(45, true))
                             .zRot(generateRadian(45, true))
                             .normalize();
@@ -898,17 +907,14 @@ public class Nest {
                     else yFactor = getPosition().y > surface.y ? -1 : 1;
                     direction = direction.multiply(1, yFactor, 1);
 
-                    /*direction = direction.multiply(1, direction.y < 0 ? getPosition().y < surface.y ? -1 : 1
-                        : getPosition().y > surface.y ? -1 : 1, 1);*/
-
                     toReturn = getPosition().add(direction.scale((double)NestManager.getRandomCorridorLength(random) / 2));
                     Vec3 surfaceFromReturn = findSurface(toReturn);
-                    if (toReturn.y > surfaceFromReturn.y) {
+                    if (toReturn.y > surfaceFromReturn.y || surfaceFromReturn.y - toReturn.y < weight + 3) {
                         toReturn = toReturn.multiply(1, 0, 1).add(0, surfaceFromReturn.y + weight, 0);
                     }
                 }
-                //given 20 attempts to generate a valid position because it's an entrance
-                while (testEndPositionInvalidity(toReturn) && cycleCounter++ < 20);
+                //given 30 attempts to generate a valid position because it's an entrance
+                while (testEndPositionInvalidity(toReturn) && cycleCounter++ < 30);
                 if (toReturn.y >= surface.y) {
                     DeadEnd = true;
                     addToQueuedGhostPosition(GenerateSurfaceGhost(toReturn));
@@ -932,9 +938,6 @@ public class Nest {
                     else yFactor = getPosition().y > yPriority ? -1 : 1;
                     direction = direction.multiply(1, yFactor, 1);
 
-                    /*direction = direction.multiply(1, getPosition().y > NestManager.getNestYBuildPriority() ? direction.y > 0 ? -1 : 1
-                            : direction.y < 0 ? -1 : 1, 1);*/
-
                     toReturn = getPosition().add(direction.scale(NestManager.getRandomCorridorLength(random)));
                 }
                 while (testEndPositionInvalidity(toReturn) && cycleCounter++ < 10);
@@ -942,7 +945,7 @@ public class Nest {
 
             if (testEndPositionInvalidity(toReturn, true)){
                 System.err.println("[NEST SYSTEM] Corridor End Position was still invalid after " + cycleCounter + " attempts! Killing...");
-                if (isEntrance()) System.err.println("[NEST SYSTEM] [INFO] failed end position was for an entrance!");
+                if (isEntrance()) System.err.println("[NEST SYSTEM] Info-- failed end position was for an entrance!");
                 this.Kill(false);
             }
             NestSaveData.Dirty();

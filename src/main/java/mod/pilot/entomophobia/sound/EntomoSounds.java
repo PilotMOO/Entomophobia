@@ -36,6 +36,9 @@ public class EntomoSounds {
     public static final RegistryObject<SoundEvent> THEY_KNOW_MY_NAME = registerSoundEvents("they_know_my_name");
     public static final RegistryObject<SoundEvent> THEY_WATCHED_ME_BLEED = registerSoundEvents("they_watched_me_bleed");
 
+    public static final RegistryObject<SoundEvent> BEAT1 = registerSoundEvents("beat1");
+    public static final RegistryObject<SoundEvent> BEAT2 = registerSoundEvents("beat2");
+
     public static @Nullable SoundEvent getVoice(String id){
         return switch (id) {
             default -> null;
