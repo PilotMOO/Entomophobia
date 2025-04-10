@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -52,7 +53,14 @@ public class HiveHeartRenderer extends GeoEntityRenderer<HiveHeartEntity> {
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
 
         for (HiveHeartEntity.Artery artery : entity.getOrCreateArteryHooks()) {
-            Vec3 arteryPos = artery.position();
+            //System.out.println(artery);
+            artery.tick();
+            if (artery.isInactive()){
+                RandomSource random = entity.getRandom();
+                artery.beat(random.nextFloat() * 0.3f, random.nextInt(40, 200) / 20f, true);
+                artery.beat(random.nextFloat() * 0.3f, random.nextInt(40, 200) / 20f, false);
+            }
+            Vec3 arteryPos = artery.position;
             //Invert because minecraft fucked up the Y axis so you gotta invert shit >:[
             Vec3 offsetSubPos = arteryPos.subtract(entity.position());
             arteryPos = arteryPos.subtract(offsetSubPos.scale(2));
@@ -70,8 +78,8 @@ public class HiveHeartRenderer extends GeoEntityRenderer<HiveHeartEntity> {
             poseStack.mulPose(Axis.YP.rotationDegrees((((float)Math.PI / 2F) - AtanOfPSE) * (180F / (float)Math.PI)));
             poseStack.mulPose(Axis.XP.rotationDegrees(AcosOfPSE * (180F / (float)Math.PI)));
 
-            float arteryStartScale = artery.startThickness();
-            float arteryEndScale = artery.endThickness();
+            float arteryStartScale = artery.getBaseThickness();
+            float arteryEndScale = artery.getTipThickness();
 
             VertexConsumer vertexconsumer = bufferSource.getBuffer(ARTERY_RENDER_TYPE);
             PoseStack.Pose posestack$pose = poseStack.last();
@@ -178,12 +186,12 @@ public class HiveHeartRenderer extends GeoEntityRenderer<HiveHeartEntity> {
                 .endVertex();
     }
 
-    private static void vertex(VertexConsumer pConsumer, Matrix4f pPose, Matrix3f pNormal, float pX, float pY, float pZ,
+    /*private static void vertex(VertexConsumer pConsumer, Matrix4f pPose, Matrix3f pNormal, float pX, float pY, float pZ,
                                int pRed, int pGreen, int pBlue, float pU, float pV) {
         pConsumer.vertex(pPose, pX, pY, pZ).color(255, 255, 255, 255)
                 .uv(pU, pV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(15728880)
                 .normal(pNormal, 0.0F, 1.0F, 0.0F).endVertex();
-    }
+    }*/
 
     private Vec3 getPosition(Entity target, double pYOffset, float pPartialTick) {
         double d0 = Mth.lerp(pPartialTick, target.xOld, target.getX());

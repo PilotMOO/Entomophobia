@@ -228,7 +228,7 @@ public class CelestialCarrionEntity extends MyiaticBase {
                                     .aged(maxAge);
                 }
 
-                //Manage keyframes
+                //Manage keyframe
                 instance.addKeyframe(new ColorKeyframe(instance, maxAge - 20, withNoAlpha(shiftColor), 20));
                 /**/
 

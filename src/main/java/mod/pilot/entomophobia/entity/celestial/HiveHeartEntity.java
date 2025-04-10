@@ -17,9 +17,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import oshi.util.tuples.Pair;
 
-import javax.swing.text.Style;
 import java.util.ArrayList;
-import java.util.Objects;
+import java.util.Random;
 
 public class HiveHeartEntity extends MyiaticBase {
     public HiveHeartEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
@@ -58,6 +57,11 @@ public class HiveHeartEntity extends MyiaticBase {
     @Override
     public boolean isNoGravity() {
         return true;
+    }
+
+    @Override
+    public void push(double pX, double pY, double pZ) {
+        return;
     }
 
     //Artery rendering
@@ -112,13 +116,13 @@ public class HiveHeartEntity extends MyiaticBase {
         float a, b;
         switch (random.nextInt(6)){
             case 0 ->{
-                a = 0.3f; b = 0.75f;
+                a = 0.35f; b = 0.55f;
             }
             case 1 ->{
-                a = 0.1f; b = 0.3f;
+                a = 0.25f; b = 0.35f;
             }
             case 2 ->{
-                a = 0.25f; b = 0.4f;
+                a = 0.3f; b = 0.45f;
             }
             case 3 ->{
                 a = 0.35f; b = 0.5f;
@@ -127,7 +131,7 @@ public class HiveHeartEntity extends MyiaticBase {
                 a = 0.25f; b = 0.5f;
             }
             case 5 ->{
-                a = 0.15f; b = 0.4f;
+                a = 0.2f; b = 0.4f;
             }
             default ->{
                 a = 0.25f; b = 0.25f;
@@ -164,5 +168,120 @@ public class HiveHeartEntity extends MyiaticBase {
         return cache;
     }
 
-    public record Artery(Vec3 position, float startThickness, float endThickness){}
+    public static class Artery{
+        private static final Random random = new Random();
+
+        public final Vec3 position;
+        public final float baseThickness;
+        public float getBaseThickness(){
+            return baseThickness + baseBeat;
+        }
+        public final float tipThickness;
+        public float getTipThickness(){
+            return tipThickness + tipBeat;
+        }
+
+
+        private float baseMagnitude;
+        public float baseBeat;
+        public float baseDuration;
+        public float baseAge;
+        public int baseCooldown;
+
+        private float tipMagnitude;
+        public float tipBeat;
+        public float tipDuration;
+        public float tipAge;
+        public int tipCooldown;
+
+        public void beat(float amount, float duration, boolean base){
+            if (base){
+                this.baseMagnitude = amount;
+                this.baseDuration = duration;
+                this.baseAge = 0;
+            } else{
+                this.tipMagnitude = amount;
+                this.tipDuration = duration;
+                this.tipAge = 0;
+            }
+        }
+        public void tick(){
+            baseBeat = lerp(baseBeat, baseMagnitude, baseAge);
+            if (baseAge == 1){
+                if (baseMagnitude != 0) {
+                    beat(0, baseDuration, true);
+                } else{
+                    baseCooldown = random.nextInt(10, 81);
+                    resetBase();
+                }
+            }
+
+            tipBeat = lerp(tipBeat, tipMagnitude, tipAge);
+            if (tipAge == 1){
+                if (tipMagnitude != 0) {
+                    beat(0, tipDuration, false);
+                } else{
+                    tipCooldown = random.nextInt(10, 81);
+                    resetTip();
+                }
+            }
+
+            age();
+        }
+        private void age(){
+            if (baseDuration > 0) {
+                if (baseCooldown == 0) {
+                    baseAge += 1 / (baseDuration * 20);
+                    if (baseAge > 1) baseAge = 1;
+                } else --baseCooldown;
+            }
+
+            if (tipDuration > 0) {
+                if (tipCooldown == 0) {
+                    tipAge += 1 / (tipDuration * 20);
+                    if (tipAge > 1) tipAge = 1;
+                } else --tipCooldown;
+            }
+        }
+        public boolean isInactive(){
+            return baseDuration == 0 && tipDuration == 0;
+        }
+        public void resetBase(){
+            this.baseMagnitude = 0;
+            this.baseBeat = 0;
+            this.baseDuration = 0;
+            this.baseAge = 0;
+        }
+        public void resetTip(){
+            this.tipMagnitude = 0;
+            this.tipBeat = 0;
+            this.tipDuration = 0;
+            this.tipAge = 0;
+        }
+        public void reset(){
+            resetBase(); resetTip();
+        }
+        public Artery(Vec3 position, float startThickness, float endThickness){
+            this.position = position;
+            this.baseThickness = startThickness;
+            this.tipThickness = endThickness;
+
+            this.baseBeat = 0;
+            this.tipBeat = 0;
+        }
+
+        private static float lerp(float a, float b, float partial){
+            return a + ((b - a) * partial);
+        }
+
+        @Override
+        public String toString() {
+            return "Artery-- {misc values [Position: " + position +
+                    ", base and tip thickness: " + baseThickness + ", " + tipThickness +
+                    "]-- base lerping values [Magnitude, Beat, Duration, Age, Cooldown: " + baseMagnitude +
+                    ", " + baseBeat + ", " + baseDuration + ", " + baseAge + ", " + baseCooldown +
+                    "]-- tip lerping values [Magnitude, Beat, Duration, Age, Cooldown: " + tipMagnitude +
+                    ", " + tipBeat + ", " + tipDuration + ", " + tipAge + ", " + tipCooldown + "]}";
+        }
+    }
 }
