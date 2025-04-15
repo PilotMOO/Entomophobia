@@ -12,6 +12,7 @@ import mod.pilot.entomophobia.systems.PolyForged.utility.WorldShapeManager;
 import mod.pilot.entomophobia.systems.nest.features.Feature;
 import mod.pilot.entomophobia.systems.nest.features.FeatureManager;
 import mod.pilot.entomophobia.systems.nest.features.FeatureVariantPackage;
+import mod.pilot.entomophobia.systems.nest.hiveheart.HiveNervousSystem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -93,12 +94,19 @@ public class Nest {
                 NestManager.getNestLargeChamberMaxRadius(), NestManager.getNestLargeChamberThickness()).DenoteAsMain();
     }
 
+    public @Nullable HiveNervousSystem accessNervousSystem(){
+        HiveHeartEntity HH;
+        if (MainChamber != null && (HH = MainChamber.getHiveHeart()) != null){
+            return HH.nervousSystem;
+        } else return null;
+    }
+
     public void NestTick(){
         if (getNestState() != 1){
             return;
         }
         if (!MainChamber.Dead()){
-            MainChamber.OffshootTick(true, true, -1);
+            MainChamber.offshootTick(true, true, -1);
         }
     }
 
@@ -144,17 +152,27 @@ public class Nest {
             return -1;
         }
 
+        public Nest getNest(){
+            Offshoot current = this;
+            while (current.parent != null){
+                current = current.parent;
+            }
+            for (Nest nest : NestManager.getActiveNests()){
+                if (nest.MainChamber == current) return nest;
+            }
+            return null;
+        }
+
         @Nullable
         public ArrayList<Offshoot> children;
-        public boolean AddToChildren(Offshoot child){
+        public void addToChildren(Offshoot child){
             if (children == null){
                 children = new ArrayList<>();
             }
             if (child != null){
                 NestSaveData.Dirty();
-                return children.add(child);
+                children.add(child);
             }
-            return false;
         }
 
         protected ShapeGenerator generator;
@@ -173,7 +191,7 @@ public class Nest {
             }
             return MaxChildCount;
         }
-        public int LayersDeep(){
+        public int layersDeep(){
             int layers = 0;
             Offshoot currentParent = this;
             while (currentParent.parent != null){
@@ -300,7 +318,7 @@ public class Nest {
                 return (children == null || children.size() < getMaxChildCount()) && !areAnyOfMyChildrenAlive();
             }
 
-            if (LayersDeep() > NestManager.getNestMaxLayers()){
+            if (layersDeep() > NestManager.getNestMaxLayers()){
                 return false;
             }
             else{
@@ -349,7 +367,7 @@ public class Nest {
         }
         protected abstract @Nullable Pair<Vec3, Direction> generateFeaturePlacementPosition(byte placementPos);
 
-        public final void TickGenerator(){
+        public final void tickGenerator(){
             RegisterAllGhosts();
             generator.Build();
             if (generator.isOfState(WorldShapeManager.GeneratorStates.done)) Finish();
@@ -424,19 +442,19 @@ public class Nest {
             }
         }
 
-        public void OffshootTick(boolean tickChildren, boolean continuous, int layers){
+        public void offshootTick(boolean tickChildren, boolean continuous, int layers){
             if (shouldGeneratorTick()){
-                TickGenerator();
+                tickGenerator();
             }
             if (tickChildren && children != null){
                 for (Offshoot child : children) {
-                    child.OffshootTick(continuous, layers != 0, layers - 1);
+                    child.offshootTick(continuous, layers != 0, layers - 1);
                 }
             }
             if (featurePlacePrecheck()) placeFeatures();
         }
 
-        public final Offshoot ConstructNewChild(byte newShootType){
+        public final Offshoot constructNewChild(byte newShootType){
             Offshoot child;
             Vec3 OffshootPos = getOffshootPosition();
             if (OffshootPos == null){
@@ -465,7 +483,7 @@ public class Nest {
                     }
                 }
             }
-            this.AddToChildren(child);
+            this.addToChildren(child);
             return child;
         }
 
@@ -502,7 +520,7 @@ public class Nest {
                 chamber.DenoteAsMain();
             }
             if (parent != null){
-                parent.AddToChildren(chamber);
+                parent.addToChildren(chamber);
             }
             return chamber;
         }
@@ -568,8 +586,8 @@ public class Nest {
         }
 
         @Override
-        public void OffshootTick(boolean tickChildren, boolean continuous, int layers) {
-            super.OffshootTick(tickChildren, continuous, layers);
+        public void offshootTick(boolean tickChildren, boolean continuous, int layers) {
+            super.offshootTick(tickChildren, continuous, layers);
             if (getGenerator() != null && getGenerator().isOfState(WorldShapeManager.GeneratorStates.done)
                     && getOffshootState() == 2 && !areAnyOfMyChildrenAlive()){
                 if (shouldThisBecomeAParent()){
@@ -600,11 +618,11 @@ public class Nest {
                                         NestManager.getRandomLargeCorridorRadius(random),
                                         NestManager.getNestLargeCorridorThickness(), true);
                             }
-                            AddToChildren(C);
+                            addToChildren(C);
                             return;
                         }
                     }
-                    ConstructNewChild((byte)2);
+                    constructNewChild((byte)2);
                 }
             }
         }
@@ -614,6 +632,7 @@ public class Nest {
             hh.setPos(position);
             hh.setYRot(random.nextIntBetweenInclusive(-180, 180));
             this.setHiveHeart(hh, false);
+            hh.constructNervousSystem(getNest());
             server.addFreshEntity(hh);
 
             server.getServer().getPlayerList().broadcastSystemMessage(
@@ -811,7 +830,7 @@ public class Nest {
                                                       int weight, int thickness, boolean deadEnd,
                                                       byte state, boolean entrance, boolean finishedFeatures){
             Corridor corridor = new Corridor(server, parent, position, end, weight, thickness, deadEnd, state, entrance, finishedFeatures);
-            parent.AddToChildren(corridor);
+            parent.addToChildren(corridor);
             return corridor;
         }
         private Corridor(ServerLevel server, @Nonnull Nest.Offshoot parent, Vec3 position, Vec3 end,
@@ -1129,8 +1148,8 @@ public class Nest {
         }
 
         @Override
-        public void OffshootTick(boolean tickChildren, boolean continuous, int layers) {
-            super.OffshootTick(tickChildren, continuous, layers);
+        public void offshootTick(boolean tickChildren, boolean continuous, int layers) {
+            super.offshootTick(tickChildren, continuous, layers);
             if (generator.isOfState(WorldShapeManager.GeneratorStates.done) && getOffshootState() == 2){
                 ManageExtension();
             }
@@ -1139,10 +1158,10 @@ public class Nest {
         private void ManageExtension() {
             if (shouldThisBecomeAParent()){
                 if (ShouldGetExtension()) {
-                    this.AddToChildren(new Corridor(server, this, end, weight, thickness, isEntrance()));
+                    this.addToChildren(new Corridor(server, this, end, weight, thickness, isEntrance()));
                 }
                 else{
-                    ConstructNewChild((byte)1);
+                    constructNewChild((byte)1);
                 }
             }
         }

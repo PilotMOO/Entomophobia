@@ -12,6 +12,8 @@
   "item.entomophobia.lustrous_tissue": "Lustrous Tissue",
   "item.entomophobia.bottled_corpsedew": "§aBottled Corpsedew",
 
+  "item.entomophobia.thanks": "§dThank you!",
+
   "item.entomophobia.shape_wand": "Shape Wand™",
   "item.entomophobia.nest_wand": "Nest Wand™",
   "item.entomophobia.swarm_wand": "Swarm Wand™",
@@ -25,6 +27,8 @@
 
   "item.entomophobia.tooltip.lustrous_tissue": "§7A rotting mass of flesh, taken from the \"fruit\" of a §6luminous fleshy \"plant\"§7 found §6deep in the bowels of a nest.§7 It glows faintly, but reeks horribly. §4Consumption is not recommended.",
   "item.entomophobia.tooltip.bottled_corpsedew": "§7A bottle of a §astrange green substance§7 extracted from §6within a nest.§7 It is presumably very calorically dense, however §4consumption of this might not be the best idea,§7 not §6in this state...",
+
+  "item.entomophobia.tooltip.thanks": "§dA heart-shaped token of the developer's thanks, to those who have assisted with the mod's development or community <3 \n\n§8... \n\n§8...it feels oddly heavy?",
 
   "item.entomophobia.tooltip.dev_wand": "§4[DEV WAND]",
 
@@ -95,6 +99,8 @@
   "death.attack.overstimulation3.player": "%1$s probably shouldn't have eaten that",
 
   "death.attack.myiatic_explode": "%1$s was blown to smithereens by %2$s",
+
+  "death.attack.lead": "%1$s died of lead poisoning. §d<3",
 
   "sounds.entomophobia:myiatic_zombie_idle": "Myiatic Zombie groans",
   "sounds.entomophobia:myiatic_cow_idle": "Myiatic Cow moos",

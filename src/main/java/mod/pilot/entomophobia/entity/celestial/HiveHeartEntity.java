@@ -4,14 +4,17 @@ import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
-import mod.azure.azurelib.core.keyframe.event.SoundKeyframeEvent;
 import mod.azure.azurelib.util.AzureLibUtil;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticPigEntity;
 import mod.pilot.entomophobia.sound.EntomoSounds;
+import mod.pilot.entomophobia.systems.nest.Nest;
+import mod.pilot.entomophobia.systems.nest.hiveheart.HiveNervousSystem;
+import mod.pilot.entomophobia.systems.nest.hiveheart.StimulantType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -24,6 +27,7 @@ import oshi.util.tuples.Pair;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.UUID;
 
 public class HiveHeartEntity extends MyiaticBase {
     public HiveHeartEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
@@ -38,13 +42,33 @@ public class HiveHeartEntity extends MyiaticBase {
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1);
     }
 
-    @Override
-    protected void registerGoals() {registerBasicGoals();}
+    //Nervous System Management
+    /**The Nervous System of the Hive Heart and associated nest--
+     * manages all the A.I. and goals of the Hive Heart*/
+    public HiveNervousSystem nervousSystem;
 
-    @Override
-    protected void registerBasicGoals() {
-        //Goals are empty rn, worry about it later
+    /**Create a new Nervous System for the Nest and the Hive Heart */
+    public void constructNervousSystem(Nest n){
+        UUID nestHH_UUID;
+        if ((nestHH_UUID = n.MainChamber.getHiveHeartUUID()) != null && nestHH_UUID == this.uuid){
+            nervousSystem = new HiveNervousSystem(n, this);
+            nervousSystem.populateDefaultDecisions();
+        } else{
+            System.err.println("[HIVE NERVOUS SYSTEM] Error! Attempted to construct a nervous system for a nest with a hive heart that is NOT related!");
+        }
     }
+
+    public void stimulate(StimulantType stimulant){
+        if (nervousSystem != null) nervousSystem.stimulate(stimulant);
+    }
+    public void alertHive(){
+        stimulate(StimulantType.Alarm);
+    }
+    /**/
+    @Override
+    protected void registerGoals() {}
+    @Override
+    protected void registerBasicGoals() {}
 
     @Override
     public boolean canSwarm() {
@@ -52,7 +76,7 @@ public class HiveHeartEntity extends MyiaticBase {
     }
 
     @Override
-    public void checkDespawn() {return;}
+    public void checkDespawn() {}
 
     @Override
     protected boolean shouldDespawnInPeaceful() {
@@ -66,7 +90,22 @@ public class HiveHeartEntity extends MyiaticBase {
 
     @Override
     public void push(double pX, double pY, double pZ) {
-        return;
+        alertHive();
+    }
+
+    @Override
+    public void aiStep() {
+        super.aiStep();
+        stimulate(StimulantType.Idle);
+    }
+
+
+    @Override
+    public boolean hurt(DamageSource pSource, float pAmount) {
+        if (pSource.is(DamageTypes.IN_WALL)) return false;
+        boolean flag = super.hurt(pSource, pAmount);
+        if (flag) stimulate(StimulantType.Pain);
+        return flag;
     }
 
     //Artery rendering

@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia.event;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.blocks.custom.BloodwaxProtrusions;
@@ -20,6 +21,7 @@ import mod.pilot.entomophobia.systems.nest.NestManager;
 import mod.pilot.entomophobia.systems.swarm.SwarmManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -31,22 +33,26 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
+import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.world.ForgeChunkManager;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
@@ -58,6 +64,7 @@ import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.server.command.EnumArgument;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -294,6 +301,57 @@ public class EntomoForgeEvents {
                         cPos.x, cPos.z, false, false);
             }
         }
+    }
+
+    private static final String IDPrepend = "entomophobia:";
+    @SubscribeEvent
+    public static void registerCommands(RegisterCommandsEvent event){
+        event.getDispatcher().register(Commands.literal(IDPrepend + "thanks")
+                .then(Commands.argument("ToThank", EnumArgument.enumArgument(thanks.class)).executes(arguments ->{
+                    thanks t = arguments.getArgument("ToThank", thanks.class);
+                    String print = switch (t){
+                        case Pilot -> "§dThe creator of the mod, yeah I make a thanks command for myself :]";
+                        case Moist -> "§dSpecial thanks to " + t.id + " " + t.quote() + " for all of his feedback for the mod and giving me motivation to continue to work";
+                        case Enter -> "§dSpecial thanks to " + t.id + " " + t.quote() + " for feedback, ideas, and suggestions regarding the mod during early days of development";
+                        case Chili -> "§dSpecial thanks to " + t.id + " " + t.quote() + " for help with moderating the discord server as well as helping with the mod in a few ways";
+                        case Isha -> "§dSpecial thanks to " + t.id + " " + t.quote() + " for bug testing and giving feedback on private betas of the mod";
+                        case Xplosion -> "§dSpecial thanks to " + t.id + " " + t.quote() + " for early bug testing and playing of private betas";
+                        case Wizzy -> "§dSpecial thanks to " + t.id + " " + t.quote() + " for his endless spew of bug information for cooking up ideas for myiatic forms";
+                    };
+                    Entity e = arguments.getSource().getEntity();
+                    if (e instanceof Player player){
+                        player.displayClientMessage(Component.literal(print), false);
+                        Level l = arguments.getSource().getLevel();
+                        ItemEntity item = new ItemEntity(EntityType.ITEM, l);
+                        item.setItem(new ItemStack(EntomoItems.THANKS.get()));
+                        item.moveTo(player.position());
+                        l.addFreshEntity(item);
+                        return 1;
+                    } else {
+                        System.err.println("[SPECIAL THANKS] Oops! Somehow, this command was ran by an entity that wasn't a player! How did that happen...");
+                        return 0;
+                    }
+                })));
+    }
+    @SubscribeEvent
+    public static void registerClientCommands(RegisterClientCommandsEvent event){
+    }
+    private enum thanks{
+        Pilot("pilotmoo"),
+        Moist("thickmoistmeatshoes"),
+        Enter("entergamer227"),
+        Chili("cooldamian20"),
+        Isha("ishax21"),
+        Xplosion("bigxplosion"),
+        Wizzy("wizzythewizkid");
+
+        public String quote(){
+            return "\"" + this.name() + "\"";
+        }
+        thanks(String commandID){
+            this.id = commandID;
+        }
+        public final String id;
     }
 
     private static final ResourceLocation OVERSTIM_EFFECT_OVERLAY = new ResourceLocation(Entomophobia.MOD_ID,

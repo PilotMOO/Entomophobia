@@ -47,6 +47,8 @@ public class EntomoDamageTypes {
 
     public static final ResourceKey<DamageType> MYIATIC_EXPLODE = create("myiatic_explode");
 
+    public static final ResourceKey<DamageType> LEAD_POISONING = create("lead");
+
     public static DamageSource myiatic_basic(LivingEntity entity){
         switch (entity.getRandom().nextIntBetweenInclusive(1, 3)){
             default -> {
@@ -116,5 +118,8 @@ public class EntomoDamageTypes {
                 return damageSource(entity, OVERSTIM3);
             }
         }
+    }
+    public static DamageSource leadPoisoning(LivingEntity entity){
+        return damageSource(entity, LEAD_POISONING);
     }
 }

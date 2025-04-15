@@ -33,6 +33,8 @@ public class EntomoItems {
             .nutrition(6).saturationMod(1.5f)
             .effect(() -> new MobEffectInstance(EntomoMobEffects.OVERSTIMULATION.get(), 100), 1f)
             .build();
+    public static final FoodProperties LEAD_FOOD = new FoodProperties.Builder().alwaysEat()
+            .nutrition(0).saturationMod(0f).build();
 
     /*Item registration*/
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Entomophobia.MOD_ID);
@@ -67,6 +69,9 @@ public class EntomoItems {
             });
     public static final RegistryObject<Item> BOTTLED_CORPSEDEW = ITEMS.register("bottled_corpsedew",
             () -> new BottledCorpsedewItem(new Item.Properties().food(CORPSEDEW_FOOD).stacksTo(8)));
+
+    public static final RegistryObject<Item> THANKS = ITEMS.register("thanks",
+            () -> new Thanks(new Item.Properties().food(LEAD_FOOD).stacksTo(1)));
 
     public static final RegistryObject<Item> SHAPE_WAND = ITEMS.register("shape_wand",
             () -> new ShapeWand(new Item.Properties().stacksTo(1)));
