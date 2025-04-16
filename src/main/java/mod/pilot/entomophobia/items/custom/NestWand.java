@@ -29,10 +29,10 @@ public class NestWand extends Item {
         if (context.getPlayer() == null) return InteractionResult.FAIL;
         if (context.getLevel() instanceof ServerLevel server){
             if (context.getPlayer().isSecondaryUseActive()){
-                NestManager.ConstructNewNest(server, context.getClickLocation());
+                NestManager.constructNewNest(server, context.getClickLocation());
             }
             else {
-                NestManager.ConstructNewNest(server, NestManager.getNewNestPosition(context.getClickLocation(), 20, true));
+                NestManager.constructNewNest(server, NestManager.getNewNestPosition(context.getClickLocation(), 20, true));
             }
         }
         context.getPlayer().displayClientMessage(Component.literal("Makin' a new nest!"), true);
@@ -60,7 +60,7 @@ public class NestWand extends Item {
             if (closest != null){
                 player.displayClientMessage(Component.literal("Killing closest nest!"), true);
                 player.playSound(SoundEvents.ANVIL_BREAK, 10, 2);
-                closest.Kill(true);
+                closest.kill(true);
             }
             else{
                 player.displayClientMessage(Component.literal("There isn't a nearby nest to kill :["), true);

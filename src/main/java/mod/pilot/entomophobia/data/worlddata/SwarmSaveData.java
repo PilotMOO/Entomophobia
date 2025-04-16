@@ -22,7 +22,7 @@ public class SwarmSaveData extends SavedData {
         super();
         server = EntomoForgeEvents.getServer();
     }
-    public static void SetActiveSwarmData(ServerLevel server){
+    public static void setActiveSwarmData(ServerLevel server){
         Entomophobia.activeSwarmData = server.getDataStorage().computeIfAbsent(SwarmSaveData::load, SwarmSaveData::new, NAME);
         activeData().setDirty();
     }

@@ -42,7 +42,7 @@ public class NestSwarmCaptainGoal extends Goal implements ISwarmOrder {
             }
 
             if (swarm.getRecruitCount() >= requiredMemberCount){
-                NestManager.ConstructNewNest(server, NestManager.getNewNestPosition(parent.position(), 32, false));
+                NestManager.constructNewNest(server, NestManager.getNewNestPosition(parent.position(), 32, false));
                 swarm.Finish();
                 stop();
             }

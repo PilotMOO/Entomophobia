@@ -13,7 +13,6 @@ import mod.pilot.entomophobia.entity.pathfinding.WallClimbingNestNavigation;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
 import mod.pilot.entomophobia.data.BooleanCache;
 import mod.pilot.entomophobia.systems.nest.Nest;
-import mod.pilot.entomophobia.systems.nest.NestClientErrorLogger;
 import mod.pilot.entomophobia.systems.nest.NestManager;
 import mod.pilot.entomophobia.systems.swarm.Swarm;
 import mod.pilot.entomophobia.util.EntomoTags;
@@ -422,17 +421,17 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         if (player != null && player.distanceTo(this) < PlayerDespawnRange){
             super.checkDespawn();
         }
-        else if (EntomoGeneralSaveData.GetMyiaticCount() > MobCap){
+        else if (EntomoGeneralSaveData.getMyiaticCount() > MobCap){
             this.discard();
         }
     }
     @Override
     public boolean removeWhenFarAway(double pDistanceToClosestPlayer) {
-        return EntomoGeneralSaveData.GetMyiaticCount() > MobCap && getTarget() == null;
+        return EntomoGeneralSaveData.getMyiaticCount() > MobCap && getTarget() == null;
     }
     @Override
     public boolean isPersistenceRequired() {
-        return EntomoGeneralSaveData.GetMyiaticCount() < MobCap || getTarget() != null;
+        return EntomoGeneralSaveData.getMyiaticCount() < MobCap || getTarget() != null;
     }
 
         /*Booleans*/

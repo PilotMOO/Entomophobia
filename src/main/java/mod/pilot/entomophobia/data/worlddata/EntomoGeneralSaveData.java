@@ -20,7 +20,7 @@ public class EntomoGeneralSaveData extends SavedData {
         MyiaticStorage = "dummy/";
         server = EntomoForgeEvents.getServer();
     }
-    public static void SetActiveData(ServerLevel server){
+    public static void setActiveData(ServerLevel server){
         Entomophobia.activeData = server.getDataStorage().computeIfAbsent(EntomoGeneralSaveData::load, EntomoGeneralSaveData::new, NAME);
         activeData().setDirty();
     }
@@ -59,21 +59,21 @@ public class EntomoGeneralSaveData extends SavedData {
 
     private int MyiaticCount = 0;
 
-    public void AddToMyiaticCount(int count){
+    public void addToMyiaticCount(int count){
         MyiaticCount += count;
         setDirty();
     }
-    public void AddToMyiaticCount(){
-        AddToMyiaticCount(1);
+    public void addToMyiaticCount(){
+        addToMyiaticCount(1);
     }
-    public void RemoveFromMyiaticCount(int count){
+    public void removeFromMyiaticCount(int count){
         MyiaticCount -= count;
         setDirty();
     }
-    public void RemoveFromMyiaticCount(){
-        RemoveFromMyiaticCount(1);
+    public void removeFromMyiaticCount(){
+        removeFromMyiaticCount(1);
     }
-    public static int GetMyiaticCount(){
+    public static int getMyiaticCount(){
         return activeData().MyiaticCount;
     }
 
@@ -102,7 +102,7 @@ public class EntomoGeneralSaveData extends SavedData {
     }
 
     private String MyiaticStorage;
-    public void AddToStorage(String ID){
+    public void addToStorage(String ID){
         MyiaticStorage += ID + "/";
         setDirty();
     }

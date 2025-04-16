@@ -3,15 +3,12 @@ package mod.pilot.entomophobia.systems.nest;
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.systems.PolyForged.utility.GeneratorBlockPacket;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -31,7 +28,7 @@ public class NestManager {
     private static final ArrayList<Nest> ActiveNests = new ArrayList<>();
     public static void addToActiveNests(Nest toAdd){
         ActiveNests.add(toAdd);
-        NestSaveData.Dirty();
+        NestSaveData.dirty();
     }
     public static int AmountOfActiveNests(){
         return ActiveNests.size();
@@ -55,37 +52,37 @@ public class NestManager {
         }
         return toReturn;
     }
-    public static void ClearNests(){
+    public static void clearNests(){
         ActiveNests.clear();
     }
-    public static Nest ConstructNewNest(ServerLevel server, Vec3 start){
+    public static Nest constructNewNest(ServerLevel server, Vec3 start){
         Nest nest = new Nest(server, start);
         addToActiveNests(nest);
-        NestSaveData.Dirty();
+        NestSaveData.dirty();
         return nest;
     }
-    public static Nest ConstructFromBlueprint(ServerLevel server, Vec3 start, byte state, Nest.Chamber mainChamber){
-        Nest toReturn = Nest.ConstructFromBlueprint(server, start, state, mainChamber);
+    public static Nest constructFromBlueprint(ServerLevel server, Vec3 start, byte state, Nest.Chamber mainChamber){
+        Nest toReturn = Nest.constructFromBlueprint(server, start, state, mainChamber);
         addToActiveNests(toReturn);
         return toReturn;
     }
-    public static void TickAllActiveNests(){
+    public static void tickAllActiveNests(){
         ArrayList<Nest> nestsToDiscard = new ArrayList<>();
         for (Nest nest : ActiveNests){
-            if (nest.Dead()){
+            if (nest.dead()){
                 nestsToDiscard.add(nest);
                 continue;
             }
-            nest.NestTick();
+            nest.nestTick();
         }
         for (Nest toRemove : nestsToDiscard){
             ActiveNests.remove(toRemove);
         }
     }
-    public static void ActivateAllNests() {
+    public static void activateAllNests() {
         for (Nest nest : ActiveNests){
-            if (nest.Dead()) continue;
-            nest.Enable();
+            if (nest.dead()) continue;
+            nest.enable();
         }
     }
 

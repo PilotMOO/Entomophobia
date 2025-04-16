@@ -22,14 +22,14 @@ public class NestSaveData extends SavedData {
         super();
         server = EntomoForgeEvents.getServer();
     }
-    public static void SetActiveNestData(ServerLevel server){
+    public static void setActiveNestData(ServerLevel server){
         Entomophobia.activeNestData = server.getDataStorage().computeIfAbsent(NestSaveData::load, NestSaveData::new, NAME);
         activeData().setDirty();
     }
     private static @NotNull NestSaveData activeData(){
         return Entomophobia.activeNestData;
     }
-    public static void Dirty(){
+    public static void dirty(){
         if (Entomophobia.activeNestData == null) return;
         Entomophobia.activeNestData.setDirty();
     }
@@ -37,14 +37,14 @@ public class NestSaveData extends SavedData {
         NestSaveData data = new NestSaveData();
 
         NestPackager packager = new NestPackager(data, tag);
-        packager.UnpackNests();
+        packager.unpackNests();
 
         return data;
     }
     @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag tag) {
         NestPackager packager = new NestPackager(this, tag);
-        packager.PackNests();
+        packager.packNests();
 
         return tag;
     }
@@ -56,7 +56,7 @@ public class NestSaveData extends SavedData {
         this.server = server;
     }
 
-    public static class NestPackager{
+    private static class NestPackager{
         private NestPackager(NestSaveData data, CompoundTag tag){
             this.data = data;
             this.tag = tag;
@@ -64,24 +64,24 @@ public class NestSaveData extends SavedData {
         private final NestSaveData data;
         private final CompoundTag tag;
         private final StringBuilder builder = new StringBuilder();
-        private void CleanBuilder(){
+        private void cleanBuilder(){
             builder.setLength(0);
         }
         private ServerLevel getServer(){
             return data.getServer();
         }
 
-        public void PackNests(){
+        public void packNests(){
             ArrayList<Nest> nests = NestManager.getActiveNests();
             int tracker = 0;
 
             for (int i = 0; i < nests.size(); i++){
                 Nest current = nests.get(i);
 
-                String nestID = builder.append("Nest").append(i).toString(); CleanBuilder();
-                PackNest(current, nestID);
-                String mainChamberID = PackOffshoot(current.MainChamber, nestID, i);
-                PackageFamilyTreeFor(current.MainChamber, mainChamberID);
+                String nestID = builder.append("Nest").append(i).toString(); cleanBuilder();
+                packNest(current, nestID);
+                String mainChamberID = packOffshoot(current.MainChamber, nestID, i);
+                packageFamilyTreeFor(current.MainChamber, mainChamberID);
 
                 tracker++;
             }
@@ -94,7 +94,7 @@ public class NestSaveData extends SavedData {
             }
         }
 
-        private void PackageFamilyTreeFor(Nest.Offshoot parent, String parentID) {
+        private void packageFamilyTreeFor(Nest.Offshoot parent, String parentID) {
             if (parent.children == null) return;
             HashMap<Nest.Offshoot, String> OffshootIDs = new HashMap<>(); OffshootIDs.put(parent, parentID);
 
@@ -103,13 +103,13 @@ public class NestSaveData extends SavedData {
                 for (Nest.Offshoot current : currentLayer){
                     String pID = OffshootIDs.get(current.parent);
                     int index = current.parent != null ? current.getChildIndex() : 0;
-                    String cID = PackOffshoot(current, pID, index);
+                    String cID = packOffshoot(current, pID, index);
                     OffshootIDs.put(current, cID);
                 }
-                currentLayer = CollectChildrenOf(currentLayer);
+                currentLayer = collectChildrenOf(currentLayer);
             }
         }
-        private ArrayList<Nest.Offshoot> CollectChildrenOf(ArrayList<Nest.Offshoot> parents){
+        private ArrayList<Nest.Offshoot> collectChildrenOf(ArrayList<Nest.Offshoot> parents){
             ArrayList<Nest.Offshoot> toReturn = new ArrayList<>();
             for (Nest.Offshoot parent : parents){
                 if (parent.children == null) continue;
@@ -118,8 +118,8 @@ public class NestSaveData extends SavedData {
             return toReturn;
         }
 
-        private void PackNest(Nest nest, String ID) {
-            CleanBuilder();
+        private void packNest(Nest nest, String ID) {
+            cleanBuilder();
             builder.append(ID);
 
             Vec3 pos = nest.origin;
@@ -127,11 +127,11 @@ public class NestSaveData extends SavedData {
             tag.putDouble(builder.append("y").toString(), pos.y); builder.setLength(ID.length());
             tag.putDouble(builder.append("z").toString(), pos.z); builder.setLength(ID.length());
 
-            tag.putByte(builder.append("state").toString(), nest.getNestState()); CleanBuilder();
+            tag.putByte(builder.append("state").toString(), nest.getNestState()); cleanBuilder();
             System.out.println("Packaged up a nest at " + pos + " with state " + nest.getNestState() + " and I.D. " + ID);
         }
-        private String PackOffshoot(Nest.Offshoot toPack, String parentID, int childIndex) {
-            CleanBuilder();
+        private String packOffshoot(Nest.Offshoot toPack, String parentID, int childIndex) {
+            cleanBuilder();
             String ID = builder.append(parentID).append("offshoot").append(childIndex).toString();
 
             Vec3 pos = toPack instanceof Nest.Corridor corridor ? corridor.getStartDirect() : toPack.getPosition();
@@ -169,16 +169,16 @@ public class NestSaveData extends SavedData {
             }
 
             System.out.println("Packed up an offshoot with I.D. " + ID);
-            CleanBuilder();
+            cleanBuilder();
             return ID;
         }
 
-        public void UnpackNests(){
+        public void unpackNests(){
             int tracker = 0;
 
-            CleanBuilder();
-            String nestID = builder.append("Nest").append(tracker).toString(); CleanBuilder();
-            boolean flag = tag.contains(builder.append(nestID).append("x").toString()); CleanBuilder();
+            cleanBuilder();
+            String nestID = builder.append("Nest").append(tracker).toString(); cleanBuilder();
+            boolean flag = tag.contains(builder.append(nestID).append("x").toString()); cleanBuilder();
             while (flag){
                 builder.append(nestID);
 
@@ -188,21 +188,21 @@ public class NestSaveData extends SavedData {
                 byte state = tag.getByte(builder.append("state").toString()); builder.setLength(nestID.length());
                 Vec3 nestPos = new Vec3(x, y, z);
 
-                String mainChamberID = builder.append("offshoot0").toString(); CleanBuilder();
-                Nest.Chamber mainChamber = (Nest.Chamber)UnpackWithAllChildrenFromID(mainChamberID, null);
+                String mainChamberID = builder.append("offshoot0").toString(); cleanBuilder();
+                Nest.Chamber mainChamber = (Nest.Chamber) unpackWithAllChildrenFromID(mainChamberID, null);
 
-                NestManager.ConstructFromBlueprint(getServer(), nestPos, state, mainChamber);
+                NestManager.constructFromBlueprint(getServer(), nestPos, state, mainChamber);
 
                 System.out.println("Unpacked a nest with the I.D. " + nestID);
 
                 tracker++;
-                nestID = builder.append("Nest").append(tracker).toString(); CleanBuilder();
-                flag = tag.contains(builder.append(nestID).append("x").toString()); CleanBuilder();
+                nestID = builder.append("Nest").append(tracker).toString(); cleanBuilder();
+                flag = tag.contains(builder.append(nestID).append("x").toString()); cleanBuilder();
             }
         }
-        private Nest.Offshoot UnpackOffshootFromID(String ID, @Nullable Nest.Offshoot parent){
+        private Nest.Offshoot unpackOffshootFromID(String ID, @Nullable Nest.Offshoot parent){
             Nest.Offshoot toReturn;
-            CleanBuilder();
+            cleanBuilder();
             builder.append(ID);
 
             double x = tag.getDouble(builder.append("x").toString()); builder.setLength(ID.length());
@@ -253,12 +253,12 @@ public class NestSaveData extends SavedData {
                 }
             }
 
-            CleanBuilder();
+            cleanBuilder();
             return toReturn;
         }
-        private Nest.Offshoot UnpackWithAllChildrenFromID(String originID, @Nullable Nest.Offshoot parent){
+        private Nest.Offshoot unpackWithAllChildrenFromID(String originID, @Nullable Nest.Offshoot parent){
             System.out.println("Attempting to unpack offshoot " + originID + " and all children");
-            Nest.Offshoot origin = UnpackOffshootFromID(originID, parent);
+            Nest.Offshoot origin = unpackOffshootFromID(originID, parent);
             HashMap<String, Nest.Offshoot> OffshootIDs = new HashMap<>(); OffshootIDs.put(originID, origin);
 
             ArrayList<String> currentLayerIDs = new ArrayList<>(); currentLayerIDs.add(originID);
@@ -267,12 +267,12 @@ public class NestSaveData extends SavedData {
                 ArrayList<String> IntermediateIDs = new ArrayList<>();
                 for (String ID : currentLayerIDs){
                     System.out.println("Trying to unpack all children for " + ID);
-                    CleanBuilder();
+                    cleanBuilder();
                     for (int i = 0; tag.contains(builder.append(ID).append("offshoot").append(i).append("x").toString()); i++){
                         builder.setLength(builder.length() - 1);
-                        String cID = builder.toString(); CleanBuilder();
+                        String cID = builder.toString(); cleanBuilder();
                         IntermediateIDs.add(cID);
-                        OffshootIDs.put(cID, UnpackOffshootFromID(cID, OffshootIDs.get(ID)));
+                        OffshootIDs.put(cID, unpackOffshootFromID(cID, OffshootIDs.get(ID)));
                     }
                 }
 

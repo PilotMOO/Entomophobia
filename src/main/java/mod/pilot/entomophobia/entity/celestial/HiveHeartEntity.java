@@ -5,6 +5,7 @@ import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.util.AzureLibUtil;
+import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticPigEntity;
 import mod.pilot.entomophobia.sound.EntomoSounds;
@@ -63,6 +64,17 @@ public class HiveHeartEntity extends MyiaticBase {
     }
     public void alertHive(){
         stimulate(StimulantType.Alarm);
+    }
+    /**/
+
+    //HiveData access
+    private HiveSaveData.Packet data = null;
+    public HiveSaveData.Packet accessData(){
+        if (data == null){
+            data = HiveSaveData.retrieveData(this);
+            if (data == null) data = HiveSaveData.createNewDataPacket(this.getUUID());
+        }
+        return data;
     }
     /**/
     @Override

@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia.systems.nest;
 
 import mod.pilot.entomophobia.data.EntomoDataManager;
+import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
@@ -34,17 +35,17 @@ public class Nest {
     public Nest(ServerLevel server, Vec3 start){
         this.server = server;
         origin = start;
-        MainChamber = CreateMainChamber();
-        Enable();
-        NestSaveData.Dirty();
+        MainChamber = createMainChamber();
+        enable();
+        NestSaveData.dirty();
     }
     private Nest(ServerLevel server, Vec3 start, byte state, Chamber mainChamber){
         this.server = server;
         origin = start;
-        NestState = state;
+        nestState = state;
         MainChamber = mainChamber;
     }
-    public static Nest ConstructFromBlueprint(ServerLevel server, Vec3 start, byte state, Chamber mainChamber){
+    public static Nest constructFromBlueprint(ServerLevel server, Vec3 start, byte state, Chamber mainChamber){
         return new Nest(server, start, state, mainChamber.DenoteAsMain());
     }
 
@@ -52,44 +53,47 @@ public class Nest {
     public static final RandomSource random = RandomSource.create();
 
     public final Vec3 origin;
+    public double distanceTo(Vec3 pos){
+        return origin.distanceTo(pos);
+    }
 
-    private byte NestState;
+    private byte nestState;
     public byte getNestState(){
-        return NestState;
+        return nestState;
     }
     protected void setNestState(byte state){
-        NestState = state;
-        NestSaveData.Dirty();
+        nestState = state;
+        NestSaveData.dirty();
     }
     protected void setNestState(NestManager.NestStates state){
         setNestState((byte)state.ordinal());
     }
 
-    public void Disable(){
+    public void disable(){
         setNestState((byte)0);
     }
-    public void Enable(){
+    public void enable(){
         setNestState((byte)1);
     }
-    public void Finish(){
+    public void finish(){
         setNestState((byte)2);
     }
-    public void Kill(boolean killAll){
+    public void kill(boolean killAll){
         setNestState((byte)3);
         MainChamber.Kill(killAll);
     }
-    public boolean Alive(){
+    public boolean alive(){
         return MainChamber.Alive() && getNestState() == 1;
     }
-    public boolean Dead(){
+    public boolean dead(){
         return MainChamber.Dead() || getNestState() == 3;
     }
 
-    public ArrayList<Offshoot> Offshoots(){
+    public ArrayList<Offshoot> offshoots(){
         return MainChamber.children;
     }
     public final Chamber MainChamber;
-    private Chamber CreateMainChamber(){
+    private Chamber createMainChamber(){
         return new Chamber(server, null, origin,
                 NestManager.getNestLargeChamberMaxRadius(), NestManager.getNestLargeChamberThickness()).DenoteAsMain();
     }
@@ -100,12 +104,15 @@ public class Nest {
             return HH.nervousSystem;
         } else return null;
     }
+    public @Nullable HiveSaveData.Packet accessData(){
+        HiveHeartEntity HH;
+        if (MainChamber != null && (HH = MainChamber.getHiveHeart()) != null){
+            return HH.accessData();
+        } else return null;
+    }
 
-    public void NestTick(){
-        if (getNestState() != 1){
-            return;
-        }
-        if (!MainChamber.Dead()){
+    public void nestTick(){
+        if (getNestState() == 1 && !MainChamber.Dead()){
             MainChamber.offshootTick(true, true, -1);
         }
     }
@@ -121,7 +128,7 @@ public class Nest {
             }
 
             Enable();
-            NestSaveData.Dirty();
+            NestSaveData.dirty();
         }
         protected Offshoot(ServerLevel server, byte type, @Nullable Offshoot parent, Vec3 position, byte state, boolean deadEnd){
             OffshootType = type;
@@ -170,7 +177,7 @@ public class Nest {
                 children = new ArrayList<>();
             }
             if (child != null){
-                NestSaveData.Dirty();
+                NestSaveData.dirty();
                 children.add(child);
             }
         }
@@ -221,7 +228,7 @@ public class Nest {
         }
         protected void setOffshootState(byte state){
             OffshootState = state;
-            NestSaveData.Dirty();
+            NestSaveData.dirty();
         }
         public void Disable(){ setOffshootState((byte)0); }
         public void Enable(){ setOffshootState((byte)1); }
@@ -257,7 +264,7 @@ public class Nest {
                     child.Kill(true);
                 }
             }
-            NestSaveData.Dirty();
+            NestSaveData.dirty();
         }
 
         protected ArrayList<GhostSphere> QueuedGhostPositions;
@@ -967,7 +974,7 @@ public class Nest {
                 if (isEntrance()) System.err.println("[NEST SYSTEM] Info-- failed end position was for an entrance!");
                 this.Kill(false);
             }
-            NestSaveData.Dirty();
+            NestSaveData.dirty();
             return end = toReturn;
         }
         //Temp for testing

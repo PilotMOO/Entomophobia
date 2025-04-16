@@ -1,10 +1,10 @@
 package mod.pilot.entomophobia.event;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.blocks.custom.BloodwaxProtrusions;
+import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.data.worlddata.SwarmSaveData;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
@@ -47,7 +47,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
@@ -75,8 +74,8 @@ public class EntomoForgeEvents {
     public static void onLivingSpawned(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof MyiaticBase  && !(event.getEntity() instanceof PestBase)
                 && event.getLevel() instanceof ServerLevel s && s.getServer().isReady()){
-            Entomophobia.activeData.AddToMyiaticCount();
-            System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
+            Entomophobia.activeData.addToMyiaticCount();
+            System.out.println("MyiaticCount is " + EntomoGeneralSaveData.getMyiaticCount());
             return;
         }
 
@@ -84,15 +83,15 @@ public class EntomoForgeEvents {
                 MyiaticBase.isInsideOfTargetBlacklist(LE)) return;
 
         if (event.getEntity() instanceof Animal animal){
-            animal.targetSelector.addGoal(1, new AvoidEntityGoal<>(animal, MyiaticBase.class, EntomoForgeEvents::NotCarrion,
+            animal.targetSelector.addGoal(1, new AvoidEntityGoal<>(animal, MyiaticBase.class, EntomoForgeEvents::notCarrion,
                     16, 1.0D, 1.3D, (e) -> true));
         }
         else if (event.getEntity() instanceof AbstractVillager villager){
-            villager.targetSelector.addGoal(1, new AvoidEntityGoal<>(villager, MyiaticBase.class, EntomoForgeEvents::NotCarrion,
+            villager.targetSelector.addGoal(1, new AvoidEntityGoal<>(villager, MyiaticBase.class, EntomoForgeEvents::notCarrion,
                     16, 0.8D, 1.0D, (e) -> true));
         }
     }
-    private static boolean NotCarrion(LivingEntity le){
+    private static boolean notCarrion(LivingEntity le){
         return !(le instanceof CelestialCarrionEntity);
     }
 
@@ -106,10 +105,14 @@ public class EntomoForgeEvents {
             if (E instanceof MyiaticBase M && !(E instanceof PestBase)){
                 if (!M.isDeadOrDying()){
                     System.out.println("Adding " + M.getEncodeId() + " to storage!");
-                    Entomophobia.activeData.AddToStorage(M.getEncodeId());
+                    HiveSaveData.Packet packet = HiveSaveData.locateClosestData(M.position());
+                    if (packet != null){
+                        packet.addToStorage(M);
+                       //Entomophobia.activeData.addToStorage(M.getEncodeId());
+                    } else System.out.println("No Hive Packet was found nearby, can't save the entity :[");
                 }
-                Entomophobia.activeData.RemoveFromMyiaticCount();
-                System.out.println("MyiaticCount is " + EntomoGeneralSaveData.GetMyiaticCount());
+                Entomophobia.activeData.removeFromMyiaticCount();
+                System.out.println("MyiaticCount is " + EntomoGeneralSaveData.getMyiaticCount());
             }
         }
     }
@@ -121,7 +124,7 @@ public class EntomoForgeEvents {
         }
     }*/
     @SubscribeEvent
-    public static void HandleSwarmUnpacking(EntityJoinLevelEvent event){
+    public static void handleSwarmUnpacking(EntityJoinLevelEvent event){
         if (!(event.getLevel() instanceof ServerLevel s)) return;
 
         if (Entomophobia.activeSwarmData != null && Entomophobia.activeSwarmData.toUnpack.size() != 0){
@@ -150,7 +153,7 @@ public class EntomoForgeEvents {
         return server;
     }
     @SubscribeEvent
-    public static void ServerStarting(ServerStartingEvent event){
+    public static void serverStarting(ServerStartingEvent event){
         NestManager.setNestConstructionDetails();
         SwarmManager.setSwarmDetails();
         PestManager.RegisterAll();
@@ -159,17 +162,18 @@ public class EntomoForgeEvents {
         server = event.getServer().overworld();
     }
     @SubscribeEvent
-    public static void ServerDataSetup(ServerStartedEvent event){
+    public static void serverDataSetup(ServerStartedEvent event){
         ServerLevel server = event.getServer().overworld();
-        EntomoGeneralSaveData.SetActiveData(server);
-        NestSaveData.SetActiveNestData(server);
-        SwarmSaveData.SetActiveSwarmData(server);
+        EntomoGeneralSaveData.setActiveData(server);
+        NestSaveData.setActiveNestData(server);
+        HiveSaveData.setActiveHiveData(server);
+        SwarmSaveData.setActiveSwarmData(server);
         System.out.println("Amount of myiatics in storage: " + Entomophobia.activeData.getTotalInStorage());
     }
     @SubscribeEvent
-    public static void PostServerCleanup(ServerStoppedEvent event){
+    public static void postServerCleanup(ServerStoppedEvent event){
         System.out.println("[NEST MANAGER] Clearing out all nests!");
-        NestManager.ClearNests();
+        NestManager.clearNests();
         System.out.println("[SWARM MANAGER] Clearing out all swarms!");
         SwarmManager.PurgeAllSwarms();
         System.out.println("[PEST MANAGER] Clearing out all registered pests!");
@@ -179,7 +183,7 @@ public class EntomoForgeEvents {
 
 
     @SubscribeEvent
-    public static void StackingPotionApplication(MobEffectEvent.Added event){
+    public static void stackingPotionApplication(MobEffectEvent.Added event){
         MobEffectInstance oldEffect = event.getOldEffectInstance();
         MobEffectInstance newEffect = event.getEffectInstance();
         if (oldEffect != null && oldEffect.getEffect() instanceof IStackingEffect stacking){
@@ -205,7 +209,7 @@ public class EntomoForgeEvents {
         }
     }
     @SubscribeEvent
-    public static void StackingPotionExpiration(MobEffectEvent.Expired event){
+    public static void stackingPotionExpiration(MobEffectEvent.Expired event){
         MobEffectInstance effect = event.getEffectInstance();
         if (effect != null && effect.getEffect() instanceof IStackingEffect stacking
                 && stacking.isDegradable() && effect.getAmplifier() > 0){
@@ -215,8 +219,9 @@ public class EntomoForgeEvents {
         }
     }
 
+    //This is dumb, I should have used the interact method inside of the entity itself, but I didn't know about that when making this lmao. oops
     @SubscribeEvent
-    public static void MilkTheEvilCow(PlayerInteractEvent.EntityInteract event){
+    public static void milkTheEvilCow(PlayerInteractEvent.EntityInteract event){
         if (event.getTarget() instanceof MyiaticCowEntity MCow){
             Player player = event.getEntity();
             if (player.getMainHandItem().is(Items.BUCKET)){
@@ -228,7 +233,7 @@ public class EntomoForgeEvents {
     }
 
     @SubscribeEvent
-    public static void InvasionStartManager(TickEvent.ServerTickEvent event){
+    public static void invasionStartManager(TickEvent.ServerTickEvent event){
         Entomophobia.activeData.ageWorld();
 
         if (!EntomoGeneralSaveData.hasStarted() && EntomoGeneralSaveData.getWorldAge() > Config.SERVER.time_until_shit_gets_real.get()){
@@ -253,9 +258,9 @@ public class EntomoForgeEvents {
         }
     }
     @SubscribeEvent
-    public static void NestTicker(TickEvent.ServerTickEvent event){
+    public static void nestTicker(TickEvent.ServerTickEvent event){
         if (EntomoGeneralSaveData.getWorldAge() % NestManager.getTickFrequency() == 0){
-            NestManager.TickAllActiveNests();
+            NestManager.tickAllActiveNests();
         }
     }
     private static int nextSwitch = 0;
@@ -317,6 +322,7 @@ public class EntomoForgeEvents {
                         case Isha -> "§dSpecial thanks to " + t.id + " " + t.quote() + " for bug testing and giving feedback on private betas of the mod";
                         case Xplosion -> "§dSpecial thanks to " + t.id + " " + t.quote() + " for early bug testing and playing of private betas";
                         case Wizzy -> "§dSpecial thanks to " + t.id + " " + t.quote() + " for his endless spew of bug information for cooking up ideas for myiatic forms";
+                        case Harby -> "§dSpecial thanks to " + t.id + " " + t.quote() + " for creating a majority of the sound effects in the mod as well as assisting with coding";
                     };
                     Entity e = arguments.getSource().getEntity();
                     if (e instanceof Player player){
@@ -333,9 +339,6 @@ public class EntomoForgeEvents {
                     }
                 })));
     }
-    @SubscribeEvent
-    public static void registerClientCommands(RegisterClientCommandsEvent event){
-    }
     private enum thanks{
         Pilot("pilotmoo"),
         Moist("thickmoistmeatshoes"),
@@ -343,7 +346,8 @@ public class EntomoForgeEvents {
         Chili("cooldamian20"),
         Isha("ishax21"),
         Xplosion("bigxplosion"),
-        Wizzy("wizzythewizkid");
+        Wizzy("wizzythewizkid"),
+        Harby("harbinger5641");
 
         public String quote(){
             return "\"" + this.name() + "\"";

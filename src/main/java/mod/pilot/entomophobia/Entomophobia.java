@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia;
 
 import mod.pilot.entomophobia.blocks.EntomoBlocks;
+import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.data.worlddata.SwarmSaveData;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
@@ -31,6 +32,7 @@ public class Entomophobia
 
     public static EntomoGeneralSaveData activeData;
     public static NestSaveData activeNestData;
+    public static HiveSaveData activeHiveData;
     public static SwarmSaveData activeSwarmData;
 
     public Entomophobia() {

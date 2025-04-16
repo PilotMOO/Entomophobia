@@ -137,7 +137,7 @@ public interface INestPathfinding {
             ArrayList<Nest.Corridor> entrances = new ArrayList<>();
 
             Nest.Corridor current = null;
-            for (Nest.Offshoot o : from.Offshoots()){
+            for (Nest.Offshoot o : from.offshoots()){
                 if (o instanceof Nest.Corridor c && c.isEntrance()) {
                     current = c;
                     break;
@@ -162,7 +162,7 @@ public interface INestPathfinding {
         public static @Nullable Nest.Corridor getFirstEntranceCorridor(Nest from){
             if (from.MainChamber == null) return null;
             Nest.Corridor toReturn = null;
-            for (Nest.Offshoot o : from.Offshoots()){
+            for (Nest.Offshoot o : from.offshoots()){
                 if (o instanceof Nest.Corridor c && c.isEntrance()) {
                     toReturn = c;
                     break;
@@ -173,7 +173,7 @@ public interface INestPathfinding {
         public static @Nullable Nest.Corridor getLastEntranceCorridor(Nest from){
             if (from == null || from.MainChamber == null) return null;
             Nest.Corridor current = null;
-            for (Nest.Offshoot o : from.Offshoots()){
+            for (Nest.Offshoot o : from.offshoots()){
                 if (o instanceof Nest.Corridor c && c.isEntrance()) {
                     current = c;
                     break;
