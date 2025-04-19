@@ -1,4 +1,4 @@
-package mod.pilot.entomophobia.systems.nest.hiveheart;
+package mod.pilot.entomophobia.systems.nest.hivenervoussystem;
 
 public enum StimulantType {
     Undefined,

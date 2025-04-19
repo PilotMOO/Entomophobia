@@ -1,11 +1,16 @@
-package mod.pilot.entomophobia.systems.nest.hiveheart;
+package mod.pilot.entomophobia.systems.nest.hivenervoussystem;
 
 import com.google.common.collect.Lists;
 import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
 import mod.pilot.entomophobia.systems.nest.Nest;
-import mod.pilot.entomophobia.systems.nest.hiveheart.decisions.Decision;
-import mod.pilot.entomophobia.systems.nest.hiveheart.decisions.FuckingExplodeWhenHurt;
+import mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions.Decision;
+import mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions.StimulantPackage;
+import mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions.idle.GenerateNewMyiaticsDecision;
+import mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions.pain.FuckingExplodeWhenHurt;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -14,19 +19,21 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 public class HiveNervousSystem {
-    public ServerLevel serverLevel;
     public HiveNervousSystem(Nest nest, UUID hiveHeartUUID){
         this.nest = nest;
         this.hiveHeartUUID = hiveHeartUUID;
         this.serverLevel = nest.server;
+        Manager.addNervousSystem(this);
     }
     public HiveNervousSystem(Nest nest, HiveHeartEntity hiveHeart){
         this.nest = nest;
         this.hiveHeartUUID = hiveHeart.getUUID();
         this.serverLevel = nest.server;
+        Manager.addNervousSystem(this);
     }
     public HiveNervousSystem(Nest nest){
         setNest(nest);
+        Manager.addNervousSystem(this);
     }
 
     public void setNest(Nest nest){
@@ -36,6 +43,7 @@ public class HiveNervousSystem {
     }
     public UUID hiveHeartUUID;
     public Nest nest;
+    public ServerLevel serverLevel;
     public @Nullable HiveHeartEntity getHiveHeart(){
         if (hiveHeartUUID != null && serverLevel != null){
             return (HiveHeartEntity)serverLevel.getEntity(hiveHeartUUID);
@@ -48,10 +56,11 @@ public class HiveNervousSystem {
 
     public void populateDefaultDecisions(){
         attachDecision(new FuckingExplodeWhenHurt(this, StimulantType.Pain));
+        attachDecision(new GenerateNewMyiaticsDecision(this, StimulantType.Idle));
     }
 
-    public void stimulate(StimulantType stimulant){
-        filterStimulants(stimulant).respond();
+    public void stimulate(StimulantType stimulant, StimulantPackage sPackage){
+        filterStimulants(stimulant).respond(sPackage);
     }
     private Response filterStimulants(StimulantType stimulant){
         return switch (stimulant){
@@ -68,25 +77,33 @@ public class HiveNervousSystem {
     public final Response alarmResponse = new Response(d -> d.stimulantType == StimulantType.Alarm);
 
     public void queActiveDecision(Decision.Continuous dc){
-        this.queued_activeDecisions.add(dc);
+        this.queuedDecisions.add(dc);
         this.activeQueued = true;
     }
-    private final ArrayList<Decision.Continuous> queued_activeDecisions = new ArrayList<>();
+    private final ArrayList<Decision.Continuous> queuedDecisions = new ArrayList<>();
     private boolean activeQueued = false;
     private final ArrayList<Decision.Continuous> activeDecisions = new ArrayList<>();
     public void tickContinuousDecisions(){
         if (activeQueued){
-            activeDecisions.addAll(queued_activeDecisions);
-            queued_activeDecisions.clear();
+            activeDecisions.addAll(queuedDecisions);
+            queuedDecisions.clear();
             activeQueued = false;
         }
         ArrayList<Decision.Continuous> toRemove = null;
         for(Decision.Continuous c : activeDecisions){
             if (c.activeUntil()) c.lifecycle();
-            else if (toRemove == null) toRemove = Lists.newArrayList(c);
-            else toRemove.add(c);
+            else {
+                c.finish();
+                if (toRemove == null) toRemove = Lists.newArrayList(c);
+                else toRemove.add(c);
+            }
         }
         if (toRemove != null) activeDecisions.removeAll(toRemove);
+    }
+    private void flushDecisions(){
+        queuedDecisions.clear();
+        activeQueued = false;
+        activeDecisions.clear();
     }
 
     private class Response {
@@ -123,7 +140,7 @@ public class HiveNervousSystem {
         protected boolean decisionsUnqueued;
         protected ArrayList<Decision> decisions = new ArrayList<>();
 
-        public void respond(){
+        public void respond(StimulantPackage sPackage){
             if (decisionsQueued){
                 decisions.addAll(que);
                 que.clear();
@@ -135,10 +152,56 @@ public class HiveNervousSystem {
                 decisionsUnqueued = false;
             }
             decisions.forEach(d -> {
-                d.trigger();
+                d.trigger(sPackage);
                 Decision.Continuous c;
                 if ((c = d.continuous()) != null) queActiveDecision(c);
             });
+        }
+    }
+    public static class Manager{
+        public static void setup(){
+            MinecraftForge.EVENT_BUS.addListener(Manager::tickNervousSystems);
+            MinecraftForge.EVENT_BUS.addListener(Manager::serverCloseCleanup);
+        }
+
+        private static final ArrayList<HiveNervousSystem> activeNervousSystems = new ArrayList<>();
+        private static final ArrayList<HiveNervousSystem> que = new ArrayList<>();
+        private static boolean addFlag = false;
+        private static final ArrayList<HiveNervousSystem> unque = new ArrayList<>();
+        private static boolean removeFlag = false;
+        public static void addNervousSystem(HiveNervousSystem hNS){
+            que.add(hNS);
+            addFlag = true;
+        }
+        public static void removeNervousSystem(HiveNervousSystem hNS){
+            unque.add(hNS);
+            removeFlag = true;
+        }
+
+        public static void tickNervousSystems(TickEvent.ServerTickEvent event){
+            if (addFlag){
+                activeNervousSystems.addAll(que);
+                que.clear();
+                addFlag = false;
+            }
+            if (removeFlag){
+                activeNervousSystems.removeAll(unque);
+                unque.clear();
+                removeFlag = false;
+            }
+            activeNervousSystems.forEach(hNS -> {
+                hNS.stimulate(StimulantType.Idle, StimulantPackage.empty(event.side.isServer()));
+                hNS.tickContinuousDecisions();
+            });
+        }
+        public static void serverCloseCleanup(ServerStoppedEvent event){
+            System.out.println("[HIVE NERVOUS SYSTEM] Clearing all Nervous Systems and Continuous Decisions");
+            activeNervousSystems.forEach(HiveNervousSystem::flushDecisions);
+            activeNervousSystems.clear();
+            que.clear();
+            unque.clear();
+            addFlag = false;
+            removeFlag = false;
         }
     }
 }

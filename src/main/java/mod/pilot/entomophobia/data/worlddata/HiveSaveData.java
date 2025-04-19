@@ -37,8 +37,8 @@ public class HiveSaveData extends SavedData {
         return Entomophobia.activeHiveData;
     }
     public static void dirty(){
-        if (Entomophobia.activeNestData == null) return;
-        Entomophobia.activeNestData.setDirty();
+        if (Entomophobia.activeHiveData == null) return;
+        Entomophobia.activeHiveData.setDirty();
     }
     public static HiveSaveData load(CompoundTag tag){
         System.out.println("[HIVE SAVE DATA] Storing tag to access later...");
@@ -68,6 +68,7 @@ public class HiveSaveData extends SavedData {
     private static CompoundTag tag;
 
     public static @Nullable Packet retrieveData(HiveHeartEntity retriever){
+        if (tag == null) return null;
         Packet data = null;
         String check = retriever.getStringUUID() + "_corpsedew";
         if (tag.contains(check)){
@@ -204,14 +205,14 @@ public class HiveSaveData extends SavedData {
             return storedEntities.getOrDefault(ID, 0);
         }
 
-        public @Nullable LivingEntity getEntityFromStorage(String encodeID, Level level){
+        public @Nullable LivingEntity getEntityFromStorage(String encodeID, Level level, boolean phantom){
             if (getCountInStorage(encodeID) == 0) return null;
-            removeFromStorage(encodeID);
+            if (!phantom) removeFromStorage(encodeID);
             EntityType<?> eT = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(encodeID));
             assert eT != null;
             return (LivingEntity)eT.create(level);
         }
-        public @Nullable LivingEntity getAnythingFromStorage(Level level){
+        public @Nullable LivingEntity getAnythingFromStorage(Level level, boolean phantom){
             String encode = null;
             Set<String> values = storedEntities.keySet();
             int index = level.getRandom().nextInt(values.size());
@@ -222,11 +223,29 @@ public class HiveSaveData extends SavedData {
                     break;
                 } else i++;
             }
-            return getEntityFromStorage(encode, level);
+            return getEntityFromStorage(encode, level, phantom);
+        }
+
+        /**
+         * Puts an entity instance into the hashmap if it isn't already present--
+         * this is so the passive myiatic accumulation can accumulate myiatics that have been "unlocked" without requiring them to go into storage.
+         * @param encode The Encode ID of the given entity
+         */
+        public void registerAsUnlockedEntity(String encode){
+            System.out.println("Attempting to register " + encode + " as an unlocked myiatic");
+            storedEntities.putIfAbsent(encode, 0);
+        }
+        /**
+         * Override of the method (see original)--- shorthand--- so you don't have to invoke LivingEntity.getEncodeID() every invoke of this method.
+         * @param entity the LivingEntity to get the Encode ID from
+         */
+        public void registerAsUnlockedEntity(LivingEntity entity){
+            registerAsUnlockedEntity(entity.getEncodeId());
         }
 
         public void incrementCorpsedew(int count){
             corpseDew += count;
+            corpseDew = Math.max(corpseDew, 0);
             dirty();
         }
         public int corpseDew;

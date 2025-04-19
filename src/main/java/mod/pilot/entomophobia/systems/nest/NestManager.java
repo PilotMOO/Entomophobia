@@ -30,7 +30,7 @@ public class NestManager {
         ActiveNests.add(toAdd);
         NestSaveData.dirty();
     }
-    public static int AmountOfActiveNests(){
+    public static int amountOfActiveNests(){
         return ActiveNests.size();
     }
     public static ArrayList<Nest> getActiveNests(){

@@ -320,7 +320,7 @@ public abstract class Swarm {
     }
 
 
-    public void AssignAllOrdersFor(MyiaticBase M){
+    public void assignAllOrdersFor(MyiaticBase M){
         boolean captainFlag = M.amITheCaptain();
         for (ISwarmOrder order : getOrders()){
             if (order.CaptainOnly() && !captainFlag) continue;
@@ -344,19 +344,19 @@ public abstract class Swarm {
         MaxRecruits = max;
     }
 
-    public int RecruitRange(){
+    public int recruitRange(){
         if (getCaptain() == null) return 0;
         return (int)getCaptain().getAttributeValue(Attributes.FOLLOW_RANGE);
     }
     protected boolean canRecruit(MyiaticBase recruit){
         return recruit.isAlive() && recruit.canSwarm() && !recruit.isInSwarm() && getRecruitCount() < getMaxRecruits()
-                && this.distanceTo(recruit.position()) < RecruitRange();
+                && this.distanceTo(recruit.position()) < recruitRange();
     }
 
-    public boolean AttemptToRecruit(MyiaticBase toRecruit){
+    public boolean attemptToRecruit(MyiaticBase toRecruit){
         if (canRecruit(toRecruit)){
             addToUnits(toRecruit);
-            AssignAllOrdersFor(toRecruit);
+            assignAllOrdersFor(toRecruit);
             toRecruit.addEffect(new MobEffectInstance(MobEffects.GLOWING, 60));
             return true;
         }
@@ -364,9 +364,9 @@ public abstract class Swarm {
     }
 
     public void RecruitNearby(){
-        AABB nearby = getCaptain().getBoundingBox().inflate(RecruitRange());
+        AABB nearby = getCaptain().getBoundingBox().inflate(recruitRange());
         for (MyiaticBase M : getCaptain().level().getEntitiesOfClass(MyiaticBase.class, nearby, (M) -> true)){
-            M.TryToRecruit(this);
+            M.tryToRecruit(this);
         }
     }
 

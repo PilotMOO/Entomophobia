@@ -10,12 +10,15 @@ import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticPigEntity;
 import mod.pilot.entomophobia.sound.EntomoSounds;
 import mod.pilot.entomophobia.systems.nest.Nest;
-import mod.pilot.entomophobia.systems.nest.hiveheart.HiveNervousSystem;
-import mod.pilot.entomophobia.systems.nest.hiveheart.StimulantType;
+import mod.pilot.entomophobia.systems.nest.NestManager;
+import mod.pilot.entomophobia.systems.nest.hivenervoussystem.HiveNervousSystem;
+import mod.pilot.entomophobia.systems.nest.hivenervoussystem.StimulantType;
+import mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions.StimulantPackage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -24,8 +27,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import oshi.util.tuples.Pair;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.UUID;
@@ -50,20 +55,24 @@ public class HiveHeartEntity extends MyiaticBase {
 
     /**Create a new Nervous System for the Nest and the Hive Heart */
     public void constructNervousSystem(Nest n){
+        System.out.println("Creating a new nervous system for the fucking heart");
         UUID nestHH_UUID;
-        if ((nestHH_UUID = n.MainChamber.getHiveHeartUUID()) != null && nestHH_UUID == this.uuid){
+        if ((nestHH_UUID = n.MainChamber.getHiveHeartUUID()) != null && nestHH_UUID.equals(this.getUUID())){
             nervousSystem = new HiveNervousSystem(n, this);
             nervousSystem.populateDefaultDecisions();
         } else{
             System.err.println("[HIVE NERVOUS SYSTEM] Error! Attempted to construct a nervous system for a nest with a hive heart that is NOT related!");
+            System.err.println("[HIVE NERVOUS SYSTEM] Info-- UUID of Hive Heart: ["
+                    + this.getUUID() + "], UUID of Nest's Hive Heart: ["
+                    + n.MainChamber.getHiveHeartUUID() + "]");
         }
     }
 
-    public void stimulate(StimulantType stimulant){
-        if (nervousSystem != null) nervousSystem.stimulate(stimulant);
+    public void stimulate(StimulantType stimulant, StimulantPackage sPackage){
+        if (nervousSystem != null) nervousSystem.stimulate(stimulant, sPackage);
     }
-    public void alertHive(){
-        stimulate(StimulantType.Alarm);
+    public void alertHive(StimulantPackage sPackage){
+        stimulate(StimulantType.Alarm, sPackage);
     }
     /**/
 
@@ -77,6 +86,31 @@ public class HiveHeartEntity extends MyiaticBase {
         return data;
     }
     /**/
+
+    @Override
+    public void onAddedToWorld() {
+        super.onAddedToWorld();
+        if (nervousSystem != null) return;
+        Nest n = NestManager.getClosestNest(position());
+        if (n != null) {
+            HiveHeartEntity hh;
+            if ((hh = n.accessHiveHeart()) != null && this.getUUID().equals(hh.getUUID())) {
+                constructNervousSystem(n);
+                System.out.println("Teehee");
+                return;
+            } else {
+                for (Nest n1 : NestManager.getActiveNests()) {
+                    if ((hh = n1.accessHiveHeart()) != null && this.getUUID().equals(hh.getUUID())) {
+                        constructNervousSystem(n1);
+                        System.out.println("Teehee");
+                        return;
+                    }
+                }
+            }
+        }
+        System.out.println("[HIVE HEART ENTITY] FAILED to locate parent nest, failed to create Hive Nervous System...");
+    }
+
     @Override
     protected void registerGoals() {}
     @Override
@@ -101,22 +135,18 @@ public class HiveHeartEntity extends MyiaticBase {
     }
 
     @Override
-    public void push(double pX, double pY, double pZ) {
-        alertHive();
+    public void push(@NotNull Entity entity) {
+        alertHive(StimulantPackage.entity(entity));
     }
-
     @Override
-    public void aiStep() {
-        super.aiStep();
-        stimulate(StimulantType.Idle);
-    }
+    public void push(double pX, double pY, double pZ) {}
 
 
     @Override
     public boolean hurt(DamageSource pSource, float pAmount) {
         if (pSource.is(DamageTypes.IN_WALL)) return false;
         boolean flag = super.hurt(pSource, pAmount);
-        if (flag) stimulate(StimulantType.Pain);
+        if (flag) stimulate(StimulantType.Pain, StimulantPackage.entity(pSource.getEntity()));
         return flag;
     }
 

@@ -98,7 +98,7 @@ public class EntomoItems {
     public static final RegistryObject<Item> SKYCRAB_WAND = ITEMS.register("skycrab_wand",
             () -> new SkyCrabWand(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> HIVE_PACKET_WAND = ITEMS.register("hive_packet_wand",
-            () -> new HivePacketReader(new Item.Properties().stacksTo(1)));
+            () -> new HiveHeartReader(new Item.Properties().stacksTo(1)));
 
     public static void register(IEventBus eventBus){
         ITEMS.register(eventBus);

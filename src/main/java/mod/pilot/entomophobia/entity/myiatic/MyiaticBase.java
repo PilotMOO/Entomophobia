@@ -618,9 +618,9 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     public boolean amITheCaptain(){
         return getSwarm() != null && getSwarm().getCaptain() == this;
     }
-    public boolean TryToRecruit(@NotNull Swarm swarm){
+    public boolean tryToRecruit(@NotNull Swarm swarm){
         if (canSwarm() && getSwarm() == null){
-            boolean joinFlag = swarm.AttemptToRecruit(this);
+            boolean joinFlag = swarm.attemptToRecruit(this);
             if (joinFlag) currentSwarm = swarm;
             return joinFlag;
         }
@@ -632,7 +632,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
 
         if (ignoreCap || swarm.getRecruitCount() < swarm.getMaxRecruits()) {
             swarm.addToUnits(this);
-            swarm.AssignAllOrdersFor(this);
+            swarm.assignAllOrdersFor(this);
             currentSwarm = swarm;
         }
     }
@@ -645,7 +645,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     public void SwitchSwarm(Swarm newSwarm, boolean disbandIfCaptain){
         if (isInSwarm()) {
             getSwarm().DropMember(this, disbandIfCaptain);
-            boolean joinFlag = newSwarm.AttemptToRecruit(this);
+            boolean joinFlag = newSwarm.attemptToRecruit(this);
             if (joinFlag) {
                 currentSwarm = newSwarm;
             }

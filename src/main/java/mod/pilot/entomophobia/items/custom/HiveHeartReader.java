@@ -9,8 +9,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-public class HivePacketReader extends Item {
-    public HivePacketReader(Properties pProperties) {
+public class HiveHeartReader extends Item {
+    public HiveHeartReader(Properties pProperties) {
         super(pProperties);
     }
 
@@ -19,6 +19,15 @@ public class HivePacketReader extends Item {
         if (pInteractionTarget instanceof HiveHeartEntity HH && !pPlayer.level().isClientSide()){
             HiveSaveData.Packet packet = HH.accessData();
             System.out.println("------");
+            System.out.println("[ACCESSING HIVE HEART...]");
+            System.out.println("Has nervous system? " + (HH.nervousSystem != null));
+            if (HH.nervousSystem != null){
+                System.out.println("Nervous system details:");
+                System.out.println("UUID of hive heart: [" + HH.nervousSystem.hiveHeartUUID + "]");
+                System.out.println("associated nest: [" + HH.nervousSystem.nest + "]");
+                System.out.println("ServerLevel: [" + HH.nervousSystem.serverLevel + "]");
+            }
+            System.out.println("[END SECTION]");
             System.out.println("HiveSaveData Packet for the given Hive Heart: " + packet);
             if (packet != null) {
                 System.out.println("Packet info:");
@@ -29,6 +38,7 @@ public class HivePacketReader extends Item {
                 }
                 System.out.println("]");
             }
+            System.out.println("[END SECTION]");
             System.out.println("------");
         }
 

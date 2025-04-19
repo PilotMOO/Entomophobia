@@ -15,6 +15,7 @@ import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
 import mod.pilot.entomophobia.systems.GenericModelRegistry.GenericModelHub;
 import mod.pilot.entomophobia.systems.SkyboxModelRenderer.SkyboxModelManager;
 import mod.pilot.entomophobia.systems.nest.features.FeatureManager;
+import mod.pilot.entomophobia.systems.nest.hivenervoussystem.HiveNervousSystem;
 import mod.pilot.entomophobia.systems.screentextdisplay.TextOverlay;
 import mod.pilot.entomophobia.systems.swarm.SwarmManager;
 import net.minecraftforge.common.MinecraftForge;
@@ -55,9 +56,12 @@ public class Entomophobia
 
         GenericModelHub.setup();
         SkyboxModelManager.setup();
-        SwarmManager.populateNameHashmap();
-        FeatureManager.registerAllFeatures();
         TextOverlay.setup();
+        HiveNervousSystem.Manager.setup();
+
+        FeatureManager.registerAllFeatures();
+
+        SwarmManager.populateNameHashmap();
         CelestialCarrionEntity.createVoices();
     }
 }

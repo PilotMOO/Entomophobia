@@ -3,6 +3,7 @@ package mod.pilot.entomophobia.effects;
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.data.EntomoDataManager;
 import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
+import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.particles.EntomoParticles;
 import mod.pilot.entomophobia.systems.swarm.Swarm;
@@ -27,31 +28,28 @@ public class Myiasis extends MobEffect implements IStackingEffect {
         super(MobEffectCategory.HARMFUL, 0);
     }
 
-    private static final HashMap<Entity, Integer> RotMashmap = new HashMap<>();
+    private static final HashMap<Entity, Integer> rotMashmap = new HashMap<>();
 
     private static int infectedDuration(LivingEntity target) {
-        var check = RotMashmap.get(target);
-        if (check != null){
-            return check;
-        }
-        return -1;
+        return rotMashmap.getOrDefault(target, -1);
     }
-    private static void RotFor(LivingEntity target){
-        RotMashmap.replace(target, infectedDuration(target) + 1);
+    private static void rot(LivingEntity target){
+        rotMashmap.replace(target, infectedDuration(target) + 1);
     }
-    private static void StartRot(LivingEntity target){
-        RotMashmap.put(target, 0);
+    private static void startRot(LivingEntity target){
+        rotMashmap.put(target, 0);
     }
 
+    private static final int convertTime = Config.SERVER.myiatic_convert_timer.get();
     @Override
     public void applyEffectTick(@NotNull LivingEntity target, int amp) {
         if (!(target instanceof MyiaticBase || target instanceof Player) && EntomoDataManager.getConvertedFor(target) != null){
             if (infectedDuration(target) == -1){
-                StartRot(target);
+                startRot(target);
             }
             MobEffectInstance effect = target.getEffect(this);
             assert effect != null;
-            if (infectedDuration(target) < Config.SERVER.myiatic_convert_timer.get()){
+            if (infectedDuration(target) < convertTime){
                 if(target.isDeadOrDying()){
                     if (!effect.isInfiniteDuration()){
                         target.addEffect(new MobEffectInstance(this, -1));
@@ -61,7 +59,7 @@ public class Myiasis extends MobEffect implements IStackingEffect {
                     if (target instanceof Mob){
                         ((Mob)target).setNoAi(true);
                     }
-                    RotFor(target);
+                    rot(target);
                     target.aiStep();
 
                     BlockPos blockPos = target.blockPosition();
@@ -81,18 +79,17 @@ public class Myiasis extends MobEffect implements IStackingEffect {
                     }
                 }
                 else{
-                    TickDamage(target, amp);
+                    tickDamage(target, amp);
                 }
             }
             else{
-                ConvertMob(target);
+                convertMob(target);
             }
         }
         else if(target instanceof Player){
-            TickDamage(target, amp);
+            tickDamage(target, amp);
         }
         else{
-            System.out.println("Target is not infectable! Target entity I.D: " + target.getEncodeId());
             target.removeEffect(this);
         }
 
@@ -110,13 +107,13 @@ public class Myiasis extends MobEffect implements IStackingEffect {
         }
     }
 
-    private void TickDamage(LivingEntity target, int amp) {
+    private void tickDamage(LivingEntity target, int amp) {
         if (amp > 0 && target.tickCount % (300 / amp) == 0){
             target.hurt(EntomoDamageTypes.myiasis(target), amp);
         }
     }
 
-    private void ConvertMob(LivingEntity target) {
+    private void convertMob(LivingEntity target) {
         EntityType<?> EType = EntomoDataManager.getConvertedFor(target);
 
         Entity newEntity = EType.create(target.level());
@@ -125,14 +122,18 @@ public class Myiasis extends MobEffect implements IStackingEffect {
         target.level().addFreshEntity(newEntity);
         target.level().playSound(null, target.blockPosition(), SoundEvents.ZOMBIE_INFECT, SoundSource.HOSTILE, 1.0f, 1.25f);
 
+        if (newEntity instanceof LivingEntity le){
+            HiveSaveData.Packet packet = HiveSaveData.locateClosestData(le.position());
+            if (packet != null) packet.registerAsUnlockedEntity(le);
+        }
         if (newEntity instanceof MyiaticBase M && M.canSwarm()){
             Swarm closest = SwarmManager.getClosestSwarm(M.position());
             if (closest != null) {
-                M.TryToRecruit(closest);
+                M.tryToRecruit(closest);
             }
         }
 
-        RotMashmap.remove(target);
+        rotMashmap.remove(target);
         target.remove(Entity.RemovalReason.DISCARDED);
     }
 

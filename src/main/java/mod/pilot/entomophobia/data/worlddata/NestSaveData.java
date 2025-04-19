@@ -152,7 +152,7 @@ public class NestSaveData extends SavedData {
                 tag.putBoolean(builder.append("main").toString(), chamber.isMainChamber()); builder.setLength(ID.length());
                 UUID hhUUID = chamber.getHiveHeartUUID();
                 if (hhUUID != null){
-                    tag.putUUID(builder.append("hiveheart").toString(), chamber.getHiveHeartUUID()); builder.setLength(ID.length());
+                    tag.putUUID(builder.append("hivenervoussystem").toString(), chamber.getHiveHeartUUID()); builder.setLength(ID.length());
                 }
             }
             if (toPack instanceof Nest.Corridor corridor){
@@ -226,7 +226,8 @@ public class NestSaveData extends SavedData {
                     boolean isMain = tag.getBoolean(builder.append("main").toString()); builder.setLength(ID.length());
                     toReturn = Nest.Chamber.ConstructFromBlueprint(getServer(), parent, pos, size,
                             thickness, deadEnd, state, isMain, featuresDone);
-                    if (tag.contains(builder.append("hiveheart").toString())){
+                    if (isMain && tag.contains(builder.append("hivenervoussystem").toString())){
+                        System.out.println("Tag contained " + builder);
                         UUID hhUUID = tag.getUUID(builder.toString());
                         ((Nest.Chamber)toReturn).setHiveHeart(hhUUID);
                     }

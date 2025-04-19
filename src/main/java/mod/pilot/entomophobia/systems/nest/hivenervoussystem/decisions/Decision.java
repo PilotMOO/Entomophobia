@@ -1,7 +1,7 @@
-package mod.pilot.entomophobia.systems.nest.hiveheart.decisions;
+package mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions;
 
-import mod.pilot.entomophobia.systems.nest.hiveheart.HiveNervousSystem;
-import mod.pilot.entomophobia.systems.nest.hiveheart.StimulantType;
+import mod.pilot.entomophobia.systems.nest.hivenervoussystem.HiveNervousSystem;
+import mod.pilot.entomophobia.systems.nest.hivenervoussystem.StimulantType;
 import net.minecraft.server.level.ServerLevel;
 
 import javax.annotation.Nullable;
@@ -21,11 +21,11 @@ public abstract class Decision{
     }
 
 
-    public void trigger(){
-        if (condition()) activate();
+    public void trigger(StimulantPackage sPackage){
+        if (condition(sPackage)) activate(sPackage);
     }
-    public abstract boolean condition();
-    public abstract void activate();
+    public abstract boolean condition(StimulantPackage sPackage);
+    public abstract void activate(StimulantPackage sPackage);
 
     public ServerLevel server(){
         return nervousSystem.serverLevel;
@@ -45,7 +45,23 @@ public abstract class Decision{
         public Continuous(HiveNervousSystem brain) {
             super(brain);
         }
+        protected StimulantPackage activePackage;
+        public @Nullable StimulantPackage getStimulantPackage(){
+            return activePackage;
+        }
+
+        @Override
+        public void trigger(StimulantPackage sPackage) {
+            if (condition(sPackage)){
+                this.activePackage = sPackage;
+                trigger(sPackage);
+            }
+        }
+
         public abstract boolean activeUntil();
         public abstract void lifecycle();
+        public void finish(){
+            this.activePackage = null;
+        }
     }
 }

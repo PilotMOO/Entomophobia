@@ -13,7 +13,7 @@ import mod.pilot.entomophobia.systems.PolyForged.utility.WorldShapeManager;
 import mod.pilot.entomophobia.systems.nest.features.Feature;
 import mod.pilot.entomophobia.systems.nest.features.FeatureManager;
 import mod.pilot.entomophobia.systems.nest.features.FeatureVariantPackage;
-import mod.pilot.entomophobia.systems.nest.hiveheart.HiveNervousSystem;
+import mod.pilot.entomophobia.systems.nest.hivenervoussystem.HiveNervousSystem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -98,11 +98,16 @@ public class Nest {
                 NestManager.getNestLargeChamberMaxRadius(), NestManager.getNestLargeChamberThickness()).DenoteAsMain();
     }
 
-    public @Nullable HiveNervousSystem accessNervousSystem(){
+    public @Nullable HiveHeartEntity accessHiveHeart(){
         HiveHeartEntity HH;
         if (MainChamber != null && (HH = MainChamber.getHiveHeart()) != null){
-            return HH.nervousSystem;
+            return HH;
         } else return null;
+    }
+    public @Nullable HiveNervousSystem accessNervousSystem(){
+        HiveHeartEntity HH = accessHiveHeart();
+        if (HH != null) return HH.nervousSystem;
+        else return null;
     }
     public @Nullable HiveSaveData.Packet accessData(){
         HiveHeartEntity HH;
@@ -577,6 +582,7 @@ public class Nest {
             if (isMainChamber()) {
                 this.hiveHeart = hh;
                 this.hiveHeartUUID = hh.getUUID();
+                if (hh.nervousSystem == null) hh.constructNervousSystem(getNest());
             } else if (!quiet) _printInvalidHeartAssignmentMessage();
         }
         public void setHiveHeart(UUID hhUUID, boolean quiet){
@@ -638,9 +644,10 @@ public class Nest {
             HiveHeartEntity hh = new HiveHeartEntity(EntomoEntities.HIVE_HEART.get(), server);
             hh.setPos(position);
             hh.setYRot(random.nextIntBetweenInclusive(-180, 180));
-            this.setHiveHeart(hh, false);
+            this.setHiveHeart(hh);
             hh.constructNervousSystem(getNest());
             server.addFreshEntity(hh);
+            NestSaveData.dirty();
 
             server.getServer().getPlayerList().broadcastSystemMessage(
                     Component.literal(NestManager.getRandomNestMessageForChatDisplay(server.getRandom())), false);
