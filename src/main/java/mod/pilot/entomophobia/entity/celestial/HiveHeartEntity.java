@@ -5,6 +5,7 @@ import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.util.AzureLibUtil;
+import mod.pilot.entomophobia.data.clientsyncing.ArteryClientSyncer;
 import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticPigEntity;
@@ -30,7 +31,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import oshi.util.tuples.Pair;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.UUID;
@@ -151,12 +151,35 @@ public class HiveHeartEntity extends MyiaticBase {
     }
 
     //Artery rendering
-    private ArrayList<Artery> _arteryHooks;
-    public ArrayList<Artery> getOrCreateArteryHooks(){
-        if (!hasArteries()) _arteryHooks = createArteries();
-        return _arteryHooks;
+    private ArrayList<Artery> arteryHooks;
+    private static final ArrayList<Artery> empty = new ArrayList<>();
+    public ArrayList<Artery> accessArteriesDirectly(){
+        return arteryHooks;
     }
-    public boolean hasArteries(){return _arteryHooks != null && !_arteryHooks.isEmpty();}
+    public void setArteries(ArrayList<Artery> a){
+        System.out.println("Setting arteries...");
+        this.arteryHooks = a;
+    }
+    public ArrayList<Artery> getOrCreateArteryHooks(){
+        if (!hasArteries()) {
+            if (level().isClientSide()){
+                System.out.println("Arteries were null or 0! :[ Posting request to server...");
+                if (arteryHooks == null){
+                    System.out.println("Hooks were null");
+                } else System.out.println("Amount of hooks (should be 0): " + arteryHooks.size());
+                ArteryClientSyncer.request(this);
+                return empty;
+            } else {
+                System.out.println("[SERVER SIDE] Creating arteries...");
+                return arteryHooks = createArteries();
+            }
+        }
+        if (level().isClientSide){
+            System.out.println("[CLIENT SIDE] amount of arteries in here: " + arteryHooks.size());
+        }
+        return arteryHooks;
+    }
+    public boolean hasArteries(){return arteryHooks != null && !arteryHooks.isEmpty();}
     public ArrayList<Artery> createArteries(){
         return createArteries(random.nextInt(6, 9),32, 10);
     }
@@ -192,7 +215,7 @@ public class HiveHeartEntity extends MyiaticBase {
                 boolean flip = random.nextBoolean();
                 float a = flip ? pair.getB() : pair.getA();
                 float b = flip ? pair.getA() : pair.getB();
-                toReturn.add(new Artery(_blockPosCenterOf(pos), a, b));
+                toReturn.add(new Artery(blockPosCenterOf(pos), a, b));
             }
         }
         return toReturn;
@@ -233,7 +256,7 @@ public class HiveHeartEntity extends MyiaticBase {
      * @param vec The Vec3 to mimic the blockCenter of
      * @return A Vec3 identical to if BlockPos.containing(Vec3).getCenter() was called on it instead.
      */
-    private Vec3 _blockPosCenterOf(Vec3 vec){
+    private Vec3 blockPosCenterOf(Vec3 vec){
         double x, y, z;
         x = Math.floor(vec.x) + 0.5d;
         y = Math.floor(vec.y) + 0.5d;

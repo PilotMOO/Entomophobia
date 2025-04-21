@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia;
 
 import mod.pilot.entomophobia.blocks.EntomoBlocks;
+import mod.pilot.entomophobia.data.clientsyncing.EntomoPacketSyncer;
 import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.data.worlddata.SwarmSaveData;
@@ -53,6 +54,8 @@ public class Entomophobia
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.NEST_SPEC, "entomo_nest_config.toml");
         Config.loadConfig(Config.NEST_SPEC, FMLPaths.CONFIGDIR.get().resolve("entomo_nest_config.toml").toString());
+
+        EntomoPacketSyncer.registerPackets();
 
         GenericModelHub.setup();
         SkyboxModelManager.setup();
