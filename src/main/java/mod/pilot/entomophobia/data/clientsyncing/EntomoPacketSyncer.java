@@ -17,7 +17,6 @@ public class EntomoPacketSyncer {
             VERSION::equals, VERSION::equals);
 
     private static final AtomicInteger packetId = new AtomicInteger(0);
-
     public static void registerPackets(){
         /*CHANNEL.messageBuilder(ExamplePacket.class, packetId.getAndIncrement())
                 .encoder(ExamplePacket::encode)
@@ -33,6 +32,22 @@ public class EntomoPacketSyncer {
                 .encoder(ArteryClientSyncer.ClientRequestPacket::writeToBuffer)
                 .decoder(ArteryClientSyncer.ClientRequestPacket::decodeFromBuffer)
                 .consumerMainThread(ArteryClientSyncer.ClientRequestPacket::postRequest)
+                .add();
+
+        CHANNEL.messageBuilder(HiveDataSyncer.SyncPacket.class, packetId.getAndIncrement())
+                .encoder(HiveDataSyncer.SyncPacket::writeToBuffer)
+                .decoder(HiveDataSyncer.SyncPacket::decodeFromBuffer)
+                .consumerMainThread(HiveDataSyncer.SyncPacket::sync)
+                .add();
+        CHANNEL.messageBuilder(HiveDataSyncer.ClientBoundSyncPacket.class, packetId.getAndIncrement())
+                .encoder(HiveDataSyncer.ClientBoundSyncPacket::writeToBuffer)
+                .decoder(HiveDataSyncer.ClientBoundSyncPacket::decodeFromBuffer)
+                .consumerMainThread(HiveDataSyncer.ClientBoundSyncPacket::sync)
+                .add();
+        CHANNEL.messageBuilder(HiveDataSyncer.ClientRequestPacket.class, packetId.getAndIncrement())
+                .encoder(HiveDataSyncer.ClientRequestPacket::writeToBuffer)
+                .decoder(HiveDataSyncer.ClientRequestPacket::decodeFromBuffer)
+                .consumerMainThread(HiveDataSyncer.ClientRequestPacket::postRequest)
                 .add();
     }
 

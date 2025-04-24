@@ -6,6 +6,7 @@ import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.util.AzureLibUtil;
 import mod.pilot.entomophobia.data.clientsyncing.ArteryClientSyncer;
+import mod.pilot.entomophobia.data.clientsyncing.HiveDataSyncer;
 import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticPigEntity;
@@ -78,11 +79,18 @@ public class HiveHeartEntity extends MyiaticBase {
 
     //HiveData access
     private HiveSaveData.Packet data = null;
+    public void setData(HiveSaveData.Packet packet){
+        this.data = packet;
+    }
     public HiveSaveData.Packet accessData(){
+        return this.accessData(false);
+    }
+    public HiveSaveData.Packet accessData(boolean quiet){
         if (data == null){
             data = HiveSaveData.retrieveData(this);
             if (data == null) data = HiveSaveData.createNewDataPacket(this.getUUID());
         }
+        if (!quiet) data = HiveDataSyncer.checkMiddleMan(this);
         return data;
     }
     /**/
@@ -115,31 +123,20 @@ public class HiveHeartEntity extends MyiaticBase {
     protected void registerGoals() {}
     @Override
     protected void registerBasicGoals() {}
-
-    @Override
-    public boolean canSwarm() {
-        return false;
-    }
-
     @Override
     public void checkDespawn() {}
+    @Override
+    protected boolean shouldDespawnInPeaceful() {return false;}
+    @Override
+    public boolean isNoGravity() {return true;}
 
     @Override
-    protected boolean shouldDespawnInPeaceful() {
-        return false;
-    }
-
-    @Override
-    public boolean isNoGravity() {
-        return true;
-    }
-
-    @Override
-    public void push(@NotNull Entity entity) {
-        alertHive(StimulantPackage.entity(entity));
-    }
+    public void push(@NotNull Entity entity) {alertHive(StimulantPackage.entity(entity));}
     @Override
     public void push(double pX, double pY, double pZ) {}
+
+    @Override
+    public boolean canSwarm() {return false;}
 
 
     @Override
@@ -152,30 +149,20 @@ public class HiveHeartEntity extends MyiaticBase {
 
     //Artery rendering
     private ArrayList<Artery> arteryHooks;
-    private static final ArrayList<Artery> empty = new ArrayList<>();
-    public ArrayList<Artery> accessArteriesDirectly(){
-        return arteryHooks;
-    }
+    private static final ArrayList<Artery> EMPTY = new ArrayList<>();
     public void setArteries(ArrayList<Artery> a){
-        System.out.println("Setting arteries...");
         this.arteryHooks = a;
     }
     public ArrayList<Artery> getOrCreateArteryHooks(){
+        boolean client = level().isClientSide;
+        if (client) ArteryClientSyncer.checkMiddleMan(this);
         if (!hasArteries()) {
-            if (level().isClientSide()){
-                System.out.println("Arteries were null or 0! :[ Posting request to server...");
-                if (arteryHooks == null){
-                    System.out.println("Hooks were null");
-                } else System.out.println("Amount of hooks (should be 0): " + arteryHooks.size());
+            if (client){
                 ArteryClientSyncer.request(this);
-                return empty;
+                return EMPTY;
             } else {
-                System.out.println("[SERVER SIDE] Creating arteries...");
                 return arteryHooks = createArteries();
             }
-        }
-        if (level().isClientSide){
-            System.out.println("[CLIENT SIDE] amount of arteries in here: " + arteryHooks.size());
         }
         return arteryHooks;
     }
@@ -184,6 +171,7 @@ public class HiveHeartEntity extends MyiaticBase {
         return createArteries(random.nextInt(6, 9),32, 10);
     }
     //This just returns an arraylist of positions, you need to actually assign it for it to work...
+    //Should only be called on the server and synced via the ArteryClientSyncer
     public ArrayList<Artery> createArteries(int count, int maxRange, int maxTries){
         ArrayList<Artery> toReturn = new ArrayList<>();
         for (; count > 0; --count){
@@ -279,16 +267,16 @@ public class HiveHeartEntity extends MyiaticBase {
                         for (Player p : level().getEntitiesOfClass(Player.class,
                                 getBoundingBox().inflate(32))){
                             double dist = p.distanceTo(this);
-                            p.playSound(sound, _generateBeatVolume(dist), _generateBeatPitch(dist));
+                            p.playSound(sound, generateBeatVolume(dist), generateBeatPitch(dist));
                         }
                     }
                 }));
     }
-    private float _generateBeatVolume(double dist) {
+    private float generateBeatVolume(double dist) {
         float base = 3f;
         return (float)(base - (2f / 32) * dist);
     }
-    private float _generateBeatPitch(double dist) {
+    private float generateBeatPitch(double dist) {
         float base = 1f;
         return (float)(base - (0.5f / 32) * dist);
     }
@@ -303,26 +291,21 @@ public class HiveHeartEntity extends MyiaticBase {
         private static final Random random = new Random();
 
         public final Vec3 position;
-        public final float baseThickness;
+        public final float baseThickness, tipThickness;
         public float getBaseThickness(){
             return baseThickness + baseBeat;
         }
-        public final float tipThickness;
         public float getTipThickness(){
             return tipThickness + tipBeat;
         }
 
 
         private float baseMagnitude;
-        public float baseBeat;
-        public float baseDuration;
-        public float baseAge;
+        public float baseBeat, baseDuration, baseAge;
         public int baseCooldown;
 
         private float tipMagnitude;
-        public float tipBeat;
-        public float tipDuration;
-        public float tipAge;
+        public float tipBeat, tipDuration, tipAge;
         public int tipCooldown;
 
         public void beat(float amount, float duration, boolean base){

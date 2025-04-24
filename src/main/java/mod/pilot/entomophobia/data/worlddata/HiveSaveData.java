@@ -105,7 +105,7 @@ public class HiveSaveData extends SavedData {
 
 
     public static Packet createNewDataPacket(UUID hiveHeart){
-        return new Packet(hiveHeart);
+        return new Packet(hiveHeart, true);
     }
     public static class Packet {
         public static Packet unpack(CompoundTag tag, UUID hiveHeart){
@@ -145,22 +145,34 @@ public class HiveSaveData extends SavedData {
             HiveSaveData.packets.add(this);
             dirty();
         }
-        private Packet(UUID hiveHeart){
-            this.hiveHeart = hiveHeart;
-            setup();
-            HiveSaveData.packets.add(this);
+
+        public static Packet recreate(UUID id, int corpseDew, HashMap<String, Integer> storedEntities){
+            Packet p = new Packet(id, false);
+            p.corpseDew = corpseDew;
+            p.storedEntities = storedEntities;
+            HiveSaveData.packets.add(p);
             dirty();
+            return p;
+        }
+        private Packet(UUID hiveHeart, boolean setup){
+            this.hiveHeart = hiveHeart;
+            if (setup) {
+                setup();
+                HiveSaveData.packets.add(this);
+                dirty();
+            }
         }
 
         public final UUID hiveHeart;
+        public HiveHeartEntity getHiveHeart(ServerLevel server){
+            return (HiveHeartEntity)server.getEntity(hiveHeart);
+        }
 
         StringBuilder builder = new StringBuilder();
         private void cleanBuilder(){
             builder.setLength(0);
         }
-        public HiveHeartEntity getHiveHeart(ServerLevel server){
-            return (HiveHeartEntity)server.getEntity(hiveHeart);
-        }
+
 
         public HashMap<String, Integer> storedEntities;
         public void addToStorage(LivingEntity ID) {
@@ -232,7 +244,6 @@ public class HiveSaveData extends SavedData {
          * @param encode The Encode ID of the given entity
          */
         public void registerAsUnlockedEntity(String encode){
-            System.out.println("Attempting to register " + encode + " as an unlocked myiatic");
             storedEntities.putIfAbsent(encode, 0);
         }
         /**
@@ -281,6 +292,18 @@ public class HiveSaveData extends SavedData {
             builder.append("corpsedew");
             tag.putInt(builder.toString(), corpseDew);
             cleanBuilder();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj instanceof Packet packet1
+                    && packet1.hiveHeart.equals(this.hiveHeart)
+                    && packet1.corpseDew == this.corpseDew
+                    && packet1.storedEntities.equals(this.storedEntities)){
+                return true;
+            }
+            return false;
         }
     }
 }
