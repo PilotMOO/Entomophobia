@@ -124,7 +124,11 @@ public class Myiasis extends MobEffect implements IStackingEffect {
 
         if (newEntity instanceof LivingEntity le){
             HiveSaveData.Packet packet = HiveSaveData.locateClosestData(le.position());
-            if (packet != null) packet.registerAsUnlockedEntity(le);
+            if (packet != null && target.level() instanceof ServerLevel server){
+                System.out.println("UUUUAHG");
+                packet.registerAsUnlockedEntity(le);
+                packet.syncChanges(server);
+            }
         }
         if (newEntity instanceof MyiaticBase M && M.canSwarm()){
             Swarm closest = SwarmManager.getClosestSwarm(M.position());

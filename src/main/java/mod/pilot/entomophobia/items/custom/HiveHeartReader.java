@@ -2,6 +2,7 @@ package mod.pilot.entomophobia.items.custom;
 
 import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
+import net.minecraft.Util;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,10 +17,18 @@ public class HiveHeartReader extends Item {
 
     @Override
     public InteractionResult interactLivingEntity(ItemStack pStack, Player pPlayer, LivingEntity pInteractionTarget, InteractionHand pUsedHand) {
-        if (pInteractionTarget instanceof HiveHeartEntity HH && !pPlayer.level().isClientSide()){
+        if (pInteractionTarget instanceof HiveHeartEntity HH){
+            boolean clientSide = pPlayer.level().isClientSide();
+            if (!clientSide){
+                long start = Util.getNanos();
+                while (Util.getNanos() - start < 700000L){
+                    continue;
+                }
+            }
             HiveSaveData.Packet packet = HH.accessData();
             System.out.println("------");
             System.out.println("[ACCESSING HIVE HEART...]");
+            System.out.println("[ACCESSING FROM LOGICAL " + (clientSide ? "CLIENT" : "SERVER") + "]");
             System.out.println("Has nervous system? " + (HH.nervousSystem != null));
             if (HH.nervousSystem != null){
                 System.out.println("Nervous system details:");

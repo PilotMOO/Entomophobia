@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia.data.worlddata;
 
 import mod.pilot.entomophobia.Entomophobia;
+import mod.pilot.entomophobia.data.clientsyncing.HiveDataSyncer;
 import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
 import mod.pilot.entomophobia.event.EntomoForgeEvents;
 import mod.pilot.entomophobia.systems.nest.Nest;
@@ -260,6 +261,23 @@ public class HiveSaveData extends SavedData {
             dirty();
         }
         public int corpseDew;
+
+        public void syncChanges(ServerLevel server){
+            syncChanges(getHiveHeart(server));
+        }
+        public void syncChanges(HiveHeartEntity hh){
+            if (hiveHeart.equals(hh.getUUID())) {
+                Level level = hh.level();
+                if (level.isClientSide) {
+                    System.out.println("Pushing client changes via the packet!");
+                    HiveDataSyncer.pushClientChanges(hh, true);
+                } else if (level instanceof ServerLevel server) {
+                    System.out.println("Attempting to sync all clients to the server");
+                    //ToDo: fix NoSuchMethodError crash with this method
+                    HiveDataSyncer.syncAllClients(hh, server);
+                }
+            } else System.err.println("[HIVE SAVE DATA] Error! Attempted to sync changes across clients the UUID of the sender and the packet are inconsistent!");
+        }
 
         private void setup(){
             this.storedEntities = new HashMap<>();
