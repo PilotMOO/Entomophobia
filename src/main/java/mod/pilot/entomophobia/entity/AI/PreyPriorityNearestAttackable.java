@@ -9,7 +9,7 @@ public class PreyPriorityNearestAttackable extends NearestAttackableTargetGoal<L
     final MyiaticBase mob;
     boolean wasPrey = false;
     public PreyPriorityNearestAttackable(MyiaticBase parent, boolean pMustSee) {
-        super(parent, LivingEntity.class, pMustSee, parent::TestValidEntity);
+        super(parent, LivingEntity.class, pMustSee, parent::testValidEntity);
         mob = parent;
     }
 
@@ -33,7 +33,7 @@ public class PreyPriorityNearestAttackable extends NearestAttackableTargetGoal<L
             this.target = this.mob.level().getNearestPlayer(this.targetConditions, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
             if (this.target == null) {
                 this.target = this.mob.level().getNearestEntity(this.mob.level().getEntitiesOfClass(this.targetType,
-                                this.getTargetSearchArea(this.getFollowDistance()), mob::TestValidEntity),
+                                this.getTargetSearchArea(this.getFollowDistance()), mob::testValidEntity),
                         this.targetConditions, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
                 wasPrey = false;
             }

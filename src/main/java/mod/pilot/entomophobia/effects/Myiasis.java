@@ -123,11 +123,9 @@ public class Myiasis extends MobEffect implements IStackingEffect {
         target.level().playSound(null, target.blockPosition(), SoundEvents.ZOMBIE_INFECT, SoundSource.HOSTILE, 1.0f, 1.25f);
 
         if (newEntity instanceof LivingEntity le){
-            HiveSaveData.Packet packet = HiveSaveData.locateClosestData(le.position());
+            HiveSaveData.Packet packet = HiveSaveData.locateClosestDataAndAccessor(le.position()).getA();
             if (packet != null && target.level() instanceof ServerLevel server){
-                System.out.println("UUUUAHG");
-                packet.registerAsUnlockedEntity(le);
-                packet.syncChanges(server);
+                packet.registerAsUnlockedEntity(le).thenSync(server);
             }
         }
         if (newEntity instanceof MyiaticBase M && M.canSwarm()){

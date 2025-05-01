@@ -143,7 +143,20 @@ public class HiveHeartEntity extends MyiaticBase {
     public boolean hurt(DamageSource pSource, float pAmount) {
         if (pSource.is(DamageTypes.IN_WALL)) return false;
         boolean flag = super.hurt(pSource, pAmount);
-        if (flag) stimulate(StimulantType.Pain, StimulantPackage.entity(pSource.getEntity()));
+        if (flag) {
+            Entity from;
+            StimulantPackage sPackage;
+            if ((from = pSource.getEntity()) != null) {
+                sPackage = StimulantPackage.entity(from);
+            } else{
+                boolean serverSide = !this.level().isClientSide();
+                Vec3 pos;
+                if ((pos = pSource.getSourcePosition()) != null) {
+                    sPackage = StimulantPackage.positional(pos, serverSide);
+                } else sPackage = StimulantPackage.empty(serverSide);
+            }
+            stimulate(StimulantType.Pain, sPackage);
+        }
         return flag;
     }
 

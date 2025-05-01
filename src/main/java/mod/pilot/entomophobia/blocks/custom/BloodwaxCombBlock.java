@@ -2,6 +2,8 @@ package mod.pilot.entomophobia.blocks.custom;
 
 import mod.pilot.entomophobia.blocks.EntomoBlockStateProperties;
 import mod.pilot.entomophobia.blocks.EntomoBlocks;
+import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
+import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
 import mod.pilot.entomophobia.items.EntomoItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,6 +28,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
+import oshi.util.tuples.Pair;
 
 public class BloodwaxCombBlock extends DirectionalBlock {
     public static final BooleanProperty CORPSEDEW = BooleanProperty.create("corpsedew");
@@ -51,14 +54,22 @@ public class BloodwaxCombBlock extends DirectionalBlock {
 
     @Override
     public boolean isRandomlyTicking(@NotNull BlockState bState) {
-        return bState.getValue(ALIVE) || !bState.getValue(CORPSEDEW);
+        return bState.getValue(ALIVE);
     }
 
     @Override
     public void randomTick(@NotNull BlockState bState, @NotNull ServerLevel server, @NotNull BlockPos bPos, @NotNull RandomSource random) {
-        if (random.nextDouble() <= 0.05 && !bState.getValue(CORPSEDEW)){
-            server.setBlock(bPos, bState.setValue(CORPSEDEW, true), 3);
-            server.playSound(null, bPos, SoundEvents.HONEYCOMB_WAX_ON, SoundSource.BLOCKS, 1.0f, 0.5f);
+        if (random.nextDouble() <= 0.05){
+            if (!bState.getValue(CORPSEDEW)) {
+                server.setBlock(bPos, bState.setValue(CORPSEDEW, true), 3);
+                server.playSound(null, bPos, SoundEvents.HONEYCOMB_WAX_ON, SoundSource.BLOCKS, 1.0f, 0.5f);
+            } else {
+                Pair<HiveSaveData.Packet, HiveHeartEntity> pair = HiveSaveData.locateClosestDataAndAccessor(bPos.getCenter());
+                HiveSaveData.Packet packet = pair.getA();
+                if (packet != null){
+                    packet.incrementCorpsedew().thenSync(server);
+                }
+            }
         }
 
         if (bState.getValue(ALIVE) && random.nextBoolean()){

@@ -21,7 +21,7 @@ public class HiveHeartReader extends Item {
             boolean clientSide = pPlayer.level().isClientSide();
             if (!clientSide){
                 long start = Util.getNanos();
-                while (Util.getNanos() - start < 700000L){
+                while (Util.getNanos() - start < 10000000L){
                     continue;
                 }
             }

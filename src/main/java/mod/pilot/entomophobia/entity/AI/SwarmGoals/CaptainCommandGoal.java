@@ -1,4 +1,4 @@
-package mod.pilot.entomophobia.entity.AI;
+package mod.pilot.entomophobia.entity.AI.SwarmGoals;
 
 import mod.pilot.entomophobia.entity.AI.Interfaces.ISwarmOrder;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
@@ -60,7 +60,7 @@ public class CaptainCommandGoal extends Goal implements ISwarmOrder {
             if (!captain.getSwarm().canMergeWith(swarm, true)) continue;
             if (captain.position().distanceTo(swarm.getSwarmPosition()) < 16){
                 if (swarm.getMaxRecruits() <= swarm.getRecruitCount() + captain.getSwarm().getRecruitCount()) {
-                    swarm.CopyUnits(captain.getSwarm(), false);
+                    swarm.copyUnits(captain.getSwarm(), false);
                     System.out.println("Trying to merge " + captain.getSwarm() + " with " + swarm);
                 }
             }
@@ -74,7 +74,7 @@ public class CaptainCommandGoal extends Goal implements ISwarmOrder {
     }
 
     @Override
-    public Goal Relay(MyiaticBase M) {
+    public Goal relay(MyiaticBase M) {
         return new CaptainCommandGoal(M, MergeCheckFrequency, getPriority());
     }
     @Override
@@ -87,7 +87,7 @@ public class CaptainCommandGoal extends Goal implements ISwarmOrder {
     }
 
     @Override
-    public boolean CaptainOnly() {
+    public boolean captainOnly() {
         return true;
     }
 }

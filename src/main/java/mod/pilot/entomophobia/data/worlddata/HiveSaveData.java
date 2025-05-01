@@ -16,6 +16,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
+import oshi.util.tuples.Pair;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -42,14 +43,14 @@ public class HiveSaveData extends SavedData {
         Entomophobia.activeHiveData.setDirty();
     }
     public static HiveSaveData load(CompoundTag tag){
-        System.out.println("[HIVE SAVE DATA] Storing tag to access later...");
+        //System.out.println("[HIVE SAVE DATA] Storing tag to access later...");
         HiveSaveData data = new HiveSaveData();
         storeTag(tag);
         return data;
     }
     @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag tag) {
-        System.out.println("[HIVE SAVE DATA] Attempting to save all packets...");
+        //System.out.println("[HIVE SAVE DATA] Attempting to save all packets...");
         packets.forEach(p -> p.pack(tag));
         return tag;
     }
@@ -77,12 +78,17 @@ public class HiveSaveData extends SavedData {
         }
         return data;
     }
-    public static @Nullable Packet locateClosestData(Vec3 pos){
+    public static @NotNull Pair<@org.jetbrains.annotations.Nullable Packet,
+            @org.jetbrains.annotations.Nullable HiveHeartEntity> locateClosestDataAndAccessor(Vec3 pos){
         Packet packet;
+        HiveHeartEntity hh;
 
         Nest nest = NestManager.getClosestNest(pos);
-        if (nest == null) return null;
-        else packet = nest.accessData();
+        if (nest == null) return empty();
+        else{
+            packet = nest.accessData();
+            hh = nest.accessHiveHeart();
+        }
 
         if (packet == null){
             if (NestManager.getActiveNests().size() > 1) {
@@ -94,12 +100,19 @@ public class HiveSaveData extends SavedData {
                     if ((packet1 = n.accessData()) != null
                             && (dist1 = n.distanceTo(pos)) < dist){
                         packet = packet1;
+                        hh = n.accessHiveHeart();
                         dist = dist1;
                     }
                 }
-                return packet;
-            } else return null;
-        } else return packet;
+                return pack(packet, hh);
+            } else return empty();
+        } else return pack(packet, hh);
+    }
+    private static Pair<Packet, HiveHeartEntity> empty(){
+        return new Pair<>(null, null);
+    }
+    private static Pair<Packet, HiveHeartEntity> pack(Packet packet, HiveHeartEntity hh){
+        return new Pair<>(packet, hh);
     }
 
     public static final ArrayList<Packet> packets = new ArrayList<>();
@@ -108,6 +121,7 @@ public class HiveSaveData extends SavedData {
     public static Packet createNewDataPacket(UUID hiveHeart){
         return new Packet(hiveHeart, true);
     }
+
     public static class Packet {
         public static Packet unpack(CompoundTag tag, UUID hiveHeart){
             return new Packet(tag, hiveHeart);
@@ -176,48 +190,60 @@ public class HiveSaveData extends SavedData {
 
 
         public HashMap<String, Integer> storedEntities;
-        public void addToStorage(LivingEntity ID) {
-            this.addToStorage(ID, 1);
+        public Packet addToStorage(LivingEntity ID) {
+            return this.addToStorage(ID, 1);
         }
-        public void addToStorage(LivingEntity ID, int count){
-            this.addToStorage(ID.getEncodeId(), count);
+        public Packet addToStorage(LivingEntity ID, int count){
+            return this.addToStorage(ID.getEncodeId(), count);
         }
-        public void addToStorage(String ID){
-            this.addToStorage(ID, 1);
+        public Packet addToStorage(String ID){
+            return this.addToStorage(ID, 1);
         }
-        public void addToStorage(String ID, int count){
+        public Packet addToStorage(String ID, int count){
             if (storedEntities.containsKey(ID)){
                 count += storedEntities.get(ID);
                 storedEntities.replace(ID, count);
             } else storedEntities.put(ID, count);
             dirty();
+            return this;
         }
 
-        public void removeFromStorage(LivingEntity ID) {
-            this.removeFromStorage(ID, 1);
+        public Packet removeFromStorage(LivingEntity ID) {
+            return this.removeFromStorage(ID, 1);
         }
-        public void removeFromStorage(LivingEntity ID, int count){
-            this.removeFromStorage(ID.getEncodeId(), count);
+        public Packet removeFromStorage(LivingEntity ID, int count){
+            return this.removeFromStorage(ID.getEncodeId(), count);
         }
-        public void removeFromStorage(String ID){
-            this.removeFromStorage(ID, 1);
+        public Packet removeFromStorage(String ID){
+            return this.removeFromStorage(ID, 1);
         }
-        public void removeFromStorage(String ID, int count){
+        public Packet removeFromStorage(String ID, int count){
             if (storedEntities.containsKey(ID)){
-                count -= storedEntities.get(ID);
-                count = Math.max(count, 0);
-                storedEntities.replace(ID, count);
+                int newCount = storedEntities.get(ID) - count;
+                newCount = Math.max(newCount, 0);
+                storedEntities.replace(ID, newCount);
                 dirty();
             }
+            return this;
         }
 
         public int getCountInStorage(LivingEntity ID){
             return getCountInStorage(ID.getEncodeId());
         }
-        public int getCountInStorage(String ID){
+        public int getCountInStorage(@Nullable String ID){
             return storedEntities.getOrDefault(ID, 0);
         }
+        public int getTotalInStorage(){
+            int count = 0;
+            for (String s : storedEntities.keySet()){
+                count += getCountInStorage(s);
+            }
+            return count;
+        }
 
+        public @Nullable LivingEntity getEntityFromStorage(String encodeID, Level level){
+            return getEntityFromStorage(encodeID, level, false);
+        }
         public @Nullable LivingEntity getEntityFromStorage(String encodeID, Level level, boolean phantom){
             if (getCountInStorage(encodeID) == 0) return null;
             if (!phantom) removeFromStorage(encodeID);
@@ -225,7 +251,11 @@ public class HiveSaveData extends SavedData {
             assert eT != null;
             return (LivingEntity)eT.create(level);
         }
+        public @Nullable LivingEntity getAnythingFromStorage(Level level){
+            return getAnythingFromStorage(level, false);
+        }
         public @Nullable LivingEntity getAnythingFromStorage(Level level, boolean phantom){
+            System.out.println("Attempting to get smth from storage...");
             String encode = null;
             Set<String> values = storedEntities.keySet();
             int index = level.getRandom().nextInt(values.size());
@@ -236,6 +266,12 @@ public class HiveSaveData extends SavedData {
                     break;
                 } else i++;
             }
+            if (encode == null){
+                System.err.println("[LOCALIZED HIVE DATA] [STORED ENTITIES] Oops! Failed to locate an encode I.D. of index ["
+                        + index + "] when attempting to retrieve from storage! :[");
+            }
+            System.out.println("Located [" + encode + "] in storage, attempting to create...");
+            System.out.println("Amount of [" + encode + "] in storage: " + getCountInStorage(encode));
             return getEntityFromStorage(encode, level, phantom);
         }
 
@@ -244,36 +280,38 @@ public class HiveSaveData extends SavedData {
          * this is so the passive myiatic accumulation can accumulate myiatics that have been "unlocked" without requiring them to go into storage.
          * @param encode The Encode ID of the given entity
          */
-        public void registerAsUnlockedEntity(String encode){
+        public Packet registerAsUnlockedEntity(String encode){
             storedEntities.putIfAbsent(encode, 0);
+            return this;
         }
         /**
          * Override of the method (see original)--- shorthand--- so you don't have to invoke LivingEntity.getEncodeID() every invoke of this method.
          * @param entity the LivingEntity to get the Encode ID from
          */
-        public void registerAsUnlockedEntity(LivingEntity entity){
-            registerAsUnlockedEntity(entity.getEncodeId());
+        public Packet registerAsUnlockedEntity(LivingEntity entity){
+            return registerAsUnlockedEntity(entity.getEncodeId());
         }
 
-        public void incrementCorpsedew(int count){
+        public Packet incrementCorpsedew(){
+            return incrementCorpsedew(1);
+        }
+        public Packet incrementCorpsedew(int count){
             corpseDew += count;
             corpseDew = Math.max(corpseDew, 0);
             dirty();
+            return this;
         }
         public int corpseDew;
 
-        public void syncChanges(ServerLevel server){
-            syncChanges(getHiveHeart(server));
+        public void thenSync(ServerLevel server){
+            thenSync(getHiveHeart(server));
         }
-        public void syncChanges(HiveHeartEntity hh){
+        public void thenSync(HiveHeartEntity hh){
             if (hiveHeart.equals(hh.getUUID())) {
                 Level level = hh.level();
                 if (level.isClientSide) {
-                    System.out.println("Pushing client changes via the packet!");
                     HiveDataSyncer.pushClientChanges(hh, true);
                 } else if (level instanceof ServerLevel server) {
-                    System.out.println("Attempting to sync all clients to the server");
-                    //ToDo: fix NoSuchMethodError crash with this method
                     HiveDataSyncer.syncAllClients(hh, server);
                 }
             } else System.err.println("[HIVE SAVE DATA] Error! Attempted to sync changes across clients the UUID of the sender and the packet are inconsistent!");

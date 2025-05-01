@@ -32,7 +32,7 @@ public class WallClimbingNestNavigation extends GroundPathNavigation implements 
             } else targetPosition = null;
         }
         if (user instanceof MyiaticBase m && m.horizontalCollision && !m.onClimbable()){
-            m.Jump();
+            m.jump();
         }
 
         //Checks to see if the entity is done moving

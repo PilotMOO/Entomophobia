@@ -7,6 +7,7 @@ import mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions.Decision;
 import mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions.StimulantPackage;
 import mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions.idle.GenerateNewMyiaticsDecision;
 import mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions.pain.FuckingExplodeWhenHurt;
+import mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions.pain.RetaliateWithSwarmDecision;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -55,7 +56,7 @@ public class HiveNervousSystem {
     }
 
     public void populateDefaultDecisions(){
-        attachDecision(new FuckingExplodeWhenHurt(this, StimulantType.Pain));
+        attachDecision(new RetaliateWithSwarmDecision(this, StimulantType.Pain));
         attachDecision(new GenerateNewMyiaticsDecision(this, StimulantType.Idle));
     }
 

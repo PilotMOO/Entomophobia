@@ -2,12 +2,14 @@ package mod.pilot.entomophobia.systems.swarm;
 
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.data.worlddata.SwarmSaveData;
-import mod.pilot.entomophobia.entity.AI.CaptainCommandGoal;
-import mod.pilot.entomophobia.entity.AI.FollowCaptainGoal;
+import mod.pilot.entomophobia.entity.AI.SwarmGoals.CaptainCommandGoal;
+import mod.pilot.entomophobia.entity.AI.SwarmGoals.FollowCaptainGoal;
 import mod.pilot.entomophobia.entity.AI.Interfaces.ISwarmOrder;
 import mod.pilot.entomophobia.entity.AI.RecruitNearbyGoal;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -91,94 +93,116 @@ public class SwarmManager {
             new RecruitNearbyGoal(null, 600, 1),
             new CaptainCommandGoal(null, 300, 3)
     ));
-    public static Swarm CreateSwarm(SwarmTypes type, MyiaticBase captain, int maxUnits, @Nullable Vec3 finalPos){
+    @Deprecated
+    public static Swarm createSwarm(SwarmTypes type, MyiaticBase captain, int maxUnits, @Nullable Vec3 finalPos){
         switch (type){
             default -> {
                 return null;
             }
             case aimless -> {
-                return CreateAimlessSwarm(captain, maxUnits, finalPos);
+                return createAimlessSwarm(captain, maxUnits, finalPos);
             }
             case hunt -> {
-                return CreateHuntSwarm(captain, maxUnits, finalPos);
+                return createHuntSwarm(captain, maxUnits, finalPos);
             }
             case nest -> {
-                return CreateNestSwarm(captain, maxUnits, finalPos);
+                return createNestSwarm(captain, maxUnits, finalPos);
             }
         }
     }
-    public static Swarm CreateSwarm(SwarmTypes type, ArrayList<MyiaticBase> captain, int maxUnits, @Nullable Vec3 finalPos){
+    @Deprecated
+    public static Swarm createSwarm(SwarmTypes type, ArrayList<MyiaticBase> captain, int maxUnits, @Nullable Vec3 finalPos){
         switch (type){
             default -> {
                 return null;
             }
             case aimless -> {
-                return CreateAimlessSwarm(captain, maxUnits, finalPos);
+                return createAimlessSwarm(captain, maxUnits, finalPos);
             }
             case hunt -> {
-                return CreateHuntSwarm(captain, maxUnits, finalPos);
+                return createHuntSwarm(captain, maxUnits, finalPos);
             }
             case nest -> {
-                return CreateNestSwarm(captain, maxUnits, finalPos);
+                return createNestSwarm(captain, maxUnits, finalPos);
             }
         }
     }
 
-    private static Swarm.AimlessSwarm CreateAimlessSwarm(MyiaticBase captain, int maxSwarms, @Nullable Vec3 finalPos) {
+    public static Swarm.AimlessSwarm createAimlessSwarm(MyiaticBase captain, int maxSwarms, @Nullable Vec3 finalPos) {
         Swarm.AimlessSwarm aimless = new Swarm.AimlessSwarm(captain, maxSwarms, finalPos);
-        aimless.GeneratePrimaryOrder(captain);
+        aimless.generatePrimaryOrder(captain);
         for (ISwarmOrder order : defaultOrders){
-            aimless.RelayOrder(order, true);
+            aimless.relayOrder(order, true);
         }
         aimless.RecruitNearby();
         addToSwarms(aimless);
         return aimless;
     }
-    private static Swarm.AimlessSwarm CreateAimlessSwarm(ArrayList<MyiaticBase> captain, int maxSwarms, @Nullable Vec3 finalPos) {
+    public static Swarm.AimlessSwarm createAimlessSwarm(ArrayList<MyiaticBase> captain, int maxSwarms, @Nullable Vec3 finalPos) {
         Swarm.AimlessSwarm aimless = new Swarm.AimlessSwarm(captain, maxSwarms, finalPos);
-        aimless.GeneratePrimaryOrder(aimless.getCaptain());
+        aimless.generatePrimaryOrder(aimless.getCaptain());
         for (ISwarmOrder order : defaultOrders){
-            aimless.RelayOrder(order, true);
+            aimless.relayOrder(order, true);
         }
         aimless.RecruitNearby();
         addToSwarms(aimless);
         return aimless;
     }
-    private static Swarm.HuntSwarm CreateHuntSwarm(MyiaticBase captain, int maxSwarms, @Nullable Vec3 finalPos) {
+    public static Swarm.HuntSwarm createHuntSwarm(MyiaticBase captain, int maxSwarms, @Nullable Vec3 finalPos) {
         Swarm.HuntSwarm hunt = new Swarm.HuntSwarm(captain, maxSwarms, finalPos);
-        hunt.GeneratePrimaryOrder(captain);
+        hunt.generatePrimaryOrder(captain);
         for (ISwarmOrder order : defaultOrders){
-            hunt.RelayOrder(order, true);
+            hunt.relayOrder(order, true);
         }
         hunt.RecruitNearby();
         addToSwarms(hunt);
         return hunt;
     }
-    private static Swarm.HuntSwarm CreateHuntSwarm(ArrayList<MyiaticBase> captain, int maxSwarms, @Nullable Vec3 finalPos) {
+    public static Swarm.HuntSwarm createHuntSwarm(ArrayList<MyiaticBase> captain, int maxSwarms, @Nullable Vec3 finalPos) {
         Swarm.HuntSwarm hunt = new Swarm.HuntSwarm(captain, maxSwarms, finalPos);
-        hunt.GeneratePrimaryOrder(hunt.getCaptain());
+        hunt.generatePrimaryOrder(hunt.getCaptain());
         for (ISwarmOrder order : defaultOrders){
-            hunt.RelayOrder(order, true);
+            hunt.relayOrder(order, true);
         }
         hunt.RecruitNearby();
         addToSwarms(hunt);
         return hunt;
     }
-    private static Swarm.NestSwarm CreateNestSwarm(MyiaticBase captain, int maxSwarms, @Nullable Vec3 finalPos) {
+    public static Swarm.NestSwarm createNestSwarm(MyiaticBase captain, int maxSwarms, @Nullable Vec3 finalPos) {
         Swarm.NestSwarm nest = new Swarm.NestSwarm(captain, maxSwarms, finalPos);
-        nest.GeneratePrimaryOrder(captain);
+        nest.generatePrimaryOrder(captain);
         for (ISwarmOrder order : defaultOrders){
-            nest.RelayOrder(order, true);
+            nest.relayOrder(order, true);
         }
         nest.RecruitNearby();
         addToSwarms(nest);
         return nest;
     }
-    private static Swarm.NestSwarm CreateNestSwarm(ArrayList<MyiaticBase> captain, int maxSwarms, @Nullable Vec3 finalPos) {
+    public static Swarm.NestSwarm createNestSwarm(ArrayList<MyiaticBase> captain, int maxSwarms, @Nullable Vec3 finalPos) {
         Swarm.NestSwarm nest = new Swarm.NestSwarm(captain, maxSwarms, finalPos);
-        nest.GeneratePrimaryOrder(nest.getCaptain());
+        nest.generatePrimaryOrder(nest.getCaptain());
         for (ISwarmOrder order : defaultOrders){
-            nest.RelayOrder(order, true);
+            nest.relayOrder(order, true);
+        }
+        nest.RecruitNearby();
+        addToSwarms(nest);
+        return nest;
+    }
+    public static Swarm.AttackSwarm createAttackSwarm(MyiaticBase captain, int maxSwarms, @NotNull Entity target) {
+        Swarm.AttackSwarm nest = new Swarm.AttackSwarm(captain, maxSwarms, target);
+        nest.generatePrimaryOrder(captain);
+        for (ISwarmOrder order : defaultOrders){
+            nest.relayOrder(order, true);
+        }
+        nest.RecruitNearby();
+        addToSwarms(nest);
+        return nest;
+    }
+    public static Swarm.AttackSwarm createAttackSwarm(ArrayList<MyiaticBase> captain, int maxSwarms, @NotNull Entity target) {
+        Swarm.AttackSwarm nest = new Swarm.AttackSwarm(captain, maxSwarms, target);
+        nest.generatePrimaryOrder(nest.getCaptain());
+        for (ISwarmOrder order : defaultOrders){
+            nest.relayOrder(order, true);
         }
         nest.RecruitNearby();
         addToSwarms(nest);
@@ -213,9 +237,9 @@ public class SwarmManager {
         toReturn.setSwarmState(state);
         toReturn.setDestination(finalPos);
 
-        toReturn.GeneratePrimaryOrder(captain);
+        toReturn.generatePrimaryOrder(captain);
         for (ISwarmOrder order : defaultOrders){
-            toReturn.RelayOrder(order, true);
+            toReturn.relayOrder(order, true);
         }
 
         System.out.println("Successfully created a swarm from Blueprint!");

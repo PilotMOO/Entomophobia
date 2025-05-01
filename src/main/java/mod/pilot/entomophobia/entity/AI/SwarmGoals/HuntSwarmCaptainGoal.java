@@ -1,4 +1,4 @@
-package mod.pilot.entomophobia.entity.AI;
+package mod.pilot.entomophobia.entity.AI.SwarmGoals;
 
 import mod.pilot.entomophobia.data.EntomoWorldManager;
 import mod.pilot.entomophobia.entity.AI.Interfaces.ISwarmOrder;
@@ -91,7 +91,7 @@ public class HuntSwarmCaptainGoal extends Goal implements ISwarmOrder {
     }
 
     @Override
-    public Goal Relay(MyiaticBase M) {
+    public Goal relay(MyiaticBase M) {
         return new HuntSwarmCaptainGoal(M, NextAreaTimer, getPriority());
     }
     @Override
@@ -104,7 +104,7 @@ public class HuntSwarmCaptainGoal extends Goal implements ISwarmOrder {
     }
 
     @Override
-    public boolean CaptainOnly() {
+    public boolean captainOnly() {
         return true;
     }
 }

@@ -42,7 +42,7 @@ public class RecruitNearbyGoal extends Goal implements ISwarmOrder {
     }
 
     @Override
-    public Goal Relay(MyiaticBase M) {
+    public Goal relay(MyiaticBase M) {
         return new RecruitNearbyGoal(M, TickFrequency, getPriority());
     }
     @Override

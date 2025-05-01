@@ -43,7 +43,7 @@ public class FormNestSwarmGoal extends Goal {
             }
             nearbyTeammates.removeAll(trim);
             if (nearbyTeammates.size() >= MinSwarmSize){
-                SwarmManager.CreateSwarm(SwarmManager.SwarmTypes.nest, nearbyTeammates, SwarmManager.getBaseSwarmMaxSize(), null);
+                SwarmManager.createSwarm(SwarmManager.SwarmTypes.nest, nearbyTeammates, SwarmManager.getBaseSwarmMaxSize(), null);
                 stop();
             }
             else{
@@ -54,6 +54,6 @@ public class FormNestSwarmGoal extends Goal {
 
     @Override
     public void stop() {
-        parent.QueRemoveGoal(this);
+        parent.queRemoveGoal(this);
     }
 }

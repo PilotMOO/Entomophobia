@@ -2,7 +2,6 @@ package mod.pilot.entomophobia.data.clientsyncing;
 
 import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
-import mod.pilot.entomophobia.event.EntomoForgeEvents;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,21 +15,24 @@ import java.util.function.Supplier;
 
 public class HiveDataSyncer {
     /**
-     * Posts a Client-sided request to the server for the data of a given HiveHeartEntity. Intended for Client-side only.
-     * <p></p>
+     * Posts a Client-sided request to the Server for the data of a given HiveHeartEntity. Intended for Client-side only.
+     * <p>
      * Does NOT modify the data on the Server, see {@link ClientBoundSyncPacket} if you wish to modify data on the server.
+     * </p>
      * Override; automatically grabs the UUID of the HiveHeartEntity then invokes the base method.
-     * @param hh The give HiveHeartEntity that the Client requests to sync data between.
+     * @param hh The given HiveHeartEntity that the Client requests to sync data between.
      */
     public static void request(HiveHeartEntity hh) {
         request(hh.getUUID());
     }
 
     /**
-     * Posts a Client-sided request to the server for the data of a given HiveHeart. Intended for Client-side only.
-     * <p></p>
-     * Does NOT modify the data on the Server, see {@link ClientBoundSyncPacket} or {@code HiveDataSyncer.pushClientChanges(UUID, boolean)} if you wish to modify data on the server.
-     * @param id The UUID of the given HiveHeartEntity that the Client requests to sync data between
+     * Posts a Client-sided request to the server for the data of a given HiveHeartEntity. Intended for Client-side only.
+     * <p>
+     * Does NOT modify the data on the Server, see {@link ClientBoundSyncPacket} and {@code HiveDataSyncer.pushClientChanges(UUID, boolean)}
+     * if you wish to modify data on the Server from a client.
+     * </p>
+     * @param id The UUID of the given HiveHeartEntity that the client requests to sync data between
      */
     public static void request(UUID id) {
         HiveDataSyncer.ClientRequestPacket requestPacket = new HiveDataSyncer.ClientRequestPacket(id);
@@ -38,8 +40,9 @@ public class HiveDataSyncer {
     }
 
     /**
-     * Pushes a client sync packet to modify the data on the server, with an option to also sync all other clients after the push. Intended for Client-side only.
-     * @param hh The given HiveHeartEntity that the Client requests to sync data between
+     * Pushes a client sync packet to modify the data on the server, with an option to also sync all other clients after the push.
+     * Intended for Client-side only.
+     * @param hh The given HiveHeartEntity that the client requests to sync data between
      * @param syncAllClients If {@code true}, will send out sync packets to all clients after the Server-side sync packet is accepted.
      */
     public static void pushClientChanges(HiveHeartEntity hh, boolean syncAllClients){
@@ -48,7 +51,7 @@ public class HiveDataSyncer {
     }
 
     /**
-     * Creates then sends a sync packet from the server to a given client. Intended for Server-side only.
+     * Creates then sends a sync packet from the Server to a given client. Intended for Server-side only.
      * @param hh The given HiveHeartEntity to sync the data between
      * @param player The ServerPlayer connected to the client that will have the data synced between
      */
@@ -58,7 +61,11 @@ public class HiveDataSyncer {
     }
 
     /**
-     * Attempts to sync the data from of a given HiveHeartEntity instance on the server to all the clients. Intended for Server-side only.
+     * Attempts to sync the data from of a given HiveHeartEntity instance on the Server to all the clients. Intended for Server-side only.
+     * <p>
+     * If you wish to sync all clients from a client, see {@link ClientBoundSyncPacket} and
+     * {@code HiveDataSyncer.pushClientChanges(UUID, boolean)}
+     * </p>
      * @param hh The HiveHeartEntity to sync the data between
      * @param server The ServerLevel, for accessing all active ServerPlayers
      */
@@ -70,8 +77,10 @@ public class HiveDataSyncer {
 
     /**
      * A sync packet, created in the server environment then sent to a client to sync HiveData between instances of a given HiveHeartEntity.
-     * <p></p>
-     * Constructors of this object are intended for Server-side, if you are looking to send data from the client to sync on the server, see {@link ClientBoundSyncPacket}
+     * <p>
+     * Constructors of this object are intended for Server-side, if you are looking to send data from the client to sync on the server,
+     * see {@link ClientBoundSyncPacket} and {@code HiveDataSyncer.pushClientChanges(UUID, boolean)}
+     * </p>
      * @param id The UUID of the given HiveHeartEntity that the packet is associated with
      * @param packet The HiveData packet to sync between the server and a client
      */
@@ -79,7 +88,6 @@ public class HiveDataSyncer {
         public SyncPacket(HiveHeartEntity hh) {
             this(hh.getUUID(), hh.accessData());
         }
-        public SyncPacket{}
         public static SyncPacket decodeFromBuffer(FriendlyByteBuf buffer) {
             UUID id = buffer.readUUID();
             int corpseDew = buffer.readInt();
@@ -109,12 +117,14 @@ public class HiveDataSyncer {
     /**
      * A sync packet, created in the client environment then sent to the server to sync changes to HiveData.
      * Option to also sync it between other clients
-     * <p></p>
-     * Constructors of this object are intended for Client-side, if you are looking to send data from the server to sync on a client,
-     * see {@link SyncPacket}
+     * <p>
+     * Constructors of this object are intended for Client-side.
+     * If you are looking to send data from the Server to a client, see {@link SyncPacket}
+     * </p>
      * @param id The UUID of the given HiveHeartEntity that the packet is associated with
      * @param packet The HiveData packet to sync between a client and the server
-     * @param syncOtherClients if true, attempts to post sync packets to the other clients after being synced between the sender client and the server
+     * @param syncOtherClients if true, attempts to post sync packets to the other clients
+     *                        after being synced between the sender client and the Server
      */
     public record ClientBoundSyncPacket(UUID id, HiveSaveData.Packet packet, boolean syncOtherClients) {
         public ClientBoundSyncPacket(HiveHeartEntity hh, boolean syncOtherClients) {
@@ -166,8 +176,10 @@ public class HiveDataSyncer {
 
     /**
      * A request packet, created in the client environment then sent to the server to request a sync between the given client and the server.
-     * <p></p>
-     * Constructors of this object are NOT reserved for a given logical side, but posting one from the server wouldn't do much but print out an error in the logs.
+     * <p>
+     * Constructors of this object are NOT reserved for a given logical side,
+     * but posting one from the server wouldn't do much but print out an error in the logs.
+     * </p>
      * @param id The UUID of the given HiveHeartEntity that the Client requests to sync data between
      */
     public record ClientRequestPacket(UUID id) {
@@ -184,13 +196,7 @@ public class HiveDataSyncer {
                     postError("[REQUEST] Packet was invalid because requester was null");
                     return;
                 }
-                ServerLevel level = EntomoForgeEvents.getServer();
-                if (level == null) {
-                    postError("[REQUEST] ServerLevel was null during packet handling.");
-                    return;
-                }
-
-                Entity entity = level.getEntity(packet.id);
+                Entity entity = requester.serverLevel().getEntity(packet.id);
                 if (entity == null) {
                     postError("[REQUEST] Entity was null! Maybe it is unloaded or does not exist?");
                     return;
@@ -208,9 +214,10 @@ public class HiveDataSyncer {
     //This man is available on the server as well so clients can send changes to the server
     /**
      * Behold. A man.
-     * <p></p>
+     * <p>
      * A "middle man" for syncing packets (since you can't get an entity from a UUID on the client for some reason...)
      * Holds all sent sync packets and unpacks them whenever the holder HiveHeartEntity attempts to access its data.
+     * </p>
      */
     private static final HashMap<UUID, SyncPacket> middleMan = new HashMap<>();
 
@@ -236,7 +243,7 @@ public class HiveDataSyncer {
     }
 
     /**
-     * Checks the middleMan for any stored SyncPackets then unpacks and Syncs them if present.
+     * Checks the middleMan for any stored SyncPackets then unpacks and syncs them if present.
      * @param hh The HiveHeartEntity to check for any {@link SyncPacket}s stored in the middleMan
      * @return The new data unpacked from a stored {@link SyncPacket} IF present, otherwise returns the current data of the HiveHeartEntity
      */

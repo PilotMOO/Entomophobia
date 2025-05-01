@@ -11,6 +11,7 @@ import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.effects.IStackingEffect;
 import mod.pilot.entomophobia.entity.PestManager;
 import mod.pilot.entomophobia.entity.celestial.CelestialCarrionEntity;
+import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticCowEntity;
 import mod.pilot.entomophobia.entity.truepest.PestBase;
@@ -64,6 +65,7 @@ import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.server.command.EnumArgument;
+import oshi.util.tuples.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,10 +107,11 @@ public class EntomoForgeEvents {
             if (E instanceof MyiaticBase M && !(E instanceof PestBase)){
                 if (!M.isDeadOrDying()){
                     System.out.println("Adding " + M.getEncodeId() + " to storage!");
-                    HiveSaveData.Packet packet = HiveSaveData.locateClosestData(M.position());
+
+                    Pair<HiveSaveData.Packet, HiveHeartEntity> pair = HiveSaveData.locateClosestDataAndAccessor(M.position());
+                    HiveSaveData.Packet packet = pair.getA();
                     if (packet != null){
-                        packet.addToStorage(M);
-                       //Entomophobia.activeData.addToStorage(M.getEncodeId());
+                        packet.addToStorage(M).thenSync(EServer);
                     } else System.out.println("No Hive Packet was found nearby, can't save the entity :[");
                 }
                 Entomophobia.activeData.removeFromMyiaticCount();
@@ -128,21 +131,19 @@ public class EntomoForgeEvents {
         if (!(event.getLevel() instanceof ServerLevel s)) return;
 
         if (Entomophobia.activeSwarmData != null && Entomophobia.activeSwarmData.toUnpack.size() != 0){
-            SwarmSaveData.CleanPackagedSwarms();
+            SwarmSaveData.cleanPackagedSwarms();
             if (s.getGameTime() > 200) Entomophobia.activeSwarmData.toUnpack.clear();
             for (SwarmSaveData.SwarmPackager.PackagedSwarm pSwarm : Entomophobia.activeSwarmData.toUnpack){
                 if (pSwarm.awaitingApplication.size() != 0){
-                    pSwarm.EvaluateQueuedApplications();
+                    pSwarm.evaluateQueuedApplications();
                 }
 
                 if (event.getEntity() instanceof MyiaticBase M){
                     if (M.getUUID().equals(pSwarm.captainUUID)){
-                        pSwarm.UnpackSwarm(M);
+                        pSwarm.unpackSwarm(M);
                         return;
                     }
-                    else{
-                        if (pSwarm.UnpackAndAddUnit(M, true) != 0) return;
-                    }
+                    else if (pSwarm.unpackAndAddUnit(M, true) != 0) return;
                 }
             }
         }
@@ -265,19 +266,19 @@ public class EntomoForgeEvents {
     }
     private static int nextSwitch = 0;
     @SubscribeEvent
-    public static void OverlayTicker(TickEvent.ServerTickEvent event){
+    public static void overlayTicker(TickEvent.ServerTickEvent event){
         if (nextSwitch == 0){
             regenerateOverlayHashmap();
             nextSwitch = 20 + random.nextInt(-10, 50);
         } else nextSwitch--;
     }
 
-    private static final int LoadRadius = 1;
+    private static final int loadRadius = 1;
 
     @SubscribeEvent
-    public static void LoadCaptain(EntityEvent.EnteringSection event){
+    public static void loadCaptain(EntityEvent.EnteringSection event){
         Entity E = event.getEntity();
-        if (!(E.level() instanceof ServerLevel)
+        if (!(E.level() instanceof ServerLevel serverLevel)
                 || !(E instanceof MyiaticBase M)
                 || !event.didChunkChange()
                 || !M.amITheCaptain()
@@ -287,28 +288,28 @@ public class EntomoForgeEvents {
         ArrayList<ChunkPos> loadedChunkTracker = new ArrayList<>();
 
         //Loading new chunks
-        for (int x = -LoadRadius; x <= LoadRadius; x++){
-            for (int z = -LoadRadius; z <= LoadRadius; z++){
+        for (int x = -loadRadius; x <= loadRadius; x++){
+            for (int z = -loadRadius; z <= loadRadius; z++){
                 ChunkPos cPos = new ChunkPos(captainCPos.x + x, captainCPos.z + z);
 
-                ForgeChunkManager.forceChunk((ServerLevel) M.level(), Entomophobia.MOD_ID, M,
+                ForgeChunkManager.forceChunk(serverLevel, Entomophobia.MOD_ID, M,
                         cPos.x, cPos.z, true, false);
                 loadedChunkTracker.add(cPos);
             }
         }
         //Unloading old chunks
-        for (int x = -LoadRadius; x <= LoadRadius; x++){
-            for (int z = -LoadRadius; z <= LoadRadius; z++){
+        for (int x = -loadRadius; x <= loadRadius; x++){
+            for (int z = -loadRadius; z <= loadRadius; z++){
                 ChunkPos cPos = event.getOldPos().offset(x, 0, z).chunk();
                 if (loadedChunkTracker.contains(cPos)) continue;
 
-                ForgeChunkManager.forceChunk((ServerLevel) M.level(), Entomophobia.MOD_ID, M,
+                ForgeChunkManager.forceChunk(serverLevel, Entomophobia.MOD_ID, M,
                         cPos.x, cPos.z, false, false);
             }
         }
     }
 
-    private static final String IDPrepend = "entomophobia:";
+    private static final String IDPrepend = Entomophobia.MOD_ID + ":";
     @SubscribeEvent
     public static void registerCommands(RegisterCommandsEvent event){
         event.getDispatcher().register(Commands.literal(IDPrepend + "thanks")

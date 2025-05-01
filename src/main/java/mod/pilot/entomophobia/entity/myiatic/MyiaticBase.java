@@ -6,6 +6,7 @@ import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.AI.*;
+import mod.pilot.entomophobia.entity.AI.FormNestSwarmGoal;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.interfaces.IDodgable;
 import mod.pilot.entomophobia.entity.pathfinding.INestPathfinding;
@@ -117,10 +118,10 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     //Goals
     protected ArrayList<Pair<Integer, Goal>> QueuedGoals = new ArrayList<>();
     protected ArrayList<Goal> QueuedRemoveGoals = new ArrayList<>();
-    public void QueGoal(int priority, Goal goal){
+    public void queGoal(int priority, Goal goal){
         QueuedGoals.add(new Pair<>(priority, goal));
     }
-    public void QueRemoveGoal(Goal goal){
+    public void queRemoveGoal(Goal goal){
         QueuedRemoveGoals.add(goal);
     }
     public void RegisterQueuedGoals(){
@@ -147,7 +148,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     }
     protected void registerBasicGoals(){
         this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(1, new PreyPriorityNearestAttackable(this, true));
+        this.targetSelector.addGoal(1, new PreyPriorityNearestAttackable(this, true));
         this.goalSelector.addGoal(3, new HomophobicRandomStrollGoal(this, 0.75D, 40, 48, 16));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(3, new LocateAndEatFoodOffTheFloorGoal(this, 20));
@@ -158,7 +159,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     }
     protected void registerFlightGoals(){}
     protected void registerPheromoneGoals(){
-        this.targetSelector.addGoal(2, new SpawnPheromonesGoal(this, EntomoEntities.PREYHUNT.get(), 600, this::PreyHuntPredicate));
+        this.goalSelector.addGoal(2, new SpawnPheromonesGoal(this, EntomoEntities.PREYHUNT.get(), 600, this::PreyHuntPredicate));
     }
     /**/
 
@@ -212,7 +213,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         boolean superFlag = true;
         Entity sourceEntity = pSource.getEntity();
         if (sourceEntity instanceof LivingEntity LEntity){
-            if (TestValidEntity(LEntity)){
+            if (testValidEntity(LEntity)){
                 for (MyiaticBase M : getNearbyMyiatics((int)(getAttributeValue(Attributes.FOLLOW_RANGE) * 2))){
                     if (M.getTarget() == null || (M.getTarget() instanceof Targeting target1 && target1.getTarget() != M
                             && getTarget() instanceof Targeting target2 && target2.getTarget() == this)){
@@ -404,7 +405,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         return false;
     }
 
-    public void Jump(){
+    public void jump(){
         if (verticalCollisionBelow) jumpFromGround();
     }
 
@@ -464,14 +465,14 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         /*Positional Helpers*/
     public ArrayList<LivingEntity> getValidTargets(int searchRange){
         AABB nearby = getBoundingBox().inflate(searchRange);
-        return new ArrayList<>(level().getEntitiesOfClass(LivingEntity.class, nearby, this::TestValidEntity));
+        return new ArrayList<>(level().getEntitiesOfClass(LivingEntity.class, nearby, this::testValidEntity));
     }
     public ArrayList<LivingEntity> getValidTargets(){
         return getValidTargets((int)getAttributeValue(Attributes.FOLLOW_RANGE));
     }
     public ArrayList<LivingEntity> getNearbyPrey(){
         AABB nearby = getBoundingBox().inflate((int)getAttributeValue(Attributes.FOLLOW_RANGE));
-        return new ArrayList<>(level().getEntitiesOfClass(LivingEntity.class, nearby, (P) -> TestValidEntity(P) && P.hasEffect(EntomoMobEffects.PREY.get())));
+        return new ArrayList<>(level().getEntitiesOfClass(LivingEntity.class, nearby, (P) -> testValidEntity(P) && P.hasEffect(EntomoMobEffects.PREY.get())));
     }
     public LivingEntity getClosestPrey(){
         LivingEntity closest = null;
@@ -572,9 +573,9 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     }
 
         /*Targeting*/
-    private static final BooleanCache<LivingEntity> TargetCache = new BooleanCache<>(256, MyiaticBase::CachePredicate);
+    private static final BooleanCache<LivingEntity> targetCache = new BooleanCache<>(256, MyiaticBase::cachePredicate);
     private static final Set<String> blacklist = new HashSet<>(Config.SERVER.blacklisted_targets.get());
-    private static boolean CachePredicate(LivingEntity e) {
+    private static boolean cachePredicate(LivingEntity e) {
         if (e instanceof Player p) return !(p.isCreative() || p.isSpectator());
         if (e instanceof MyiaticBase) return false;
         if (e instanceof AbstractFish) return false;
@@ -597,9 +598,9 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         }
         return flag;
     }
-    public boolean TestValidEntity(LivingEntity e) {
+    public boolean testValidEntity(LivingEntity e) {
         if (e instanceof Creeper && !isInsideOfTargetBlacklist(e)) return hasEffect(EntomoMobEffects.FRENZY.get());
-        else return CachePredicate(e); //Disabled the Cache because of issues with targeting players switching to and fro creative mode
+        else return cachePredicate(e); //Disabled the Cache because of issues with targeting players switching to and fro creative mode
         /*else return TargetCache.Test(e);*/
     }
     /**/
@@ -638,13 +639,13 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     }
     public void LeaveSwarm(boolean disbandIfCaptain){
         if (getSwarm() != null){
-            getSwarm().DropMember(this, disbandIfCaptain);
+            getSwarm().dropMember(this, disbandIfCaptain);
         }
         currentSwarm = null;
     }
     public void SwitchSwarm(Swarm newSwarm, boolean disbandIfCaptain){
         if (isInSwarm()) {
-            getSwarm().DropMember(this, disbandIfCaptain);
+            getSwarm().dropMember(this, disbandIfCaptain);
             boolean joinFlag = newSwarm.attemptToRecruit(this);
             if (joinFlag) {
                 currentSwarm = newSwarm;

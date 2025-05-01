@@ -1,4 +1,4 @@
-package mod.pilot.entomophobia.entity.AI;
+package mod.pilot.entomophobia.entity.AI.SwarmGoals;
 
 import mod.pilot.entomophobia.entity.AI.Interfaces.ISwarmOrder;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
@@ -43,7 +43,7 @@ public class NestSwarmCaptainGoal extends Goal implements ISwarmOrder {
 
             if (swarm.getRecruitCount() >= requiredMemberCount){
                 NestManager.constructNewNest(server, NestManager.getNewNestPosition(parent.position(), 32, false));
-                swarm.Finish();
+                swarm.finish();
                 stop();
             }
         }
@@ -51,12 +51,12 @@ public class NestSwarmCaptainGoal extends Goal implements ISwarmOrder {
 
     @Override
     public void stop() {
-        parent.QueRemoveGoal(this);
+        parent.queRemoveGoal(this);
     }
 
     //ISwarmOrder Implementation
     @Override
-    public Goal Relay(MyiaticBase M) {
+    public Goal relay(MyiaticBase M) {
         return new NestSwarmCaptainGoal(M, checkTickFrequency, requiredMemberCount, priority);
     }
 
@@ -71,5 +71,5 @@ public class NestSwarmCaptainGoal extends Goal implements ISwarmOrder {
     }
 
     @Override
-    public boolean CaptainOnly() {return true;}
+    public boolean captainOnly() {return true;}
 }

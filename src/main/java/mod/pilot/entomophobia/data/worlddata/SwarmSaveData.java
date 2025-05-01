@@ -46,7 +46,7 @@ public class SwarmSaveData extends SavedData {
     }
 
     public ArrayList<SwarmPackager.PackagedSwarm> toUnpack = new ArrayList<>();
-    public static void CleanPackagedSwarms() {
+    public static void cleanPackagedSwarms() {
         ArrayList<SwarmPackager.PackagedSwarm> toRemove = new ArrayList<>();
         for (SwarmPackager.PackagedSwarm pSwarm : activeData().toUnpack){
             if (pSwarm.isFullyUnpacked()) toRemove.add(pSwarm);
@@ -190,10 +190,10 @@ public class SwarmSaveData extends SavedData {
                 return recruits.size() == 0 && awaitingApplication.size() == 0;
             }
 
-            public void UnpackSwarm(MyiaticBase captain){
+            public void unpackSwarm(MyiaticBase captain){
                 unpackedSwarm = SwarmManager.CreateSwarmFromBlueprint(captain, type, state, finalPos, maxUnits);
             }
-            public int UnpackAndAddUnit(MyiaticBase newUnit, boolean checkApplication){
+            public int unpackAndAddUnit(MyiaticBase newUnit, boolean checkApplication){
                 UUID uuid = newUnit.getUUID();
                 if (uuid.equals(captainUUID)) return 0;
 
@@ -228,7 +228,7 @@ public class SwarmSaveData extends SavedData {
                 return false;
             }
 
-            public void EvaluateQueuedApplications() {
+            public void evaluateQueuedApplications() {
                 if (unpackedSwarm == null){
                     System.out.println("Cannot Evaluate queued applications because the current swarm isn't unpacked!");
                     return;

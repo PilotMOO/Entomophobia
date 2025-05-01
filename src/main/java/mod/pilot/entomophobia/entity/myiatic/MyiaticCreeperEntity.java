@@ -19,7 +19,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
 
 public class MyiaticCreeperEntity extends MyiaticBase{
     public MyiaticCreeperEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
@@ -124,7 +123,7 @@ public class MyiaticCreeperEntity extends MyiaticBase{
         boolean superFlag = true;
         Entity sourceEntity = pSource.getEntity();
         if (sourceEntity instanceof LivingEntity LEntity){
-            if (TestValidEntity(LEntity)){
+            if (testValidEntity(LEntity)){
                 for (MyiaticBase M : getNearbyMyiatics()){
                     if (M.getTarget() == null){
                         M.setTarget(LEntity);

@@ -179,7 +179,7 @@ public abstract class AbstractGrappleProjectile extends AbstractArrow {
         setTarget(target);
         if (parent instanceof Mob mob && target instanceof LivingEntity LTarget){
             if (mob instanceof MyiaticBase MBase){
-                if (MBase.TestValidEntity(LTarget)){
+                if (MBase.testValidEntity(LTarget)){
                     mob.setTarget(LTarget);
                 }
             }

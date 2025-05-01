@@ -1,11 +1,9 @@
-package mod.pilot.entomophobia.entity.AI;
+package mod.pilot.entomophobia.entity.AI.SwarmGoals;
 
 import mod.pilot.entomophobia.entity.AI.Interfaces.ISwarmOrder;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.systems.swarm.Swarm;
-import mod.pilot.entomophobia.systems.swarm.SwarmManager;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.level.Level;
 
 public class FollowCaptainGoal extends Goal implements ISwarmOrder {
     final MyiaticBase parent;
@@ -54,7 +52,7 @@ public class FollowCaptainGoal extends Goal implements ISwarmOrder {
     }
 
     @Override
-    public Goal Relay(MyiaticBase M) {
+    public Goal relay(MyiaticBase M) {
         return new FollowCaptainGoal(M, MinDistance, MaxDistance, Priority);
     }
 
