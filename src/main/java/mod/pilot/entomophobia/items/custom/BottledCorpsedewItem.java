@@ -1,5 +1,6 @@
 package mod.pilot.entomophobia.items.custom;
 
+import mod.pilot.entomophobia.data.InputReader;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -53,8 +54,10 @@ public class BottledCorpsedewItem extends HoneyBottleItem {
 
     @Override
     public void appendHoverText(@NotNull ItemStack itemStack, @Nullable Level level,
-                                List<Component> tooltipComponents, @NotNull TooltipFlag isAdvanced) {
-        tooltipComponents.add(Component.translatable("item.entomophobia.tooltip.bottled_corpsedew"));
-        super.appendHoverText(itemStack, level, tooltipComponents, isAdvanced);
+                                @NotNull List<Component> tooltip, @NotNull TooltipFlag isAdvanced) {
+        if(InputReader.leftShift()) {
+            tooltip.add(Component.translatable("item.entomophobia.tooltip.bottled_corpsedew"));
+        } else tooltip.add(Component.translatable("item.entomophobia.tooltip.description_hint"));
+        super.appendHoverText(itemStack, level, tooltip, isAdvanced);
     }
 }

@@ -27,10 +27,14 @@
 
   "item.entomophobia.tooltip.lustrous_tissue": "§7A rotting mass of flesh, taken from the \"fruit\" of a §6luminous fleshy \"plant\"§7 found §6deep in the bowels of a nest.§7 It glows faintly, but reeks horribly. §4Consumption is not recommended.",
   "item.entomophobia.tooltip.bottled_corpsedew": "§7A bottle of a §astrange green substance§7 extracted from §6within a nest.§7 It is presumably very calorically dense, however §4consumption of this might not be the best idea,§7 not §6in this state...",
+  "item.entomophobia.tooltip.milk_bucket": "§8...you should drink it.",
+  "item.entomophobia.tooltip.milk_bucket_advanced": "§7It's a trap! Drinking it gives a LOT of negative effects. §4Teehee.",
 
   "item.entomophobia.tooltip.thanks": "§dA heart-shaped token of the developer's thanks, to those who have assisted with the mod's development or community <3 \n\n§8... \n\n§8...it feels oddly heavy?",
 
   "item.entomophobia.tooltip.dev_wand": "§4[DEV WAND]",
+
+  "item.entomophobia.tooltip.description_hint": "§7[Hold §6Left Shift §7for description]",
 
   "item.entomophobia.tooltip.nest_wand": "§7Creates a nest around Y=0 when clicked on a block, or at the set Y position if shift is held.\n\nShift-clicking the air kills the nearest nest.",
   "item.entomophobia.tooltip.swarm_wand": "§7Hit a myiatic with it to create a swarm of the selected type, assigning it as the captain, shift-hit to get info about the current swarm.\n\nRight-click air to highlight all captains, shift-click to cycle through swarm types.",
@@ -105,9 +109,9 @@
   "sounds.entomophobia:myiatic_zombie_idle": "Myiatic Zombie groans",
   "sounds.entomophobia:myiatic_cow_idle": "Myiatic Cow moos",
   "sounds.entomophobia:myiatic_pig_idle": "Myiatic Pig squeals",
-  "sounds.entomophobia:myiatic_shhep_idle": "Myiatic Sheep baas",
+  "sounds.entomophobia:myiatic_sheep_idle": "Myiatic Sheep baas",
   "sounds.entomophobia:myiatic_flying": "Myiatic takes flight",
-  "sounds.entomophobia:beat": "§4Arrhythmic heartbeat",
+  "sounds.entomophobia:heart_beat": "§4Arrhythmic heartbeat",
 
   "entomophobia.system.infection_start": "The stench of rot and trepidation floods the air... something's off.",
   "entomophobia.item.nest_builder_finish": "Built!"

@@ -2,16 +2,20 @@ package mod.pilot.entomophobia.blocks.custom;
 
 import mod.pilot.entomophobia.blocks.EntomoBlockStateProperties;
 import mod.pilot.entomophobia.blocks.EntomoBlocks;
+import mod.pilot.entomophobia.data.InputReader;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.projectile.CongealedBloodProjectile;
+import mod.pilot.entomophobia.particles.EntomoParticles;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -31,6 +35,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Fallable;
 import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -47,7 +52,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class CongealedBloodLayer extends SnowLayerBlock {
+public class CongealedBloodLayer extends SnowLayerBlock implements Fallable {
     private static final VoxelShape FALLING_COLLISION_SHAPE = Shapes.box(0.0D, 0.0D, 0.0D, 1.0D, (double)0.9F, 1.0D);
     public CongealedBloodLayer(Properties pProperties) {
         super(pProperties);
@@ -64,14 +69,13 @@ public class CongealedBloodLayer extends SnowLayerBlock {
             int fallingLayers = fb.getBlockState().getValue(LAYERS);
             if (blockLayers + fallingLayers <= MAX_HEIGHT){
                 level.setBlock(bPos, bState.setValue(LAYERS, blockLayers + fallingLayers), 3);
-                level.playSound(null, bPos, this.soundType.getBreakSound(), SoundSource.BLOCKS, 1.0f, 0.75f);
             }
             else{
                 int secondLayerCount = (blockLayers + fallingLayers) - 8;
                 level.setBlock(bPos, bState.setValue(LAYERS, MAX_HEIGHT), 3);
                 level.setBlock(bPos.above(), this.defaultBlockState().setValue(LAYERS, secondLayerCount), 3);
-                level.playSound(null, bPos, this.soundType.getPlaceSound(), SoundSource.BLOCKS, 1.0f, 0.75f);
             }
+            level.playSound(null, bPos, this.soundType.getBreakSound(), SoundSource.BLOCKS, 1.0f, 0.75f);
             fb.discard();
         } else if (entity instanceof CongealedBloodProjectile CBP){
             int blockLayers = bState.getValue(LAYERS);
@@ -110,19 +114,45 @@ public class CongealedBloodLayer extends SnowLayerBlock {
                     s.playSound(null, bPos, SoundEvents.HONEY_BLOCK_SLIDE, SoundSource.BLOCKS,
                             (float) level.random.nextInt(5, 16) / 10,
                             (float) level.random.nextInt(5, 16) / 10);
+
+                    RandomSource random = s.getRandom();
+                    s.sendParticles(EntomoParticles.BLOOD_FALL_PARTICLE.get(),
+                            entity.getX(),
+                            bPos.getY() + (entity.getBbHeight() * 0.65),
+                            entity.getZ(),
+                            random.nextInt(3, 7),
+                            0.2, entity.getBbHeight() * 0.5, 0.2,
+                            1);
                 }
             }
             entity.setSprinting(false);
-
-            /*if (level.isClientSide) {
-                RandomSource randomsource = level.getRandom();
-                boolean flag = entity.xOld != entity.getX() || entity.zOld != entity.getZ();
-                if (flag && randomsource.nextBoolean()) {
-                    level.addParticle(ParticleTypes.SNOWFLAKE, entity.getX(), (double)(bPos.getY() + 1), entity.getZ(), (double)(Mth.randomBetween(randomsource, -1.0F, 1.0F) * 0.083333336F), (double)0.05F, (double)(Mth.randomBetween(randomsource, -1.0F, 1.0F) * 0.083333336F));
-                }
-            }*/
         }
     }
+
+    /*@Override
+    public void onBrokenAfterFall(@NotNull Level level, @NotNull BlockPos bPos, @NotNull FallingBlockEntity falling) {
+        if (level.getBlockState(bPos).is(this)){
+            BlockPos top = getTopLayer(bPos, level);
+            BlockState topState = level.getBlockState(top);
+            int fallingLayer = falling.getBlockState().getValue(LAYERS);
+            int topLayer = topState.getValue(LAYERS);
+            int topNew = topLayer + fallingLayer;
+            int extra = 0;
+            if (topNew > 8){
+                extra = topNew - 8;
+                topNew = 8;
+            }
+            level.setBlock(top, topState.setValue(LAYERS, topNew), 3);
+            if (extra > 0){
+                BlockPos aboveTop = top.above();
+                BlockState aboveState = level.getBlockState(aboveTop);
+                if (aboveState.canBeReplaced()){
+                    level.setBlock(aboveTop, this.defaultBlockState().setValue(LAYERS, extra), 3);
+                }
+            }
+        }
+    }*/
+
     public @NotNull VoxelShape getCollisionShape(@NotNull BlockState bState, @NotNull BlockGetter level,
                                                  @NotNull BlockPos bPos, @NotNull CollisionContext context) {
         if (context instanceof EntityCollisionContext entitycollisioncontext) {
@@ -145,16 +175,29 @@ public class CongealedBloodLayer extends SnowLayerBlock {
     @Override
     public void onPlace(@NotNull BlockState bState, @NotNull Level level, @NotNull BlockPos bPos,
                         @NotNull BlockState oldState, boolean pMovedByPiston) {
-        if (oldState.canBeReplaced() || oldState.is(this)){
-            BlockState belowState = level.getBlockState(bPos.below());
-            if (belowState.isAir()
-                    || (belowState.is(this) && belowState.getValue(LAYERS) < MAX_HEIGHT)) {
+        if (oldState.canBeReplaced() /*|| oldState.is(this)*/){
+            BlockPos below = bPos.below();
+            BlockState belowState = level.getBlockState(below);
+            if (belowState.isAir()) {
                 FallingBlockEntity.fall(level, bPos, bState);
+            } else if (belowState.is(this) && belowState.getValue(LAYERS) < MAX_HEIGHT){
+                int belowLayers = belowState.getValue(LAYERS);
+                int layers = bState.getValue(LAYERS);
+                int newBelow = belowLayers + layers;
+                int newCurrent = 0;
+                if (newBelow > 8){
+                    newCurrent = newBelow - 8;
+                    newBelow = 8;
+                }
+                level.setBlock(below, belowState.setValue(LAYERS, newBelow), 3);
+                if (newCurrent > 0) {
+                    level.setBlock(bPos, belowState.setValue(LAYERS, newCurrent), 3);
+                } else level.setBlock(bPos, Blocks.AIR.defaultBlockState(), 3);
             }
         }
     }
 
-/*    @Override
+    @Override
     public @NotNull BlockState updateShape(@NotNull BlockState bState, @NotNull Direction from, @NotNull BlockState fromState,
                                            LevelAccessor level, BlockPos bPos, @NotNull BlockPos fromPos) {
         BlockState belowState = level.getBlockState(bPos.below());
@@ -166,7 +209,7 @@ public class CongealedBloodLayer extends SnowLayerBlock {
             }
         }
         return super.updateShape(bState, from, fromState, level, bPos, fromPos);
-    }*/
+    }
 
     private static final int layerSpreadThreshold = 3;
     @Override
@@ -259,7 +302,7 @@ public class CongealedBloodLayer extends SnowLayerBlock {
                         newLayer > 0 ? this.defaultBlockState().setValue(LAYERS, newLayer) : Blocks.AIR.defaultBlockState(),
                         3);
             }
-            else{
+            else if (!level.getBlockState(bPos.below()).isAir()){
                 level.setBlock(bPos, bState, 3);
                 level.setBlock(top,
                         newLayer > 0 ? this.defaultBlockState().setValue(LAYERS, newLayer) : Blocks.AIR.defaultBlockState(),
@@ -332,8 +375,10 @@ public class CongealedBloodLayer extends SnowLayerBlock {
         }
 
         @Override
-        public void appendHoverText(@NotNull ItemStack stack, @Nullable Level pLevel, List<Component> tooltip, @NotNull TooltipFlag flag) {
-            tooltip.add(Component.translatable("block.entomophobia.tooltip.congealed_blood"));
+        public void appendHoverText(@NotNull ItemStack stack, @Nullable Level pLevel, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
+            if(InputReader.leftShift()) {
+                tooltip.add(Component.translatable("block.entomophobia.tooltip.congealed_blood"));
+            } else tooltip.add(Component.translatable("item.entomophobia.tooltip.description_hint"));
             super.appendHoverText(stack, pLevel, tooltip, flag);
         }
     }

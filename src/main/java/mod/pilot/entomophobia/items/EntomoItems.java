@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia.items;
 
 import mod.pilot.entomophobia.Entomophobia;
+import mod.pilot.entomophobia.data.InputReader;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.items.custom.*;
@@ -62,9 +63,11 @@ public class EntomoItems {
             () -> new Item(new Item.Properties().food(LUSTROUS_TISSUE_FOOD)){
                 @Override
                 public void appendHoverText(@NotNull ItemStack itemStack, @Nullable Level level,
-                                            @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag isAdvanced) {
-                    tooltipComponents.add(Component.translatable("item.entomophobia.tooltip.lustrous_tissue"));
-                    super.appendHoverText(itemStack, level, tooltipComponents, isAdvanced);
+                                            @NotNull List<Component> tooltip, @NotNull TooltipFlag isAdvanced) {
+                    if(InputReader.leftShift()) {
+                        tooltip.add(Component.translatable("item.entomophobia.tooltip.lustrous_tissue"));
+                    } else tooltip.add(Component.translatable("item.entomophobia.tooltip.description_hint"));
+                    super.appendHoverText(itemStack, level, tooltip, isAdvanced);
                 }
             });
     public static final RegistryObject<Item> BOTTLED_CORPSEDEW = ITEMS.register("bottled_corpsedew",

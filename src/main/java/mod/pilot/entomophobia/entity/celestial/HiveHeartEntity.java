@@ -120,6 +120,24 @@ public class HiveHeartEntity extends MyiaticBase {
     }
 
     @Override
+    public void die(@NotNull DamageSource pDamageSource) {
+        super.die(pDamageSource);
+        Nest nest = NestManager.getClosestNest(position());
+        HiveHeartEntity other;
+        if (nest != null && (other = nest.accessHiveHeart()) != null && other.getUUID().equals(this.getUUID())){
+            nest.kill(true);
+        }
+        else{
+            for (Nest nest1 : NestManager.getActiveNests()){
+                if ((other = nest1.accessHiveHeart()) != null && other.getUUID().equals(this.getUUID())){
+                    nest1.kill(true);
+                    return;
+                }
+            }
+        }
+    }
+
+    @Override
     protected void registerGoals() {}
     @Override
     protected void registerBasicGoals() {}
