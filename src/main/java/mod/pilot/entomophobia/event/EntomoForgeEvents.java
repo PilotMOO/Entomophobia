@@ -130,11 +130,11 @@ public class EntomoForgeEvents {
     public static void handleSwarmUnpacking(EntityJoinLevelEvent event){
         if (!(event.getLevel() instanceof ServerLevel s)) return;
 
-        if (Entomophobia.activeSwarmData != null && Entomophobia.activeSwarmData.toUnpack.size() != 0){
+        if (Entomophobia.activeSwarmData != null && !Entomophobia.activeSwarmData.toUnpack.isEmpty()){
             SwarmSaveData.cleanPackagedSwarms();
             if (s.getGameTime() > 200) Entomophobia.activeSwarmData.toUnpack.clear();
             for (SwarmSaveData.SwarmPackager.PackagedSwarm pSwarm : Entomophobia.activeSwarmData.toUnpack){
-                if (pSwarm.awaitingApplication.size() != 0){
+                if (!pSwarm.awaitingApplication.isEmpty()){
                     pSwarm.evaluateQueuedApplications();
                 }
 
@@ -157,7 +157,7 @@ public class EntomoForgeEvents {
     public static void serverStarting(ServerStartingEvent event){
         NestManager.setNestConstructionDetails();
         SwarmManager.setSwarmDetails();
-        PestManager.RegisterAll();
+        PestManager.registerAll();
         BloodwaxProtrusions.registerAllPriorityBlocks();
 
         server = event.getServer().overworld();
@@ -176,9 +176,9 @@ public class EntomoForgeEvents {
         System.out.println("[NEST MANAGER] Clearing out all nests!");
         NestManager.clearNests();
         System.out.println("[SWARM MANAGER] Clearing out all swarms!");
-        SwarmManager.PurgeAllSwarms();
+        SwarmManager.purgeAllSwarms();
         System.out.println("[PEST MANAGER] Clearing out all registered pests!");
-        PestManager.FlushList();
+        PestManager.flushList();
     }
 
 
@@ -263,14 +263,6 @@ public class EntomoForgeEvents {
         if (EntomoGeneralSaveData.getWorldAge() % NestManager.getTickFrequency() == 0){
             NestManager.tickAllActiveNests();
         }
-    }
-    private static int nextSwitch = 0;
-    @SubscribeEvent
-    public static void overlayTicker(TickEvent.ServerTickEvent event){
-        if (nextSwitch == 0){
-            regenerateOverlayHashmap();
-            nextSwitch = 20 + random.nextInt(-10, 50);
-        } else nextSwitch--;
     }
 
     private static final int loadRadius = 1;
@@ -357,6 +349,15 @@ public class EntomoForgeEvents {
             this.id = commandID;
         }
         public final String id;
+    }
+
+    private static int nextSwitch = 0;
+    @SubscribeEvent
+    public static void overlayTicker(TickEvent.ServerTickEvent event){
+        if (nextSwitch == 0){
+            regenerateOverlayHashmap();
+            nextSwitch = 20 + random.nextInt(-10, 50);
+        } else nextSwitch--;
     }
 
     private static final ResourceLocation OVERSTIM_EFFECT_OVERLAY = new ResourceLocation(Entomophobia.MOD_ID,

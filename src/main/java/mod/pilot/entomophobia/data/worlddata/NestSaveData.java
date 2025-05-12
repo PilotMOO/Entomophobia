@@ -80,8 +80,8 @@ public class NestSaveData extends SavedData {
 
                 String nestID = builder.append("Nest").append(i).toString(); cleanBuilder();
                 packNest(current, nestID);
-                String mainChamberID = packOffshoot(current.MainChamber, nestID, i);
-                packageFamilyTreeFor(current.MainChamber, mainChamberID);
+                String mainChamberID = packOffshoot(current.mainChamber, nestID, i);
+                packageFamilyTreeFor(current.mainChamber, mainChamberID);
 
                 tracker++;
             }
@@ -139,7 +139,7 @@ public class NestSaveData extends SavedData {
             tag.putDouble(builder.append("y").toString(), pos.y); builder.setLength(ID.length());
             tag.putDouble(builder.append("z").toString(), pos.z); builder.setLength(ID.length());
 
-            tag.putBoolean(builder.append("deadend").toString(), toPack.DeadEnd); builder.setLength(ID.length());
+            tag.putBoolean(builder.append("deadend").toString(), toPack.deadEnd); builder.setLength(ID.length());
 
             tag.putByte(builder.append("state").toString(), toPack.getOffshootState()); builder.setLength(ID.length());
             tag.putByte(builder.append("type").toString(), toPack.getOffshootType()); builder.setLength(ID.length());
@@ -224,7 +224,7 @@ public class NestSaveData extends SavedData {
                 case 1 ->{
                     System.out.println("Unpacking a Chamber with I.D. " + ID);
                     boolean isMain = tag.getBoolean(builder.append("main").toString()); builder.setLength(ID.length());
-                    toReturn = Nest.Chamber.ConstructFromBlueprint(getServer(), parent, pos, size,
+                    toReturn = Nest.Chamber.constructFromBlueprint(getServer(), parent, pos, size,
                             thickness, deadEnd, state, isMain, featuresDone);
                     if (isMain && tag.contains(builder.append("hivenervoussystem").toString())){
                         System.out.println("Tag contained " + builder);

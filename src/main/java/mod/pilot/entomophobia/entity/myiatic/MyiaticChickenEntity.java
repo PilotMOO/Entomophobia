@@ -88,7 +88,7 @@ public class MyiaticChickenEntity extends MyiaticBase{
     }
 
     @Override
-    protected int StateManager() {
+    protected int stateManager() {
         if (!onGround()){
             return state.other.ordinal();
         }

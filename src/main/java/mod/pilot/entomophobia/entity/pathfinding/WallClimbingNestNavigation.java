@@ -22,6 +22,7 @@ public class WallClimbingNestNavigation extends GroundPathNavigation implements 
     public void tick() {
         super.tick();
         Mob user = getUser();
+
         if (isDone() && targetPosition != null && targetPosition.getY() > user.position().y){
             if (user.distanceToSqr(targetPosition.getX(), targetPosition.getY(),
                     targetPosition.getZ()) > user.getBbWidth() * user.getBbWidth()){
@@ -53,26 +54,26 @@ public class WallClimbingNestNavigation extends GroundPathNavigation implements 
             sizeSqr += error;
 
             if (pos != null){
-                if (user.distanceToSqr(pos) <= sizeSqr) UpdateNavigationAfterMovement();
+                if (user.distanceToSqr(pos) <= sizeSqr) updateNavigationAfterMovement();
                 else{
                     if (offshoot instanceof Nest.Corridor c){
-                        HeadTo(c, getMoveDirections().headToEndIfCorridor(), 1);
+                        headTo(c, getMoveDirections().headToEndIfCorridor(), 1);
                     } else {
-                        HeadTo((Nest.Chamber) offshoot, 1);
+                        headTo((Nest.Chamber) offshoot, 1);
                     }
                 }
             }
         }
-        if (shouldIReorientateMyself()) HeadBackToCenterToReorientateMyself(1);
+        if (shouldIReorientateMyself()) headBackToCenterToReorientateMyself(1);
     }
 
     @Override
-    public Path createPath(@NotNull BlockPos pPos, int pAccuracy) {
+    public @NotNull Path createPath(@NotNull BlockPos pPos, int pAccuracy) {
         targetPosition = pPos;
         return super.createPath(pPos, pAccuracy);
     }
     @Override
-    public Path createPath(Entity pEntity, int pAccuracy) {
+    public @NotNull Path createPath(Entity pEntity, int pAccuracy) {
         targetPosition = pEntity.blockPosition();
         return super.createPath(pEntity, pAccuracy);
     }
@@ -93,7 +94,7 @@ public class WallClimbingNestNavigation extends GroundPathNavigation implements 
     public void setMoveDirections(MoveDirections directions) {this.moveDirections = directions;}
     protected boolean reorientating;
     @Override
-    public boolean Reorientating() {
+    public boolean reorientating() {
         return reorientating;
     }
     @Override

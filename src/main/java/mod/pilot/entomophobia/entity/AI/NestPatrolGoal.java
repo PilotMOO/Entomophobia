@@ -80,7 +80,7 @@ public class NestPatrolGoal extends Goal {
             o = o.children.get(getRandom().nextInt(o.children.size()));
         } else return;
 
-        nestPathfinder.HeadTo(o, backtrack, 1);
+        nestPathfinder.headTo(o, backtrack, 1);
     }
 
     private boolean cycleTimer(){

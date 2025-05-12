@@ -270,21 +270,21 @@ public class WorldShapeManager {
         return line;
     }
 
-    public static TunnelGenerator CreateTunnel(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, boolean replaceableOnly,
+    public static TunnelGenerator createTunnel(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, boolean replaceableOnly,
                                                Vec3 start, Vec3 end, boolean hydrophobic, int weight, int thickness){
         TunnelGenerator tunnel = new TunnelGenerator(server, buildSpeed, blockTypes, replaceableOnly,
                 start, end, hydrophobic, weight, thickness);
         tunnel.Enable();
         return tunnel;
     }
-    public static TunnelGenerator CreateTunnel(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, int maxHardness,
+    public static TunnelGenerator createTunnel(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes, int maxHardness,
                                                Vec3 start, Vec3 end, boolean hydrophobic, int weight, int thickness) {
         TunnelGenerator tunnel = new TunnelGenerator(server, buildSpeed, blockTypes, maxHardness,
                 start, end, hydrophobic, weight, thickness);
         tunnel.Enable();
         return tunnel;
     }
-    public static TunnelGenerator CreateTunnel(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes,
+    public static TunnelGenerator createTunnel(ServerLevel server, double buildSpeed, GeneratorBlockPacket blockTypes,
                                                @Nullable List<BlockState> whitelist, @Nullable List<BlockState> blacklist,
                                                Vec3 start, Vec3 end, boolean hydrophobic, int weight, int thickness){
         TunnelGenerator tunnel = new TunnelGenerator(server, buildSpeed, blockTypes,

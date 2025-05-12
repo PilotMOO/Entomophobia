@@ -23,23 +23,23 @@ public class FlyToGoal extends Goal {
     final int TargetHeightThreshold;
     double VFlightSpeed;
     double HFlightSpeed;
-    enum FlightStates{
+    public enum FlightStates{
         Disabled,
         Landed,
         Ascending,
         Gliding,
         Falling
     }
-    boolean CheckFly(){
-        return FlightState != FlightStates.Disabled.ordinal() && !isFlying && FlightCD <= 0 && WantsToTakeOff();
+    boolean checkFly(){
+        return FlightState != FlightStates.Disabled.ordinal() && !isFlying && FlightCD <= 0 && wantsToTakeOff();
     }
-    boolean WantsToTakeOff(){
+    boolean wantsToTakeOff(){
         if (parent.getNavigation().getPath() != null && parent.getNavigation().getPath().getEndNode() != null){
             return parent.getNavigation().getPath().getEndNode().y - parent.position().y > TargetHeightThreshold;
         }
         return false;
     }
-    boolean AmITooHigh(LivingEntity target){
+    boolean amITooHigh(LivingEntity target){
         if (target != null){
             return parent.position().y - target.position().y > TargetHeightThreshold;
         }
@@ -95,68 +95,67 @@ public class FlyToGoal extends Goal {
         if (FlightCD > 0){
             FlightCD--;
         }
-        if (CheckFly()){
-            StartFlyCycle();
-        }
-        else if (isFlying){
-            FlightManager();
+        if (checkFly()){
+            startFlyCycle();
+        } else if (isFlying){
+            flightManager();
         }
         if (FlightState == FlightStates.Falling.ordinal() && parent.verticalCollisionBelow){
-            ManageStateSwitch(FlightStates.Landed);
+            manageStateSwitch(FlightStates.Landed);
         }
     }
 
     @Override
     public void stop() {
-        ManageStateSwitch(FlightStates.Landed);
+        manageStateSwitch(FlightStates.Landed);
     }
     /**/
 
     //General Use Methods
-    protected void FlightManager(){
+    protected void flightManager(){
         parent.getLookControl().setLookAt(finalPos);
         switch (FlightState){
-            case 2 -> Ascend();
-            case 3 -> Glide();
+            case 2 -> ascend();
+            case 3 -> glide();
             case 4 ->{
                 if (parent.verticalCollisionBelow){
-                    ManageStateSwitch(FlightStates.Landed);
+                    manageStateSwitch(FlightStates.Landed);
                 }
             }
         }
     }
 
-    protected void StartFlyCycle(){
+    protected void startFlyCycle(){
         parent.lookAt(EntityAnchorArgument.Anchor.EYES, finalPos);
-        ManageStateSwitch(FlightStates.Ascending);
-        PlayFlySound();
+        manageStateSwitch(FlightStates.Ascending);
+        playFlySound();
     }
-    protected void ManageStateSwitch(FlightStates flightStates){
+    protected void manageStateSwitch(FlightStates flightStates){
         if (flightStates.ordinal() != FlightState){
-            switch (flightStates.ordinal()){
-                case 0 ->{
+            switch (flightStates){
+                case Disabled ->{
                     isFlying = false;
                     FlightState = -1;
                     ActiveFlightTime = -1;
                     parent.setAIState(MyiaticBase.state.idle.ordinal());
                     parent.setNoGravity(false);
                 }
-                case 1 -> HandleLand(FlightState);
-                case 2 ->{
+                case Landed -> handleLand(FlightState);
+                case Ascending ->{
                     isFlying = true;
                     FlightState = 2;
                     ActiveFlightTime = MaxAscensionTime;
                     parent.setAIState(MyiaticBase.state.flying.ordinal());
                     parent.setNoGravity(true);
                 }
-                case 3 ->{
+                case Gliding ->{
                     isFlying = true;
                     FlightState = 3;
                     ActiveFlightTime = MaxGlideTime;
                     parent.setAIState(MyiaticBase.state.flying.ordinal());
                     parent.setNoGravity(false);
                 }
-                case 4 ->{
+                case Falling ->{
                     isFlying = false;
                     FlightState = 4;
                     ActiveFlightTime = -1;
@@ -168,9 +167,9 @@ public class FlyToGoal extends Goal {
         }
     }
 
-    protected void Ascend(){
-        if (ActiveFlightTime > 0 && !AmITooHigh(parent.getTarget())){
-            double hSpeed = CalculateSpeed();
+    protected void ascend(){
+        if (ActiveFlightTime > 0 && !amITooHigh(parent.getTarget())){
+            double hSpeed = calculateSpeed();
             Vec3 forwards = parent.getDirectionTo(finalPos).multiply(hSpeed, 0, hSpeed);
             double xSpeedMax = Mth.abs((float)parent.getDeltaMovement().x) > Mth.abs((float)forwards.x) ? parent.getDeltaMovement().x : forwards.x;
             double ySpeedMax = Mth.abs((float)parent.getDeltaMovement().y) > VFlightSpeed ? parent.getDeltaMovement().y : VFlightSpeed;
@@ -179,13 +178,13 @@ public class FlyToGoal extends Goal {
             ActiveFlightTime--;
         }
         else{
-            ManageStateSwitch(FlightStates.Gliding);
+            manageStateSwitch(FlightStates.Gliding);
         }
     }
-    protected void Glide(){
+    protected void glide(){
         if (!parent.verticalCollisionBelow){
             if (ActiveFlightTime > 0){
-                double hSpeed = CalculateSpeed();
+                double hSpeed = calculateSpeed();
                 Vec3 forwards = parent.getDirectionTo(finalPos).multiply(hSpeed, 0, hSpeed);
                 double xSpeedMax = Mth.abs((float)parent.getDeltaMovement().x) > Mth.abs((float)forwards.x) ? parent.getDeltaMovement().x : forwards.x;
                 double ySpeedMax = -VFlightSpeed / 2;
@@ -195,17 +194,17 @@ public class FlyToGoal extends Goal {
                 parent.resetFallDistance();
             }
             else{
-                ManageStateSwitch(FlightStates.Falling);
+                manageStateSwitch(FlightStates.Falling);
             }
         }
         else{
-            ManageStateSwitch(FlightStates.Landed);
+            manageStateSwitch(FlightStates.Landed);
         }
         if (parent.horizontalCollision){
-            ManageStateSwitch(FlightStates.Falling);
+            manageStateSwitch(FlightStates.Falling);
         }
     }
-    protected void HandleLand(int priorState){
+    protected void handleLand(int priorState){
         isFlying = false;
         FlightState = 1;
         ActiveFlightTime = MaxAscensionTime;
@@ -219,9 +218,12 @@ public class FlyToGoal extends Goal {
         else{
             parent.resetFallDistance();
         }
+        if (finalPos != null){
+            parent.getNavigation().moveTo(finalPos.x, finalPos.y, finalPos.z, 1);
+        }
     }
 
-    protected double CalculateSpeed(){
+    protected double calculateSpeed(){
         //Gets the absolute average between the distance of the target and the mob of both X and Z coords
         double AvgDistance2d = Mth.abs((float)((parent.position().x - finalPos.x) * (parent.position().z - finalPos.z))) / 2;
         //Gets the absolute distance between the target and the mob
@@ -235,7 +237,7 @@ public class FlyToGoal extends Goal {
         //Multiplies the multiper by the speed and returns it
         return HFlightSpeed * Mulitplier;
     }
-    protected void PlayFlySound(){
+    protected void playFlySound(){
         parent.level().playSound(parent, parent.blockPosition(), EntomoSounds.MYIATIC_FLYING.get(), SoundSource.HOSTILE, 1.0f, 1.0f);
     }
     /**/

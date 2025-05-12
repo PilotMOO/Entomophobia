@@ -150,24 +150,18 @@ public abstract class Swarm {
             }
         }
 
-        if (festereds.size() > 0){
+        if (!festereds.isEmpty()){
             FesteredBase strongest = null;
-            double hp = 0;
+            double hp = -1;
             for (FesteredBase F : festereds){
-                if (strongest == null){
+                if (F.getMaxHealth() > hp){
                     strongest = F;
-                    hp = F.getAttributeValue(Attributes.MAX_HEALTH);
+                    hp = F.getMaxHealth();
                 }
-                else{
-                    if (F.getAttributeValue(Attributes.MAX_HEALTH) > hp){
-                        strongest = F;
-                        hp = F.getAttributeValue(Attributes.MAX_HEALTH);
-                    }
-                    else if (F.getAttributeValue(Attributes.MAX_HEALTH) == hp){
-                        boolean flag = F.getRandom().nextBoolean();
-                        strongest = flag ? F : strongest;
-                        hp = flag ? F.getAttributeValue(Attributes.MAX_HEALTH) : hp;
-                    }
+                else if (F.getMaxHealth() == hp){
+                    boolean flag = F.getRandom().nextBoolean();
+                    strongest = flag ? F : strongest;
+                    hp = flag ? F.getMaxHealth() : hp;
                 }
             }
 
@@ -175,22 +169,16 @@ public abstract class Swarm {
         }
         else{
             MyiaticBase strongest = null;
-            double hp = 0;
+            double hp = -1;
             for (MyiaticBase M : myiatics){
-                if (strongest == null){
+                if (M.getMaxHealth() > hp){
                     strongest = M;
-                    hp = M.getAttributeValue(Attributes.MAX_HEALTH);
+                    hp = M.getMaxHealth();
                 }
-                else{
-                    if (M.getAttributeValue(Attributes.MAX_HEALTH) > hp){
-                        strongest = M;
-                        hp = M.getAttributeValue(Attributes.MAX_HEALTH);
-                    }
-                    else if (M.getAttributeValue(Attributes.MAX_HEALTH) == hp){
-                        boolean flag = M.getRandom().nextBoolean();
-                        strongest = flag ? M : strongest;
-                        hp = flag ? M.getAttributeValue(Attributes.MAX_HEALTH) : hp;
-                    }
+                else if (M.getMaxHealth() == hp){
+                    boolean flag = M.getRandom().nextBoolean();
+                    strongest = flag ? M : strongest;
+                    hp = flag ? M.getMaxHealth() : hp;
                 }
             }
 
@@ -215,7 +203,7 @@ public abstract class Swarm {
     public void addToUnits(MyiaticBase unit){
         units.add(unit);
     }
-    public void addToUnits(ArrayList<MyiaticBase> units){
+    public void addToUnits(Iterable<MyiaticBase> units){
         for (MyiaticBase unit : units){
             addToUnits(unit);
         }
@@ -223,7 +211,7 @@ public abstract class Swarm {
     public void copyUnits(Swarm toCopy, boolean clearOld){
         if (clearOld) this.units.clear();
         for (MyiaticBase M : toCopy.getUnits()){
-            M.SwitchSwarm(this, true);
+            M.switchSwarm(this, true);
         }
     }
     protected boolean removeFromUnits(MyiaticBase M){

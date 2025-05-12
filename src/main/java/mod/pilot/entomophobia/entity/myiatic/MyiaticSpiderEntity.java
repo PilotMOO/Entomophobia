@@ -84,7 +84,7 @@ public class MyiaticSpiderEntity extends MyiaticBase{
         this.targetSelector.addGoal(2, new LatchOntoTargetGoal(this, 10, 60, 0, 15, 20, 1.5D, 0.5D));
     }
     @Override
-    protected int StateManager() {
+    protected int stateManager() {
         if (getAIState() == state.other.ordinal()){
             return state.other.ordinal();
         }

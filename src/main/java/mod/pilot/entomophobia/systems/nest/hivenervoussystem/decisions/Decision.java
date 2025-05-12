@@ -1,5 +1,6 @@
 package mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions;
 
+import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
 import mod.pilot.entomophobia.systems.nest.hivenervoussystem.HiveNervousSystem;
 import mod.pilot.entomophobia.systems.nest.hivenervoussystem.StimulantType;
 import net.minecraft.server.level.ServerLevel;
@@ -29,6 +30,12 @@ public abstract class Decision{
 
     public ServerLevel server(){
         return nervousSystem.serverLevel;
+    }
+    protected HiveHeartEntity hh;
+    public @Nullable HiveHeartEntity accessHiveHeart(){
+        if (hh == null){
+            return (hh = this.nervousSystem.getHiveHeart());
+        } else return hh;
     }
 
 

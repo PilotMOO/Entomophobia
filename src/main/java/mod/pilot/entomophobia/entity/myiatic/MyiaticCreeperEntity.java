@@ -103,7 +103,7 @@ public class MyiaticCreeperEntity extends MyiaticBase{
 
     //Overridden methods
     @Override
-    protected int StateManager() {
+    protected int stateManager() {
         if (getAIState() == state.other.ordinal()){
             return state.other.ordinal();
         }

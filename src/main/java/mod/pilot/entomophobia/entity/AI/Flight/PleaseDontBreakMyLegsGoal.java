@@ -22,21 +22,21 @@ public class PleaseDontBreakMyLegsGoal extends FlyToGoal{
     }
 
     @Override
-    boolean WantsToTakeOff() {
+    boolean wantsToTakeOff() {
         return FlightState == FlightStates.Landed.ordinal() && parent.fallDistance > parent.getMaxFallDistance();
     }
 
     @Override
-    protected void StartFlyCycle() {
+    protected void startFlyCycle() {
         parent.lookAt(EntityAnchorArgument.Anchor.EYES, finalPos);
-        ManageStateSwitch(FlightStates.Gliding);
+        manageStateSwitch(FlightStates.Gliding);
     }
 
     @Override
-    protected void Glide() {
+    protected void glide() {
         if (!parent.verticalCollisionBelow){
             if (ActiveFlightTime > 0){
-                double hSpeed = CalculateSpeed();
+                double hSpeed = calculateSpeed();
                 Vec3 forwards = parent.getDirectionTo(finalPos).multiply(hSpeed, 0, hSpeed);
                 double xSpeedMax = Mth.abs((float)parent.getDeltaMovement().x) > Mth.abs((float)forwards.x) ? parent.getDeltaMovement().x : forwards.x;
                 double ySpeedMax = Math.min(parent.getDeltaMovement().y / 2, -VFlightSpeed * 4);
@@ -46,19 +46,19 @@ public class PleaseDontBreakMyLegsGoal extends FlyToGoal{
                 parent.resetFallDistance();
             }
             else{
-                ManageStateSwitch(FlightStates.Falling);
+                manageStateSwitch(FlightStates.Falling);
             }
         }
         else{
-            ManageStateSwitch(FlightStates.Landed);
+            manageStateSwitch(FlightStates.Landed);
         }
         if (parent.horizontalCollision){
-            ManageStateSwitch(FlightStates.Falling);
+            manageStateSwitch(FlightStates.Falling);
         }
     }
 
     @Override
-    protected double CalculateSpeed() {
+    protected double calculateSpeed() {
         return HFlightSpeed;
     }
 }

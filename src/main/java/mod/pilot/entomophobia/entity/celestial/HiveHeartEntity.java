@@ -58,14 +58,14 @@ public class HiveHeartEntity extends MyiaticBase {
     public void constructNervousSystem(Nest n){
         System.out.println("Creating a new nervous system for the fucking heart");
         UUID nestHH_UUID;
-        if ((nestHH_UUID = n.MainChamber.getHiveHeartUUID()) != null && nestHH_UUID.equals(this.getUUID())){
+        if ((nestHH_UUID = n.mainChamber.getHiveHeartUUID()) != null && nestHH_UUID.equals(this.getUUID())){
             nervousSystem = new HiveNervousSystem(n, this);
             nervousSystem.populateDefaultDecisions();
         } else{
             System.err.println("[HIVE NERVOUS SYSTEM] Error! Attempted to construct a nervous system for a nest with a hive heart that is NOT related!");
             System.err.println("[HIVE NERVOUS SYSTEM] Info-- UUID of Hive Heart: ["
                     + this.getUUID() + "], UUID of Nest's Hive Heart: ["
-                    + n.MainChamber.getHiveHeartUUID() + "]");
+                    + n.mainChamber.getHiveHeartUUID() + "]");
         }
     }
 

@@ -115,7 +115,19 @@ public class HiveSaveData extends SavedData {
         return new Pair<>(packet, hh);
     }
 
-    public static final ArrayList<Packet> packets = new ArrayList<>();
+    public static final ArrayList<Packet> packets = new ArrayList<>(){
+        @Override
+        public boolean add(Packet packet) {
+            Packet remove = null;
+            for (Packet packet1 : this){
+                if (packet1.hiveHeart.equals(packet.hiveHeart)){
+                    remove = packet1;
+                }
+            }
+            if (remove != null) this.remove(remove);
+            return super.add(packet);
+        }
+    };
 
 
     public static Packet createNewDataPacket(UUID hiveHeart){

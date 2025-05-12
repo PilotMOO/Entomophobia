@@ -68,7 +68,7 @@ public class SwarmManager {
         ActiveSwarms.add(swarm);
         SwarmSaveData.Dirty();
     }
-    public static void PurgeAllSwarms(){
+    public static void purgeAllSwarms(){
         ActiveSwarms.clear();
     }
 

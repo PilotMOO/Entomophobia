@@ -124,16 +124,17 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     public void queRemoveGoal(Goal goal){
         QueuedRemoveGoals.add(goal);
     }
-    public void RegisterQueuedGoals(){
-        if (QueuedGoals.size() == 0) return;
+    public void registerQueuedGoals(){
+        if (QueuedGoals.isEmpty()) return;
         ArrayList<Pair<Integer, Goal>> toUnque = new ArrayList<>(QueuedGoals);
         for (Pair<Integer, Goal> queued : toUnque){
             this.goalSelector.addGoal(queued.getA(), queued.getB());
         }
         QueuedGoals.clear();
     }
-    public void ClearQueuedRemovedGoals(){
-        if (QueuedRemoveGoals.size() == 0) return;
+    //I dont think this actually works smh
+    public void clearQueuedRemovedGoals(){
+        if (QueuedRemoveGoals.isEmpty()) return;
         ArrayList<Goal> toUnque = new ArrayList<>(QueuedRemoveGoals);
         for (Goal queued : toUnque){
             this.goalSelector.removeGoal(queued);
@@ -159,7 +160,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     }
     protected void registerFlightGoals(){}
     protected void registerPheromoneGoals(){
-        this.goalSelector.addGoal(2, new SpawnPheromonesGoal(this, EntomoEntities.PREYHUNT.get(), 600, this::PreyHuntPredicate));
+        this.goalSelector.addGoal(2, new SpawnPheromonesGoal(this, EntomoEntities.PREYHUNT.get(), 600, this::preyHuntPredicate));
     }
     /**/
 
@@ -167,7 +168,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     public DamageSource getDamageSource(){
         return EntomoDamageTypes.myiatic_basic(this);
     }
-    protected int StateManager(){
+    protected int stateManager(){
         if (getAIState() == state.other.ordinal()){
             return state.other.ordinal();
         }
@@ -185,7 +186,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         }
         return getAIState();
     }
-    protected boolean PreyHuntPredicate(MyiaticBase parent){
+    protected boolean preyHuntPredicate(MyiaticBase parent){
         return getNearbyMyiatics(128).size() > 5 && getValidTargets().size() > 3;
     }
     /**/
@@ -198,12 +199,12 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         if (getTarget() != null && getTarget().isDeadOrDying()){
             setTarget(null);
         }
-        setAIState(StateManager());
+        setAIState(stateManager());
     }
     @Override
     public void aiStep() {
-        RegisterQueuedGoals();
-        ClearQueuedRemovedGoals();
+        registerQueuedGoals();
+        clearQueuedRemovedGoals();
         super.aiStep();
     }
 
@@ -488,11 +489,11 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         return closest;
     }
     public ArrayList<MyiaticBase> getNearbyMyiatics(int searchRange, Predicate<MyiaticBase> myiaticPredicate){
-        AABB nearby = getBoundingBox().inflate(searchRange);
+        AABB nearby = getBoundingBox().inflate(searchRange / 2d);
         return new ArrayList<>(level().getEntitiesOfClass(MyiaticBase.class, nearby, myiaticPredicate));
     }
     public ArrayList<MyiaticBase> getNearbyMyiatics(Predicate<MyiaticBase> myiaticPredicate){
-        return getNearbyMyiatics((int)getAttributeValue(Attributes.FOLLOW_RANGE), myiaticPredicate);
+        return getNearbyMyiatics((int)getAttributeValue(Attributes.FOLLOW_RANGE) / 2, myiaticPredicate);
     }
     public ArrayList<MyiaticBase> getNearbyMyiatics(int searchRange){
         return getNearbyMyiatics(searchRange, (M) -> true);
@@ -643,7 +644,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         }
         currentSwarm = null;
     }
-    public void SwitchSwarm(Swarm newSwarm, boolean disbandIfCaptain){
+    public void switchSwarm(Swarm newSwarm, boolean disbandIfCaptain){
         if (isInSwarm()) {
             getSwarm().dropMember(this, disbandIfCaptain);
             boolean joinFlag = newSwarm.attemptToRecruit(this);

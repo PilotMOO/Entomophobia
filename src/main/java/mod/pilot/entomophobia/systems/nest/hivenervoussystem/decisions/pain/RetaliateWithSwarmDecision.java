@@ -1,8 +1,10 @@
 package mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions.pain;
 
 import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
+import mod.pilot.entomophobia.entity.AI.ShortLifespanGoal;
 import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
+import mod.pilot.entomophobia.systems.nest.NestManager;
 import mod.pilot.entomophobia.systems.nest.hivenervoussystem.HiveNervousSystem;
 import mod.pilot.entomophobia.systems.nest.hivenervoussystem.StimulantType;
 import mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions.Decision;
@@ -31,7 +33,9 @@ public class RetaliateWithSwarmDecision extends Decision {
             if (hh == null && (hh = this.nervousSystem.getHiveHeart()) == null){
                 return false;
             }
-            return hh.testValidEntity(le);
+            return hh.testValidEntity(le) &&
+                    (hh.getHealth() < hh.getMaxHealth() / 5 || hh.getNearbyMyiatics(NestManager.getNestLargeChamberMaxRadius(),
+                            MyiaticBase::canSwarm).size() < 3);
         }
         return false;
     }
@@ -64,6 +68,7 @@ public class RetaliateWithSwarmDecision extends Decision {
                 m.setTarget(le);
             }
         }
-        SwarmManager.createAttackSwarm(mobs, 15, le);
+        SwarmManager.createAttackSwarm(mobs, 15, le)
+                .relayOrder(new ShortLifespanGoal(null, 800, 1, m -> m.getTarget() == null), false);
     }
 }

@@ -136,7 +136,7 @@ public class ShapeWand extends Item {
                     case 9 -> shapes.add(WorldShapeManager.CreateHollowWeightedCircleLine(server, 10, BlockStates, false, LineVectorStart, generatorCenter, true, 5, 1));
                     case 10 -> shapes.add(WorldShapeManager.CreateHollowWeightedCircleLine(server, 25, BlockStates, false, LineVectorStart, generatorCenter, true, 15, 2));
                     case 11 -> shapes.add(WorldShapeManager.CreateHollowWeightedCircleLine(server, 30, BlockStates, false, LineVectorStart, generatorCenter, true, 25, 3));
-                    case 12 -> shapes.add(WorldShapeManager.CreateTunnel(server, 30, BlockStates, false, LineVectorStart, generatorCenter, true, 6, 1));
+                    case 12 -> shapes.add(WorldShapeManager.createTunnel(server, 30, BlockStates, false, LineVectorStart, generatorCenter, true, 6, 1));
                 }
                 LineVectorStart = null;
             }

@@ -5,8 +5,8 @@ import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
 import mod.pilot.entomophobia.systems.nest.Nest;
 import mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions.Decision;
 import mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions.StimulantPackage;
+import mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions.idle.CreateHuntSwarmsDecision;
 import mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions.idle.GenerateNewMyiaticsDecision;
-import mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions.pain.FuckingExplodeWhenHurt;
 import mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions.pain.RetaliateWithSwarmDecision;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.MinecraftForge;
@@ -39,7 +39,7 @@ public class HiveNervousSystem {
 
     public void setNest(Nest nest){
         this.nest = nest;
-        this.hiveHeartUUID = nest.MainChamber.getHiveHeartUUID();
+        this.hiveHeartUUID = nest.mainChamber.getHiveHeartUUID();
         this.serverLevel = nest.server;
     }
     public UUID hiveHeartUUID;
@@ -58,6 +58,7 @@ public class HiveNervousSystem {
     public void populateDefaultDecisions(){
         attachDecision(new RetaliateWithSwarmDecision(this, StimulantType.Pain));
         attachDecision(new GenerateNewMyiaticsDecision(this, StimulantType.Idle));
+        attachDecision(new CreateHuntSwarmsDecision(this, StimulantType.Idle));
     }
 
     public void stimulate(StimulantType stimulant, StimulantPackage sPackage){
@@ -107,7 +108,7 @@ public class HiveNervousSystem {
         activeDecisions.clear();
     }
 
-    private class Response {
+    public class Response {
         protected Predicate<Decision> supportedDecisionType;
         public Response(Predicate<Decision> supportedDecisionType){
             this.supportedDecisionType = supportedDecisionType;

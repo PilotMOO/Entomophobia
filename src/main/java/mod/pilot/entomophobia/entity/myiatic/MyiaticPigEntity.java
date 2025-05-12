@@ -72,7 +72,7 @@ public class MyiaticPigEntity extends MyiaticBase{
     }
 
     @Override
-    protected int StateManager() {
+    protected int stateManager() {
         if (isMoving() && getAIState() != state.attacking.ordinal()){
             return state.walking.ordinal();
         }

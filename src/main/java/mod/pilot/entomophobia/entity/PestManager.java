@@ -41,13 +41,13 @@ public class PestManager {
         return pest;
     }
 
-    public static void RegisterAll(){
+    public static void registerAll(){
         registerAsPest(EntomoEntities.SPIDER_PEST.get());
         registerAsPest(EntomoEntities.GRUB_PEST.get());
         registerAsPest(EntomoEntities.COCKROACH_PEST.get());
         registerAsPest(EntomoEntities.CENTIPEDE_PEST.get());
     }
-    public static void FlushList(){
+    public static void flushList(){
         allPests.clear();
     }
 }

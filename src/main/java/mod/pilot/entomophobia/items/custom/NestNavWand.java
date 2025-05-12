@@ -28,10 +28,10 @@ public class NestNavWand extends Item {
             else {
                 Nest.Offshoot o = nNav.getNestMap().getParentOfCurrent();
                 if (o instanceof Nest.Chamber c){
-                    nNav.HeadTo(c, 1);
+                    nNav.headTo(c, 1);
                 }
                 else if (o instanceof Nest.Corridor c){
-                    nNav.HeadTo(c, false, 1);
+                    nNav.headTo(c, false, 1);
                 }
                 player.displayClientMessage(Component.literal("he's heading to the parent of the fucking idk aHSJGHA"), true);
             }

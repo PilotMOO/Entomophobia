@@ -44,7 +44,7 @@ public class Config
             builder.push("Entomophobia Config");
 
             builder.push("Mob Targeting");
-            this.blacklisted_targets = builder.defineList("Mobs the Myiatic Ignore",
+            this.blacklisted_targets = builder.defineList("Mobs the Myiatics Ignore",
                     Lists.newArrayList(
                             "minecraft:squid","minecraft:bat","minecraft:armor_stand") , o -> o instanceof String);
             this.myiatic_conversion_list = builder.defineList("Mobs and their Myiatic forms [key = \"Base>Myiatic\"]",
@@ -58,21 +58,21 @@ public class Config
             builder.push("General Infection values");
             this.time_until_shit_gets_real = builder.defineInRange("Time, in ticks, until the infestation starts", 48000, 0, Integer.MAX_VALUE);
             this.start_spread_aoe = builder.defineInRange("How far from each player the Myiasis effect will spread once the infection starts", 200, 0, Integer.MAX_VALUE);
-            this.mob_cap = builder.defineInRange("Max amount of mobs allowed in the world at once until encouraged despawning", 50, 0, Integer.MAX_VALUE);
+            this.mob_cap = builder.defineInRange("Max amount of mobs allowed in the world at once until encouraged despawning (Note! Setting this value too low could break or completely disable some mechanics)", 50, 0, Integer.MAX_VALUE);
             this.distance_to_player_until_despawn = builder.defineInRange("Distance from the closest player until despawning is encouraged", 128, 0, Integer.MAX_VALUE);
             this.myiatic_convert_timer = builder.define("Time (in ticks) for Myiasis to convert mobs",
                     600);
             builder.pop();
 
             builder.push("Swarm Configuration");
-            this.base_swarm_max_members = builder.defineInRange("Maximum amount of members inside of a base swarm", 20, 1, Integer.MAX_VALUE);
+            this.base_swarm_max_members = builder.defineInRange("Maximum amount of members inside of an unmodified swarm", 20, 1, Integer.MAX_VALUE);
             builder.pop();
 
-            builder.push("Pheromone values");
-            this.hunt_bonus_range = builder.defineInRange("Pheromone Prey/Hunt bonus searchrange", 64, 1, Integer.MAX_VALUE);
+            builder.push("Pheromone Values");
+            this.hunt_bonus_range = builder.defineInRange("Pheromone Prey/Hunt bonus search range", 64, 1, Integer.MAX_VALUE);
             builder.pop();
 
-            builder.push("Myiatic Stats");
+            builder.push("Unique Myiatic Stats");
             this.myiatic_creeper_explode_radius = builder.defineInRange("Myiatic Creeper explosion range", 3, 1, Integer.MAX_VALUE);
             builder.pop();
         }

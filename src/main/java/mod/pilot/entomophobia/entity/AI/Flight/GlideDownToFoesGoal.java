@@ -8,7 +8,7 @@ public class GlideDownToFoesGoal extends FlyToHostileTargetGoal{
     }
 
     @Override
-    boolean WantsToTakeOff() {
+    boolean wantsToTakeOff() {
         if (parent.getTarget() == null) return false;
         return FlightState != FlightStates.Disabled.ordinal() && parent.getTarget().blockPosition().getY() + 3 < parent.blockPosition().getY() && !isFlying && FlightCD == 0;
     }
@@ -19,8 +19,8 @@ public class GlideDownToFoesGoal extends FlyToHostileTargetGoal{
     }
 
     @Override
-    protected void StartFlyCycle() {
+    protected void startFlyCycle() {
         parent.lookAt(parent.getTarget(), parent.getMaxHeadYRot(), parent.getMaxHeadXRot());
-        ManageStateSwitch(FlightStates.Gliding);
+        manageStateSwitch(FlightStates.Gliding);
     }
 }

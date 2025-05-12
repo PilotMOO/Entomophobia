@@ -28,16 +28,16 @@ public class Myiasis extends MobEffect implements IStackingEffect {
         super(MobEffectCategory.HARMFUL, 0);
     }
 
-    private static final HashMap<Entity, Integer> rotMashmap = new HashMap<>();
+    private static final HashMap<Entity, Integer> rotHashmap = new HashMap<>();
 
     private static int infectedDuration(LivingEntity target) {
-        return rotMashmap.getOrDefault(target, -1);
+        return rotHashmap.getOrDefault(target, -1);
     }
     private static void rot(LivingEntity target){
-        rotMashmap.replace(target, infectedDuration(target) + 1);
+        rotHashmap.replace(target, infectedDuration(target) + 1);
     }
     private static void startRot(LivingEntity target){
-        rotMashmap.put(target, 0);
+        rotHashmap.put(target, 0);
     }
 
     private static final int convertTime = Config.SERVER.myiatic_convert_timer.get();
@@ -50,7 +50,7 @@ public class Myiasis extends MobEffect implements IStackingEffect {
             MobEffectInstance effect = target.getEffect(this);
             assert effect != null;
             if (infectedDuration(target) < convertTime){
-                if(target.isDeadOrDying()){
+                if (target.isDeadOrDying()){
                     if (!effect.isInfiniteDuration()){
                         target.addEffect(new MobEffectInstance(this, -1));
                     }
@@ -135,7 +135,7 @@ public class Myiasis extends MobEffect implements IStackingEffect {
             }
         }
 
-        rotMashmap.remove(target);
+        rotHashmap.remove(target);
         target.remove(Entity.RemovalReason.DISCARDED);
     }
 
