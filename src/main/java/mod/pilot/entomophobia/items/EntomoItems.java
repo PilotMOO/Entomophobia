@@ -104,6 +104,8 @@ public class EntomoItems {
             () -> new HiveHeartReader(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> BITCH_WAND = ITEMS.register("bitch_wand",
             () -> new GetSomeBitchFromStorageWand(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> EVENT_READER = ITEMS.register("event_reader",
+            () -> new EventStartReader(new Item.Properties().stacksTo(1)));
 
     public static void register(IEventBus eventBus){
         ITEMS.register(eventBus);

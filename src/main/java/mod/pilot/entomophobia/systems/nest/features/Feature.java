@@ -17,8 +17,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Objects;
 
-import static mod.pilot.entomophobia.data.EntomoDataManager.Vec3ToBPos;
-
 public abstract class Feature {
     @Deprecated
     public enum Types {
@@ -199,7 +197,7 @@ public abstract class Feature {
         if (!isWallFeature()) settings = settings.setRotationPivot(BlockPos.containing(offset))
                 .setRotation(rotation == null ? Rotation.getRandom(server.random) : rotation);
 
-        return template.placeInWorld(server, placePos, Vec3ToBPos(position), settings, server.random, 3);
+        return template.placeInWorld(server, placePos, BlockPos.containing(position), settings, server.random, 3);
     }
     public StructureTemplate getTemplate(ServerLevel server, @Nullable Direction facing){
         if (isWallFeature() && facing != null && wallStructureHashmap != null && wallResourceLocationHashmap != null){
@@ -229,7 +227,7 @@ public abstract class Feature {
     }
     protected Vec3 getPlaceOffset(StructureTemplate template, @Nullable Direction facing){
         if (facing != null) {
-            return EntomoDataManager.Vec3iToVec3(template.getSize()).multiply(
+            return EntomoDataManager.vec3iToVec3(template.getSize()).multiply(
                                             facing.getStepX() == 0 ? 0.5 : facing.getStepX() == -1 ? 1 : 0,
                                             facing.getStepY() == 1 ? 0 : facing.getStepY() == -1 ? 1 : 0.5,
                                             facing.getStepZ() == 0 ? 0.5 : facing.getStepZ() == -1 ? 1 : 0)
@@ -237,7 +235,7 @@ public abstract class Feature {
                             facing.getStepY() == -1 ? 1 : 0,
                             facing.getStepZ() == -1 ? 1 : 0);
         }
-        Vec3 toReturn = EntomoDataManager.Vec3iToVec3(template.getSize()).multiply(0.5,0,0.5);
+        Vec3 toReturn = EntomoDataManager.vec3iToVec3(template.getSize()).multiply(0.5,0,0.5);
         if (PlacementPos == 3) toReturn.add(0, size().getY(), 0);
         return toReturn;
     }

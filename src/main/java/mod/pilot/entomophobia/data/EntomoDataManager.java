@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia.data;
 
 import mod.pilot.entomophobia.Config;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
@@ -54,18 +55,28 @@ public class EntomoDataManager {
         return target.subtract(parent).normalize();
     }
 
-    public static BlockPos Vec3ToBPos(Vec3 position){
-        return new BlockPos((int)position.x, (int)position.y, (int)position.z);
-    }
-    public static Vec3 Vec3iToVec3(Vec3i position){
+    public static Vec3 vec3iToVec3(Vec3i position){
         return new Vec3(position.getX(), position.getY(), position.getZ());
     }
-    public static Vec3i Vec3ToVec3i(Vec3 position){
+    public static Vec3i vec3ToVec3i(Vec3 position){
         return new Vec3i((int)position.x, (int)position.y, (int)position.z);
     }
 
     public static boolean isThisGlass(BlockState state){
         Block block = state.getBlock();
         return block instanceof GlassBlock || block instanceof StainedGlassBlock || block instanceof StainedGlassPaneBlock || state.is(Blocks.GLASS_PANE);
+    }
+
+    private static final long dayLength = 24000L;
+    private static Minecraft mc;
+    public static int getDaysElapsed(){
+        if (mc == null) mc = Minecraft.getInstance();
+        if (mc.level == null) return -1;
+        return (int)(mc.level.getDayTime() / dayLength);
+    }
+    public static float getDayPercentage(){
+        if (mc == null) mc = Minecraft.getInstance();
+        if (mc.level == null) return -1f;
+        return (float)(mc.level.getDayTime() % dayLength) / dayLength;
     }
 }

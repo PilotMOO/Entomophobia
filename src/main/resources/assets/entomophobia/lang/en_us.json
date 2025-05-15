@@ -7,7 +7,7 @@
   "item.entomophobia.myiatic_pig_spawnegg": "Myiatic Pig Spawn",
   "item.entomophobia.myiatic_chicken_spawnegg": "Myiatic Chicken Spawn",
 
-  "item.entomophobia.milk_bucket": "Milk Bucket",
+  "item.entomophobia.milk_bucket": "Milk Bucket...?",
 
   "item.entomophobia.lustrous_tissue": "Lustrous Tissue",
   "item.entomophobia.bottled_corpsedew": "§aBottled Corpsedew",
@@ -33,7 +33,6 @@
   "item.entomophobia.tooltip.thanks": "§dA heart-shaped token of the developer's thanks, to those who have assisted with the mod's development or community <3 \n\n§8... \n\n§8...it feels oddly heavy?",
 
   "item.entomophobia.tooltip.dev_wand": "§4[DEV WAND]",
-
   "item.entomophobia.tooltip.description_hint": "§7[Hold §6Left Shift §7for description]",
 
   "item.entomophobia.tooltip.nest_wand": "§7Creates a nest around Y=0 when clicked on a block, or at the set Y position if shift is held.\n\nShift-clicking the air kills the nearest nest.",
@@ -75,8 +74,8 @@
   "effect.entomophobia.hunt": "Hunt",
   "effect.entomophobia.frenzy": "Frenzy",
 
-  "creativetab.entomophobia_tab": "Entomophobia",
-  "creativetab.entomophobia_dev_tab": "Entomophobia Dev Tools",
+  "creativetab.entomophobia_tab": "§aEntomophobia",
+  "creativetab.entomophobia_dev_tab": "§aEntomophobia Dev Tools",
 
   "death.attack.myiatic_basic_damage1": "%1$s got got real good by %2$s",
   "death.attack.myiatic_basic_damage2": "%1$s learned the definition of \"Entomophobia\"",
@@ -106,13 +105,21 @@
 
   "death.attack.lead": "%1$s died of lead poisoning. §d<3",
 
-  "sounds.entomophobia:myiatic_zombie_idle": "Myiatic Zombie groans",
-  "sounds.entomophobia:myiatic_cow_idle": "Myiatic Cow moos",
-  "sounds.entomophobia:myiatic_pig_idle": "Myiatic Pig squeals",
-  "sounds.entomophobia:myiatic_sheep_idle": "Myiatic Sheep baas",
-  "sounds.entomophobia:myiatic_flying": "Myiatic takes flight",
+  "sounds.entomophobia:myiatic_zombie_idle": "§cMyiatic Zombie groans",
+  "sounds.entomophobia:myiatic_cow_idle": "§cMyiatic Cow moos",
+  "sounds.entomophobia:myiatic_pig_idle": "§cMyiatic Pig squeals",
+  "sounds.entomophobia:myiatic_sheep_idle": "§cMyiatic Sheep baas",
+  "sounds.entomophobia:myiatic_flying": "§cMyiatic takes flight",
   "sounds.entomophobia:heart_beat": "§4Arrhythmic heartbeat",
 
   "entomophobia.system.infection_start": "The stench of rot and trepidation floods the air... something's off.",
-  "entomophobia.item.nest_builder_finish": "Built!"
+  "entomophobia.item.nest_builder_finish": "Built!",
+
+  "entomophobia.event.sleep_disabled0": "§4§k!#!§r§4You don't feel safe enough to close your eyes.§4§k!#!§r",
+  "entomophobia.event.sleep_disabled1": "§4§k!#!§r§4Trepidation floods your mind. You can't rest.§4§k!#!§r",
+  "entomophobia.event.sleep_disabled2": "§4§k!#!§r§4An uncontrollable desire to look up to the sky prevents you from sleeping.§4§k!#!§r",
+  "entomophobia.event.sleep_disabled3": "§4§k!#!§r§4You don't feel alone.§4§k!#!§r",
+  "entomophobia.event.sleep_disabled4": "§4§k!#!§r§4The stars shine an odd hue. It puts you on edge.§4§k!#!§r",
+  "entomophobia.event.sleep_disabled5": "§4§k!#!§r§4The distant noise of scuttling invokes a sense of dread, you refuse to sleep.§4§k!#!§r",
+  "entomophobia.event.sleep_disabled6": "§4§k!#!§r§4Your skin crawls with millions of imaginary bugs when you touch the sheets. You'll prefer to stay up for the night.§4§k!#!§r"
 }

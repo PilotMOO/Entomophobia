@@ -23,6 +23,7 @@ public class EntomoPacketSyncer {
                 .decoder(ExamplePacket::new)
                 .consumerMainThread(ExamplePacket::handle)
                 .add();*/
+        //Artery Syncing
         CHANNEL.messageBuilder(ArteryClientSyncer.ServerSyncPacket.class, packetId.getAndIncrement())
                 .encoder(ArteryClientSyncer.ServerSyncPacket::writeToBuffer)
                 .decoder(ArteryClientSyncer.ServerSyncPacket::decodeFromBuffer)
@@ -34,6 +35,7 @@ public class EntomoPacketSyncer {
                 .consumerMainThread(ArteryClientSyncer.ClientRequestPacket::postRequest)
                 .add();
 
+        //Hive Data Syncing
         CHANNEL.messageBuilder(HiveDataSyncer.SyncPacket.class, packetId.getAndIncrement())
                 .encoder(HiveDataSyncer.SyncPacket::writeToBuffer)
                 .decoder(HiveDataSyncer.SyncPacket::decodeFromBuffer)
@@ -48,6 +50,18 @@ public class EntomoPacketSyncer {
                 .encoder(HiveDataSyncer.ClientRequestPacket::writeToBuffer)
                 .decoder(HiveDataSyncer.ClientRequestPacket::decodeFromBuffer)
                 .consumerMainThread(HiveDataSyncer.ClientRequestPacket::postRequest)
+                .add();
+
+        //Event Start Syncing
+        CHANNEL.messageBuilder(EventStartSyncer.ServerSyncPacket.class, packetId.getAndIncrement())
+                .encoder(EventStartSyncer.ServerSyncPacket::writeToBuffer)
+                .decoder(EventStartSyncer.ServerSyncPacket::decodeFromBuffer)
+                .consumerMainThread(EventStartSyncer.ServerSyncPacket::sync)
+                .add();
+        CHANNEL.messageBuilder(EventStartSyncer.ClientRequestPacket.class, packetId.getAndIncrement())
+                .encoder(EventStartSyncer.ClientRequestPacket::writeToBuffer)
+                .decoder(EventStartSyncer.ClientRequestPacket::decodeFromBuffer)
+                .consumerMainThread(EventStartSyncer.ClientRequestPacket::postRequest)
                 .add();
     }
 

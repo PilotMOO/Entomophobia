@@ -1,7 +1,6 @@
 package mod.pilot.entomophobia.data.clientsyncing;
 
 import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
-import mod.pilot.entomophobia.event.EntomoForgeEvents;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,10 +18,6 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 public class ArteryClientSyncer {
-
-    private static ServerLevel server() {
-        return EntomoForgeEvents.getServer();
-    }
 
     public static void request(HiveHeartEntity hh) {
         request(hh.getUUID());
@@ -95,12 +90,8 @@ public class ArteryClientSyncer {
                     postError("[REQUEST] Packet was invalid because requester was null");
                     return;
                 }
-                ServerLevel level = server();
-                if (level == null) {
-                    postError("[REQUEST] ServerLevel was null during packet handling.");
-                    return;
-                }
 
+                ServerLevel level = requester.serverLevel();
                 Entity entity = level.getEntity(packet.id);
                 if (entity == null) {
                     postError("[REQUEST] Entity was null! Maybe it is unloaded or does not exist?");

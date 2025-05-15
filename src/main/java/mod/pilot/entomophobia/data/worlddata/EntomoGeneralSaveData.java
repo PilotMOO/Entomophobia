@@ -2,6 +2,7 @@ package mod.pilot.entomophobia.data.worlddata;
 
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.event.EntomoForgeEvents;
+import mod.pilot.entomophobia.systems.EventStart.EventStart;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -27,7 +28,7 @@ public class EntomoGeneralSaveData extends SavedData {
     private static @NotNull EntomoGeneralSaveData activeData(){
         return Entomophobia.activeData;
     }
-    public static void Dirty(){
+    public static void dirty(){
         Entomophobia.activeData.setDirty();
     }
     public static EntomoGeneralSaveData load(CompoundTag tag){
@@ -44,6 +45,7 @@ public class EntomoGeneralSaveData extends SavedData {
         if (tag.contains("myiatic_storage")){
             data.MyiaticStorage = tag.getString("myiatic_storage");
         }
+        EventStart.unpackFromData(tag);
 
         return data;
     }
@@ -53,6 +55,7 @@ public class EntomoGeneralSaveData extends SavedData {
         tag.putBoolean("has_started", HasStarted);
         tag.putInt("world_age", WorldAge);
         tag.putString("myiatic_storage", MyiaticStorage);
+        EventStart.packToData(tag);
 
         return tag;
     }
@@ -106,41 +109,41 @@ public class EntomoGeneralSaveData extends SavedData {
         MyiaticStorage += ID + "/";
         setDirty();
     }
-    public void RemoveFromStorage(String ID){
-        ArrayList<String> splicedList = new ArrayList<>(Arrays.asList(GetSpliced()));
+    public void removeFromStorage(String ID){
+        ArrayList<String> splicedList = new ArrayList<>(Arrays.asList(getSpliced()));
         for (String S : splicedList){
             if (Objects.equals(S, ID)){
                 splicedList.remove(S);
                 break;
             }
         }
-        MyiaticStorage = RecompressStorage(splicedList);
+        MyiaticStorage = recompressStorage(splicedList);
         setDirty();
     }
-    public EntityType<?> GetFromStorage(String ID){
-        ArrayList<String> splicedList = new ArrayList<>(Arrays.asList(GetSpliced()));
+    public EntityType<?> getFromStorage(String ID){
+        ArrayList<String> splicedList = new ArrayList<>(Arrays.asList(getSpliced()));
         for (String S : splicedList){
             if (Objects.equals(S, ID)){
-                RemoveFromStorage(S);
+                removeFromStorage(S);
                 setDirty();
                 return ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(S));
             }
         }
         return null;
     }
-    public String GetStringFromStorage(String ID){
-        ArrayList<String> splicedList = new ArrayList<>(Arrays.asList(GetSpliced()));
+    public String getStringFromStorage(String ID){
+        ArrayList<String> splicedList = new ArrayList<>(Arrays.asList(getSpliced()));
         for (String S : splicedList){
             if (Objects.equals(S, ID)){
-                RemoveFromStorage(S);
+                removeFromStorage(S);
                 setDirty();
                 return S;
             }
         }
         return null;
     }
-    public String GetPhantomStringFromStorage(String ID){
-        ArrayList<String> splicedList = new ArrayList<>(Arrays.asList(GetSpliced()));
+    public String getPhantomStringFromStorage(String ID){
+        ArrayList<String> splicedList = new ArrayList<>(Arrays.asList(getSpliced()));
         for (String S : splicedList){
             if (Objects.equals(S, ID)){
                 return S;
@@ -148,9 +151,9 @@ public class EntomoGeneralSaveData extends SavedData {
         }
         return null;
     }
-    public int GetQuantityOf(String ID){
+    public int getQuantityOf(String ID){
         int amount = 0;
-        for (String S : GetSpliced()){
+        for (String S : getSpliced()){
             if (Objects.equals(S, ID)){
                 amount++;
             }
@@ -158,81 +161,81 @@ public class EntomoGeneralSaveData extends SavedData {
         return amount;
     }
     public int getTotalInStorage(){
-        return GetSpliced().length - 1;
+        return getSpliced().length - 1;
     }
-    public String[] GetStringFromStorageBetweenMax(String ID, int amount){
-        int amountToReturn = Math.min(GetQuantityOf(ID), amount);
+    public String[] getStringFromStorageBetweenMax(String ID, int amount){
+        int amountToReturn = Math.min(getQuantityOf(ID), amount);
         String[] toReturn = new String[amountToReturn];
         for (int i = 0; i < amountToReturn; i++){
-            toReturn[i] = GetStringFromStorage(ID);
+            toReturn[i] = getStringFromStorage(ID);
         }
         setDirty();
         return toReturn;
     }
-    public EntityType<?>[] GetFromStorageBetweenMax(String ID, int amount){
-        int amountToReturn = Math.min(GetQuantityOf(ID), amount);
+    public EntityType<?>[] getFromStorageBetweenMax(String ID, int amount){
+        int amountToReturn = Math.min(getQuantityOf(ID), amount);
         EntityType<?>[] toReturn = new EntityType[amountToReturn];
         for (int i = 0; i < amountToReturn; i++){
-            toReturn[i] = GetFromStorage(ID);
+            toReturn[i] = getFromStorage(ID);
         }
         setDirty();
         return toReturn;
     }
-    public String[] GetAnyStringFromStorageBetweenMax(int amount){
+    public String[] getAnyStringFromStorageBetweenMax(int amount){
         int amountToReturn = Math.min(getTotalInStorage(), amount);
         String[] toReturn = new String[amountToReturn];
-        String[] spliced = GetSpliced();
+        String[] spliced = getSpliced();
         if (amountToReturn - 2 >= 0) System.arraycopy(spliced, 1, toReturn, 1, amountToReturn - 1 - 1);
         setDirty();
         return toReturn;
     }
-    public EntityType<?>[] GetAnyFromStorageBetweenMax(int amount){
+    public EntityType<?>[] getAnyFromStorageBetweenMax(int amount){
         int amountToReturn = Math.min(getTotalInStorage(), amount);
         EntityType<?>[] toReturn = new EntityType<?>[amountToReturn];
-        String[] strings = GetAnyStringFromStorageBetweenMax(amountToReturn);
+        String[] strings = getAnyStringFromStorageBetweenMax(amountToReturn);
         for (int i = 0; i < amountToReturn; i++){
             toReturn[i] = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(strings[i]));
         }
         setDirty();
         return toReturn;
     }
-    public String GetFirstStringFromStorage(){
+    public String getFirstStringFromStorage(){
         if (getTotalInStorage() > 1){
-            String[] spliced = GetSpliced();
+            String[] spliced = getSpliced();
             String toReturn = spliced[1];
-            RemoveFromStorage(toReturn);
+            removeFromStorage(toReturn);
             setDirty();
             return toReturn;
         }
         return null;
     }
-    public EntityType<?> GetFirstFromStorage(){
+    public EntityType<?> getFirstFromStorage(){
         if (getTotalInStorage() > 1){
-            String[] spliced = GetSpliced();
+            String[] spliced = getSpliced();
             EntityType<?> toReturn = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(spliced[1]));
-            RemoveFromStorage(spliced[1]);
+            removeFromStorage(spliced[1]);
             setDirty();
             return toReturn;
         }
         return null;
     }
-    public String GetFirstPhantomFromStorage(){
+    public String getFirstPhantomFromStorage(){
         if (getTotalInStorage() > 1){
-            return GetSpliced()[1];
+            return getSpliced()[1];
         }
         return null;
     }
-    public void RemoveFirstFromStorage(){
+    public void removeFirstFromStorage(){
         if (getTotalInStorage() > 1){
-            RemoveFromStorage(GetSpliced()[1]);
+            removeFromStorage(getSpliced()[1]);
             setDirty();
         }
     }
 
-    private String[] GetSpliced(){
+    private String[] getSpliced(){
         return MyiaticStorage.split("/");
     }
-    private String RecompressStorage(ArrayList<String> splicedList) {
+    private String recompressStorage(ArrayList<String> splicedList) {
         StringBuilder newString = new StringBuilder();
         for (String S : splicedList){
             newString.append(S).append("/");

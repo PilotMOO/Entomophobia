@@ -1,10 +1,10 @@
 package mod.pilot.entomophobia.systems.GenericModelRegistry;
 
+import mod.pilot.entomophobia.systems.GenericModelRegistry.models.CarrioniteModel;
 import mod.pilot.entomophobia.systems.GenericModelRegistry.models.HorseshoeCrabModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -17,12 +17,13 @@ public class GenericModelHub {
     public static void setup(){
         System.out.println("[GENERIC MODEL HUB] Setup started!");
         ModelSet = new GenericModelSet();
-        _registerInternalGenericModels();
+        registerInternalGenericModels();
     }
 
-    private static void _registerInternalGenericModels(){
-        System.out.println("Registering internal models...");
+    private static void registerInternalGenericModels(){
+        System.out.println("[GENERIC MODEL HUB] Registering internal models...");
         registerGenericModel(HorseshoeCrabModel.LAYER_LOCATION, HorseshoeCrabModel::createLayer);
+        registerGenericModel(CarrioniteModel.LAYER_LOCATION, CarrioniteModel::createLayer);
         //RegisterGenericModel(EXAMPLE_MODEL.LAYER_LOCATION, EXAMPLE_MODEL::createLayer);
     }
 

@@ -24,6 +24,7 @@ public class Config
 
     public static class Server{
         public final ForgeConfigSpec.ConfigValue<Integer> time_until_shit_gets_real;
+        public final ForgeConfigSpec.ConfigValue<Integer> doomsday;
         public final ForgeConfigSpec.ConfigValue<Integer> start_spread_aoe;
 
         public final ForgeConfigSpec.ConfigValue<Integer> mob_cap;
@@ -38,6 +39,8 @@ public class Config
         public final ForgeConfigSpec.ConfigValue<Integer> myiatic_creeper_explode_radius;
 
         public final ForgeConfigSpec.ConfigValue<Integer> base_swarm_max_members;
+
+        public final ForgeConfigSpec.ConfigValue<Boolean> eggman;
 
 
         public Server(ForgeConfigSpec.Builder builder){
@@ -56,12 +59,13 @@ public class Config
             builder.pop();
 
             builder.push("General Infection values");
-            this.time_until_shit_gets_real = builder.defineInRange("Time, in ticks, until the infestation starts", 48000, 0, Integer.MAX_VALUE);
+            this.time_until_shit_gets_real = builder.defineInRange("Time, in ticks, until the infestation starts [DEPRECATED]", 48000, 0, Integer.MAX_VALUE);
             this.start_spread_aoe = builder.defineInRange("How far from each player the Myiasis effect will spread once the infection starts", 200, 0, Integer.MAX_VALUE);
             this.mob_cap = builder.defineInRange("Max amount of mobs allowed in the world at once until encouraged despawning (Note! Setting this value too low could break or completely disable some mechanics)", 50, 0, Integer.MAX_VALUE);
             this.distance_to_player_until_despawn = builder.defineInRange("Distance from the closest player until despawning is encouraged", 128, 0, Integer.MAX_VALUE);
             this.myiatic_convert_timer = builder.define("Time (in ticks) for Myiasis to convert mobs",
                     600);
+            this.doomsday = builder.defineInRange("On which night the infection will begin (days are counted up from 0, so day 1 is represented as 0, etc)", 2, 0, Integer.MAX_VALUE);
             builder.pop();
 
             builder.push("Swarm Configuration");
@@ -75,6 +79,9 @@ public class Config
             builder.push("Unique Myiatic Stats");
             this.myiatic_creeper_explode_radius = builder.defineInRange("Myiatic Creeper explosion range", 3, 1, Integer.MAX_VALUE);
             builder.pop();
+
+            builder.push("Other");
+            this.eggman = builder.define("Does eggman have an announcement to make?", false);
         }
     }
     public static class NestConfig{

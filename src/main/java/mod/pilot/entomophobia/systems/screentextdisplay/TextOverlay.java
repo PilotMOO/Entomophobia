@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class TextOverlay implements IGuiOverlay {
     public static void setup(){
-        MinecraftForge.EVENT_BUS.addListener(TextOverlay::TickAllInstances);
+        MinecraftForge.EVENT_BUS.addListener(TextOverlay::tickAllInstances);
     }
 
     public static int width;
@@ -23,10 +23,10 @@ public class TextOverlay implements IGuiOverlay {
         if (width < screenWidth) width = screenWidth;
         if (height < screenHeight) height = screenHeight;
 
-        new ArrayList<>(textInstances).forEach((textInstance -> textInstance.Render(gui, guiGraphics, partialTick, screenWidth, screenHeight)));
+        new ArrayList<>(textInstances).forEach((textInstance -> textInstance.render(gui, guiGraphics, partialTick, screenWidth, screenHeight)));
     }
-    public static void TickAllInstances(TickEvent.ClientTickEvent event){
-        instance.textInstances.forEach(TextInstance::Tick);
+    public static void tickAllInstances(TickEvent.ClientTickEvent event){
+        instance.textInstances.forEach(TextInstance::tick);
         instance.textInstances.removeIf(TextInstance::shouldBeRemoved);
     }
 }

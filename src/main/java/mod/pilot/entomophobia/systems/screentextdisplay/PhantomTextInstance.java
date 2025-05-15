@@ -47,7 +47,7 @@ public abstract class PhantomTextInstance extends TextInstance{
     protected int updateCount = 0;
 
     protected final void ActuallyRender(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight){
-        super.Render(gui, guiGraphics, partialTick, screenWidth, screenHeight);
+        super.render(gui, guiGraphics, partialTick, screenWidth, screenHeight);
     }
 
     public static class Mother extends PhantomTextInstance{
@@ -61,7 +61,7 @@ public abstract class PhantomTextInstance extends TextInstance{
             return daughtersShouldRender == null || daughtersShouldRender.test(daughter);
         }
         @Override
-        public void Render(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight) {
+        public void render(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight) {
             if (trailingPhantom == null) ActuallyRender(gui, guiGraphics, partialTick, screenWidth, screenHeight);
             else trailingPhantom.FindRootEndThenRenderAll(gui, guiGraphics, partialTick, screenWidth, screenHeight);
         }
@@ -73,8 +73,8 @@ public abstract class PhantomTextInstance extends TextInstance{
         }
 
         @Override
-        public void Tick() {
-            super.Tick();
+        public void tick() {
+            super.tick();
             if (trailingPhantom != null){
                 trailingPhantom.CopyFrom(this, true, true);
                 trailingPhantom.TickRecursively();
@@ -120,13 +120,13 @@ public abstract class PhantomTextInstance extends TextInstance{
         }
 
         public void TickRecursively(){
-            this.Tick();
+            this.tick();
             if (trailingPhantom != null) trailingPhantom.TickRecursively();
         }
         //Tick method overridden to remove the aging and lerping calls-- those aren't needed because the daughters just copy from the mother
         @Override
-        public void Tick() {
-            volatileKeyframes.forEach(TextKeyframe::Tick);
+        public void tick() {
+            volatileKeyframes.forEach(TextKeyframe::tick);
             updateVolatileList();
         }
         public void CopyFrom(PhantomTextInstance from, boolean pushOldToChildren, boolean recursive){

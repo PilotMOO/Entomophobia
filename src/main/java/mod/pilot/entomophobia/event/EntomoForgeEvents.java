@@ -1,6 +1,7 @@
 package mod.pilot.entomophobia.event;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.blocks.custom.BloodwaxProtrusions;
@@ -18,11 +19,14 @@ import mod.pilot.entomophobia.entity.truepest.PestBase;
 import mod.pilot.entomophobia.items.EntomoItems;
 import mod.pilot.entomophobia.data.EntomoDataManager;
 import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
+import mod.pilot.entomophobia.systems.nest.Nest;
 import mod.pilot.entomophobia.systems.nest.NestManager;
 import mod.pilot.entomophobia.systems.swarm.SwarmManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.coordinates.Coordinates;
+import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -48,6 +52,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
@@ -305,7 +310,8 @@ public class EntomoForgeEvents {
     @SubscribeEvent
     public static void registerCommands(RegisterCommandsEvent event){
         event.getDispatcher().register(Commands.literal(IDPrepend + "thanks")
-                .then(Commands.argument("ToThank", EnumArgument.enumArgument(thanks.class)).executes(arguments ->{
+                .then(Commands.argument("ToThank", EnumArgument.enumArgument(thanks.class))
+                        .executes(arguments ->{
                     thanks t = arguments.getArgument("ToThank", thanks.class);
                     String print = switch (t){
                         case Pilot -> "§dThe creator of the mod, yeah I make a thanks command for myself :]";
@@ -331,6 +337,159 @@ public class EntomoForgeEvents {
                         return 0;
                     }
                 })));
+
+        event.getDispatcher().register(Commands.literal(IDPrepend + "nest")
+                .then(Commands.argument("Position", Vec3Argument.vec3())
+                        .executes(arguments ->{
+                    Vec3 pos = arguments.getArgument("Position", Coordinates.class).getPosition(arguments.getSource());
+                    NestManager.constructNewNest(arguments.getSource().getLevel(), pos);
+                    if (arguments.getSource().getEntity() instanceof Player p){
+                        p.displayClientMessage(Component.literal("Creating a new nest at " + pos), false);
+                    }
+                    return 1;
+                })));
+
+        event.getDispatcher().register(Commands.literal(IDPrepend + "nest_actions")
+                .then(Commands.argument("ActionType", EnumArgument.enumArgument(ActionType.class))
+                        .executes(arguments -> {
+                    Vec3 from = arguments.getSource().getPosition();
+                    Nest nest = NestManager.getClosestNest(from);
+
+                    Player player = null;
+                    if (arguments.getSource().getEntity() instanceof Player player1){
+                        player = player1;
+                    }
+                    if (nest == null){
+                        if (player != null) {
+                            player.displayClientMessage(
+                                    Component.literal(
+                                            "§4Oops! Can't execute that command because there wasn't a nest to execute it on!"),
+                                    false);
+                        }
+                        return -1;
+                    }
+
+                    switch (arguments.getArgument("ActionType", ActionType.class)){
+                        case Kill -> {
+                            nest.kill(true);
+                            HiveHeartEntity hh;
+                            if ((hh = nest.accessHiveHeart()) != null) hh.kill();
+                            if (player != null) {
+                                player.displayClientMessage(
+                                        Component.literal(
+                                                "§7Killing closest nest. Nest at " + nest.mainChamber.getPosition()),
+                                        false);
+                            }
+                            return 1;
+                        }
+                        case Disable -> {
+                            nest.disable();
+                            if (player != null) {
+                                player.displayClientMessage(
+                                        Component.literal(
+                                                "§7Disabling closest nest. Nest at " + nest.mainChamber.getPosition()),
+                                        false);
+                            }
+                            return 1;
+                        }
+                        case Enable -> {
+                            if (nest.getNestState() == 1){
+                                if (player != null) {
+                                    player.displayClientMessage(
+                                            Component.literal("§4You can't enable a nest that's already enabled!"),
+                                            false);
+                                }
+                                return -1;
+                            }
+                            nest.enable();
+                            if (player != null) {
+                                player.displayClientMessage(
+                                        Component.literal("§7Enabled closest nest. Nest at " + nest.mainChamber.getPosition()),
+                                        false);
+                            }
+                            return 1;
+                        }
+                        case Locate -> {
+                            if (player != null){
+                                player.displayClientMessage(
+                                        Component.literal("§7Closest nest at: " + nest.mainChamber.getPosition()), false
+                                );
+                            }
+                            HiveHeartEntity hh;
+                            if ((hh = nest.accessHiveHeart()) != null){
+                                hh.addEffect(new MobEffectInstance(MobEffects.GLOWING, 600));
+                            }
+                            return 1;
+                        }
+                        case Read_Data -> {
+                            HiveHeartEntity hh;
+                            if (player == null) return -1;
+                            else if ((hh = nest.accessHiveHeart()) == null){
+                                player.displayClientMessage(Component.literal("§4Oops! This nest doesn't seem to have a living Hive Heart to access data from!"), false);
+                                return -1;
+                            }
+                            player.displayClientMessage(
+                                    Component.literal("§6_____[  ACCESSING NEST DATA  ]_____"), false
+                            );
+                            player.displayClientMessage(
+                                    Component.literal(">§9 Accessing from logical §a" + (arguments.getSource().getLevel().isClientSide ? "CLIENT" : "SERVER")), false
+                            );
+                            player.displayClientMessage(
+                                    Component.literal("§6[  NERVOUS SYSTEM  ]"), false
+                            );
+                            if (hh.nervousSystem != null){
+                                player.displayClientMessage(
+                                        Component.literal(">§9 UUID of hive heart: §a[ " + hh.nervousSystem.hiveHeartUUID + " ]"), false
+                                );
+                                player.displayClientMessage(
+                                        Component.literal(">§9 Associated nest: §a[ " + hh.nervousSystem.nest + " ]"), false
+                                );
+                                player.displayClientMessage(
+                                        Component.literal(">§9 ServerLevel: §a[ " + hh.nervousSystem.serverLevel + " ]"), false
+                                );
+                            } else {
+                                player.displayClientMessage(
+                                        Component.literal("§4--Hive heart did NOT have an active Nervous System!"), false
+                                );
+                            }
+
+                            player.displayClientMessage(
+                                    Component.literal("§6[  HIVE DATA PACKET  ]"), false
+                            );
+                            HiveSaveData.Packet packet = nest.accessData();
+                            if (packet != null){
+                                player.displayClientMessage(
+                                        Component.literal(">§9 Corpsedew: §a[" + packet.corpseDew + "]"), false
+                                );
+                                player.displayClientMessage(
+                                        Component.literal("§5--Saved entities: ["), false
+                                );
+                                for (String s : packet.storedEntities.keySet()){
+                                    player.displayClientMessage(
+                                            Component.literal(">§9 Entity §a" + s + "§9; count: §a" + packet.getCountInStorage(s)),
+                                            false
+                                    );
+                                }
+                                player.displayClientMessage(
+                                        Component.literal("§5]"), false
+                                );
+                            }
+                            else{
+                                player.displayClientMessage(
+                                        Component.literal("§4--Nest did NOT have an active data packet!"), false
+                                );
+                            }
+
+                            player.displayClientMessage(
+                                    Component.literal("§6_____[  END DATA  ]_____"), false
+                            );
+                            return 1;
+                        }
+                        default -> {
+                            return -1;
+                        }
+                    }
+                })));
     }
     private enum thanks{
         Pilot("pilotmoo"),
@@ -349,6 +508,9 @@ public class EntomoForgeEvents {
             this.id = commandID;
         }
         public final String id;
+    }
+    private enum ActionType{
+        Kill, Disable, Enable, Locate, Read_Data
     }
 
     private static int nextSwitch = 0;

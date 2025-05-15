@@ -3,6 +3,7 @@ package mod.pilot.entomophobia.mixins.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
+import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.systems.GenericModelRegistry.RenderBufferAccess;
 import mod.pilot.entomophobia.systems.SkyboxModelRenderer.SkyboxModelManager;
@@ -19,14 +20,11 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import javax.annotation.Nullable;
@@ -43,19 +41,21 @@ public abstract class SkyRenderMixin implements ResourceManagerReloadListener, A
 
     @Inject(method = "renderSky", at = @At(value = "INVOKE",
             target = "Lcom/mojang/blaze3d/systems/RenderSystem;blendFuncSeparate(Lcom/mojang/blaze3d/platform/GlStateManager$SourceFactor;Lcom/mojang/blaze3d/platform/GlStateManager$DestFactor;Lcom/mojang/blaze3d/platform/GlStateManager$SourceFactor;Lcom/mojang/blaze3d/platform/GlStateManager$DestFactor;)V"))
-    private void InjectSkyModelRendering(PoseStack poseStack, Matrix4f projectionMatrix, float partialTick,
+    private void injectSkyModelRendering(PoseStack poseStack, Matrix4f projectionMatrix, float partialTick,
                                          Camera camera, boolean isFoggy, Runnable skyFogSetup, CallbackInfo ci){
-        SkyboxModelManager.SkyboxRenderHook(poseStack, projectionMatrix, partialTick, camera, isFoggy);
+        SkyboxModelManager.skyboxRenderHook(poseStack, projectionMatrix, partialTick, camera, isFoggy);
     }
 
     @Shadow @Nullable private ClientLevel level;
     @Unique private static final ResourceLocation entomophobia$ANNOUNCEMENT =
             new ResourceLocation(Entomophobia.MOD_ID, "textures/world/announcement.png");
+    @Unique private static final boolean entomophobia$eggmanEnabled = Config.SERVER.eggman.get();
 
     @Inject(method = "renderSky", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/client/multiplayer/ClientLevel;getStarBrightness(F)F"))
     public void pissOnTheMoon(PoseStack pPoseStack, Matrix4f pProjectionMatrix,
                                   float pPartialTick, Camera pCamera, boolean pIsFoggy,
                                   Runnable pSkyFogSetup, CallbackInfo ci){
+        if (!entomophobia$eggmanEnabled) return;
         BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
 
         //pPoseStack.pushPose();

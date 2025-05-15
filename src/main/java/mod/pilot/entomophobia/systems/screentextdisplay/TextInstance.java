@@ -32,7 +32,7 @@ public class TextInstance{
     public @Nullable String prepend;
     public String text;
     public @Nullable String append;
-    public String TextWithAppends(){
+    public String textWithAppends(){
         return (prepend != null ? prepend : "") + text + (append != null ? append : "");
     }
 
@@ -47,9 +47,9 @@ public class TextInstance{
     public double XShiftDuration;
     public float XAge;
     public float getXForRendering(float partial){
-        float x1 = (TextInstance.Lerp(oldX, x, partial) / size);
+        float x1 = (TextInstance.lerp(oldX, x, partial) / size);
         if (shaking() && XShake) x1 += random.nextInt(-shakingStrength, shakingStrength + 1);
-        x1 -= (font.width(TextWithAppends()) / 2f);
+        x1 -= (font.width(textWithAppends()) / 2f);
         return x1;
     }
     public TextInstance shiftX(float newX){
@@ -69,7 +69,7 @@ public class TextInstance{
     public double YShiftDuration;
     private float YAge;
     public float getYForRendering(float partial){
-        float y1 = (TextInstance.Lerp(oldY, y, partial) / size);
+        float y1 = (TextInstance.lerp(oldY, y, partial) / size);
         if (shaking() && YShake) y1 += random.nextInt(-shakingStrength, shakingStrength + 1);
         y1 -= (font.lineHeight / 2f);
         return y1;
@@ -112,7 +112,7 @@ public class TextInstance{
     public double ColorShiftDuration;
     private float ColorAge;
     public Color getColorForRendering(float partial){
-        return LerpColors(oldColor, color, partial);
+        return lerpColors(oldColor, color, partial);
     }
     public int getRGBAForRendering(float partial){
         return getColorForRendering(partial).getRGB();
@@ -189,13 +189,13 @@ public class TextInstance{
     }
 
 
-    public void Render(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight){
+    public void render(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight){
         Color renderColor;
         if (age <= 0 || (renderColor = getColorForRendering(partialTick)).getAlpha() <= 4) return;
 
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(size, size, size);
-        font.drawInBatch(TextWithAppends(),
+        font.drawInBatch(textWithAppends(),
                 getXForRendering(partialTick),
                 getYForRendering(partialTick),
                 renderColor.getRGB(),
@@ -204,47 +204,47 @@ public class TextInstance{
                 0x00FFFFFF, 15728880);
         guiGraphics.pose().popPose();
     }
-    public void Tick(){
-        Age();
-        LerpAndSetValues();
-        volatileKeyframes.forEach(TextKeyframe::Tick);
+    public void tick(){
+        age();
+        lerpAndSetValues();
+        volatileKeyframes.forEach(TextKeyframe::tick);
         updateVolatileList();
     }
-    public void Age() {
+    public void age() {
         if (XShiftDuration > 0) {
-            XAge += 1 / (XShiftDuration * 20);
+            XAge += (float) (1 / (XShiftDuration * 20));
             if (XAge > 1) XAge = 1;
         } else XAge = 0;
         if (YShiftDuration > 0) {
-            YAge += 1 / (YShiftDuration * 20);
+            YAge += (float) (1 / (YShiftDuration * 20));
             if (YAge > 1) YAge = 1;
         } else YAge = 0;
         if (ColorShiftDuration > 0){
-            ColorAge += 1 / (ColorShiftDuration * 20);
+            ColorAge += (float) (1 / (ColorShiftDuration * 20));
             if (ColorAge > 1) XAge = 1;
         } else ColorAge = 0;
         age++;
     }
-    public void LerpAndSetValues(){
+    public void lerpAndSetValues(){
         oldX = x;
         oldY = y;
         oldColor = color;
         if (x != wantedX) {
-            x = Lerp(x, wantedX, XAge);
+            x = lerp(x, wantedX, XAge);
         } else if (XShiftDuration != 0) {
             onReachingX();
             onReachingXOrY(true, y == wantedY);
             XShiftDuration = 0;
         }
         if (y != wantedY){
-            y = Lerp(y, wantedY, YAge);
+            y = lerp(y, wantedY, YAge);
         } else if (YShiftDuration != 0) {
             onReachingY();
             onReachingXOrY(x == wantedX, true);
             YShiftDuration = 0;
         }
         if (!color.equals(wantedColor)) {
-            color = LerpColors(color, wantedColor, ColorAge);
+            color = lerpColors(color, wantedColor, ColorAge);
         } else if (ColorShiftDuration == 0) {
             onReachingColor();
             ColorShiftDuration = 0;
@@ -255,17 +255,17 @@ public class TextInstance{
     public void onReachingXOrY(boolean x, boolean y){}
     public void onReachingColor(){}
 
-    public static int Lerp(int from, int to, float partial){
+    public static int lerp(int from, int to, float partial){
         return (int)(from + (to - from) * partial);
     }
-    public static float Lerp(float from, float to, float partial){
+    public static float lerp(float from, float to, float partial){
         return from + (to - from) * partial;
     }
-    public static Color LerpColors(Color from, Color to, float partial){
-        int r = Lerp(from.getRed(), to.getRed(), partial);
-        int b = Lerp(from.getBlue(), to.getBlue(), partial);
-        int g = Lerp(from.getGreen(), to.getGreen(), partial);
-        int a = Lerp(from.getAlpha(), to.getAlpha(), partial);
+    public static Color lerpColors(Color from, Color to, float partial){
+        int r = lerp(from.getRed(), to.getRed(), partial);
+        int b = lerp(from.getBlue(), to.getBlue(), partial);
+        int g = lerp(from.getGreen(), to.getGreen(), partial);
+        int a = lerp(from.getAlpha(), to.getAlpha(), partial);
         return new Color(r, g, b, a);
     }
     private double getAverageBetweenDifferences(float originX, float endX, float originY, float endY) {

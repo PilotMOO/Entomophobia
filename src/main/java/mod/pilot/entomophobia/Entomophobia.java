@@ -13,6 +13,7 @@ import mod.pilot.entomophobia.items.EntomoItems;
 import mod.pilot.entomophobia.particles.EntomoParticles;
 import mod.pilot.entomophobia.sound.EntomoSounds;
 import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
+import mod.pilot.entomophobia.systems.EventStart.EventStart;
 import mod.pilot.entomophobia.systems.GenericModelRegistry.GenericModelHub;
 import mod.pilot.entomophobia.systems.SkyboxModelRenderer.SkyboxModelManager;
 import mod.pilot.entomophobia.systems.nest.features.FeatureManager;
@@ -61,6 +62,7 @@ public class Entomophobia
         SkyboxModelManager.setup();
         TextOverlay.setup();
         HiveNervousSystem.Manager.setup();
+        EventStart.setup();
 
         FeatureManager.registerAllFeatures();
 

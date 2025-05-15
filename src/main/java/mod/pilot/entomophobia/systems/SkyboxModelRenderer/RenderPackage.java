@@ -36,6 +36,7 @@ public class RenderPackage{
         }
         poseStack.translate(_translate.x, _translate.y, _translate.z);
     }
+
     public float xOrbit, zOrbit;
     public float xOrbit_o, zOrbit_o;
     public RenderPackage orbit(float x, float z){
@@ -74,6 +75,7 @@ public class RenderPackage{
         q.rotateXYZ(x, y, z);
         poseStack.mulPose(q);
     }
+
     public static final Vec3 defaultScale = new Vec3(1, 1, 1);
     public Vec3 scale = defaultScale;
     public Vec3 scale_o = scale;
@@ -90,6 +92,18 @@ public class RenderPackage{
         poseStack.scale((float)_scale.x, (float)_scale.y, (float)_scale.z);
     }
 
+    public boolean remove = false;
+    public RenderPackage flagForRemoval(){
+        this.remove = true;
+        return this;
+    }
+    public boolean shouldRemove(){
+        return remove || checkRemoval();
+    }
+    protected boolean checkRemoval() {
+        return false;
+    }
+
     public RenderPackage addKeyframe(RenderPackageKeyframe kFrame){
         this.keyframeQue.add(kFrame);
         modified();
@@ -100,12 +114,12 @@ public class RenderPackage{
         modified();
         return this;
     }
-    private ArrayList<RenderPackageKeyframe> keyframeQue = new ArrayList<>();
-    private ArrayList<RenderPackageKeyframe> toRemove = new ArrayList<>();
+    private final ArrayList<RenderPackageKeyframe> keyframeQue = new ArrayList<>();
+    private final ArrayList<RenderPackageKeyframe> toRemove = new ArrayList<>();
 
     private boolean keyframesModified;
     private void modified(){this.keyframesModified = true;}
-    private ArrayList<RenderPackageKeyframe> volatileKeyframes = new ArrayList<>();
+    private final ArrayList<RenderPackageKeyframe> volatileKeyframes = new ArrayList<>();
     protected void clearKeyframeQues(){
         if (keyframesModified){
             volatileKeyframes.addAll(keyframeQue);
@@ -135,29 +149,31 @@ public class RenderPackage{
     public Vec3 bobOffsetScaleBy = new Vec3(100, 200, 100);
     public Vec3 BobInflateScaleBy = new Vec3(25, 25, 25);
 
+    public static RenderPackage create(IGenericModel m){
+        return new RenderPackage(m);
+    }
     public RenderPackage(IGenericModel m){
         this.model = m;
     }
 
-    public void ModifyPoseStack(PoseStack poseStack, @Nullable Quaternionf orbit, @Nullable Quaternionf rotate, float partial){
+    public void modifyPoseStack(PoseStack poseStack, @Nullable Quaternionf orbit, @Nullable Quaternionf rotate, float partial){
         this.orbitPoseStack(poseStack, orbit, partial);
         this.translatePoseStack(poseStack, partial);
         this.rotatePoseStack(poseStack, rotate, partial);
         this.scalePoseStack(poseStack, partial);
     }
 
-    public void render(PoseStack poseStack, Matrix4f projectionMatrix,
-                       float partialTick, Camera camera, boolean isFoggy, @Nullable Quaternionf orbit, @Nullable Quaternionf rotate){
+    public void render(PoseStack poseStack, Matrix4f projectionMatrix, float partialTick,
+                       Camera camera, boolean isFoggy, @Nullable Quaternionf orbit, @Nullable Quaternionf rotate){
         poseStack.pushPose();
-        ModifyPoseStack(poseStack, orbit, rotate, partialTick);
+        modifyPoseStack(poseStack, orbit, rotate, partialTick);
         getModel().renderToBuffer(poseStack, model.getVertexConsumer(),
                 15728880, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
         poseStack.popPose();
     }
 
     public RenderPackage que(){
-        SkyboxModelManager._que.add(this);
-        SkyboxModelManager.packagesInQue();
+        SkyboxModelManager.que.add(this);
         return this;
     }
 

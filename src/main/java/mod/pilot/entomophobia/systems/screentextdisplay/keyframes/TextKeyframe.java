@@ -36,7 +36,7 @@ public abstract class TextKeyframe {
     }
     public boolean finite = true;
 
-    public void Tick(){
+    public void tick(){
         if (isActive() && trigger.SelfDestructiveCheck()) {
             Fire();
             if (finite) Freeze();
