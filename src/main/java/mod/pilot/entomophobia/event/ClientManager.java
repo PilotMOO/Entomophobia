@@ -2,6 +2,7 @@ package mod.pilot.entomophobia.event;
 
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.entity.EntomoEntities;
+import mod.pilot.entomophobia.entity.client.celestial.CarrioniteRenderer;
 import mod.pilot.entomophobia.entity.client.celestial.CelestialCarrionRenderer;
 import mod.pilot.entomophobia.entity.client.celestial.HiveHeartRenderer;
 import mod.pilot.entomophobia.entity.client.myiatic.*;
@@ -39,6 +40,7 @@ public class ClientManager {
 
         event.registerEntityRenderer(EntomoEntities.CELESTIAL_CARRION.get(), CelestialCarrionRenderer::new);
         event.registerEntityRenderer(EntomoEntities.HIVE_HEART.get(), HiveHeartRenderer::new);
+        event.registerEntityRenderer(EntomoEntities.CARRIONITE.get(), CarrioniteRenderer::new);
 
         event.registerEntityRenderer(EntomoEntities.SPIDER_PEST.get(), SpiderPestRenderer::new);
         event.registerEntityRenderer(EntomoEntities.GRUB_PEST.get(), GrubPestRenderer::new);

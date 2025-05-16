@@ -2,7 +2,6 @@ package mod.pilot.entomophobia.data;
 
 import mod.pilot.entomophobia.Config;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -78,5 +77,10 @@ public class EntomoDataManager {
         if (mc == null) mc = Minecraft.getInstance();
         if (mc.level == null) return -1f;
         return (float)(mc.level.getDayTime() % dayLength) / dayLength;
+    }
+    public static float calculateYParabolaArcFromX(float arcMagnitude, float x, float xOffset, float heightScale, float heightOffset){
+        float xDif = x - xOffset;
+        float yOffset = (arcMagnitude * heightScale) + (heightOffset * heightScale);
+        return arcMagnitude * (xDif * xDif) + yOffset;
     }
 }

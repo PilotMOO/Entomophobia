@@ -106,6 +106,8 @@ public class EntomoItems {
             () -> new GetSomeBitchFromStorageWand(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> EVENT_READER = ITEMS.register("event_reader",
             () -> new EventStartReader(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> SLIME_PARABOLA_WAND = ITEMS.register("slime_parabola_wand",
+            () -> new SlimeParabolaWand(new Item.Properties().stacksTo(1)));
 
     public static void register(IEventBus eventBus){
         ITEMS.register(eventBus);
