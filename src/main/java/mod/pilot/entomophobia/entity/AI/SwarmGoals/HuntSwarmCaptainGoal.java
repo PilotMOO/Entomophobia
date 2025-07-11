@@ -45,12 +45,11 @@ public class HuntSwarmCaptainGoal extends Goal implements ISwarmOrder {
     public void tick() {
         NATTracker++;
         if (NATTracker >= NextAreaTimer){
-            System.out.println("The captain declares we need to move somewhere else!");
             Vec3 nextArea = null;
             ArrayList<LivingEntity> possiblePrey = parent.getValidTargets((int)(parent.getAttributeValue(Attributes.FOLLOW_RANGE) * 2));
             int cycleTracker = 0;
             while (nextArea == null && cycleTracker < 5){
-                if (possiblePrey.size() > 0){
+                if (!possiblePrey.isEmpty()){
                     nextArea = DefaultRandomPos.getPosTowards(parent, 96, 32,
                             possiblePrey.get(parent.getRandom().nextInt(possiblePrey.size())).position(), 1.5);
                 }
@@ -61,30 +60,24 @@ public class HuntSwarmCaptainGoal extends Goal implements ISwarmOrder {
             }
             NATTracker = 0;
             if (nextArea == null){
-                System.out.println("Nvm");
                 stop();
                 return;
             }
-            System.out.println("Let's head over to " + nextArea);
             lastPos = nextArea;
             parent.getNavigation().moveTo(nextArea.x, nextArea.y, nextArea.z, 0.75);
             traveling = true;
         }
         if (parent.getNavigation().isDone() && traveling){
-            System.out.println("We've reached our destination! Let's see if there is anything good to eat nearby...");
             traveling = false;
             NATTracker = NextAreaTimer;
 
             List<LivingEntity> nearbyPrey = parent.getValidTargets();
-            if (nearbyPrey.size() > 0){
-                System.out.println("Yummers! We've found something!");
+            if (!nearbyPrey.isEmpty()){
                 if (!parent.isThereAPheromoneOfTypeXNearby(EntomoEntities.PREYHUNT.get())){
-                    System.out.println("Deploying Prey pheromone...");
                     EntomoWorldManager.CreateNewEntityAt(EntomoEntities.PREYHUNT.get(), parent);
                 }
             }
             else{
-                System.out.println("Sadge, nothing here... let's move on");
                 NATTracker /= 4;
             }
         }

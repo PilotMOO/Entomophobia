@@ -250,7 +250,7 @@ public abstract class Swarm {
     }
     public void setSwarmTarget(Entity target){
         this.target = target;
-        finalDestination = target.position();
+        if (target != null) finalDestination = target.position();
     }
     public void updateTargetPosition(){
         if (getSwarmTarget() == null) return;
@@ -428,12 +428,12 @@ public abstract class Swarm {
     }
     public static class AttackSwarm extends Swarm{
         private static final byte SwarmType = 3;
-        public AttackSwarm(MyiaticBase captain, int maxRecruits, @NotNull Entity target) {
-            super(SwarmType, captain, maxRecruits, target.position());
+        public AttackSwarm(MyiaticBase captain, int maxRecruits, Entity target) {
+            super(SwarmType, captain, maxRecruits, target != null ? target.position() : null);
             setSwarmTarget(target);
         }
-        public AttackSwarm(ArrayList<MyiaticBase> possibleCaptains, int maxRecruits, @NotNull Entity target) {
-            super(SwarmType, possibleCaptains, maxRecruits, target.position());
+        public AttackSwarm(ArrayList<MyiaticBase> possibleCaptains, int maxRecruits, Entity target) {
+            super(SwarmType, possibleCaptains, maxRecruits, target != null ? target.position() : null);
             setSwarmTarget(target);
         }
 

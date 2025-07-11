@@ -100,14 +100,16 @@ public class EntomoItems {
             () -> new TextWand(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> SKYCRAB_WAND = ITEMS.register("skycrab_wand",
             () -> new SkyCrabWand(new Item.Properties().stacksTo(1)));
-    public static final RegistryObject<Item> HIVE_PACKET_WAND = ITEMS.register("hive_packet_wand",
-            () -> new HiveHeartReader(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> BITCH_WAND = ITEMS.register("bitch_wand",
             () -> new GetSomeBitchFromStorageWand(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> EVENT_READER = ITEMS.register("event_reader",
             () -> new EventStartReader(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> SLIME_PARABOLA_WAND = ITEMS.register("slime_parabola_wand",
             () -> new SlimeParabolaWand(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> PARABOLA_X_FINDER = ITEMS.register("parabola_x_wand",
+            () -> new WorldXPositionParabolaWand(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> CARRIONITE_WAND = ITEMS.register("carrionite_wand",
+            () -> new CarrioniteOrbitWand(new Item.Properties().stacksTo(1)));
 
     public static void register(IEventBus eventBus){
         ITEMS.register(eventBus);

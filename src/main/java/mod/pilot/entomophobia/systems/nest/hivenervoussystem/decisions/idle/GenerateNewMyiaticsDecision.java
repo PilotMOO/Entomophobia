@@ -39,7 +39,6 @@ public class GenerateNewMyiaticsDecision extends Decision {
         }
         if (encode != null){
             packet.addToStorage(encode).thenSync(hh);
-            System.out.println("Adding a new " + encode + " to storage. Count: " + packet.getCountInStorage(encode));
         }
     }
 }

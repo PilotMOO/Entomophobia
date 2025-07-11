@@ -43,8 +43,6 @@ public class CreateHuntSwarmsDecision extends Decision {
 
     @Override
     public void activate(StimulantPackage sPackage) {
-        System.out.println("CreateHuntSwarmDecision INVOKED");
-
         if (accessHiveHeart() == null) return;
         Level level = hh.level();
 
@@ -68,6 +66,7 @@ public class CreateHuntSwarmsDecision extends Decision {
             if (le1 == null) continue;
             le1.setPos(pos);
             level.addFreshEntity(le1);
+            le1.invulnerableTime = 20;
 
             if (le1 instanceof MyiaticBase m){
                 units.add(m);

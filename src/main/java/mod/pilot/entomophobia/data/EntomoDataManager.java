@@ -78,9 +78,4 @@ public class EntomoDataManager {
         if (mc.level == null) return -1f;
         return (float)(mc.level.getDayTime() % dayLength) / dayLength;
     }
-    public static float calculateYParabolaArcFromX(float arcMagnitude, float x, float xOffset, float heightScale, float heightOffset){
-        float xDif = x - xOffset;
-        float yOffset = (arcMagnitude * heightScale) + (heightOffset * heightScale);
-        return arcMagnitude * (xDif * xDif) + yOffset;
-    }
 }

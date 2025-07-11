@@ -51,10 +51,10 @@ public class SwarmManager {
 
     private static final ArrayList<Swarm> ActiveSwarms = new ArrayList<>();
     public static ArrayList<Swarm> getSwarms(){
-        CleanSwarms();
+        cleanSwarms();
         return new ArrayList<>(ActiveSwarms);
     }
-    private static void CleanSwarms() {
+    private static void cleanSwarms() {
         ArrayList<Swarm> toRemove = new ArrayList<>();
         for (Swarm swarm : ActiveSwarms){
             if (swarm.isDisbanded()){
@@ -209,30 +209,18 @@ public class SwarmManager {
         return nest;
     }
 
-    public static Swarm CreateSwarmFromBlueprint(MyiaticBase captain, byte type, byte state, @Nullable Vec3 finalPos, int maxUnits){
-        System.out.println("Trying to create a swarm from Blueprint...");
+    public static Swarm createSwarmFromBlueprint(MyiaticBase captain, byte type, byte state, @Nullable Vec3 finalPos, int maxUnits){
         Swarm toReturn;
         if (captain == null || !captain.canSwarm() || captain.isInSwarm()) {
-            System.out.println("There was an issue with the new captain, skipping this swarm...");
-            System.out.println("------");
-            System.out.println("Issue was:");
-            if (captain == null) {
-                System.out.println("Captain was null");
-                System.out.println("------");
-                return null;
-            }
-            if (!captain.canSwarm()) System.out.println("Captain cannot swarm");
-            if (captain.isInSwarm()) System.out.println("Captain was already in a different swarm!");
-            System.out.println("------");
             return null;
         }
-        System.out.println("New swarm's captain is " + captain);
         switch (type){
+            case 0 -> toReturn = new Swarm.AimlessSwarm(captain, maxUnits, finalPos);
+            case 1 -> toReturn = new Swarm.HuntSwarm(captain, maxUnits, finalPos);
+            case 2 -> toReturn = new Swarm.AttackSwarm(captain, maxUnits, null);
             default -> {
                 return null;
             }
-            case 0 -> toReturn = new Swarm.AimlessSwarm(captain, maxUnits, finalPos);
-            case 1 -> toReturn = new Swarm.HuntSwarm(captain, maxUnits, finalPos);
         }
         toReturn.setSwarmState(state);
         toReturn.setDestination(finalPos);
@@ -242,7 +230,6 @@ public class SwarmManager {
             toReturn.relayOrder(order, true);
         }
 
-        System.out.println("Successfully created a swarm from Blueprint!");
         addToSwarms(toReturn);
         return toReturn;
     }

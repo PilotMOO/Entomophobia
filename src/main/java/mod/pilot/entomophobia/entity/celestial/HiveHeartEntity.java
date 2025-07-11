@@ -56,7 +56,6 @@ public class HiveHeartEntity extends MyiaticBase {
 
     /**Create a new Nervous System for the Nest and the Hive Heart */
     public void constructNervousSystem(Nest n){
-        System.out.println("Creating a new nervous system for the fucking heart");
         UUID nestHH_UUID;
         if ((nestHH_UUID = n.mainChamber.getHiveHeartUUID()) != null && nestHH_UUID.equals(this.getUUID())){
             nervousSystem = new HiveNervousSystem(n, this);
@@ -104,19 +103,17 @@ public class HiveHeartEntity extends MyiaticBase {
             HiveHeartEntity hh;
             if ((hh = n.accessHiveHeart()) != null && this.getUUID().equals(hh.getUUID())) {
                 constructNervousSystem(n);
-                System.out.println("Teehee");
                 return;
             } else {
                 for (Nest n1 : NestManager.getActiveNests()) {
                     if ((hh = n1.accessHiveHeart()) != null && this.getUUID().equals(hh.getUUID())) {
                         constructNervousSystem(n1);
-                        System.out.println("Teehee");
                         return;
                     }
                 }
             }
         }
-        System.out.println("[HIVE HEART ENTITY] FAILED to locate parent nest, failed to create Hive Nervous System...");
+        System.err.println("[HIVE HEART ENTITY] FAILED to locate parent nest, failed to create Hive Nervous System...");
     }
 
     @Override

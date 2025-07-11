@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-@OnlyIn(Dist.CLIENT)
 public class GenericModelHub {
     public static void setup(){
         System.out.println("[GENERIC MODEL HUB] Setup started!");

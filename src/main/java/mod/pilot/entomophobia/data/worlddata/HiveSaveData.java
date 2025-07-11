@@ -140,8 +140,6 @@ public class HiveSaveData extends SavedData {
         }
 
         private Packet(CompoundTag tag, UUID hiveHeart){
-            System.out.println("[HIVE SAVE DATA] Attempting to unpack a packet with a UUID of " + hiveHeart);
-
             this.hiveHeart = hiveHeart;
 
             String identifier = hiveHeart + "_";
@@ -267,7 +265,6 @@ public class HiveSaveData extends SavedData {
             return getAnythingFromStorage(level, false);
         }
         public @Nullable LivingEntity getAnythingFromStorage(Level level, boolean phantom){
-            System.out.println("Attempting to get smth from storage...");
             String encode = null;
             Set<String> values = storedEntities.keySet();
             int index = level.getRandom().nextInt(values.size());
@@ -278,12 +275,6 @@ public class HiveSaveData extends SavedData {
                     break;
                 } else i++;
             }
-            if (encode == null){
-                System.err.println("[LOCALIZED HIVE DATA] [STORED ENTITIES] Oops! Failed to locate an encode I.D. of index ["
-                        + index + "] when attempting to retrieve from storage! :[");
-            }
-            System.out.println("Located [" + encode + "] in storage, attempting to create...");
-            System.out.println("Amount of [" + encode + "] in storage: " + getCountInStorage(encode));
             return getEntityFromStorage(encode, level, phantom);
         }
 
@@ -336,8 +327,6 @@ public class HiveSaveData extends SavedData {
         }
 
         public void pack(CompoundTag tag){
-            System.out.println("[HIVE SAVE DATA] Attempting to pack a packet with a UUID of " + hiveHeart);
-
             String identifier = hiveHeart + "_";
             int idLength = identifier.length();
             cleanBuilder(); builder.append(identifier);

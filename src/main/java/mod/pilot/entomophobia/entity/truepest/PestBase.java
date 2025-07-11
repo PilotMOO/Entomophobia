@@ -100,9 +100,6 @@ public abstract class PestBase extends MyiaticBase {
         super.tick();
         if (getAgeType().shouldAge(this)) AgeByOne();
         if (!this.isRemoved() && amITooOld()){
-            System.out.println("Old af");
-            System.out.println("Age: " + getAge());
-            System.out.println("MAX Age: " + getMaxAge());
             this.discard();
         }
     }

@@ -64,11 +64,9 @@ public class CaptainCommandGoal extends Goal implements ISwarmOrder {
             if (swarmPos != null && cSwarm.distanceTo(swarmPos) < 16){
                 if (swarm.getMaxRecruits() <= swarm.getRecruitCount() + captain.getSwarm().getRecruitCount()) {
                     swarm.copyUnits(captain.getSwarm(), false);
-                    System.out.println("Trying to merge " + captain.getSwarm() + " with " + swarm);
                 }
             }
             else if (captain.getTarget() != null && captain.position().distanceTo(swarm.getSwarmPosition()) < 64){
-                System.out.println("Trying to get closer to " + swarm);
                 captain.getNavigation().moveTo(swarm.getCaptain(), 1);
                 getClose = true;
                 break;

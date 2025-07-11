@@ -82,7 +82,7 @@ public class EntomoForgeEvents {
         if (event.getEntity() instanceof MyiaticBase  && !(event.getEntity() instanceof PestBase)
                 && event.getLevel() instanceof ServerLevel s && s.getServer().isReady()){
             Entomophobia.activeData.addToMyiaticCount();
-            System.out.println("MyiaticCount is " + EntomoGeneralSaveData.getMyiaticCount());
+            //System.out.println("MyiaticCount is " + EntomoGeneralSaveData.getMyiaticCount());
             return;
         }
 
@@ -111,16 +111,14 @@ public class EntomoForgeEvents {
             Entity E = event.getEntity();
             if (E instanceof MyiaticBase M && !(E instanceof PestBase)){
                 if (!M.isDeadOrDying()){
-                    System.out.println("Adding " + M.getEncodeId() + " to storage!");
 
                     Pair<HiveSaveData.Packet, HiveHeartEntity> pair = HiveSaveData.locateClosestDataAndAccessor(M.position());
                     HiveSaveData.Packet packet = pair.getA();
                     if (packet != null){
                         packet.addToStorage(M).thenSync(EServer);
-                    } else System.out.println("No Hive Packet was found nearby, can't save the entity :[");
+                    }
                 }
                 Entomophobia.activeData.removeFromMyiaticCount();
-                System.out.println("MyiaticCount is " + EntomoGeneralSaveData.getMyiaticCount());
             }
         }
     }
@@ -174,7 +172,6 @@ public class EntomoForgeEvents {
         NestSaveData.setActiveNestData(server);
         HiveSaveData.setActiveHiveData(server);
         SwarmSaveData.setActiveSwarmData(server);
-        System.out.println("Amount of myiatics in storage: " + Entomophobia.activeData.getTotalInStorage());
     }
     @SubscribeEvent
     public static void postServerCleanup(ServerStoppedEvent event){

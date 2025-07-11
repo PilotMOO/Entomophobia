@@ -55,7 +55,7 @@ public class Config
                             "minecraft:zombie>entomophobia:myiatic_zombie", "minecraft:creeper>entomophobia:myiatic_creeper",
                             "minecraft:spider>entomophobia:myiatic_spider", "minecraft:cow>entomophobia:myiatic_cow",
                             "minecraft:sheep>entomophobia:myiatic_sheep", "minecraft:pig>entomophobia:myiatic_pig",
-                            "minecraft:chicken>entomophobia:myiatic_chicken") , o -> o instanceof String);
+                            "minecraft:chicken>entomophobia:myiatic_chicken"), o -> o instanceof String);
             builder.pop();
 
             builder.push("General Infection values");

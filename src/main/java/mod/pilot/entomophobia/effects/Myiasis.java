@@ -4,11 +4,14 @@ import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.data.EntomoDataManager;
 import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
+import mod.pilot.entomophobia.entity.PestManager;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
+import mod.pilot.entomophobia.entity.truepest.PestBase;
 import mod.pilot.entomophobia.particles.EntomoParticles;
 import mod.pilot.entomophobia.systems.swarm.Swarm;
 import mod.pilot.entomophobia.systems.swarm.SwarmManager;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -43,7 +46,7 @@ public class Myiasis extends MobEffect implements IStackingEffect {
     private static final int convertTime = Config.SERVER.myiatic_convert_timer.get();
     @Override
     public void applyEffectTick(@NotNull LivingEntity target, int amp) {
-        if (!(target instanceof MyiaticBase || target instanceof Player) && EntomoDataManager.getConvertedFor(target) != null){
+        if (!(target instanceof MyiaticBase || target instanceof Player)){
             if (infectedDuration(target) == -1){
                 startRot(target);
             }
@@ -115,26 +118,54 @@ public class Myiasis extends MobEffect implements IStackingEffect {
 
     private void convertMob(LivingEntity target) {
         EntityType<?> EType = EntomoDataManager.getConvertedFor(target);
+        if (EType != null) {
+            Entity newEntity = EType.create(target.level());
+            assert newEntity != null;
+            newEntity.copyPosition(target);
+            target.level().addFreshEntity(newEntity);
+            target.level().playSound(null, target.blockPosition(), SoundEvents.ZOMBIE_INFECT, SoundSource.HOSTILE, 1.0f, 1.25f);
 
-        Entity newEntity = EType.create(target.level());
-        assert newEntity != null;
-        newEntity.copyPosition(target);
-        target.level().addFreshEntity(newEntity);
-        target.level().playSound(null, target.blockPosition(), SoundEvents.ZOMBIE_INFECT, SoundSource.HOSTILE, 1.0f, 1.25f);
+            if (newEntity instanceof LivingEntity le) {
+                HiveSaveData.Packet packet = HiveSaveData.locateClosestDataAndAccessor(le.position()).getA();
+                if (packet != null && target.level() instanceof ServerLevel server) {
+                    packet.registerAsUnlockedEntity(le).thenSync(server);
+                }
+            }
+            if (newEntity instanceof MyiaticBase M && M.canSwarm()) {
+                Swarm closest = SwarmManager.getClosestSwarm(M.position());
+                if (closest != null) {
+                    M.tryToRecruit(closest);
+                }
+            }
+        } else {
+            if (target.level().getEntitiesOfClass(PestBase.class, target.getBoundingBox().inflate(16)).size() > 64) return;
+            RandomSource random = target.getRandom();
 
-        if (newEntity instanceof LivingEntity le){
-            HiveSaveData.Packet packet = HiveSaveData.locateClosestDataAndAccessor(le.position()).getA();
-            if (packet != null && target.level() instanceof ServerLevel server){
-                packet.registerAsUnlockedEntity(le).thenSync(server);
+            float hp = target.getMaxHealth();
+            int pestCount = (int) (hp / 5) + 1;
+            for (int i = 0; i < pestCount; i++){
+                PestBase le1 = PestManager.createPestAt(target.level(), target.position(), 1, 1200, null);
+                if (le1 == null) continue;
+                Vec3 delta = new Vec3(1, 1, 1);
+                delta = delta.yRot((float)Math.toRadians(random.nextIntBetweenInclusive(-180, 180)));
+                delta = delta.scale(0.2 + (random.nextDouble() * 0.2));
+                le1.setDeltaMovement(delta);
+                target.level().addFreshEntity(le1);
+                le1.invulnerableTime = 20;
+            }
+            target.level().playSound(null, target.blockPosition(), SoundEvents.ZOMBIE_INFECT, SoundSource.HOSTILE, 1.0f, 1.5f);
+            if (target.level() instanceof ServerLevel serverLevel){
+                double x0 = target.getX() - (random.nextFloat() - 0.1) * 0.1D;
+                double y0 = target.getY() + (random.nextFloat() - 0.25) * 0.15D * 5;
+                double z0 = target.getZ() + (random.nextFloat() - 0.1) * 0.1D;
+                serverLevel.sendParticles(ParticleTypes.EXPLOSION_EMITTER, x0, y0, z0, 2, 0, 0, 0, 1);
             }
         }
-        if (newEntity instanceof MyiaticBase M && M.canSwarm()){
-            Swarm closest = SwarmManager.getClosestSwarm(M.position());
-            if (closest != null) {
-                M.tryToRecruit(closest);
-            }
-        }
 
+        target.setInvulnerable(false);
+        if (target instanceof Mob){
+            ((Mob)target).setNoAi(false);
+        }
         rotHashmap.remove(target);
         target.remove(Entity.RemovalReason.DISCARDED);
     }

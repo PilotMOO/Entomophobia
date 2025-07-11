@@ -368,13 +368,9 @@ public class Nest {
                         + existingSize.getX() + existingSize.getY() + existingSize.getZ()) / 6;
                 //AABB existingAABB = AABB.ofSize(pos, existingSize.getX(), existingSize.getY(), existingSize.getZ());
                 if (pos.closerThan(pos1, cumulativeSize) /*toTestAABB.intersects(existingAABB)*/){
-                    /*System.err.println("TOO CLOSE TO A FEATURE YOU SHIT");
-                    System.err.println("Distance: " + pos.distanceTo(pos1));
-                    System.err.println("Cumulative size: " + cumulativeSize);*/
                     return false;
                 }
             }
-            //System.out.println("It was NOT too close to another feature! Yippe!");
             return true;
         }
         protected abstract @Nullable Pair<Vec3, Direction> generateFeaturePlacementPosition(byte placementPos);
@@ -410,8 +406,8 @@ public class Nest {
                 f = FeatureManager.FeatureTypeHolder.getRandomFeature(getOffshootType(), placePosType);
             } while (f == null && cycle++ < 10);
             if (f == null){
-                System.out.println("An offshoot was unable to retrieve a random feature for Offshoot Type (" +
-                        getOffshootType() + ") and Placement Position (" + placePosType + ") in " + cycle + " attempts.");
+                /*System.out.println("An offshoot was unable to retrieve a random feature for Offshoot Type (" +
+                        getOffshootType() + ") and Placement Position (" + placePosType + ") in " + cycle + " attempts.");*/
                 return null;
             }
             return f.isVariantPackage() ? ((FeatureVariantPackage)f).getRandomInstance() : f;
@@ -442,8 +438,8 @@ public class Nest {
                 return new Pair<>(placePos, facing);
             }
             else{
-                System.out.println("An offshoot was unable to place " + f
-                        + " because the offshoot failed to generate a valid placement position in " + cycle + " attempts.");
+                /*System.out.println("An offshoot was unable to place " + f
+                        + " because the offshoot failed to generate a valid placement position in " + cycle + " attempts.");*/
                 return null;
             }
         }
@@ -662,11 +658,11 @@ public class Nest {
             while (!testOffshootPosition(toReturn) && cycleCounter < 20);
             if (testOffshootPosition(toReturn)) return toReturn;
             else {
-                System.err.println("[NEST SYSTEM] Attempt to generate a valid Offshoot position FAILED in [" + cycleCounter + "] attempts!");
+                /*System.err.println("[NEST SYSTEM] Attempt to generate a valid Offshoot position FAILED in [" + cycleCounter + "] attempts!");
                 System.err.println("[NEST SYSTEM] Info-- From: Chamber, At: " + position);
                 System.err.println("[NEST SYSTEM] Debugger-- Running testOffshootPosition debugger on final result...");
                 System.err.println("[NEST SYSTEM] Debugger-- Info-- testOffshootPosition debugger finished, result was "
-                        + testOffshootPositionWithDebug(toReturn));
+                        + testOffshootPositionWithDebug(toReturn));*/
                 deadEnd = true;
                 return null;
             }
@@ -783,7 +779,7 @@ public class Nest {
             do{
                 //Continuously add the direction to the position until we hit a solid block
                 toReturn = toReturn.add(direction);
-                if (toReturn.y < server.getMinBuildHeight() && toReturn.y > server.getMaxBuildHeight()){
+                if (toReturn.y < server.getMinBuildHeight() || toReturn.y > server.getMaxBuildHeight()){
                     //If the vector is higher or lower than the build limits, return null
                     //(so a hole inside a nest won't make this run forever and freeze the server)
                     return null;
@@ -972,9 +968,9 @@ public class Nest {
                 while (testEndPositionInvalidity(toReturn) && cycleCounter++ < 20);
             }
 
-            if (testEndPositionInvalidity(toReturn, true)){
-                System.err.println("[NEST SYSTEM] Corridor End Position was still invalid after " + cycleCounter + " attempts! Killing...");
-                if (isEntrance()) System.err.println("[NEST SYSTEM] Info-- failed end position was for an entrance!");
+            if (testEndPositionInvalidity(toReturn, false)){
+                //System.err.println("[NEST SYSTEM] Corridor End Position was still invalid after " + cycleCounter + " attempts! Killing...");
+                //if (isEntrance()) System.err.println("[NEST SYSTEM] Info-- failed end position was for an entrance!");
                 this.kill(false);
             }
             NestSaveData.dirty();

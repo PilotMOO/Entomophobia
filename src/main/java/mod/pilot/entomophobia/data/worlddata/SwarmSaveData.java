@@ -77,11 +77,9 @@ public class SwarmSaveData extends SavedData {
         public void PackSwarms(){
             ArrayList<Swarm> swarms = SwarmManager.getSwarms();
             CleanBuilder();
-            int tracker = 0;
             for (int i = 0; i < swarms.size(); i++){
                 Swarm toPack = swarms.get(i);
                 int idSize = builder.append("swarm").append(i).length();
-                System.out.println("Trying to pack a swarm with I.D. " + builder + "...");
 
                 tag.putUUID(builder.append("CaptainUUID").toString(), toPack.getCaptain().getUUID()); builder.setLength(idSize);
                 tag.putByte(builder.append("Type").toString(), toPack.getSwarmType()); builder.setLength(idSize);
@@ -102,25 +100,16 @@ public class SwarmSaveData extends SavedData {
                 for (int index = 0; index < units.size(); index++){
                     builder.append(index);
                     tag.putUUID(builder.toString(), units.get(index).getUUID());
-                    System.out.println("Packed up a UUID with I.D. " + builder);
                     builder.setLength(unitIDSize);
                 }
                 builder.setLength(idSize);
 
-                System.out.println("Packed up a Swarm with I.D. " + builder + "!");
                 CleanBuilder();
-                tracker++;
-            }
-            if (tracker > 0) {
-                System.out.println("Finished packing " + tracker + " Swarm(s)!");
-            } else {
-                System.out.println("There were no swarms to pack!");
             }
         }
         public void UnpackSwarms(){
             CleanBuilder();
             builder.append("swarm");
-            int tracker = 0;
             for (int i = 0; tag.contains(builder.append(i).append("Type").toString()); i++){
                 builder.setLength(builder.length() - 4);
                 int idLength = builder.length();
@@ -145,22 +134,13 @@ public class SwarmSaveData extends SavedData {
                 int unitIDSize = idLength + 4;
                 for (int index = 0; tag.contains(builder.append(index).toString()); index++){
                     unitUUIDs.add(tag.getUUID(builder.toString()));
-                    System.out.println("Unpacked a UUID with I.D. " + builder);
                     builder.setLength(unitIDSize);
                 }
 
                 data.toUnpack.add(new PackagedSwarm(captainUUID, type, state, fPos, maxUnits, unitUUIDs));
 
                 builder.setLength(idLength);
-                System.out.println("Partially unpacked Swarm with I.D. " + builder + "!");
                 builder.setLength(5);
-                tracker++;
-            }
-            System.out.println("Tag did not contain " + builder);
-            if (tracker > 0){
-                System.out.println("Partially unpacked " + tracker + " Swarm(s)!");
-            }else{
-                System.out.println("There were no swarms to unpack!");
             }
         }
 
@@ -191,7 +171,7 @@ public class SwarmSaveData extends SavedData {
             }
 
             public void unpackSwarm(MyiaticBase captain){
-                unpackedSwarm = SwarmManager.CreateSwarmFromBlueprint(captain, type, state, finalPos, maxUnits);
+                unpackedSwarm = SwarmManager.createSwarmFromBlueprint(captain, type, state, finalPos, maxUnits);
             }
             public int unpackAndAddUnit(MyiaticBase newUnit, boolean checkApplication){
                 UUID uuid = newUnit.getUUID();
@@ -199,13 +179,11 @@ public class SwarmSaveData extends SavedData {
 
                 if (!checkApplication || CheckApplication(newUnit.getUUID())){
                     if (unpackedSwarm == null){
-                        System.out.println("Can't assign new unit " + newUnit + " because unpackedSwarm was null, putting in waiting list...");
                         awaitingApplication.add(newUnit);
                         recruits.remove(uuid);
                         return -1;
                     }
                     else{
-                        System.out.println("Application succeeded!");
                         newUnit.ForceJoin(unpackedSwarm, true);
                         recruits.remove(uuid);
                         return 1;

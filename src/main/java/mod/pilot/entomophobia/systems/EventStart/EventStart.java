@@ -99,14 +99,8 @@ public abstract class EventStart {
 
     protected static void tickEventFade(){
         if (fadeState != FadeState.INACTIVE && fade != -1 && --fade == 0) {
-            //System.out.println("Changing state to [" + fadeState.next() + "]");
             changeEventState(fadeState.next());
-        } /*else {
-            if (fadeState == FadeState.INACTIVE) System.out.println("[EVENT INACTIVE]");
-            else if (fade != -1) {
-                System.out.println("Ticking... fade left: [" + fade + "]");
-            }
-        }*/
+        }
     }
 
     private static final int doomsDay = Config.SERVER.doomsday.get();

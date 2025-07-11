@@ -82,7 +82,6 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         attacking,
         other
     }
-    public static final EntityDataAccessor<Integer> AIState = SynchedEntityData.defineId(MyiaticBase.class, EntityDataSerializers.INT);
     public int getAIState(){return entityData.get(AIState);}
     public void setAIState(Integer count) {entityData.set(AIState, count);}
     public void setAIState(state ordinal) {entityData.set(AIState, ordinal.ordinal());}
@@ -92,6 +91,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     public static final EntityDataAccessor<Boolean> EncouragedDespawn = SynchedEntityData.defineId(MyiaticBase.class, EntityDataSerializers.BOOLEAN);
     public boolean getEncouragedDespawn(){return entityData.get(EncouragedDespawn);}
     public void setEncouragedDespawn(boolean flag) {entityData.set(EncouragedDespawn, flag);}
+    public static final EntityDataAccessor<Integer> AIState = SynchedEntityData.defineId(MyiaticBase.class, EntityDataSerializers.INT);
 
     @Override
     public void addAdditionalSaveData(@NotNull CompoundTag tag) {
@@ -310,7 +310,6 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         for (int i = 0; i < layerCount; i++){
             for (BlockPos bPos : current){
                 if (!level().getBlockState(bPos).isSolidRender(level(), bPos)) {
-                    System.out.println("Valid position at " + bPos + "!");
                     return bPos;
                 }
 

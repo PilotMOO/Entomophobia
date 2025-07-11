@@ -32,7 +32,7 @@ public class SlimeParabolaWand extends Item {
             assert slime != null;
             slime.setNoAi(true);
             slime.setNoGravity(true);
-            slime.setPos(parabola.calculateParabolaWorldPositionFromVector(player.position()));
+            slime.setPos(parabola.calculateParabolaYValueFromWorldPosition(player.position()));
             level.addFreshEntity(slime);
             player.displayClientMessage(Component.literal("Created slime at Y level " + slime.position().y), true);
             player.getCooldowns().addCooldown(this, 2);

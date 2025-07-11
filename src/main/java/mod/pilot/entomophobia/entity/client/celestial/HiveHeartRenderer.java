@@ -56,7 +56,6 @@ public class HiveHeartRenderer extends GeoEntityRenderer<HiveHeartEntity> {
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
 
         for (HiveHeartEntity.Artery artery : entity.getOrCreateArteryHooks()) {
-            //System.out.println(artery);
             artery.tick();
             if (artery.isInactive()){
                 RandomSource random = entity.getRandom();

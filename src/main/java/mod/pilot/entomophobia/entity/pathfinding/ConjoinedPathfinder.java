@@ -117,7 +117,6 @@ public class ConjoinedPathfinder<I extends PathNavigation, J extends PathNavigat
 
     public void tick() {
         ++this.tick;
-        System.out.println("Active pathfinder is " + (Active == Primary ? "Primary" : "Secondary"));
         Active.tick();
         if (isDone()) wantedPosition = null;
     }

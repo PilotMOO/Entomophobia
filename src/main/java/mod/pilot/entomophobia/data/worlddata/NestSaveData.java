@@ -86,12 +86,12 @@ public class NestSaveData extends SavedData {
                 tracker++;
             }
 
-            if (tracker > 0){
+            /*if (tracker > 0){
                 System.out.println("Packaged up " + tracker + " Nest(s)!");
             }
             else{
                 System.out.println("There were no available nests to pack!");
-            }
+            }*/
         }
 
         private void packageFamilyTreeFor(Nest.Offshoot parent, String parentID) {
@@ -128,7 +128,6 @@ public class NestSaveData extends SavedData {
             tag.putDouble(builder.append("z").toString(), pos.z); builder.setLength(ID.length());
 
             tag.putByte(builder.append("state").toString(), nest.getNestState()); cleanBuilder();
-            System.out.println("Packaged up a nest at " + pos + " with state " + nest.getNestState() + " and I.D. " + ID);
         }
         private String packOffshoot(Nest.Offshoot toPack, String parentID, int childIndex) {
             cleanBuilder();
@@ -168,7 +167,6 @@ public class NestSaveData extends SavedData {
                 tag.putBoolean(builder.append("entrance").toString(), corridor.isEntrance()); builder.setLength(ID.length());
             }
 
-            System.out.println("Packed up an offshoot with I.D. " + ID);
             cleanBuilder();
             return ID;
         }
@@ -192,8 +190,6 @@ public class NestSaveData extends SavedData {
                 Nest.Chamber mainChamber = (Nest.Chamber) unpackWithAllChildrenFromID(mainChamberID, null);
 
                 NestManager.constructFromBlueprint(getServer(), nestPos, state, mainChamber);
-
-                System.out.println("Unpacked a nest with the I.D. " + nestID);
 
                 tracker++;
                 nestID = builder.append("Nest").append(tracker).toString(); cleanBuilder();
@@ -222,12 +218,10 @@ public class NestSaveData extends SavedData {
 
             switch (type){
                 case 1 ->{
-                    System.out.println("Unpacking a Chamber with I.D. " + ID);
                     boolean isMain = tag.getBoolean(builder.append("main").toString()); builder.setLength(ID.length());
                     toReturn = Nest.Chamber.constructFromBlueprint(getServer(), parent, pos, size,
                             thickness, deadEnd, state, isMain, featuresDone);
                     if (isMain && tag.contains(builder.append("hivenervoussystem").toString())){
-                        System.out.println("Tag contained " + builder);
                         UUID hhUUID = tag.getUUID(builder.toString());
                         ((Nest.Chamber)toReturn).setHiveHeart(hhUUID);
                     }
@@ -244,12 +238,10 @@ public class NestSaveData extends SavedData {
                     if (parent == null){
                         throw new RuntimeException("Can't unpack Corridor " + ID + " because assigned parent is null!");
                     }
-                    System.out.println("Unpacking a Corridor with I.D. " + ID);
                     toReturn = Nest.Corridor.ConstructFromBlueprint(getServer(), parent, pos, end, size,
                             thickness, deadEnd, state, entrance, featuresDone);
                 }
                 default -> {
-                    System.out.println("Type did not match up, returning null...");
                     toReturn = null;
                 }
             }
