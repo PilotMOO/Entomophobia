@@ -1,8 +1,8 @@
 package mod.pilot.entomophobia.entity.client.pheromones;
 
-import mod.azure.azurelib.model.GeoModel;
 import mod.pilot.entomophobia.entity.pheromones.PheromonePreyHuntEntity;
 import net.minecraft.resources.ResourceLocation;
+import software.bernie.geckolib.model.GeoModel;
 
 public class PheromonePreyHuntModel extends GeoModel<PheromonePreyHuntEntity> {
     private static final ResourceLocation model = new ResourceLocation("entomophobia", "geo/entity/nothing.geo.json");

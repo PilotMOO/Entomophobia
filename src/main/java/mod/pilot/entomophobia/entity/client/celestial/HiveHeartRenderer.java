@@ -3,7 +3,6 @@ package mod.pilot.entomophobia.entity.client.celestial;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import mod.azure.azurelib.renderer.GeoEntityRenderer;
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.data.EntomoDataManager;
 import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
@@ -24,6 +23,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 public class HiveHeartRenderer extends GeoEntityRenderer<HiveHeartEntity> {
     private static final RenderType ARTERY_RENDER_TYPE = RenderType.entityCutoutNoCull(

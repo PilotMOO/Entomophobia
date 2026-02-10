@@ -1,6 +1,5 @@
 package mod.pilot.entomophobia.entity.myiatic;
 
-import mod.azure.azurelib.animatable.GeoEntity;
 import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
@@ -49,6 +48,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import oshi.util.tuples.Pair;
+import software.bernie.geckolib.animatable.GeoEntity;
 
 import java.util.*;
 import java.util.function.Predicate;

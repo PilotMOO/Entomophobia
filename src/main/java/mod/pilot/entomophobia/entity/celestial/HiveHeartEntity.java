@@ -1,10 +1,5 @@
 package mod.pilot.entomophobia.entity.celestial;
 
-import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
-import mod.azure.azurelib.core.animation.AnimatableManager;
-import mod.azure.azurelib.core.animation.AnimationController;
-import mod.azure.azurelib.core.animation.RawAnimation;
-import mod.azure.azurelib.util.AzureLibUtil;
 import mod.pilot.entomophobia.data.clientsyncing.ArteryClientSyncer;
 import mod.pilot.entomophobia.data.clientsyncing.HiveDataSyncer;
 import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
@@ -31,12 +26,18 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import oshi.util.tuples.Pair;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.UUID;
 
-public class HiveHeartEntity extends MyiaticBase {
+public class HiveHeartEntity extends MyiaticBase implements GeoEntity {
     public HiveHeartEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
@@ -309,7 +310,7 @@ public class HiveHeartEntity extends MyiaticBase {
         return (float)(base - (0.5f / 32) * dist);
     }
 
-    private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return cache;

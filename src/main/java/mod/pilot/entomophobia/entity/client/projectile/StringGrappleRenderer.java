@@ -3,7 +3,6 @@ package mod.pilot.entomophobia.entity.client.projectile;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import mod.azure.azurelib.renderer.GeoEntityRenderer;
 import mod.pilot.entomophobia.entity.projectile.StringGrappleProjectile;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -15,6 +14,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 public class StringGrappleRenderer extends GeoEntityRenderer<StringGrappleProjectile> {
     private static final RenderType GRAPPLE_RENDER_TYPE = RenderType.entityCutoutNoCull(new ResourceLocation("textures/block/cobweb.png"));

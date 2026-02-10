@@ -1,9 +1,8 @@
 package mod.pilot.entomophobia.entity.client.truepest;
 
-import mod.azure.azurelib.model.GeoModel;
-import mod.pilot.entomophobia.entity.myiatic.MyiaticChickenEntity;
 import mod.pilot.entomophobia.entity.truepest.SpiderPestEntity;
 import net.minecraft.resources.ResourceLocation;
+import software.bernie.geckolib.model.GeoModel;
 
 public class SpiderPestModel extends GeoModel<SpiderPestEntity> {
     private static final ResourceLocation model = new ResourceLocation("entomophobia", "geo/entity/spider_pest.geo.json");

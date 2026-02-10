@@ -1,10 +1,9 @@
 package mod.pilot.entomophobia.entity.client.celestial;
 
-import mod.azure.azurelib.model.GeoModel;
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.entity.celestial.CelestialCarrionEntity;
-import mod.pilot.entomophobia.entity.myiatic.MyiaticChickenEntity;
 import net.minecraft.resources.ResourceLocation;
+import software.bernie.geckolib.model.GeoModel;
 
 public class CelestialCarrionModel extends GeoModel<CelestialCarrionEntity> {
     private static final ResourceLocation base_model = new ResourceLocation(Entomophobia.MOD_ID, "geo/entity/carrion_base.geo.json");

@@ -1,9 +1,8 @@
 package mod.pilot.entomophobia.entity.client.projectile;
 
-import mod.azure.azurelib.model.GeoModel;
-import mod.pilot.entomophobia.entity.myiatic.MyiaticChickenEntity;
 import mod.pilot.entomophobia.entity.projectile.StringGrappleProjectile;
 import net.minecraft.resources.ResourceLocation;
+import software.bernie.geckolib.model.GeoModel;
 
 public class StringGrappleModel extends GeoModel<StringGrappleProjectile> {
     private static final ResourceLocation model = new ResourceLocation("entomophobia", "geo/entity/nothing.geo.json");

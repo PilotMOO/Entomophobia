@@ -1,10 +1,9 @@
 package mod.pilot.entomophobia.entity.client.celestial;
 
-import mod.azure.azurelib.model.GeoModel;
 import mod.pilot.entomophobia.Entomophobia;
-import mod.pilot.entomophobia.entity.celestial.CelestialCarrionEntity;
 import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
 import net.minecraft.resources.ResourceLocation;
+import software.bernie.geckolib.model.GeoModel;
 
 public class HiveHeartModel extends GeoModel<HiveHeartEntity> {
     private static final ResourceLocation model = new ResourceLocation(Entomophobia.MOD_ID, "geo/entity/hive_heart.geo.json");
