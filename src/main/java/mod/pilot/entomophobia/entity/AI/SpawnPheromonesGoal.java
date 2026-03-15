@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.entity.AI;
 
-import mod.pilot.entomophobia.data.EntomoWorldManager;
+import mod.pilot.entomophobia.data.EntoWorldManager;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.pheromones.PheromonesEntityBase;
 import net.minecraft.world.entity.EntityType;
@@ -53,7 +53,7 @@ public class SpawnPheromonesGoal extends Goal {
     }
 
     private void SpawnPheromone() {
-        EntomoWorldManager.CreateNewEntityAt(PheroType, parent);
+        EntoWorldManager.createNewEntityAt(PheroType, parent);
         CD = MaxCD;
     }
 }

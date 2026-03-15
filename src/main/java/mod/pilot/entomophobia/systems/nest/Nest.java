@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.systems.nest;
 
-import mod.pilot.entomophobia.data.EntomoDataManager;
+import mod.pilot.entomophobia.data.EntoDataManager;
 import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.entity.EntomoEntities;
@@ -391,7 +391,7 @@ public class Nest {
                 Pair<Vec3, Direction> placePair = generateAndTestFeaturePosition(f, placedFeaturePosHashmap);
                 if (placePair == null || placePair.getA() == null) continue;
 
-                if (f.Place(placePair.getA(), server, null, placePair.getB())){
+                if (f.place(placePair.getA(), server, null, placePair.getB())){
                     placedFeaturePosHashmap.put(placePair.getA(), f);
                 }
             }
@@ -919,7 +919,7 @@ public class Nest {
             if (isEntrance()){
                 Vec3 surface = findSurface(getPosition());
                 do{
-                    Vec3 direction = EntomoDataManager.getDirectionToAFromB(surface, getPosition())
+                    Vec3 direction = EntoDataManager.getDirectionToAFromB(surface, getPosition())
                             .yRot(generateRadian(60, true))
                             .xRot(generateRadian(45, true))
                             .zRot(generateRadian(45, true))
@@ -948,7 +948,7 @@ public class Nest {
             //Normal Corridor Generation
             else{
                 do{
-                    Vec3 direction = EntomoDataManager.getDirectionToAFromB(getPosition(), getComparePosition())
+                    Vec3 direction = EntoDataManager.getDirectionToAFromB(getPosition(), getComparePosition())
                             .yRot(generateRadian(25, true))
                             .xRot(generateRadian(25, true))
                             .zRot(generateRadian(25, true))
@@ -992,7 +992,7 @@ public class Nest {
                 //The start position of the corridor
                 Vec3 start = getStartDirect();
                 //A vector pointing from the start towards the position to test
-                Vec3 direction = EntomoDataManager.getDirectionFromAToB(start, toTest);
+                Vec3 direction = EntoDataManager.getDirectionFromAToB(start, toTest);
 
                 //Gets the size of the parent, for offsetting checks to ensure it doesn't falsely return parent blocks
                 int parentScale = 0;
@@ -1065,12 +1065,12 @@ public class Nest {
                     //Start position of us
                     Vec3 start = getStartDirect();
                     //Direction towards the position to check
-                    Vec3 direction = EntomoDataManager.getDirectionFromAToB(start, toTest);
+                    Vec3 direction = EntoDataManager.getDirectionFromAToB(start, toTest);
 
                     //Start position of our sibling
                     Vec3 oStart = c.getStartDirect();
                     //Direction from start to end of the sibling
-                    Vec3 oDirection = EntomoDataManager.getDirectionFromAToB(oStart, c.end);
+                    Vec3 oDirection = EntoDataManager.getDirectionFromAToB(oStart, c.end);
 
                     //How long we are from start to testing position
                     double distance = start.distanceTo(toTest);
@@ -1150,7 +1150,7 @@ public class Nest {
         @Override
         protected Vec3 getOffshootPosition() {
             if (parent == null) return null;
-            return getPosition().add(EntomoDataManager.getDirectionToAFromB(getPosition(), parent.getPosition()).scale((double)weight / 2));
+            return getPosition().add(EntoDataManager.getDirectionToAFromB(getPosition(), parent.getPosition()).scale((double)weight / 2));
         }
 
         @Override

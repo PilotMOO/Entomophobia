@@ -1,19 +1,21 @@
 package mod.pilot.entomophobia.data;
 
-import mod.pilot.entomophobia.Config;
+import mod.pilot.entomophobia.ModConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class EntomoDataManager {
+public class EntoDataManager {
     public static EntityType<?> getConvertedFor(String ID){
-        for (String configged : Config.SERVER.myiatic_conversion_list.get()){
+        for (String configged : ModConfig.SERVER.myiatic_conversion_list.get()){
             String[] split = configged.split(">");
             if (split[0].equals(ID)){
                 return getEntityFromString(split[1]);
@@ -67,15 +69,10 @@ public class EntomoDataManager {
     }
 
     private static final long dayLength = 24000L;
-    private static Minecraft mc;
-    public static int getDaysElapsed(){
-        if (mc == null) mc = Minecraft.getInstance();
-        if (mc.level == null) return -1;
-        return (int)(mc.level.getDayTime() / dayLength);
+    public static int getDaysElapsed(Level level){
+        return (int)(level.getDayTime() / dayLength);
     }
-    public static float getDayPercentage(){
-        if (mc == null) mc = Minecraft.getInstance();
-        if (mc.level == null) return -1f;
-        return (float)(mc.level.getDayTime() % dayLength) / dayLength;
+    public static float getDayPercentage(Level level){
+        return (float)(level.getDayTime() % dayLength) / dayLength;
     }
 }

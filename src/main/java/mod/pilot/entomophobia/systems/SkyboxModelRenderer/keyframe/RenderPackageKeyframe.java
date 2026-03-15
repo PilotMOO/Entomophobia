@@ -1,7 +1,10 @@
 package mod.pilot.entomophobia.systems.SkyboxModelRenderer.keyframe;
 
 import mod.pilot.entomophobia.systems.SkyboxModelRenderer.RenderPackage;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public abstract class RenderPackageKeyframe {
     public int age;
     public abstract boolean active();

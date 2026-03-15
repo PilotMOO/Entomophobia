@@ -1,6 +1,5 @@
 package mod.pilot.entomophobia.systems.swarm;
 
-import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.data.worlddata.SwarmSaveData;
 import mod.pilot.entomophobia.entity.AI.SwarmGoals.CaptainCommandGoal;
 import mod.pilot.entomophobia.entity.AI.SwarmGoals.FollowCaptainGoal;
@@ -25,28 +24,28 @@ public class SwarmManager {
         scout, //4
         intercept //5
     }
-    private static final HashMap<Integer, String> SwarmNames = new HashMap<>();
+    private static final HashMap<Integer, String> swarmNames = new HashMap<>();
 
     public static void populateNameHashmap(){
-        SwarmNames.put(0, "Team Rocket");
-        SwarmNames.put(1, "The United States of Bugtopia");
-        SwarmNames.put(2, "Literally 1984");
-        SwarmNames.put(3, "The Beetles");
-        SwarmNames.put(4, "Republic of the Jar");
-        SwarmNames.put(5, "Tilted Towers Enjoyers");
-        SwarmNames.put(6, "Hotwheels Sisyphus Spiders");
-        SwarmNames.put(7, "Lobotomy Crew");
-        SwarmNames.put(8, "Mincerafters");
-        SwarmNames.put(9, "Lunatic Cultists");
-        SwarmNames.put(10, "John Fungal Stans");
-        SwarmNames.put(11, "The Fembugs");
-        SwarmNames.put(12, "Illiterate Jackasses");
-        SwarmNames.put(13, "Mold Snorters");
+        swarmNames.put(0, "Team Rocket");
+        swarmNames.put(1, "The United States of Bugtopia");
+        swarmNames.put(2, "Literally 1984");
+        swarmNames.put(3, "The Beetles");
+        swarmNames.put(4, "Republic of the Jar");
+        swarmNames.put(5, "Tilted Towers Enjoyers");
+        swarmNames.put(6, "Hotwheels Sisyphus Spiders");
+        swarmNames.put(7, "Lobotomy Crew");
+        swarmNames.put(8, "Mincerafters");
+        swarmNames.put(9, "Lunatic Cultists");
+        swarmNames.put(10, "John Fungal Stans");
+        swarmNames.put(11, "The Fembugs");
+        swarmNames.put(12, "Illiterate Jackasses");
+        swarmNames.put(13, "Mold Snorters");
     }
     public static String getNameFor(Swarm swarm){
         int index = getSwarms().indexOf(swarm);
-        if (index == -1 || index > SwarmNames.size()) return "Unnamed Swarm";
-        return SwarmNames.get(index);
+        if (index == -1 || index > swarmNames.size()) return "Unnamed Swarm";
+        return swarmNames.get(index);
     }
 
     private static final ArrayList<Swarm> ActiveSwarms = new ArrayList<>();
@@ -236,11 +235,10 @@ public class SwarmManager {
 
 
     public static void setSwarmDetails(){
-        BaseSwarmMaxSize = Config.SERVER.base_swarm_max_members.get();
     }
 
-    private static int BaseSwarmMaxSize;
+    public static int baseSwarmMaxSize;
     public static int getBaseSwarmMaxSize(){
-        return BaseSwarmMaxSize;
+        return baseSwarmMaxSize;
     }
 }

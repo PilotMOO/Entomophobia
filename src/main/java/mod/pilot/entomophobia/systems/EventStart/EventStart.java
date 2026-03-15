@@ -1,8 +1,7 @@
 package mod.pilot.entomophobia.systems.EventStart;
 
-import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.Entomophobia;
-import mod.pilot.entomophobia.data.EntomoDataManager;
+import mod.pilot.entomophobia.data.EntoDataManager;
 import mod.pilot.entomophobia.data.clientsyncing.EventStartSyncer;
 import mod.pilot.entomophobia.systems.GenericModelRegistry.GenericModelHub;
 import mod.pilot.entomophobia.systems.GenericModelRegistry.IGenericModel;
@@ -11,7 +10,6 @@ import mod.pilot.entomophobia.systems.SkyboxModelRenderer.RenderPackage;
 import mod.pilot.entomophobia.systems.SkyboxModelRenderer.keyframe.LifetimeKeyframe;
 import mod.pilot.entomophobia.systems.SkyboxModelRenderer.keyframe.OffsetKeyframe;
 import mod.pilot.entomophobia.systems.SkyboxModelRenderer.keyframe.OrbitKeyframe;
-import mod.pilot.entomophobia.systems.SkyboxModelRenderer.keyframe.RotationKeyframe;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -24,6 +22,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.Random;
 
@@ -32,7 +31,6 @@ public abstract class EventStart {
 
     private static final Random random = new Random();
 
-    public static void setup(){Server.setup(); Client.setup();}
     public static void unpackFromData(CompoundTag tag) {
         eventOver = tag.getBoolean(DATA_EVENT_OVER);
         eventStarted = tag.getBoolean(DATA_EVENT_STARTED);
@@ -103,14 +101,8 @@ public abstract class EventStart {
         }
     }
 
-    private static final int doomsDay = Config.SERVER.doomsday.get();
+    public static int doomsDay;
     private static final float dayPercentage = 0.75f;
-    private static boolean isItDoomsday() {
-        return !eventOver && EntomoDataManager.getDaysElapsed() == doomsDay;
-    }
-    private static boolean eventActive(boolean ignoreStarted){
-        return !eventOver && (eventStarted || ignoreStarted) && isItDoomsday() && EntomoDataManager.getDayPercentage() > dayPercentage;
-    }
 
     public static EventStartSyncer.ServerSyncPacket buildPacket(){
         return new EventStartSyncer.ServerSyncPacket(eventOver, eventStarted, fade, fadeState);
@@ -171,6 +163,19 @@ public abstract class EventStart {
             EventStartSyncer.syncAllClients(buildPacket(), server);
         }
 
+        private static boolean isItDoomsday() {
+            return !eventOver &&
+                    EntoDataManager.getDaysElapsed(
+                            ServerLifecycleHooks.getCurrentServer().overworld())
+                    == doomsDay;
+        }
+        private static boolean eventActive(boolean ignoreStarted){
+            return !eventOver && (eventStarted || ignoreStarted) && isItDoomsday()
+                    && EntoDataManager.getDayPercentage(
+                            ServerLifecycleHooks.getCurrentServer().overworld())
+                    > dayPercentage;
+        }
+
         private static MutableComponent getEventSleepDisabledTranslatable() {
             return Component.translatable(switch (random.nextInt(7)) {
                 case 1 -> "entomophobia.event.sleep_disabled1";
@@ -183,7 +188,6 @@ public abstract class EventStart {
             });
         }
     }
-
     public static class Client {
         private Client(){}
         private static FadeState oldState;

@@ -7,15 +7,12 @@ import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.awt.*;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
 @Mod.EventBusSubscriber(modid = Entomophobia.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class Config
+public class ModConfig
 {
     public static final Server SERVER;
     public static final ForgeConfigSpec SERVER_SPEC;
@@ -34,6 +31,9 @@ public class Config
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> myiatic_conversion_list;
         public final ForgeConfigSpec.ConfigValue<Integer> myiatic_convert_timer;
 
+        public final ForgeConfigSpec.ConfigValue<Integer> local_pest_cap;
+        public final ForgeConfigSpec.ConfigValue<Integer> pest_cap_distance;
+
         public final ForgeConfigSpec.ConfigValue<Integer> hunt_bonus_range;
 
         public final ForgeConfigSpec.ConfigValue<Integer> myiatic_creeper_explode_radius;
@@ -47,7 +47,7 @@ public class Config
             builder.push("Entomophobia Config");
 
             builder.push("Mob Targeting");
-            this.blacklisted_targets = builder.defineList("Mobs the Myiatics Ignore",
+            this.blacklisted_targets = builder.defineList("Mobs (and mods) the Myiatics Ignore",
                     Lists.newArrayList(
                             "minecraft:squid","minecraft:bat","minecraft:armor_stand") , o -> o instanceof String);
             this.myiatic_conversion_list = builder.defineList("Mobs and their Myiatic forms [key = \"Base>Myiatic\"]",
@@ -59,13 +59,18 @@ public class Config
             builder.pop();
 
             builder.push("General Infection values");
-            this.time_until_shit_gets_real = builder.defineInRange("Time, in ticks, until the infestation starts [DEPRECATED]", 48000, 0, Integer.MAX_VALUE);
+            this.time_until_shit_gets_real = builder.defineInRange("Time, in ticks, until the infestation starts", 48000, 0, Integer.MAX_VALUE);
             this.start_spread_aoe = builder.defineInRange("How far from each player the Myiasis effect will spread once the infection starts", 200, 0, Integer.MAX_VALUE);
             this.mob_cap = builder.defineInRange("Max amount of mobs allowed in the world at once until encouraged despawning (Note! Setting this value too low could break or completely disable some mechanics)", 50, 0, Integer.MAX_VALUE);
             this.distance_to_player_until_despawn = builder.defineInRange("Distance from the closest player until despawning is encouraged", 128, 0, Integer.MAX_VALUE);
             this.myiatic_convert_timer = builder.define("Time (in ticks) for Myiasis to convert mobs",
                     600);
-            this.doomsday = builder.defineInRange("On which night the infection will begin (days are counted up from 0, so day 1 is represented as 0, etc)", 2, 0, Integer.MAX_VALUE);
+            this.doomsday = builder.defineInRange("On which night the infection will begin (days are counted up from 0, so day 1 is represented as 0, etc) [CURRENTLY UNUSED]", 2, 0, Integer.MAX_VALUE);
+            builder.pop();
+
+            builder.push("Pest configuration");
+            this.local_pest_cap = builder.defineInRange("The amount of pests that can spawn from pestification in a given area", 96, 0, Integer.MAX_VALUE);
+            this.pest_cap_distance = builder.defineInRange("The \"range\" of the pest cap, how far it searches for nearby pests", 128, 0, Integer.MAX_VALUE);
             builder.pop();
 
             builder.push("Swarm Configuration");
@@ -121,7 +126,7 @@ public class Config
 
 
         public NestConfig(ForgeConfigSpec.Builder builder){
-            builder.comment("DO NOT PROCEED UNLESS YOU KNOW WHAT YOU ARE DOING!");
+            builder.comment("DO NOT PROCEED UNLESS YOU KNOW WHAT YOU ARE DOING");
             builder.comment("IT IS VERY EASY TO ENTIRELY BREAK THE NEST SYSTEM OR CAUSE A LOT OF PERFORMANCE ISSUES IF YOU ARE NOT CAREFUL");
 
             builder.push("Entomophobia Nest Config");
@@ -161,11 +166,10 @@ public class Config
                             "(joke messages)",
                     Lists.newArrayList(
                             "It's Joever",
-                            "NEST!!!!!",
+                            "Endure...",
                             "Erm what the sigma",
-                            "Fuck It Wii Ball™",
                             "*Gulp* it's right behind me, isn't it?",
-                            "Ah lads not again."
+                            "Mr. President a second nest has hit the overworld"
                     ), o -> o instanceof String);
             builder.pop(2);
 

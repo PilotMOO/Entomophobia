@@ -1,7 +1,6 @@
 package mod.pilot.entomophobia.data.worlddata;
 
 import mod.pilot.entomophobia.Entomophobia;
-import mod.pilot.entomophobia.event.EntomoForgeEvents;
 import mod.pilot.entomophobia.systems.EventStart.EventStart;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -9,30 +8,39 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class EntomoGeneralSaveData extends SavedData {
+public class EntoGeneralSaveData extends SavedData {
     public static final String NAME = Entomophobia.MOD_ID + "_misc_world_data";
 
-    public EntomoGeneralSaveData(){
+    public EntoGeneralSaveData(){
         super();
         MyiaticStorage = "dummy/";
-        server = EntomoForgeEvents.getServer();
     }
     public static void setActiveData(ServerLevel server){
-        Entomophobia.activeData = server.getDataStorage().computeIfAbsent(EntomoGeneralSaveData::load, EntomoGeneralSaveData::new, NAME);
+        Entomophobia.activeData = server.getDataStorage().computeIfAbsent(EntoGeneralSaveData::load, EntoGeneralSaveData::new, NAME);
         activeData().setDirty();
     }
-    private static @NotNull EntomoGeneralSaveData activeData(){
+    public static @NotNull EntoGeneralSaveData activeData(){
+        if (Entomophobia.activeData == null){
+            Entomophobia.activeData = ServerLifecycleHooks.getCurrentServer().overworld()
+                    .getDataStorage().computeIfAbsent(EntoGeneralSaveData::load, EntoGeneralSaveData::new, NAME);
+        }
         return Entomophobia.activeData;
+    }
+    public static void assertValidData(){
+        if (Entomophobia.activeData == null)
+            Entomophobia.activeData = ServerLifecycleHooks.getCurrentServer().overworld()
+                    .getDataStorage().computeIfAbsent(EntoGeneralSaveData::load, EntoGeneralSaveData::new, NAME);
     }
     public static void dirty(){
         Entomophobia.activeData.setDirty();
     }
-    public static EntomoGeneralSaveData load(CompoundTag tag){
-        EntomoGeneralSaveData data = new EntomoGeneralSaveData();
+    public static EntoGeneralSaveData load(CompoundTag tag){
+        EntoGeneralSaveData data = new EntoGeneralSaveData();
         if (tag.contains("myiatic_mobcap",99)){
             data.MyiaticCount = tag.getInt("myiatic_mobcap");
         }
@@ -241,13 +249,5 @@ public class EntomoGeneralSaveData extends SavedData {
             newString.append(S).append("/");
         }
         return newString.toString();
-    }
-
-    private ServerLevel server;
-    public ServerLevel getServer(){
-        return server;
-    }
-    public void setServer(ServerLevel server){
-        this.server = server;
     }
 }

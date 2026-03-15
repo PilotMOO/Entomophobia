@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import mod.pilot.entomophobia.Entomophobia;
-import mod.pilot.entomophobia.data.EntomoDataManager;
+import mod.pilot.entomophobia.data.EntoDataManager;
 import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -71,7 +71,7 @@ public class HiveHeartRenderer extends GeoEntityRenderer<HiveHeartEntity> {
             poseStack.pushPose();
             Vec3 heartPos = this.getPosition(entity, (double)entity.getBbHeight() * 0.5D, partialTick);
             Vec3 PosSubEnd = heartPos.subtract(arteryPos);
-            Vec3 directTo = EntomoDataManager.getDirectionToAFromB(heartPos, arteryPos).scale(0.5f);
+            Vec3 directTo = EntoDataManager.getDirectionToAFromB(heartPos, arteryPos).scale(0.5f);
             poseStack.translate(directTo.x, directTo.y/* + entity.getBbHeight() / 2*/, directTo.z);
             float PosSubEndDistPlus1 = (float)(PosSubEnd.length() + 1.0D);
             PosSubEnd = PosSubEnd.normalize();

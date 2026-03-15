@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.systems.nest;
 
-import mod.pilot.entomophobia.Config;
+import mod.pilot.entomophobia.ModConfig;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.systems.PolyForged.utility.GeneratorBlockPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -40,7 +40,7 @@ public class NestManager {
         return getClosestNest(position, -1);
     }
     public static @Nullable Nest getClosestNest(Vec3 position, double within){
-        if (ActiveNests.size() == 0) return null;
+        if (ActiveNests.isEmpty()) return null;
         Nest toReturn = null;
         double dist = Double.MAX_VALUE;
         for (Nest n : getActiveNests()){
@@ -93,14 +93,14 @@ public class NestManager {
         return new Vec3(start.x + xOffset, getNestYBuildPriority() + yOffset, start.z + zOffset);
     }
 
-    public static void setNestConstructionDetails(){
-        TickFrequency = Config.NEST.nest_tick_frequency.get();
-        NestBuildSpeed = Config.NEST.nest_build_speed.get();
-        NestMaxHardness = Config.NEST.nest_max_hardness.get();
-        NestMaxLayers = Config.NEST.max_nest_layers.get();
+    public static void setNestConstructionDetails(ModConfig.NestConfig cfg){
+        TickFrequency = cfg.nest_tick_frequency.get();
+        NestBuildSpeed = cfg.nest_build_speed.get();
+        NestMaxHardness = cfg.nest_max_hardness.get();
+        NestMaxLayers = cfg.max_nest_layers.get();
 
         HashMap<BlockState, Integer> NestBlocksHashmap = new HashMap<>();
-        for (String ConfigEntry : Config.NEST.nest_build_materials.get()){
+        for (String ConfigEntry : cfg.nest_build_materials.get()){
             String[] split = ConfigEntry.split(";");
             Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(split[0]));
             int weight = Integer.parseInt(split[1]);
@@ -110,43 +110,43 @@ public class NestManager {
         }
         NestBlocks = new GeneratorBlockPacket(NestBlocksHashmap, 10);
 
-        NestSmallChamberMinRadius = Config.NEST.small_chamber_min_size.get();
-        NestSmallChamberMaxRadius = Config.NEST.small_chamber_max_size.get();
-        NestSmallChamberThickness = Config.NEST.small_chamber_thickness.get();
+        NestSmallChamberMinRadius = cfg.small_chamber_min_size.get();
+        NestSmallChamberMaxRadius = cfg.small_chamber_max_size.get();
+        NestSmallChamberThickness = cfg.small_chamber_thickness.get();
 
-        NestMediumChamberMinRadius = Config.NEST.medium_chamber_min_size.get();
-        NestMediumChamberMaxRadius = Config.NEST.medium_chamber_max_size.get();
-        NestMediumChamberThickness = Config.NEST.medium_chamber_thickness.get();
+        NestMediumChamberMinRadius = cfg.medium_chamber_min_size.get();
+        NestMediumChamberMaxRadius = cfg.medium_chamber_max_size.get();
+        NestMediumChamberThickness = cfg.medium_chamber_thickness.get();
 
-        NestLargeChamberMinRadius = Config.NEST.large_chamber_min_size.get();
-        NestLargeChamberMaxRadius = Config.NEST.large_chamber_max_size.get();
-        NestLargeChamberThickness = Config.NEST.large_chamber_thickness.get();
+        NestLargeChamberMinRadius = cfg.large_chamber_min_size.get();
+        NestLargeChamberMaxRadius = cfg.large_chamber_max_size.get();
+        NestLargeChamberThickness = cfg.large_chamber_thickness.get();
 
-        NestSmallCorridorMinRadius = Config.NEST.small_corridor_min_size.get();
-        NestSmallCorridorMaxRadius = Config.NEST.small_corridor_max_size.get();
-        NestSmallCorridorThickness = Config.NEST.small_corridor_thickness.get();
+        NestSmallCorridorMinRadius = cfg.small_corridor_min_size.get();
+        NestSmallCorridorMaxRadius = cfg.small_corridor_max_size.get();
+        NestSmallCorridorThickness = cfg.small_corridor_thickness.get();
 
-        NestMediumCorridorMinRadius = Config.NEST.medium_corridor_min_size.get();
-        NestMediumCorridorMaxRadius = Config.NEST.medium_corridor_max_size.get();
-        NestMediumCorridorThickness = Config.NEST.medium_corridor_thickness.get();
+        NestMediumCorridorMinRadius = cfg.medium_corridor_min_size.get();
+        NestMediumCorridorMaxRadius = cfg.medium_corridor_max_size.get();
+        NestMediumCorridorThickness = cfg.medium_corridor_thickness.get();
 
-        NestLargeCorridorMinRadius = Config.NEST.large_corridor_min_size.get();
-        NestLargeCorridorMaxRadius = Config.NEST.large_corridor_max_size.get();
-        NestLargeCorridorThickness = Config.NEST.large_corridor_thickness.get();
+        NestLargeCorridorMinRadius = cfg.large_corridor_min_size.get();
+        NestLargeCorridorMaxRadius = cfg.large_corridor_max_size.get();
+        NestLargeCorridorThickness = cfg.large_corridor_thickness.get();
 
-        NestMinCorridorLength = Config.NEST.min_corridor_length.get();
-        NestMaxCorridorLength = Config.NEST.max_corridor_length.get();
-        NestMaxCorridorExtensions = Config.NEST.max_corridor_extension.get();
+        NestMinCorridorLength = cfg.min_corridor_length.get();
+        NestMaxCorridorLength = cfg.max_corridor_length.get();
+        NestMaxCorridorExtensions = cfg.max_corridor_extension.get();
 
-        NestCorridorExtensionChance = Config.NEST.corridor_extension_chance.get();
+        NestCorridorExtensionChance = cfg.corridor_extension_chance.get();
 
-        NestYBuildPriority = Config.NEST.nest_y_build_priority.get();
+        NestYBuildPriority = cfg.nest_y_build_priority.get();
 
-        NestMessages = new ArrayList<>(Config.NEST.nest_spawn_messages.get());
+        NestMessages = new ArrayList<>(cfg.nest_spawn_messages.get());
 
-        JokeMessagesEnabled = Config.NEST.enable_joke_messages.get();
-        JokeMessageChance = Config.NEST.joke_message_chance.get();
-        JokeNestMessages = new ArrayList<>(Config.NEST.nest_joke_spawn_messages.get());
+        JokeMessagesEnabled = cfg.enable_joke_messages.get();
+        JokeMessageChance = cfg.joke_message_chance.get();
+        JokeNestMessages = new ArrayList<>(cfg.nest_joke_spawn_messages.get());
     }
     private static int TickFrequency;
     public static int getTickFrequency(){

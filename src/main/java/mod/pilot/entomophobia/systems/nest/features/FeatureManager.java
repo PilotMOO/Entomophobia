@@ -10,7 +10,7 @@ import mod.pilot.entomophobia.systems.nest.features.wall.FleshClumpWallFeature;
 
 import java.util.HashMap;
 
-import static mod.pilot.entomophobia.systems.nest.features.FeatureManager.FeatureTypeHolder.RegisterFeature;
+import static mod.pilot.entomophobia.systems.nest.features.FeatureManager.FeatureTypeHolder.registerFeature;
 
 public class FeatureManager {
     //Private constructor because we don't need to ever create an instance of this class-- it's effectively static by C#'s rules.
@@ -19,25 +19,25 @@ public class FeatureManager {
 
     public static void registerAllFeatures() {
         /*Testing Features*/
-        //RegisterFeature(new YesFeature());
-        //RegisterFeature(new WallTestFeature());
-        //RegisterFeature(new ThickWallTestFeature());
+        //registerFeature(new YesFeature());
+        //registerFeature(new WallTestFeature());
+        //registerFeature(new ThickWallTestFeature());
 
         /*Variant Packages*/
         /*Ground*/
-        RegisterFeature(new FleshClumpFeaturePackage());
-        RegisterFeature(new WaxComblessFeaturePackage(), 30);
-        RegisterFeature(new CorpsedewCombFeaturePackage(), 10);
+        FeatureTypeHolder.registerFeature(new FleshClumpFeaturePackage());
+        registerFeature(new WaxComblessFeaturePackage(), 30);
+        registerFeature(new CorpsedewCombFeaturePackage(), 10);
         /*Wall*/
         //Empty :[
         /*Ceiling*/
-        RegisterFeature(new FleshClumpCeilingFeaturePackage());
+        FeatureTypeHolder.registerFeature(new FleshClumpCeilingFeaturePackage());
 
         /*Solo Features*/
         /*Ground*/
-        RegisterFeature(new BloodpitFeature(), 5);
+        registerFeature(new BloodpitFeature(), 5);
         /*Wall*/
-        RegisterFeature(new FleshClumpWallFeature());
+        registerFeature(new FleshClumpWallFeature());
         /*Ceiling*/
     }
 
@@ -123,10 +123,10 @@ public class FeatureManager {
             randomizer.replaceEntriesWith(gathered);
             return randomizer.getRandomWeightedObject();
         }
-        public static void RegisterFeature(Feature feature){
-            RegisterFeature(feature, defaultWeight);
+        public static void registerFeature(Feature feature){
+            registerFeature(feature, defaultWeight);
         }
-        public static void RegisterFeature(Feature feature, int weight){
+        public static void registerFeature(Feature feature, int weight){
             Feature.OffshootTypes oType =  Feature.OffshootTypes.fromByte(feature.OffshootType);
             Feature.PlacementPositions pPos =  Feature.PlacementPositions.fromByte(feature.PlacementPos);
             if (oType == null || pPos == null){
@@ -174,7 +174,7 @@ public class FeatureManager {
             }
         }
 
-        private static class OffshootSpecificHolder{
+        public static class OffshootSpecificHolder{
             private OffshootSpecificHolder(byte type){PlacementPosType = type;}
             public byte PlacementPosType;
 

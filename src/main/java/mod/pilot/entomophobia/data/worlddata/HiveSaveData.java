@@ -3,7 +3,7 @@ package mod.pilot.entomophobia.data.worlddata;
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.data.clientsyncing.HiveDataSyncer;
 import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
-import mod.pilot.entomophobia.event.EntomoForgeEvents;
+import mod.pilot.entomophobia.event.EntoForgeEvents;
 import mod.pilot.entomophobia.systems.nest.Nest;
 import mod.pilot.entomophobia.systems.nest.NestManager;
 import net.minecraft.nbt.CompoundTag;
@@ -15,6 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import oshi.util.tuples.Pair;
 
@@ -29,14 +30,23 @@ public class HiveSaveData extends SavedData {
 
     public HiveSaveData(){
         super();
-        server = EntomoForgeEvents.getServer();
+        server = EntoForgeEvents.getServer();
     }
     public static void setActiveHiveData(ServerLevel server){
         Entomophobia.activeHiveData = server.getDataStorage().computeIfAbsent(HiveSaveData::load, HiveSaveData::new, NAME);
         activeData().setDirty();
     }
-    private static @NotNull HiveSaveData activeData(){
+    public static @NotNull HiveSaveData activeData(){
+        if (Entomophobia.activeHiveData == null){
+            Entomophobia.activeHiveData = ServerLifecycleHooks.getCurrentServer().overworld()
+                    .getDataStorage().computeIfAbsent(HiveSaveData::load, HiveSaveData::new, NAME);
+        }
         return Entomophobia.activeHiveData;
+    }
+    public static void assertValidData(){
+        if (Entomophobia.activeHiveData == null)
+            Entomophobia.activeHiveData = ServerLifecycleHooks.getCurrentServer().overworld()
+                    .getDataStorage().computeIfAbsent(HiveSaveData::load, HiveSaveData::new, NAME);
     }
     public static void dirty(){
         if (Entomophobia.activeHiveData == null) return;
@@ -310,6 +320,10 @@ public class HiveSaveData extends SavedData {
             thenSync(getHiveHeart(server));
         }
         public void thenSync(HiveHeartEntity hh){
+            if (hh == null){
+                System.err.println("[HIVE SAVE DATA] Error! Attempted to sync changes across clients but FAILED to retrieve the hive heart entity! Packet: " + this);
+                return;
+            }
             if (hiveHeart.equals(hh.getUUID())) {
                 Level level = hh.level();
                 if (level.isClientSide) {
@@ -317,7 +331,7 @@ public class HiveSaveData extends SavedData {
                 } else if (level instanceof ServerLevel server) {
                     HiveDataSyncer.syncAllClients(hh, server);
                 }
-            } else System.err.println("[HIVE SAVE DATA] Error! Attempted to sync changes across clients the UUID of the sender and the packet are inconsistent!");
+            } else System.err.println("[HIVE SAVE DATA] Error! Attempted to sync changes across clients but the UUID of the sender and the packet are inconsistent! packet UUID[" + hiveHeart + "], entity UUID[" + hh.getUUID() + "]");
         }
 
         private void setup(){
@@ -361,6 +375,15 @@ public class HiveSaveData extends SavedData {
                 return true;
             }
             return false;
+        }
+
+        @Override
+        public String toString() {
+            return "Packet{" +
+                    "hiveHeart=" + hiveHeart +
+                    ", storedEntities=" + storedEntities +
+                    ", corpseDew=" + corpseDew +
+                    '}';
         }
     }
 }

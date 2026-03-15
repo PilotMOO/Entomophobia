@@ -150,7 +150,6 @@ public abstract class ShapeGenerator{
 
     private ServerLevel server;
     protected ServerLevel getServer(){
-        if (server == null) server = Entomophobia.activeData.getServer();
         return server;
     }
     public void setServer(ServerLevel server) {

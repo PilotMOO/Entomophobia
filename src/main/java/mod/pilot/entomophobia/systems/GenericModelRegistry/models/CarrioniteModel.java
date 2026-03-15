@@ -14,8 +14,11 @@ import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
+@OnlyIn(Dist.CLIENT)
 public class CarrioniteModel extends Model implements IGenericModel {
 	public static final ResourceLocation RESOURCE_LOCATION = new ResourceLocation(Entomophobia.MOD_ID,
 			"textures/misc/carrionite_texture.png");

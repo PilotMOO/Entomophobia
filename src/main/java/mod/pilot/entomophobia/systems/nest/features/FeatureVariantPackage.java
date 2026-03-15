@@ -48,13 +48,13 @@ public abstract class FeatureVariantPackage extends Feature{
     }*/
 
     @Override
-    public boolean Place(Vec3 position, ServerLevel server, @Nullable Rotation rotation, @Nullable Direction facing) {
+    public boolean place(Vec3 position, ServerLevel server, @Nullable Rotation rotation, @Nullable Direction facing) {
         Instance i = getRandomInstance();
         if (i == null){
             printIllegalAction(illegalActionPackageEmpty());
             return false;
         }
-        return i.Place(position, server, rotation, facing);
+        return i.place(position, server, rotation, facing);
     }
 
     @Override

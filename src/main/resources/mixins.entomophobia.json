@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "mod.pilot.entomophobia.mixins",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "mixins.entomophobia.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+    "client.SkyRenderMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

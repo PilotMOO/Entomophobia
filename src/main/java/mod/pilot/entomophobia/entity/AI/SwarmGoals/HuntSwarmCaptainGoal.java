@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.entity.AI.SwarmGoals;
 
-import mod.pilot.entomophobia.data.EntomoWorldManager;
+import mod.pilot.entomophobia.data.EntoWorldManager;
 import mod.pilot.entomophobia.entity.AI.Interfaces.ISwarmOrder;
 import mod.pilot.entomophobia.entity.EntomoEntities;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
@@ -74,7 +74,7 @@ public class HuntSwarmCaptainGoal extends Goal implements ISwarmOrder {
             List<LivingEntity> nearbyPrey = parent.getValidTargets();
             if (!nearbyPrey.isEmpty()){
                 if (!parent.isThereAPheromoneOfTypeXNearby(EntomoEntities.PREYHUNT.get())){
-                    EntomoWorldManager.CreateNewEntityAt(EntomoEntities.PREYHUNT.get(), parent);
+                    EntoWorldManager.createNewEntityAt(EntomoEntities.PREYHUNT.get(), parent);
                 }
             }
             else{

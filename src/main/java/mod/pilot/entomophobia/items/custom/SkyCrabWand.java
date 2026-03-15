@@ -21,6 +21,7 @@ public class SkyCrabWand extends Item {
         super(pProperties);
     }
 
+/*
     public static IGenericModel skycrab;
     public static RenderPackage rPackage;
     @Override
@@ -29,7 +30,9 @@ public class SkyCrabWand extends Item {
         if (skycrab == null) skycrab = new HorseshoeCrabModel(GenericModelHub.ModelSet.bakeLayer(HorseshoeCrabModel.LAYER_LOCATION));
         if (rPackage == null) {
             rPackage = new RenderPackage(skycrab)
-                    /*.orbit(-70, 45)*/
+                    */
+/*.orbit(-70, 45)*//*
+
                     .offset(0, 1, 0)
                     .rotate(0, 0, 0).que();
         } else {
@@ -40,4 +43,5 @@ public class SkyCrabWand extends Item {
 
         return super.use(pLevel, pPlayer, pUsedHand);
     }
+*/
 }

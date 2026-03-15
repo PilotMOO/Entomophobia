@@ -2,13 +2,14 @@ package mod.pilot.entomophobia.data.worlddata;
 
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
-import mod.pilot.entomophobia.event.EntomoForgeEvents;
+import mod.pilot.entomophobia.event.EntoForgeEvents;
 import mod.pilot.entomophobia.systems.swarm.Swarm;
 import mod.pilot.entomophobia.systems.swarm.SwarmManager;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,14 +21,23 @@ public class SwarmSaveData extends SavedData {
 
     public SwarmSaveData(){
         super();
-        server = EntomoForgeEvents.getServer();
+        server = EntoForgeEvents.getServer();
     }
     public static void setActiveSwarmData(ServerLevel server){
         Entomophobia.activeSwarmData = server.getDataStorage().computeIfAbsent(SwarmSaveData::load, SwarmSaveData::new, NAME);
         activeData().setDirty();
     }
-    private static @NotNull SwarmSaveData activeData(){
+    public static @NotNull SwarmSaveData activeData(){
+        if (Entomophobia.activeSwarmData == null){
+            Entomophobia.activeSwarmData = ServerLifecycleHooks.getCurrentServer().overworld()
+                    .getDataStorage().computeIfAbsent(SwarmSaveData::load, SwarmSaveData::new, NAME);
+        }
         return Entomophobia.activeSwarmData;
+    }
+    public static void assertValidData(){
+        if (Entomophobia.activeSwarmData == null)
+            Entomophobia.activeSwarmData = ServerLifecycleHooks.getCurrentServer().overworld()
+                    .getDataStorage().computeIfAbsent(SwarmSaveData::load, SwarmSaveData::new, NAME);
     }
     public static void Dirty(){
         if (Entomophobia.activeSwarmData == null) return;

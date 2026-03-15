@@ -2,7 +2,8 @@ package mod.pilot.entomophobia.entity.pheromones;
 
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
-import mod.pilot.entomophobia.data.EntomoWorldManager;
+import mod.pilot.entomophobia.data.EntoWorldManager;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
@@ -36,10 +37,12 @@ public class PheromonePreyHuntEntity extends PheromonesEntityBase implements Geo
     @Override
     public void tick() {
         super.tick();
-        AABB nearby = getBoundingBox().inflate(64);
-        if (level().getEntitiesOfClass(MyiaticBase.class, nearby).size() < 8){
-            for (int i = 0; i <= 8 - level().getEntitiesOfClass(MyiaticBase.class, nearby).size(); i++){
-                EntomoWorldManager.SpawnAnythingFromStorageWithRandomPos(position(), level(), 20);
+        if (level() instanceof ServerLevel server) {
+            AABB nearby = getBoundingBox().inflate(64);
+            if (level().getEntitiesOfClass(MyiaticBase.class, nearby).size() < 8) {
+                for (int i = 0; i <= 8 - level().getEntitiesOfClass(MyiaticBase.class, nearby).size(); i++) {
+                    EntoWorldManager.SpawnAnythingFromStorageWithRandomPos(position(), server, 20);
+                }
             }
         }
     }

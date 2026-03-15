@@ -1,8 +1,7 @@
 package mod.pilot.entomophobia.entity.myiatic;
 
-import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
-import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
+import mod.pilot.entomophobia.data.worlddata.EntoGeneralSaveData;
 import mod.pilot.entomophobia.effects.EntomoMobEffects;
 import mod.pilot.entomophobia.entity.AI.*;
 import mod.pilot.entomophobia.entity.AI.FormNestSwarmGoal;
@@ -411,28 +410,28 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
 
 
         /*Despawning*/
-    public static final int PlayerDespawnRange = Config.SERVER.distance_to_player_until_despawn.get();
-    public static final int MobCap = Config.SERVER.mob_cap.get();
+    public static int playerDespawnRange;
+    public static int mobCap;
     @Override
     public void checkDespawn() {
         if (getTarget() != null) return;
         if (getEncouragedDespawn()) this.discard();
 
         Entity player = this.level().getNearestPlayer(this, -1.0D);
-        if (player != null && player.distanceTo(this) < PlayerDespawnRange){
+        if (player != null && player.distanceTo(this) < playerDespawnRange){
             super.checkDespawn();
         }
-        else if (EntomoGeneralSaveData.getMyiaticCount() > MobCap){
+        else if (EntoGeneralSaveData.getMyiaticCount() > mobCap){
             this.discard();
         }
     }
     @Override
     public boolean removeWhenFarAway(double pDistanceToClosestPlayer) {
-        return EntomoGeneralSaveData.getMyiaticCount() > MobCap && getTarget() == null;
+        return EntoGeneralSaveData.getMyiaticCount() > mobCap && getTarget() == null;
     }
     @Override
     public boolean isPersistenceRequired() {
-        return EntomoGeneralSaveData.getMyiaticCount() < MobCap || getTarget() != null;
+        return EntoGeneralSaveData.getMyiaticCount() < mobCap || getTarget() != null;
     }
 
         /*Booleans*/
@@ -574,7 +573,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
 
         /*Targeting*/
     private static final BooleanCache<LivingEntity> targetCache = new BooleanCache<>(256, MyiaticBase::cachePredicate);
-    private static final Set<String> blacklist = new HashSet<>(Config.SERVER.blacklisted_targets.get());
+    public static List<String> blacklist;
     private static boolean cachePredicate(LivingEntity e) {
         if (e instanceof Player p) return !(p.isCreative() || p.isSpectator());
         if (e instanceof MyiaticBase) return false;

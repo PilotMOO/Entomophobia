@@ -3,7 +3,7 @@ package mod.pilot.entomophobia.mixins.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
-import mod.pilot.entomophobia.Config;
+import mod.pilot.entomophobia.ModConfig;
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.systems.GenericModelRegistry.RenderBufferAccess;
 import mod.pilot.entomophobia.systems.SkyboxModelRenderer.SkyboxModelManager;
@@ -49,13 +49,12 @@ public abstract class SkyRenderMixin implements ResourceManagerReloadListener, A
     @Shadow @Nullable private ClientLevel level;
     @Unique private static final ResourceLocation entomophobia$ANNOUNCEMENT =
             new ResourceLocation(Entomophobia.MOD_ID, "textures/world/announcement.png");
-    @Unique private static final boolean entomophobia$eggmanEnabled = Config.SERVER.eggman.get();
 
     @Inject(method = "renderSky", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/client/multiplayer/ClientLevel;getStarBrightness(F)F"))
     public void pissOnTheMoon(PoseStack pPoseStack, Matrix4f pProjectionMatrix,
                                   float pPartialTick, Camera pCamera, boolean pIsFoggy,
                                   Runnable pSkyFogSetup, CallbackInfo ci){
-        if (!entomophobia$eggmanEnabled) return;
+        if (!ModConfig.SERVER.eggman.get()) return;
         BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
 
         //pPoseStack.pushPose();

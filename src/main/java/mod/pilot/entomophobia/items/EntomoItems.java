@@ -98,8 +98,10 @@ public class EntomoItems {
             () -> new PathfindingWand(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> TEXT_WAND = ITEMS.register("text_wand",
             () -> new TextWand(new Item.Properties().stacksTo(1)));
+/*
     public static final RegistryObject<Item> SKYCRAB_WAND = ITEMS.register("skycrab_wand",
             () -> new SkyCrabWand(new Item.Properties().stacksTo(1)));
+*/
     public static final RegistryObject<Item> BITCH_WAND = ITEMS.register("bitch_wand",
             () -> new GetSomeBitchFromStorageWand(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> EVENT_READER = ITEMS.register("event_reader",

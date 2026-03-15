@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.systems.nest.features;
 
-import mod.pilot.entomophobia.data.EntomoDataManager;
+import mod.pilot.entomophobia.data.EntoDataManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -187,7 +187,7 @@ public abstract class Feature {
     public Vec3i size(){
         return template.getSize();
     }
-    public boolean Place(Vec3 position, ServerLevel server, @Nullable Rotation rotation, @Nullable Direction facing){
+    public boolean place(Vec3 position, ServerLevel server, @Nullable Rotation rotation, @Nullable Direction facing){
         StructureTemplate template = getTemplate(server, facing);
 
         Vec3 offset = getPlaceOffset(template, facing);
@@ -227,7 +227,7 @@ public abstract class Feature {
     }
     protected Vec3 getPlaceOffset(StructureTemplate template, @Nullable Direction facing){
         if (facing != null) {
-            return EntomoDataManager.vec3iToVec3(template.getSize()).multiply(
+            return EntoDataManager.vec3iToVec3(template.getSize()).multiply(
                                             facing.getStepX() == 0 ? 0.5 : facing.getStepX() == -1 ? 1 : 0,
                                             facing.getStepY() == 1 ? 0 : facing.getStepY() == -1 ? 1 : 0.5,
                                             facing.getStepZ() == 0 ? 0.5 : facing.getStepZ() == -1 ? 1 : 0)
@@ -235,7 +235,7 @@ public abstract class Feature {
                             facing.getStepY() == -1 ? 1 : 0,
                             facing.getStepZ() == -1 ? 1 : 0);
         }
-        Vec3 toReturn = EntomoDataManager.vec3iToVec3(template.getSize()).multiply(0.5,0,0.5);
+        Vec3 toReturn = EntoDataManager.vec3iToVec3(template.getSize()).multiply(0.5,0,0.5);
         if (PlacementPos == 3) toReturn.add(0, size().getY(), 0);
         return toReturn;
     }

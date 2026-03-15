@@ -1,7 +1,7 @@
 package mod.pilot.entomophobia.effects;
 
-import mod.pilot.entomophobia.Config;
-import mod.pilot.entomophobia.data.EntomoDataManager;
+import mod.pilot.entomophobia.ModConfig;
+import mod.pilot.entomophobia.data.EntoDataManager;
 import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.entity.PestManager;
@@ -43,7 +43,7 @@ public class Myiasis extends MobEffect implements IStackingEffect {
         rotHashmap.put(target, 0);
     }
 
-    private static final int convertTime = Config.SERVER.myiatic_convert_timer.get();
+    public static int convertTime;
     @Override
     public void applyEffectTick(@NotNull LivingEntity target, int amp) {
         if (!(target instanceof MyiaticBase || target instanceof Player)){
@@ -85,7 +85,7 @@ public class Myiasis extends MobEffect implements IStackingEffect {
                     tickDamage(target, amp);
                 }
             }
-            else{
+            else if (!target.level().isClientSide){
                 convertMob(target);
             }
         }
@@ -116,8 +116,10 @@ public class Myiasis extends MobEffect implements IStackingEffect {
         }
     }
 
+    public static int pestCap = ModConfig.SERVER.local_pest_cap.get();
+    public static int pestCapDistance = ModConfig.SERVER.pest_cap_distance.get();
     private void convertMob(LivingEntity target) {
-        EntityType<?> EType = EntomoDataManager.getConvertedFor(target);
+        EntityType<?> EType = EntoDataManager.getConvertedFor(target);
         if (EType != null) {
             Entity newEntity = EType.create(target.level());
             assert newEntity != null;
@@ -137,8 +139,9 @@ public class Myiasis extends MobEffect implements IStackingEffect {
                     M.tryToRecruit(closest);
                 }
             }
-        } else {
-            if (target.level().getEntitiesOfClass(PestBase.class, target.getBoundingBox().inflate(16)).size() > 64) return;
+        }
+        else {
+            if (target.level().getEntitiesOfClass(PestBase.class, target.getBoundingBox().inflate(pestCapDistance)).size() > pestCap) return;
             RandomSource random = target.getRandom();
 
             float hp = target.getMaxHealth();

@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
-import static mod.pilot.entomophobia.data.EntomoDataManager.isThisGlass;
+import static mod.pilot.entomophobia.data.EntoDataManager.isThisGlass;
 
 public class BreakBlocksInMyWayGoal extends Goal {
     final MyiaticBase parent;

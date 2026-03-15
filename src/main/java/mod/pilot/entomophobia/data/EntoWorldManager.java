@@ -1,8 +1,10 @@
 package mod.pilot.entomophobia.data;
 
 import mod.pilot.entomophobia.Entomophobia;
+import mod.pilot.entomophobia.data.worlddata.EntoGeneralSaveData;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -11,10 +13,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-public class EntomoWorldManager {
+public class EntoWorldManager {
 
     // MOB MANAGEMENT
-    public static Entity CreateNewEntityAt(EntityType<? extends Entity> entityType, Vec3 pos, Level world){
+    public static Entity createNewEntityAt(EntityType<? extends Entity> entityType, Vec3 pos, Level world){
         Entity newEntity = entityType.create(world);
         assert newEntity != null;
         newEntity.setPos(pos);
@@ -22,36 +24,39 @@ public class EntomoWorldManager {
         world.addFreshEntity(newEntity);
         return newEntity;
     }
-    public static Entity CreateNewEntityAt(EntityType<? extends Entity> entityType, LivingEntity parent){
-        return CreateNewEntityAt(entityType, parent.position(), parent.level());
+    public static Entity createNewEntityAt(EntityType<? extends Entity> entityType, LivingEntity parent){
+        return createNewEntityAt(entityType, parent.position(), parent.level());
     }
 
-    public static MyiaticBase SpawnFromStorage(EntityType<? extends MyiaticBase> myiaticType, Vec3 pos, Level world){
+    public static MyiaticBase spawnFromStorage(EntityType<? extends MyiaticBase> myiaticType, Vec3 pos, ServerLevel world){
         String ID = myiaticType.create(world).getEncodeId();
+        EntoGeneralSaveData.assertValidData();
         if (Entomophobia.activeData.getQuantityOf(ID) > 0){
             Entomophobia.activeData.removeFromStorage(ID);
-            return (MyiaticBase)CreateNewEntityAt(myiaticType, pos, world);
+            return (MyiaticBase) createNewEntityAt(myiaticType, pos, world);
         }
         return null;
     }
-    public static MyiaticBase SpawnFromStorageWithRandomPos(EntityType<? extends MyiaticBase> myiaticType, Vec3 originPos, Level world, int Magnitude){
+    public static MyiaticBase SpawnFromStorageWithRandomPos(EntityType<? extends MyiaticBase> myiaticType, Vec3 originPos, ServerLevel world, int Magnitude){
         RandomSource rand = RandomSource.create();
-        return SpawnFromStorage(myiaticType, getValidPosFor(originPos.add(rand.nextIntBetweenInclusive(-Magnitude, Magnitude), 0, rand.nextIntBetweenInclusive(-Magnitude, Magnitude)), world, myiaticType.create(world)), world);
+        return spawnFromStorage(myiaticType, getValidPosFor(originPos.add(rand.nextIntBetweenInclusive(-Magnitude, Magnitude), 0, rand.nextIntBetweenInclusive(-Magnitude, Magnitude)), world, myiaticType.create(world)), world);
     }
-    public static MyiaticBase SpawnAnythingFromStorage(Vec3 pos, Level world){
+    public static MyiaticBase spawnAnythingFromStorage(Vec3 pos, ServerLevel world){
+        EntoGeneralSaveData.assertValidData();
         if (Entomophobia.activeData.getTotalInStorage() > 0){
             EntityType<? extends LivingEntity> type = (EntityType<? extends LivingEntity>)Entomophobia.activeData.getFirstFromStorage();
             if (type != null){
-                return (MyiaticBase)CreateNewEntityAt(type, pos, world);
+                return (MyiaticBase) createNewEntityAt(type, pos, world);
             }
         }
         return null;
     }
-    public static MyiaticBase SpawnAnythingFromStorageWithRandomPos(Vec3 pos, Level world, int Magnitude){
+    public static MyiaticBase SpawnAnythingFromStorageWithRandomPos(Vec3 pos, ServerLevel world, int Magnitude){
+        EntoGeneralSaveData.assertValidData();
         EntityType<? extends LivingEntity> type = (EntityType<? extends LivingEntity>)Entomophobia.activeData.getFirstFromStorage();
         if (type != null){
             RandomSource rand = RandomSource.create();
-            return (MyiaticBase)CreateNewEntityAt(type, getValidPosFor(pos.add(rand.nextIntBetweenInclusive(-Magnitude, Magnitude), 0, rand.nextIntBetweenInclusive(-Magnitude, Magnitude)), world, (MyiaticBase) type.create(world)), world);
+            return (MyiaticBase) createNewEntityAt(type, getValidPosFor(pos.add(rand.nextIntBetweenInclusive(-Magnitude, Magnitude), 0, rand.nextIntBetweenInclusive(-Magnitude, Magnitude)), world, (MyiaticBase) type.create(world)), world);
         }
         return null;
     }

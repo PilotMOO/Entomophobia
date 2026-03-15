@@ -1,13 +1,14 @@
 package mod.pilot.entomophobia.data.worlddata;
 
 import mod.pilot.entomophobia.Entomophobia;
-import mod.pilot.entomophobia.event.EntomoForgeEvents;
+import mod.pilot.entomophobia.event.EntoForgeEvents;
 import mod.pilot.entomophobia.systems.nest.Nest;
 import mod.pilot.entomophobia.systems.nest.NestManager;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,14 +21,23 @@ public class NestSaveData extends SavedData {
 
     public NestSaveData(){
         super();
-        server = EntomoForgeEvents.getServer();
+        server = EntoForgeEvents.getServer();
     }
     public static void setActiveNestData(ServerLevel server){
         Entomophobia.activeNestData = server.getDataStorage().computeIfAbsent(NestSaveData::load, NestSaveData::new, NAME);
         activeData().setDirty();
     }
-    private static @NotNull NestSaveData activeData(){
+    public static @NotNull NestSaveData activeData(){
+        if (Entomophobia.activeNestData == null){
+            Entomophobia.activeNestData = ServerLifecycleHooks.getCurrentServer().overworld()
+                    .getDataStorage().computeIfAbsent(NestSaveData::load, NestSaveData::new, NAME);
+        }
         return Entomophobia.activeNestData;
+    }
+    public static void assertValidData(){
+        if (Entomophobia.activeNestData == null)
+            Entomophobia.activeNestData = ServerLifecycleHooks.getCurrentServer().overworld()
+                    .getDataStorage().computeIfAbsent(NestSaveData::load, NestSaveData::new, NAME);
     }
     public static void dirty(){
         if (Entomophobia.activeNestData == null) return;

@@ -1,8 +1,7 @@
 package mod.pilot.entomophobia.systems.nest.hivenervoussystem.decisions.idle;
 
-import mod.pilot.entomophobia.Config;
 import mod.pilot.entomophobia.data.IntegerCycleTracker;
-import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
+import mod.pilot.entomophobia.data.worlddata.EntoGeneralSaveData;
 import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.entity.AI.ShortLifespanGoal;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
@@ -28,14 +27,13 @@ public class CreateHuntSwarmsDecision extends Decision {
         super(nervousSystem);
     }
 
-    private static final int mobCap = Config.SERVER.mob_cap.get();
     private final IntegerCycleTracker.Randomized conditionTicker = new IntegerCycleTracker.Randomized(24000, 12000);
     @Override
     public boolean condition(StimulantPackage sPackage) {
         if (sPackage.serverSide()
                 && accessHiveHeart() != null
                 && hh.accessData().getTotalInStorage() > 0
-                && (mobCap - EntomoGeneralSaveData.getMyiaticCount()) > 16){
+                && (MyiaticBase.mobCap - EntoGeneralSaveData.getMyiaticCount()) > 16){
             return conditionTicker.tick();
         }
         return false;

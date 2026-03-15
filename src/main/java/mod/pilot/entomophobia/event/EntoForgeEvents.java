@@ -1,10 +1,8 @@
 package mod.pilot.entomophobia.event;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.brigadier.arguments.DoubleArgumentType;
-import mod.pilot.entomophobia.Config;
+import mod.pilot.entomophobia.ModConfig;
 import mod.pilot.entomophobia.Entomophobia;
-import mod.pilot.entomophobia.blocks.custom.BloodwaxProtrusions;
+import mod.pilot.entomophobia.data.EntoDataManager;
 import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.data.worlddata.SwarmSaveData;
@@ -17,31 +15,25 @@ import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticCowEntity;
 import mod.pilot.entomophobia.entity.truepest.PestBase;
 import mod.pilot.entomophobia.items.EntomoItems;
-import mod.pilot.entomophobia.data.EntomoDataManager;
-import mod.pilot.entomophobia.data.worlddata.EntomoGeneralSaveData;
+import mod.pilot.entomophobia.data.worlddata.EntoGeneralSaveData;
 import mod.pilot.entomophobia.systems.nest.Nest;
 import mod.pilot.entomophobia.systems.nest.NestManager;
 import mod.pilot.entomophobia.systems.swarm.SwarmManager;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.Coordinates;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -53,9 +45,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.world.ForgeChunkManager;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
@@ -76,25 +65,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Mod.EventBusSubscriber(modid = Entomophobia.MOD_ID)
-public class EntomoForgeEvents {
+public class EntoForgeEvents {
     @SubscribeEvent
     public static void onLivingSpawned(EntityJoinLevelEvent event) {
-        if (event.getEntity() instanceof MyiaticBase  && !(event.getEntity() instanceof PestBase)
+        Entity E = event.getEntity();
+        if (E instanceof HiveHeartEntity hh) {
+            BlockPos entityPos = hh.blockPosition();
+            ForgeChunkManager.forceChunk(server, Entomophobia.MOD_ID, hh,
+                    entityPos.getX() >> 16, entityPos.getZ() >> 16,
+                    true, false);
+        }
+        else if (E instanceof MyiaticBase  && !(E instanceof PestBase)
                 && event.getLevel() instanceof ServerLevel s && s.getServer().isReady()){
-            Entomophobia.activeData.addToMyiaticCount();
+            EntoGeneralSaveData.activeData().addToMyiaticCount();
             //System.out.println("MyiaticCount is " + EntomoGeneralSaveData.getMyiaticCount());
             return;
         }
 
-        if (!(event.getEntity() instanceof LivingEntity LE) ||
+        if (!(E instanceof LivingEntity LE) ||
                 MyiaticBase.isInsideOfTargetBlacklist(LE)) return;
 
-        if (event.getEntity() instanceof Animal animal){
-            animal.targetSelector.addGoal(1, new AvoidEntityGoal<>(animal, MyiaticBase.class, EntomoForgeEvents::notCarrion,
+        if (E instanceof Animal animal){
+            animal.targetSelector.addGoal(1, new AvoidEntityGoal<>(animal, MyiaticBase.class, EntoForgeEvents::notCarrion,
                     16, 1.0D, 1.3D, (e) -> true));
         }
-        else if (event.getEntity() instanceof AbstractVillager villager){
-            villager.targetSelector.addGoal(1, new AvoidEntityGoal<>(villager, MyiaticBase.class, EntomoForgeEvents::notCarrion,
+        else if (E instanceof AbstractVillager villager){
+            villager.targetSelector.addGoal(1, new AvoidEntityGoal<>(villager, MyiaticBase.class, EntoForgeEvents::notCarrion,
                     16, 0.8D, 1.0D, (e) -> true));
         }
     }
@@ -109,16 +105,22 @@ public class EntomoForgeEvents {
             if (!EServer.getServer().isRunning()) return;
 
             Entity E = event.getEntity();
-            if (E instanceof MyiaticBase M && !(E instanceof PestBase)){
+            if (E instanceof HiveHeartEntity hh){
+                BlockPos entityPos = hh.blockPosition();
+                ForgeChunkManager.forceChunk(server, Entomophobia.MOD_ID, hh,
+                        entityPos.getX() >> 16, entityPos.getZ() >> 16,
+                        false, false);
+            }
+            else if (E instanceof MyiaticBase M && !(E instanceof PestBase)){
                 if (!M.isDeadOrDying()){
 
                     Pair<HiveSaveData.Packet, HiveHeartEntity> pair = HiveSaveData.locateClosestDataAndAccessor(M.position());
                     HiveSaveData.Packet packet = pair.getA();
                     if (packet != null){
-                        packet.addToStorage(M).thenSync(EServer);
+                        packet.addToStorage(M).thenSync(pair.getB());
                     }
                 }
-                Entomophobia.activeData.removeFromMyiaticCount();
+                EntoGeneralSaveData.activeData().removeFromMyiaticCount();
             }
         }
     }
@@ -133,6 +135,7 @@ public class EntomoForgeEvents {
     public static void handleSwarmUnpacking(EntityJoinLevelEvent event){
         if (!(event.getLevel() instanceof ServerLevel s)) return;
 
+        SwarmSaveData.assertValidData();
         if (Entomophobia.activeSwarmData != null && !Entomophobia.activeSwarmData.toUnpack.isEmpty()){
             SwarmSaveData.cleanPackagedSwarms();
             if (s.getGameTime() > 200) Entomophobia.activeSwarmData.toUnpack.clear();
@@ -158,17 +161,12 @@ public class EntomoForgeEvents {
     }
     @SubscribeEvent
     public static void serverStarting(ServerStartingEvent event){
-        NestManager.setNestConstructionDetails();
-        SwarmManager.setSwarmDetails();
-        PestManager.registerAll();
-        BloodwaxProtrusions.registerAllPriorityBlocks();
-
         server = event.getServer().overworld();
     }
     @SubscribeEvent
     public static void serverDataSetup(ServerStartedEvent event){
         ServerLevel server = event.getServer().overworld();
-        EntomoGeneralSaveData.setActiveData(server);
+        EntoGeneralSaveData.setActiveData(server);
         NestSaveData.setActiveNestData(server);
         HiveSaveData.setActiveHiveData(server);
         SwarmSaveData.setActiveSwarmData(server);
@@ -237,12 +235,12 @@ public class EntomoForgeEvents {
 
     @SubscribeEvent
     public static void invasionStartManager(TickEvent.ServerTickEvent event){
-        Entomophobia.activeData.ageWorld();
+        EntoGeneralSaveData.activeData().ageWorld();
 
-        if (!EntomoGeneralSaveData.hasStarted() && EntomoGeneralSaveData.getWorldAge() > Config.SERVER.time_until_shit_gets_real.get()){
+        if (!EntoGeneralSaveData.hasStarted() && EntoGeneralSaveData.getWorldAge() > ModConfig.SERVER.time_until_shit_gets_real.get()){
             for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
-                AABB spreadAABB = player.getBoundingBox().inflate(Config.SERVER.start_spread_aoe.get());
-                List<? extends LivingEntity> nearbyInfectables = player.level().getEntitiesOfClass(LivingEntity.class, spreadAABB, (LivingEntity Le) -> EntomoDataManager.getConvertedFor(Le.getEncodeId()) != null);
+                AABB spreadAABB = player.getBoundingBox().inflate(ModConfig.SERVER.start_spread_aoe.get());
+                List<? extends LivingEntity> nearbyInfectables = player.level().getEntitiesOfClass(LivingEntity.class, spreadAABB, (LivingEntity Le) -> EntoDataManager.getConvertedFor(Le.getEncodeId()) != null);
                 int amountInfected = 0;
                 for (LivingEntity entity : nearbyInfectables){
                     if (amountInfected < nearbyInfectables.size() / 6){
@@ -262,7 +260,7 @@ public class EntomoForgeEvents {
     }
     @SubscribeEvent
     public static void nestTicker(TickEvent.ServerTickEvent event){
-        if (EntomoGeneralSaveData.getWorldAge() % NestManager.getTickFrequency() == 0){
+        if (EntoGeneralSaveData.getWorldAge() % NestManager.getTickFrequency() == 0){
             NestManager.tickAllActiveNests();
         }
     }
@@ -510,221 +508,4 @@ public class EntomoForgeEvents {
         Kill, Disable, Enable, Locate, Read_Data
     }
 
-    private static int nextSwitch = 0;
-    @SubscribeEvent
-    public static void overlayTicker(TickEvent.ServerTickEvent event){
-        if (nextSwitch == 0){
-            regenerateOverlayHashmap();
-            nextSwitch = 20 + random.nextInt(-10, 50);
-        } else nextSwitch--;
-    }
-
-    private static final ResourceLocation OVERSTIM_EFFECT_OVERLAY = new ResourceLocation(Entomophobia.MOD_ID,
-            "textures/gui/overstimulated_heart_overlay.png");
-    private static final ResourceLocation NEURO_EFFECT_OVERLAY = new ResourceLocation(Entomophobia.MOD_ID,
-            "textures/gui/neuro_heart_overlays.png");
-    private static final NeuroHeartOverlayPackage[] overlays = new NeuroHeartOverlayPackage[10];
-    public static void regenerateOverlayHashmap(){
-        for (int i = 0; i < 10; i++){
-            overlays[i] = NeuroHeartOverlayPackage.generateRandom();
-        }
-    }
-
-    private static final RandomSource random = RandomSource.create();
-
-
-    @SubscribeEvent
-    public static void disableHeartRendering(RenderGuiOverlayEvent.Pre event){
-        if (event.getOverlay().id().equals(VanillaGuiOverlay.PLAYER_HEALTH.id())
-                && Minecraft.getInstance().gameMode.canHurtPlayer()
-                && Minecraft.getInstance().getCameraEntity() instanceof Player player
-                && player.hasEffect(EntomoMobEffects.NEUROINTOXICATION.get())){
-            int leftHeight = 39;
-            int width = event.getWindow().getGuiScaledWidth();
-            int height = event.getWindow().getGuiScaledHeight();
-
-            int left = width / 2 - 91;
-            int top = height - leftHeight;
-            event.getGuiGraphics().enableScissor(left, top, left - 81, top - 9);
-        }
-    }
-    @SubscribeEvent
-    public static void renderEffectOverlays(RenderGuiOverlayEvent.Post event){
-        //This is directly stolen from Alex's Caves irradiated heart rendering.
-        // Credit where credit is due, thank you Mr Alex for having a public GitHub, that was a godsend
-        if (event.getOverlay().id().equals(VanillaGuiOverlay.PLAYER_HEALTH.id())
-                && Minecraft.getInstance().gameMode.canHurtPlayer()
-                && Minecraft.getInstance().getCameraEntity() instanceof Player player) {
-
-            //Neurointox. overlay management
-            if (player.hasEffect(EntomoMobEffects.NEUROINTOXICATION.get())) {
-                event.getGuiGraphics().disableScissor();
-
-                int leftHeight = 39;
-                int width = event.getWindow().getGuiScaledWidth();
-                int height = event.getWindow().getGuiScaledHeight();
-                int forgeGuiTick = Minecraft.getInstance().gui instanceof ForgeGui forgeGui ? forgeGui.getGuiTicks() : 0;
-                float healthMax = 20;
-
-                int rowHeight = 11;
-
-                int left = width / 2 - 91;
-                int top = height - leftHeight;
-                int regen = -1;
-                if (player.hasEffect(MobEffects.REGENERATION)) {
-                    regen = forgeGuiTick % Mth.ceil(healthMax + 5.0F);
-                }
-
-                event.getGuiGraphics().pose().pushPose();
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                RenderSystem.setShader(GameRenderer::getPositionTexShader);
-                RenderSystem.setShaderTexture(0, NEURO_EFFECT_OVERLAY);
-                for (int i = 9; i >= 0; --i) {
-                    NeuroHeartOverlayPackage nPackage = overlays[i];
-                    int row = Mth.ceil((float) (i + 1) / 10.0F) - 1;
-                    int x = left + i % 10 * 8;
-                    int y = top - row * rowHeight;
-                    if (nPackage.shaking) {
-                        y += random.nextInt(2);
-                    }
-                    if (i == regen) {
-                        y -= 2;
-                    }
-
-                    if (nPackage.isSolo){
-                        //Blit Solo
-                        event.getGuiGraphics().blit(NEURO_EFFECT_OVERLAY, x, y, 50,
-                                nPackage.soloH ,NeuroHeartOverlayPackage.soloV,
-                                9, 9, 81, 81);
-                    }
-                    else{
-                        //Blit background
-                        event.getGuiGraphics().blit(NEURO_EFFECT_OVERLAY, x, y, 50,
-                                nPackage.heartBackH ,NeuroHeartOverlayPackage.heartBackV,
-                                9, 9, 81, 81);
-                        //Blit base
-                        event.getGuiGraphics().blit(NEURO_EFFECT_OVERLAY, x, y, 50,
-                                nPackage.heartBaseH, nPackage.heartBaseV,
-                                nPackage.halved ? 5 : 9, 9, 81, 81);
-                        //Blit overlay
-                        event.getGuiGraphics().blit(NEURO_EFFECT_OVERLAY, x, y, 50,
-                                nPackage.heartOverlayH, NeuroHeartOverlayPackage.heartOverlayV,
-                                9, 9, 81, 81);
-                    }
-                }
-                event.getGuiGraphics().blit(NEURO_EFFECT_OVERLAY, left, top, 50,
-                        0, 45, 81, 9, 81, 81);
-
-                event.getGuiGraphics().pose().popPose();
-            }
-            //Over. Stim. overlay management
-            else if (player.hasEffect(EntomoMobEffects.OVERSTIMULATION.get())){
-                int leftHeight = 39;
-                int width = event.getWindow().getGuiScaledWidth();
-                int height = event.getWindow().getGuiScaledHeight();
-                int health = Mth.ceil(player.getHealth());
-                int forgeGuiTick = Minecraft.getInstance().gui instanceof ForgeGui forgeGui ? forgeGui.getGuiTicks() : 0;
-                AttributeInstance attrMaxHealth = player.getAttribute(Attributes.MAX_HEALTH);
-                float healthMax = (float) attrMaxHealth.getValue();
-                float absorb = (float) Math.ceil(player.getAbsorptionAmount());
-
-                int healthRows = Mth.ceil((healthMax + absorb) / 2.0F / 10.0F);
-                int rowHeight = Math.max(10 - (healthRows - 2), 3);
-
-                //ClientProxy.random.setSeed(forgeGuiTick * 312871L);
-                int left = width / 2 - 91;
-                int top = height - leftHeight;
-                int regen = -1;
-                if (player.hasEffect(MobEffects.REGENERATION)) {
-                    regen = forgeGuiTick % Mth.ceil(healthMax + 5.0F);
-                }
-                final int heartV = player.level().getLevelData().isHardcore() ? 9 : 0;
-                int heartU = 0;
-                float absorbRemaining = absorb;
-                event.getGuiGraphics().pose().pushPose();
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                RenderSystem.setShader(GameRenderer::getPositionTexShader);
-                RenderSystem.setShaderTexture(0, OVERSTIM_EFFECT_OVERLAY);
-                for (int i = Mth.ceil((healthMax + absorb) / 2.0F) - 1; i >= 0; --i) {
-                    int row = Mth.ceil((float) (i + 1) / 10.0F) - 1;
-                    int x = left + i % 10 * 8;
-                    int y = top - row * rowHeight;
-                    if (health <= 4) {
-                        y += random.nextInt(2);
-                    }
-                    if (i == regen) {
-                        y -= 2;
-                    }
-                    event.getGuiGraphics().blit(OVERSTIM_EFFECT_OVERLAY, x, y, 50, heartU, heartV + 18, 9, 9, 32, 32);
-                    if (absorbRemaining > 0.0F) {
-                        if (absorbRemaining == absorb && absorb % 2.0F == 1.0F) {
-                            event.getGuiGraphics().blit(OVERSTIM_EFFECT_OVERLAY, x, y, 50, heartU + 9, heartV, 9, 9, 32, 32);
-                            absorbRemaining -= 1.0F;
-                        } else {
-                            event.getGuiGraphics().blit(OVERSTIM_EFFECT_OVERLAY, x, y, 50, heartU, heartV, 9, 9, 32, 32);
-                            absorbRemaining -= 2.0F;
-                        }
-                    } else {
-                        if (i * 2 + 1 < health) {
-                            event.getGuiGraphics().blit(OVERSTIM_EFFECT_OVERLAY, x, y, 50, heartU, heartV, 9, 9, 32, 32);
-                        } else if (i * 2 + 1 == health) {
-                            event.getGuiGraphics().blit(OVERSTIM_EFFECT_OVERLAY, x, y, 50, heartU + 9, heartV, 9, 9, 32, 32);
-                        }
-                    }
-                }
-                event.getGuiGraphics().pose().popPose();
-            }
-        }
-    }
-
-    private static class NeuroHeartOverlayPackage{
-        private static final RandomSource random = RandomSource.create();
-
-        public static final int heartBackV = 9 * 2;
-        public final int heartBackH;
-        public final int heartBaseV;
-        public final int heartBaseH;
-        public static final int heartOverlayV = 9 * 3;
-        public final int heartOverlayH;
-        public final boolean isSolo;
-        public static final int soloV = 9 * 4;
-        public final int soloH;
-        public final boolean shaking;
-        public final boolean halved;
-
-        private NeuroHeartOverlayPackage(int soloH, boolean shaking) {
-            this(-1, -1, -1, -1, true, soloH, shaking, false);
-        }
-        private NeuroHeartOverlayPackage(int heartBackH, int heartBaseV, int heartBaseH, int heartOverlayH, boolean shaking, boolean halved) {
-            this(heartBackH, heartBaseV, heartBaseH, heartOverlayH, false, -1, shaking, halved);
-        }
-        private NeuroHeartOverlayPackage(int heartBackH, int heartBaseV, int heartBaseH, int heartOverlayH,
-                                         boolean isSolo, int soloH, boolean shaking, boolean halved) {
-            this.heartBackH = heartBackH;
-            this.heartBaseV = heartBaseV;
-            this.heartBaseH = heartBaseH;
-            this.heartOverlayH = heartOverlayH;
-            this.isSolo = isSolo;
-            this.soloH = soloH;
-            this.shaking = shaking;
-            this.halved = halved;
-        }
-
-        public static NeuroHeartOverlayPackage generateRandom(){
-            NeuroHeartOverlayPackage toReturn;
-
-            boolean shaking = random.nextInt(4) == 0;
-            boolean halved = random.nextBoolean();
-            boolean isSolo = random.nextDouble() < 0.1;
-            if (isSolo) toReturn = new NeuroHeartOverlayPackage(random.nextInt(2) * 9, shaking);
-            else{
-                toReturn = new NeuroHeartOverlayPackage(
-                        random.nextInt(3) * 9,
-                        random.nextInt(2) * 9,
-                        random.nextInt(5) * 9,
-                        random.nextInt(3) * 9, shaking, halved);
-            }
-            return toReturn;
-        }
-    }
 }

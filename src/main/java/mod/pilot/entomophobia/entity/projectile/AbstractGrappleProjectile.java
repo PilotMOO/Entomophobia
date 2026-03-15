@@ -1,7 +1,7 @@
 package mod.pilot.entomophobia.entity.projectile;
 
+import mod.pilot.entomophobia.data.EntoDataManager;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
-import mod.pilot.entomophobia.data.EntomoDataManager;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -150,7 +150,7 @@ public abstract class AbstractGrappleProjectile extends AbstractArrow {
         Entity parent = getOwner();
         Entity target = getTarget();
         if (parent != null && target != null){
-            Vec3 force = EntomoDataManager.getDirectionFromAToB(target, parent).multiply(strength, strength, strength);
+            Vec3 force = EntoDataManager.getDirectionFromAToB(target, parent).multiply(strength, strength, strength);
             target.setDeltaMovement(getDeltaMovement().add(force));
         }
     }
@@ -158,7 +158,7 @@ public abstract class AbstractGrappleProjectile extends AbstractArrow {
         Entity parent = getOwner();
         Vec3 pos = getGrappledPos();
         if (parent != null && pos != null){
-            Vec3 force = EntomoDataManager.getDirectionFromAToB(parent, pos).multiply(strength, strength, strength);
+            Vec3 force = EntoDataManager.getDirectionFromAToB(parent, pos).multiply(strength, strength, strength);
             parent.setDeltaMovement(getDeltaMovement().add(force));
         }
     }

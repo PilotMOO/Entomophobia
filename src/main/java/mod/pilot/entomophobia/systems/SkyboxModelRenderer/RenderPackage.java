@@ -7,12 +7,15 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 
+@OnlyIn(Dist.CLIENT)
 public class RenderPackage{
     public final IGenericModel model;
     public Model getModel(){
