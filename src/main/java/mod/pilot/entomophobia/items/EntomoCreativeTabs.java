@@ -28,6 +28,10 @@ public class EntomoCreativeTabs {
                         register.accept(EntomoItems.MYIATIC_SHEEP_SPAWNEGG.get());
                         register.accept(EntomoItems.MYIATIC_PIG_SPAWNEGG.get());
                         register.accept(EntomoItems.MYIATIC_CHICKEN_SPAWNEGG.get());
+                        register.accept(EntomoItems.SPIDER_PEST_SPAWN.get());
+                        register.accept(EntomoItems.GRUB_SPAWN.get());
+                        register.accept(EntomoItems.COCK_SPAWN.get());
+                        register.accept(EntomoItems.CENTIPEDE_SPAWN.get());
 
                         register.accept(EntomoBlocks.MYIATIC_FLESH.get());
                         register.accept(EntomoBlocks.ROOTED_MYIATIC_FLESH.get());

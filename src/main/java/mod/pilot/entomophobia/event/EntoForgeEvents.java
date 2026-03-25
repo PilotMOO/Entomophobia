@@ -2,6 +2,7 @@ package mod.pilot.entomophobia.event;
 
 import mod.pilot.entomophobia.ModConfig;
 import mod.pilot.entomophobia.Entomophobia;
+import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
 import mod.pilot.entomophobia.data.EntoDataManager;
 import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
@@ -170,6 +171,8 @@ public class EntoForgeEvents {
         NestSaveData.setActiveNestData(server);
         HiveSaveData.setActiveHiveData(server);
         SwarmSaveData.setActiveSwarmData(server);
+
+        EntomoDamageTypes.buildMultitranslatables(server);
     }
     @SubscribeEvent
     public static void postServerCleanup(ServerStoppedEvent event){

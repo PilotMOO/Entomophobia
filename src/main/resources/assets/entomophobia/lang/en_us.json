@@ -1,11 +1,15 @@
 {
-  "item.entomophobia.myiatic_zombie_spawnegg": "Myiatic Zombie Spawn",
-  "item.entomophobia.myiatic_creeper_spawnegg": "Myiatic Creeper Spawn",
-  "item.entomophobia.myiatic_spider_spawnegg": "Myiatic Spider Spawn",
-  "item.entomophobia.myiatic_cow_spawnegg": "Myiatic Cow Spawn",
-  "item.entomophobia.myiatic_sheep_spawnegg": "Myiatic Sheep Spawn",
-  "item.entomophobia.myiatic_pig_spawnegg": "Myiatic Pig Spawn",
-  "item.entomophobia.myiatic_chicken_spawnegg": "Myiatic Chicken Spawn",
+  "item.entomophobia.myiatic_zombie_spawn": "Myiatic Zombie Spawn",
+  "item.entomophobia.myiatic_creeper_spawn": "Myiatic Creeper Spawn",
+  "item.entomophobia.myiatic_spider_spawn": "Myiatic Spider Spawn",
+  "item.entomophobia.myiatic_cow_spawn": "Myiatic Cow Spawn",
+  "item.entomophobia.myiatic_sheep_spawn": "Myiatic Sheep Spawn",
+  "item.entomophobia.myiatic_pig_spawn": "Myiatic Pig Spawn",
+  "item.entomophobia.myiatic_chicken_spawn": "Myiatic Chicken Spawn",
+  "item.entomophobia.spider_pest_spawn": "Spider (pest)",
+  "item.entomophobia.grub_spawn": "Grub",
+  "item.entomophobia.cockroach_spawn": "Cockroach",
+  "item.entomophobia.centipede_spawn": "Centipede",
 
   "item.entomophobia.milk_bucket": "Milk Bucket...?",
 

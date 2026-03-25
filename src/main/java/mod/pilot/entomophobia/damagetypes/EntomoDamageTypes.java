@@ -8,6 +8,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 
@@ -23,9 +24,16 @@ public class EntomoDamageTypes {
         return new DamageSource(entity.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(registryKey), entity2);
     }
 
-    public static final ResourceKey<DamageType> MYIATIC_BASIC1 = create("myiatic_basic1");
-    public static final ResourceKey<DamageType> MYIATIC_BASIC2 = create("myiatic_basic2");
-    public static final ResourceKey<DamageType> MYIATIC_BASIC3 = create("myiatic_basic3");
+    public static void buildMultitranslatables(Level level){
+        MYIATIC_MELEE_SOURCE = new MultitranslatableDamageSource(level, MYIATIC_MELEE,
+                "death.attack.myiatic_basic_damage1",
+                "death.attack.myiatic_basic_damage2",
+                "death.attack.myiatic_basic_damage3"
+        );
+    }
+
+    public static final ResourceKey<DamageType> MYIATIC_MELEE = create("myiatic_basic1");
+    public static MultitranslatableDamageSource MYIATIC_MELEE_SOURCE;
 
     public static final ResourceKey<DamageType> LATCH_1 = create("latch_1");
     public static final ResourceKey<DamageType> LATCH_2 = create("latch_2");
@@ -50,17 +58,7 @@ public class EntomoDamageTypes {
     public static final ResourceKey<DamageType> LEAD_POISONING = create("lead");
 
     public static DamageSource myiatic_basic(LivingEntity entity){
-        switch (entity.getRandom().nextIntBetweenInclusive(1, 3)){
-            default -> {
-                return damageSource(entity, MYIATIC_BASIC1, entity);
-            }
-            case 2 -> {
-                return damageSource(entity, MYIATIC_BASIC2, entity);
-            }
-            case 3 -> {
-                return damageSource(entity, MYIATIC_BASIC3, entity);
-            }
-        }
+        return MYIATIC_MELEE_SOURCE.instance(entity, entity);
     }
     public static DamageSource latch(LivingEntity entity){
         switch (entity.getRandom().nextIntBetweenInclusive(1, 3)){
