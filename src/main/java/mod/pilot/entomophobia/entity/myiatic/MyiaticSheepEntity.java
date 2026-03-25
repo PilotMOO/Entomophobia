@@ -2,7 +2,7 @@ package mod.pilot.entomophobia.entity.myiatic;
 
 import mod.pilot.entomophobia.entity.AI.AttackWithAnimationGoal;
 import mod.pilot.entomophobia.entity.AI.ReelInTargetsGoal;
-import mod.pilot.entomophobia.sound.EntomoSounds;
+import mod.pilot.entomophobia.sound.EntoSounds;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -74,7 +74,7 @@ public class MyiaticSheepEntity extends MyiaticBase{
     @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
-        return EntomoSounds.MYIATIC_SHEEP_IDLE.get();
+        return EntoSounds.MYIATIC_SHEEP_IDLE.get();
     }
     @Override
     protected SoundEvent getDeathSound() {

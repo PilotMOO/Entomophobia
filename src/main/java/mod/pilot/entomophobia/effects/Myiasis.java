@@ -2,12 +2,12 @@ package mod.pilot.entomophobia.effects;
 
 import mod.pilot.entomophobia.ModConfig;
 import mod.pilot.entomophobia.data.EntoDataManager;
-import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
+import mod.pilot.entomophobia.damagetypes.EntoDamageTypes;
 import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.entity.PestManager;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.truepest.PestBase;
-import mod.pilot.entomophobia.particles.EntomoParticles;
+import mod.pilot.entomophobia.particles.EntoParticles;
 import mod.pilot.entomophobia.systems.swarm.Swarm;
 import mod.pilot.entomophobia.systems.swarm.SwarmManager;
 import net.minecraft.core.BlockPos;
@@ -103,7 +103,7 @@ public class Myiasis extends MobEffect implements IStackingEffect {
                 double yOffset = target.getBbHeight() / 2 + random.nextDouble() * (random.nextBoolean() ? 1 : -1) * 0.25;
                 double zOffset = random.nextDouble() * (random.nextBoolean() ? 1 : -1) * 0.25;
 
-                server.sendParticles(EntomoParticles.FLY_PARTICLE.get(), target.getX(), target.getY(), target.getZ(),
+                server.sendParticles(EntoParticles.FLY_PARTICLE.get(), target.getX(), target.getY(), target.getZ(),
                         random.nextInt(2, 7),
                         xOffset, yOffset, zOffset, 0);
             }
@@ -112,7 +112,7 @@ public class Myiasis extends MobEffect implements IStackingEffect {
 
     private void tickDamage(LivingEntity target, int amp) {
         if (amp > 0 && target.tickCount % (300 / amp) == 0){
-            target.hurt(EntomoDamageTypes.myiasis(target), amp);
+            target.hurt(EntoDamageTypes.myiasis(target), amp);
         }
     }
 

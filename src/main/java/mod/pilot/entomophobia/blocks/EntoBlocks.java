@@ -2,8 +2,8 @@ package mod.pilot.entomophobia.blocks;
 
 import mod.pilot.entomophobia.Entomophobia;
 import mod.pilot.entomophobia.blocks.custom.*;
-import mod.pilot.entomophobia.items.EntomoItems;
-import mod.pilot.entomophobia.sound.EntomoSounds;
+import mod.pilot.entomophobia.items.EntoItems;
+import mod.pilot.entomophobia.sound.EntoSounds;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -16,7 +16,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 import java.util.function.Supplier;
 
-public class EntomoBlocks {
+public class EntoBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Entomophobia.MOD_ID);
 
     public static RegistryObject<Block> MYIATIC_FLESH = registryBlock("myiatic_flesh",
@@ -41,19 +41,19 @@ public class EntomoBlocks {
             ));
     public static RegistryObject<Block> BLOODWAX_PROTRUSIONS = registryBlock("bloodwax_protrusions",
             () -> new BloodwaxProtrusions(BlockBehaviour.Properties.copy(Blocks.HONEYCOMB_BLOCK).requiresCorrectToolForDrops()
-                    .destroyTime(0.3f).sound(EntomoSounds.BLOODWAX_PROTRUSION_STYPE)
+                    .destroyTime(0.3f).sound(EntoSounds.BLOODWAX_PROTRUSION_STYPE)
             ));
 
 
     public static RegistryObject<Block> TWINED_FLESH = registryBlock("twined_flesh",
-            () -> new TwinedFleshBlock(BlockBehaviour.Properties.copy(Blocks.CAVE_VINES).sound(EntomoSounds.TWINED_FLESH_STYPE)
+            () -> new TwinedFleshBlock(BlockBehaviour.Properties.copy(Blocks.CAVE_VINES).sound(EntoSounds.TWINED_FLESH_STYPE)
             ));
     public static RegistryObject<Block> LUMINOUS_FLESH = registryBlock("luminous_flesh",
-            () -> new LuminousFleshBlock(BlockBehaviour.Properties.copy(Blocks.CAVE_VINES).sound(EntomoSounds.TWINED_FLESH_STYPE)
+            () -> new LuminousFleshBlock(BlockBehaviour.Properties.copy(Blocks.CAVE_VINES).sound(EntoSounds.TWINED_FLESH_STYPE)
             ));
 
     public static RegistryObject<Block> CONGEALED_BLOOD = registerBlockWithCustomItem("congealed_blood",
-            () -> new CongealedBloodLayer(BlockBehaviour.Properties.copy(Blocks.SNOW_BLOCK).sound(EntomoSounds.CONGEALED_BLOOD_STYPE)
+            () -> new CongealedBloodLayer(BlockBehaviour.Properties.copy(Blocks.SNOW_BLOCK).sound(EntoSounds.CONGEALED_BLOOD_STYPE)
                     .destroyTime(0.25f)),
             () -> new CongealedBloodLayer.CongealedBloodItem(new Item.Properties()));
 
@@ -64,12 +64,12 @@ public class EntomoBlocks {
     }
     private static <T extends Block, J extends BlockItem> RegistryObject<T> registerBlockWithCustomItem(String name, Supplier<T> block, Supplier<J> blockItem){
         RegistryObject<T> toReturn = BLOCKS.register(name, block);
-        EntomoItems.ITEMS.register(name, blockItem);
+        EntoItems.ITEMS.register(name, blockItem);
         return toReturn;
     }
 
     private static <T extends Block> RegistryObject<Item> RegisterBlockItem(String name, RegistryObject<T> block) {
-        return EntomoItems.ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
+        return EntoItems.ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
     }
 
     public static void register(IEventBus eventBus){

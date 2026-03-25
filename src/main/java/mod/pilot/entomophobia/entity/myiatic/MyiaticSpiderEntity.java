@@ -1,7 +1,7 @@
 package mod.pilot.entomophobia.entity.myiatic;
 
-import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
-import mod.pilot.entomophobia.effects.EntomoMobEffects;
+import mod.pilot.entomophobia.damagetypes.EntoDamageTypes;
+import mod.pilot.entomophobia.effects.EntoMobEffects;
 import mod.pilot.entomophobia.entity.AI.AttackWithAnimationGoal;
 import mod.pilot.entomophobia.entity.AI.LatchOntoTargetGoal;
 import net.minecraft.sounds.SoundEvent;
@@ -118,11 +118,11 @@ public class MyiaticSpiderEntity extends MyiaticBase{
                 }
 
                 pEntity.invulnerableTime = 0;
-                boolean flag = pEntity.hurt(EntomoDamageTypes.latch(this), f);
+                boolean flag = pEntity.hurt(EntoDamageTypes.latch(this), f);
                 if (flag) {
                     if (pEntity instanceof LivingEntity LEntity){
-                        LEntity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 100));
-                        LEntity.addEffect(new MobEffectInstance(EntomoMobEffects.NEUROINTOXICATION.get(), 100));
+                        LEntity.addEffect(new MobEffectInstance(EntoMobEffects.MYIASIS.get(), 100));
+                        LEntity.addEffect(new MobEffectInstance(EntoMobEffects.NEUROINTOXICATION.get(), 100));
                         int duration = 100;
                         int amp = 0;
                         if (LEntity.hasEffect(MobEffects.POISON)){

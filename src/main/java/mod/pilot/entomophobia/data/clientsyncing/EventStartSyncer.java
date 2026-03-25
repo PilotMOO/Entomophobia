@@ -1,6 +1,5 @@
 package mod.pilot.entomophobia.data.clientsyncing;
 
-import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
 import mod.pilot.entomophobia.systems.EventStart.EventStart;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
@@ -12,13 +11,13 @@ import java.util.function.Supplier;
 
 public class EventStartSyncer {
     public static void request() {
-        EntomoPacketSyncer.sendToServer(new ClientRequestPacket());
+        EntoPacketSyncer.sendToServer(new ClientRequestPacket());
     }
     public static void sync(boolean over, boolean started, int fade, EventStart.FadeState state, ServerPlayer player) {
         sync(new ServerSyncPacket(over, started, fade, state), player);
     }
     public static void sync(ServerSyncPacket syncPacket, ServerPlayer player){
-        EntomoPacketSyncer.sendToClient(syncPacket, player);
+        EntoPacketSyncer.sendToClient(syncPacket, player);
     }
     public static void syncAllClients(ServerSyncPacket syncPacket, ServerLevel server){
         for (ServerPlayer sPlayer : server.getPlayers(p -> true)){

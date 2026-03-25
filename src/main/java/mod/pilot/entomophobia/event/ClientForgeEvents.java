@@ -2,7 +2,7 @@ package mod.pilot.entomophobia.event;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import mod.pilot.entomophobia.Entomophobia;
-import mod.pilot.entomophobia.effects.EntomoMobEffects;
+import mod.pilot.entomophobia.effects.EntoMobEffects;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
@@ -13,7 +13,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
@@ -48,7 +47,7 @@ public class ClientForgeEvents {
         if (event.getOverlay().id().equals(VanillaGuiOverlay.PLAYER_HEALTH.id())
                 && Minecraft.getInstance().gameMode.canHurtPlayer()
                 && Minecraft.getInstance().getCameraEntity() instanceof Player player
-                && player.hasEffect(EntomoMobEffects.NEUROINTOXICATION.get())){
+                && player.hasEffect(EntoMobEffects.NEUROINTOXICATION.get())){
             int leftHeight = 39;
             int width = event.getWindow().getGuiScaledWidth();
             int height = event.getWindow().getGuiScaledHeight();
@@ -67,7 +66,7 @@ public class ClientForgeEvents {
                 && Minecraft.getInstance().getCameraEntity() instanceof Player player) {
 
             //Neurointox. overlay management
-            if (player.hasEffect(EntomoMobEffects.NEUROINTOXICATION.get())) {
+            if (player.hasEffect(EntoMobEffects.NEUROINTOXICATION.get())) {
                 event.getGuiGraphics().disableScissor();
 
                 int leftHeight = 39;
@@ -128,7 +127,7 @@ public class ClientForgeEvents {
                 event.getGuiGraphics().pose().popPose();
             }
             //Over. Stim. overlay management
-            else if (player.hasEffect(EntomoMobEffects.OVERSTIMULATION.get())){
+            else if (player.hasEffect(EntoMobEffects.OVERSTIMULATION.get())){
                 int leftHeight = 39;
                 int width = event.getWindow().getGuiScaledWidth();
                 int height = event.getWindow().getGuiScaledHeight();

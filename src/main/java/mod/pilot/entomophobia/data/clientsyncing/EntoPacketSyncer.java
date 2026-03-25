@@ -10,7 +10,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //Stole this from harbinger's github ;)
-public class EntomoPacketSyncer {
+public class EntoPacketSyncer {
     private static final String VERSION = "1";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(Entomophobia.MOD_ID, "main"), () -> VERSION,

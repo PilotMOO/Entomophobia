@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.entity.projectile;
 
-import mod.pilot.entomophobia.blocks.EntomoBlocks;
+import mod.pilot.entomophobia.blocks.EntoBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
@@ -19,7 +19,7 @@ public class CongealedBloodProjectile extends ThrowableItemProjectile {
 
     @Override
     protected @NotNull Item getDefaultItem() {
-        return EntomoBlocks.CONGEALED_BLOOD.get().asItem();
+        return EntoBlocks.CONGEALED_BLOOD.get().asItem();
     }
 
     @Override
@@ -42,8 +42,8 @@ public class CongealedBloodProjectile extends ThrowableItemProjectile {
         }*/
 
         if (adjacentBState.canBeReplaced()){
-            level().setBlock(adjacentBPos, EntomoBlocks.CONGEALED_BLOOD.get().defaultBlockState(), 3);
-            level().playSound(null, adjacentBPos, EntomoBlocks.CONGEALED_BLOOD.get().getSoundType(adjacentBState).getPlaceSound(),
+            level().setBlock(adjacentBPos, EntoBlocks.CONGEALED_BLOOD.get().defaultBlockState(), 3);
+            level().playSound(null, adjacentBPos, EntoBlocks.CONGEALED_BLOOD.get().getSoundType(adjacentBState).getPlaceSound(),
                     SoundSource.BLOCKS,1f, 1f);
             discard();
         }

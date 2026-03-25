@@ -1,10 +1,10 @@
 package mod.pilot.entomophobia.blocks.custom;
 
-import mod.pilot.entomophobia.blocks.EntomoBlockStateProperties;
-import mod.pilot.entomophobia.blocks.EntomoBlocks;
+import mod.pilot.entomophobia.blocks.EntoBlockStateProperties;
+import mod.pilot.entomophobia.blocks.EntoBlocks;
 import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
-import mod.pilot.entomophobia.items.EntomoItems;
+import mod.pilot.entomophobia.items.EntoItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -32,7 +32,7 @@ import oshi.util.tuples.Pair;
 
 public class BloodwaxCombBlock extends DirectionalBlock {
     public static final BooleanProperty CORPSEDEW = BooleanProperty.create("corpsedew");
-    public static final BooleanProperty ALIVE = EntomoBlockStateProperties.ALIVE;
+    public static final BooleanProperty ALIVE = EntoBlockStateProperties.ALIVE;
     public BloodwaxCombBlock(Properties pProperties) {
         super(pProperties);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.UP).setValue(CORPSEDEW, false)
@@ -80,7 +80,7 @@ public class BloodwaxCombBlock extends DirectionalBlock {
             BlockState adjacentState = server.getBlockState(adjacentPos);
             if (adjacentState.isAir()){
                 server.setBlock(adjacentPos,
-                        EntomoBlocks.BLOODWAX_PROTRUSIONS.get().defaultBlockState()
+                        EntoBlocks.BLOODWAX_PROTRUSIONS.get().defaultBlockState()
                                 .setValue(BloodwaxProtrusions.FACING,facing.getOpposite()),
                         3);
                 server.setBlock(bPos, bState.setValue(ALIVE, random.nextBoolean()), 2);
@@ -98,9 +98,9 @@ public class BloodwaxCombBlock extends DirectionalBlock {
             itemstack.shrink(1);
             level.playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.MUD_HIT, SoundSource.BLOCKS, 1.0F, 1.0F);
             if (itemstack.isEmpty()) {
-                player.setItemInHand(hand, new ItemStack(EntomoItems.BOTTLED_CORPSEDEW.get()));
-            } else if (!player.getInventory().add(new ItemStack(EntomoItems.BOTTLED_CORPSEDEW.get()))) {
-                player.drop(new ItemStack(EntomoItems.BOTTLED_CORPSEDEW.get()), false);
+                player.setItemInHand(hand, new ItemStack(EntoItems.BOTTLED_CORPSEDEW.get()));
+            } else if (!player.getInventory().add(new ItemStack(EntoItems.BOTTLED_CORPSEDEW.get()))) {
+                player.drop(new ItemStack(EntoItems.BOTTLED_CORPSEDEW.get()), false);
             }
 
             level.setBlock(bPos, bState.setValue(CORPSEDEW, false), 3);

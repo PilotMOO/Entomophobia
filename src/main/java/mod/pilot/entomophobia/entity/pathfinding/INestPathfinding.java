@@ -2,7 +2,7 @@ package mod.pilot.entomophobia.entity.pathfinding;
 
 import mod.pilot.entomophobia.systems.nest.Nest;
 import mod.pilot.entomophobia.systems.nest.NestManager;
-import mod.pilot.entomophobia.util.EntomoTags;
+import mod.pilot.entomophobia.util.EntoTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
@@ -90,12 +90,12 @@ public interface INestPathfinding {
     default boolean guesstimateIfImInANest(int wantedNestBlocks){
         Mob e = getUser();
         //for checking if entity is on a flesh block or in the air, ensure that's there's a nest in range, and there's enough flesh blocks nearby
-        if (e.onGround() && !e.getFeetBlockState().is(EntomoTags.Blocks.MYIATIC_FLESH_BLOCKTAG)) return false;
+        if (e.onGround() && !e.getFeetBlockState().is(EntoTags.Blocks.MYIATIC_FLESH_BLOCKTAG)) return false;
         if (getClosestNest(e, this) == null) return false;
 
         AtomicInteger fBlockCount = new AtomicInteger();
         e.level().getBlockStates(e.getBoundingBox().inflate(8)).forEach((b) ->{
-            if (b.is(EntomoTags.Blocks.MYIATIC_FLESH_BLOCKTAG)) fBlockCount.getAndIncrement();
+            if (b.is(EntoTags.Blocks.MYIATIC_FLESH_BLOCKTAG)) fBlockCount.getAndIncrement();
         });
         return fBlockCount.get() >= wantedNestBlocks;
     }

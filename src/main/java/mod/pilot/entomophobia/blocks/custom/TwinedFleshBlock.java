@@ -1,7 +1,7 @@
 package mod.pilot.entomophobia.blocks.custom;
 
-import mod.pilot.entomophobia.blocks.EntomoBlockStateProperties;
-import mod.pilot.entomophobia.blocks.EntomoBlocks;
+import mod.pilot.entomophobia.blocks.EntoBlockStateProperties;
+import mod.pilot.entomophobia.blocks.EntoBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -23,11 +23,10 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class TwinedFleshBlock extends CaveVinesPlantBlock {
     private static final RandomSource random = RandomSource.create();
-    public static final BooleanProperty ALIVE = EntomoBlockStateProperties.ALIVE;
+    public static final BooleanProperty ALIVE = EntoBlockStateProperties.ALIVE;
 
     public TwinedFleshBlock(Properties pProperties) {
         super(pProperties);
@@ -42,7 +41,7 @@ public class TwinedFleshBlock extends CaveVinesPlantBlock {
 
     @Override
     protected @NotNull GrowingPlantHeadBlock getHeadBlock() {
-        return (GrowingPlantHeadBlock)EntomoBlocks.LUMINOUS_FLESH.get();
+        return (GrowingPlantHeadBlock) EntoBlocks.LUMINOUS_FLESH.get();
     }
 
     @Override
@@ -55,7 +54,7 @@ public class TwinedFleshBlock extends CaveVinesPlantBlock {
 
     @Override
     public @NotNull ItemStack getCloneItemStack(@NotNull BlockGetter level, @NotNull BlockPos bPos, @NotNull BlockState bState) {
-        return new ItemStack(EntomoBlocks.TWINED_FLESH.get());
+        return new ItemStack(EntoBlocks.TWINED_FLESH.get());
     }
     @Override
     public @NotNull InteractionResult use(@NotNull BlockState bState, @NotNull Level level, @NotNull BlockPos bPos, @NotNull Player player,
@@ -112,12 +111,12 @@ public class TwinedFleshBlock extends CaveVinesPlantBlock {
     public static int getTotalLength(BlockPos bPos, Level level){
         int totalLength = 0;
         BlockPos currentPos = bPos;
-        while (level.getBlockState(currentPos).is(EntomoBlocks.TWINED_FLESH.get())){
+        while (level.getBlockState(currentPos).is(EntoBlocks.TWINED_FLESH.get())){
             currentPos = currentPos.below();
         }
-        if (level.getBlockState(currentPos).is(EntomoBlocks.LUMINOUS_FLESH.get())) totalLength++;
+        if (level.getBlockState(currentPos).is(EntoBlocks.LUMINOUS_FLESH.get())) totalLength++;
         currentPos = currentPos.above();
-        while (level.getBlockState(currentPos).is(EntomoBlocks.TWINED_FLESH.get())){
+        while (level.getBlockState(currentPos).is(EntoBlocks.TWINED_FLESH.get())){
             totalLength++;
             currentPos = currentPos.above();
         }

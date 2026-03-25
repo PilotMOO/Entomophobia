@@ -3,7 +3,7 @@ package mod.pilot.entomophobia.systems.nest;
 import mod.pilot.entomophobia.data.EntoDataManager;
 import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
-import mod.pilot.entomophobia.entity.EntomoEntities;
+import mod.pilot.entomophobia.entity.EntoEntities;
 import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
 import mod.pilot.entomophobia.systems.PolyForged.shapes.abstractshapes.ShapeGenerator;
 import mod.pilot.entomophobia.systems.PolyForged.shapes.ChamberGenerator;
@@ -631,7 +631,7 @@ public class Nest {
         }
 
         private void generateHiveHeart() {
-            HiveHeartEntity hh = new HiveHeartEntity(EntomoEntities.HIVE_HEART.get(), server);
+            HiveHeartEntity hh = new HiveHeartEntity(EntoEntities.HIVE_HEART.get(), server);
             hh.setPos(position);
             hh.setYRot(random.nextIntBetweenInclusive(-180, 180));
             this.setHiveHeart(hh);

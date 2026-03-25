@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.entity.pheromones;
 
-import mod.pilot.entomophobia.effects.EntomoMobEffects;
+import mod.pilot.entomophobia.effects.EntoMobEffects;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.data.EntoWorldManager;
 import net.minecraft.server.level.ServerLevel;
@@ -15,7 +15,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class PheromonePreyHuntEntity extends PheromonesEntityBase implements GeoAnimatable {
     public PheromonePreyHuntEntity(EntityType<? extends Entity> pEntityType, Level pLevel) {
-        super(pEntityType, pLevel, EntomoMobEffects.PREY.get(), EntomoMobEffects.HUNT.get(),
+        super(pEntityType, pLevel, EntoMobEffects.PREY.get(), EntoMobEffects.HUNT.get(),
                 120, 24, 2000, 0, 4000, 1);
     }
 

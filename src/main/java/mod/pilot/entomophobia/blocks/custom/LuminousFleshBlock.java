@@ -1,8 +1,8 @@
 package mod.pilot.entomophobia.blocks.custom;
 
-import mod.pilot.entomophobia.blocks.EntomoBlockStateProperties;
-import mod.pilot.entomophobia.blocks.EntomoBlocks;
-import mod.pilot.entomophobia.particles.EntomoParticles;
+import mod.pilot.entomophobia.blocks.EntoBlockStateProperties;
+import mod.pilot.entomophobia.blocks.EntoBlocks;
+import mod.pilot.entomophobia.particles.EntoParticles;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -28,9 +28,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class LuminousFleshBlock extends CaveVinesBlock {
-    public static final BooleanProperty MIRRORED = EntomoBlockStateProperties.MIRRORED;
-    public static final BooleanProperty ALIVE = EntomoBlockStateProperties.ALIVE;
-    public static final BooleanProperty BLOODY = EntomoBlockStateProperties.BLOODY;
+    public static final BooleanProperty MIRRORED = EntoBlockStateProperties.MIRRORED;
+    public static final BooleanProperty ALIVE = EntoBlockStateProperties.ALIVE;
+    public static final BooleanProperty BLOODY = EntoBlockStateProperties.BLOODY;
     public LuminousFleshBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(BlockStateProperties.LIT, true)
@@ -44,7 +44,7 @@ public class LuminousFleshBlock extends CaveVinesBlock {
     }
     @Override
     protected @NotNull Block getBodyBlock() {
-        return EntomoBlocks.TWINED_FLESH.get();
+        return EntoBlocks.TWINED_FLESH.get();
     }
 
     @Override
@@ -64,7 +64,7 @@ public class LuminousFleshBlock extends CaveVinesBlock {
     }
 
     public @NotNull ItemStack getCloneItemStack(@NotNull BlockGetter level, @NotNull BlockPos bPos, @NotNull BlockState bState) {
-        return new ItemStack(EntomoBlocks.LUMINOUS_FLESH.get());
+        return new ItemStack(EntoBlocks.LUMINOUS_FLESH.get());
     }
     @Override
     public @NotNull InteractionResult use(@NotNull BlockState bState, @NotNull Level level, @NotNull BlockPos bPos, @NotNull Player player,
@@ -100,17 +100,17 @@ public class LuminousFleshBlock extends CaveVinesBlock {
         if (bState.getValue(BLOODY) && random.nextDouble() < 0.1){
             BlockPos aboveGroundOrBlood = getAboveGroundOrCongealedBlood(bPos, server);
             BlockState groundState = server.getBlockState(aboveGroundOrBlood);
-            if (groundState.is(EntomoBlocks.CONGEALED_BLOOD.get())){
+            if (groundState.is(EntoBlocks.CONGEALED_BLOOD.get())){
                 server.setBlock(aboveGroundOrBlood, groundState.setValue(BlockStateProperties.LAYERS,
                         groundState.getValue(BlockStateProperties.LAYERS) + 1), 3);
             }
             else if (groundState.isAir() && server.getBlockState(aboveGroundOrBlood.below())
                     .isFaceSturdy(server, aboveGroundOrBlood.below(), Direction.UP)){
-                server.setBlock(aboveGroundOrBlood, EntomoBlocks.CONGEALED_BLOOD.get().defaultBlockState(), 3);
+                server.setBlock(aboveGroundOrBlood, EntoBlocks.CONGEALED_BLOOD.get().defaultBlockState(), 3);
             }
 
             BlockState checkBeneath = server.getBlockState(aboveGroundOrBlood.below());
-            if (getLengthToGround(bPos, server) < 24 && (checkBeneath.is(EntomoBlocks.CONGEALED_BLOOD.get()) && checkBeneath.getValue(BlockStateProperties.LAYERS) == 8)
+            if (getLengthToGround(bPos, server) < 24 && (checkBeneath.is(EntoBlocks.CONGEALED_BLOOD.get()) && checkBeneath.getValue(BlockStateProperties.LAYERS) == 8)
                     || random.nextDouble() < 0.05){
                 server.setBlock(bPos, bState.setValue(BLOODY, false), 2);
             }
@@ -156,7 +156,7 @@ public class LuminousFleshBlock extends CaveVinesBlock {
         while (bState.isAir() && bPos.getY() > -64){
             bPos = bPos.below();
             bState = level.getBlockState(bPos);
-            if (bState.is(EntomoBlocks.CONGEALED_BLOOD.get())){
+            if (bState.is(EntoBlocks.CONGEALED_BLOOD.get())){
                 return bState.getValue(BlockStateProperties.LAYERS) == 8 ? getBloodTop(bPos, level) : bPos;
             }
         }
@@ -165,7 +165,7 @@ public class LuminousFleshBlock extends CaveVinesBlock {
 
     private static BlockPos getBloodTop(BlockPos bPos, Level level) {
         BlockState bState = level.getBlockState(bPos);
-        while (bState.is(EntomoBlocks.CONGEALED_BLOOD.get()) && bState.getValue(BlockStateProperties.LAYERS) == 8){
+        while (bState.is(EntoBlocks.CONGEALED_BLOOD.get()) && bState.getValue(BlockStateProperties.LAYERS) == 8){
             bPos = bPos.above();
             bState = level.getBlockState(bPos);
         }
@@ -180,7 +180,7 @@ public class LuminousFleshBlock extends CaveVinesBlock {
                 double y = (bPos.getY() + random.nextDouble() * (random.nextBoolean() ? 1 : -1) * 0.25);
                 double z = (bPos.getZ() + random.nextDouble() * (random.nextBoolean() ? 1 : -1) * 0.25) + 0.5;
 
-                level.addParticle(EntomoParticles.FLY_PARTICLE.get(), x, y, z, 0, 0, 0);
+                level.addParticle(EntoParticles.FLY_PARTICLE.get(), x, y, z, 0, 0, 0);
             }
         }
         if (random.nextDouble() <= 0.1 && bState.getValue(BLOODY)){
@@ -189,7 +189,7 @@ public class LuminousFleshBlock extends CaveVinesBlock {
                 double y = bPos.getY();
                 double z = (bPos.getZ() + random.nextDouble() * (random.nextBoolean() ? 1 : -1) * 0.25) + 0.5;
 
-                level.addParticle(EntomoParticles.BLOOD_HANG_PARTICLE.get(), x, y, z, 0, 0, 0);
+                level.addParticle(EntoParticles.BLOOD_HANG_PARTICLE.get(), x, y, z, 0, 0, 0);
             }
         }
 
@@ -241,7 +241,7 @@ public class LuminousFleshBlock extends CaveVinesBlock {
     public static int getTotalLength(BlockPos bPos, Level level){
         int totalLength = 1;
         BlockPos currentPos = bPos.above();
-        while (level.getBlockState(currentPos).is(EntomoBlocks.TWINED_FLESH.get())){
+        while (level.getBlockState(currentPos).is(EntoBlocks.TWINED_FLESH.get())){
             totalLength++;
             currentPos = currentPos.above();
         }

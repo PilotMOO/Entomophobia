@@ -1,21 +1,18 @@
 package mod.pilot.entomophobia.blocks.custom;
 
-import mod.pilot.entomophobia.blocks.EntomoBlockStateProperties;
-import mod.pilot.entomophobia.blocks.EntomoBlocks;
+import mod.pilot.entomophobia.blocks.EntoBlocks;
 import mod.pilot.entomophobia.data.InputReader;
-import mod.pilot.entomophobia.entity.EntomoEntities;
+import mod.pilot.entomophobia.entity.EntoEntities;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.projectile.CongealedBloodProjectile;
-import mod.pilot.entomophobia.particles.EntomoParticles;
+import mod.pilot.entomophobia.particles.EntoParticles;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -25,7 +22,6 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Snowball;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -33,14 +29,10 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Fallable;
 import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -116,7 +108,7 @@ public class CongealedBloodLayer extends SnowLayerBlock implements Fallable {
                             (float) level.random.nextInt(5, 16) / 10);
 
                     RandomSource random = s.getRandom();
-                    s.sendParticles(EntomoParticles.BLOOD_FALL_PARTICLE.get(),
+                    s.sendParticles(EntoParticles.BLOOD_FALL_PARTICLE.get(),
                             entity.getX(),
                             bPos.getY() + (entity.getBbHeight() * 0.65),
                             entity.getZ(),
@@ -257,7 +249,7 @@ public class CongealedBloodLayer extends SnowLayerBlock implements Fallable {
             BlockState beneath = server.getBlockState(poolPos.below());
             if ((poolState.canBeReplaced()) && (beneath.isFaceSturdy(server, poolPos.below(), Direction.UP)
                     || beneath.isAir() || (beneath.is(this)))){
-                server.setBlock(poolPos, EntomoBlocks.CONGEALED_BLOOD.get().defaultBlockState().setValue(LAYERS, 1), 3);
+                server.setBlock(poolPos, EntoBlocks.CONGEALED_BLOOD.get().defaultBlockState().setValue(LAYERS, 1), 3);
 
                 if (bState.getValue(LAYERS) == MAX_HEIGHT){
                     BlockPos above = bPos.above();
@@ -323,7 +315,7 @@ public class CongealedBloodLayer extends SnowLayerBlock implements Fallable {
             if (willHarvest && level.random.nextBoolean()){
                 Vec3 pos = getTopLayer(bPos, level).getCenter();
                 ItemEntity item = new ItemEntity(level, pos.x, pos.y, pos.z,
-                        new ItemStack(EntomoBlocks.CONGEALED_BLOOD.get()), 0, 0.1, 0);
+                        new ItemStack(EntoBlocks.CONGEALED_BLOOD.get()), 0, 0.1, 0);
                 level.addFreshEntity(item);
             }
         }
@@ -350,14 +342,14 @@ public class CongealedBloodLayer extends SnowLayerBlock implements Fallable {
 
     public static class CongealedBloodItem extends BlockItem {
         public CongealedBloodItem(Properties pProperties) {
-            super(EntomoBlocks.CONGEALED_BLOOD.get(), pProperties);
+            super(EntoBlocks.CONGEALED_BLOOD.get(), pProperties);
         }
 
         public @NotNull InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, @NotNull InteractionHand pHand) {
             ItemStack itemstack = pPlayer.getItemInHand(pHand);
             pLevel.playSound((Player)null, pPlayer.getX(), pPlayer.getY(), pPlayer.getZ(), SoundEvents.SLIME_JUMP, SoundSource.NEUTRAL, 0.5F, 0.4F / (pLevel.getRandom().nextFloat() * 0.4F + 0.8F));
             if (!pLevel.isClientSide) {
-                CongealedBloodProjectile cbp = new CongealedBloodProjectile(EntomoEntities.CONGEALED_BLOOD.get(), pLevel);
+                CongealedBloodProjectile cbp = new CongealedBloodProjectile(EntoEntities.CONGEALED_BLOOD.get(), pLevel);
                 cbp.copyPosition(pPlayer);
                 cbp.move(MoverType.SELF, new Vec3(0, pPlayer.getEyeHeight(), 0));
                 cbp.setOwner(pPlayer);

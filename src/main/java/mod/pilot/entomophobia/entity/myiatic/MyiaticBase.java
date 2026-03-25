@@ -1,11 +1,11 @@
 package mod.pilot.entomophobia.entity.myiatic;
 
-import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
+import mod.pilot.entomophobia.damagetypes.EntoDamageTypes;
 import mod.pilot.entomophobia.data.worlddata.EntoGeneralSaveData;
-import mod.pilot.entomophobia.effects.EntomoMobEffects;
+import mod.pilot.entomophobia.effects.EntoMobEffects;
 import mod.pilot.entomophobia.entity.AI.*;
 import mod.pilot.entomophobia.entity.AI.FormNestSwarmGoal;
-import mod.pilot.entomophobia.entity.EntomoEntities;
+import mod.pilot.entomophobia.entity.EntoEntities;
 import mod.pilot.entomophobia.entity.interfaces.IDodgable;
 import mod.pilot.entomophobia.entity.pathfinding.INestPathfinding;
 import mod.pilot.entomophobia.entity.pathfinding.WallClimbingNestNavigation;
@@ -14,7 +14,7 @@ import mod.pilot.entomophobia.data.BooleanCache;
 import mod.pilot.entomophobia.systems.nest.Nest;
 import mod.pilot.entomophobia.systems.nest.NestManager;
 import mod.pilot.entomophobia.systems.swarm.Swarm;
-import mod.pilot.entomophobia.util.EntomoTags;
+import mod.pilot.entomophobia.util.EntoTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -69,7 +69,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         if (getNavigation() instanceof INestPathfinding nestPath && nestPath.guesstimateIfImInANest(4)){
             return 20;
         }
-        return getFeetBlockState().is(EntomoTags.Blocks.MYIATIC_FLESH_BLOCKTAG) ? 5 : super.getMaxFallDistance();
+        return getFeetBlockState().is(EntoTags.Blocks.MYIATIC_FLESH_BLOCKTAG) ? 5 : super.getMaxFallDistance();
     }
         /**/
     //NBT
@@ -159,13 +159,13 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     }
     protected void registerFlightGoals(){}
     protected void registerPheromoneGoals(){
-        this.goalSelector.addGoal(2, new SpawnPheromonesGoal(this, EntomoEntities.PREYHUNT.get(), 600, this::preyHuntPredicate));
+        this.goalSelector.addGoal(2, new SpawnPheromonesGoal(this, EntoEntities.PREYHUNT.get(), 600, this::preyHuntPredicate));
     }
     /**/
 
     //Custom Methods
     public DamageSource getDamageSource(){
-        return EntomoDamageTypes.myiatic_basic(this);
+        return EntoDamageTypes.myiatic_basic(this);
     }
     protected int stateManager(){
         if (getAIState() == state.other.ordinal()){
@@ -252,7 +252,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             boolean flag = pEntity.hurt(getDamageSource(), f);
             if (flag) {
                 if (pEntity instanceof LivingEntity LEntity){
-                    LEntity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 200));
+                    LEntity.addEffect(new MobEffectInstance(EntoMobEffects.MYIASIS.get(), 200));
 
                     if (f1 > 0.0F) {
                         ((LivingEntity)pEntity).knockback((f1 * 0.5F), Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), (-Mth.cos(this.getYRot() * ((float)Math.PI / 180F))));
@@ -357,7 +357,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
                     } else ShouldBeCrawlingOnCeiling = false;*/
                     BlockPos above = BlockPos.containing(position().add(0, getBbHeight()/* + 0.5*/, 0));
                     BlockState bState = level().getBlockState(above);
-                    boolean blockFlag = bState.is(EntomoTags.Blocks.MYIATIC_FLESH_BLOCKTAG)
+                    boolean blockFlag = bState.is(EntoTags.Blocks.MYIATIC_FLESH_BLOCKTAG)
                             || NestManager.getNestBlocks().contains(bState.getBlock().defaultBlockState());
                     if (blockFlag){
                         ++this.aboveBreakTime;
@@ -395,7 +395,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
                 final int oldY = blockPosition().getY();
                 for (int i = -1; i < getBbHeight() + 1; i++){
                     mBPos.setY(oldY + i);
-                    if (level().getBlockState(mBPos).is(EntomoTags.Blocks.MYIATIC_FLESH_BLOCKTAG)){
+                    if (level().getBlockState(mBPos).is(EntoTags.Blocks.MYIATIC_FLESH_BLOCKTAG)){
                         return true;
                     }
                 }
@@ -471,7 +471,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     }
     public ArrayList<LivingEntity> getNearbyPrey(){
         AABB nearby = getBoundingBox().inflate((int)getAttributeValue(Attributes.FOLLOW_RANGE));
-        return new ArrayList<>(level().getEntitiesOfClass(LivingEntity.class, nearby, (P) -> testValidEntity(P) && P.hasEffect(EntomoMobEffects.PREY.get())));
+        return new ArrayList<>(level().getEntitiesOfClass(LivingEntity.class, nearby, (P) -> testValidEntity(P) && P.hasEffect(EntoMobEffects.PREY.get())));
     }
     public LivingEntity getClosestPrey(){
         LivingEntity closest = null;
@@ -567,7 +567,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     public static boolean isNestBlock(@Nullable BlockPos bPos, Level level){
         if (bPos == null) return false;
         BlockState bState = level.getBlockState(bPos);
-        return bState.is(EntomoTags.Blocks.MYIATIC_FLESH_BLOCKTAG)
+        return bState.is(EntoTags.Blocks.MYIATIC_FLESH_BLOCKTAG)
                 || NestManager.getNestBlocks().contains(bState.getBlock().defaultBlockState());
     }
 
@@ -598,7 +598,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         return flag;
     }
     public boolean testValidEntity(LivingEntity e) {
-        if (e instanceof Creeper && !isInsideOfTargetBlacklist(e)) return hasEffect(EntomoMobEffects.FRENZY.get());
+        if (e instanceof Creeper && !isInsideOfTargetBlacklist(e)) return hasEffect(EntoMobEffects.FRENZY.get());
         else return cachePredicate(e); //Disabled the Cache because of issues with targeting players switching to and fro creative mode
         /*else return TargetCache.Test(e);*/
     }

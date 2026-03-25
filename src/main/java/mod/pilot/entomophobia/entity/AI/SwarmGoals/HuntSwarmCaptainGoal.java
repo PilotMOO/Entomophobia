@@ -2,7 +2,7 @@ package mod.pilot.entomophobia.entity.AI.SwarmGoals;
 
 import mod.pilot.entomophobia.data.EntoWorldManager;
 import mod.pilot.entomophobia.entity.AI.Interfaces.ISwarmOrder;
-import mod.pilot.entomophobia.entity.EntomoEntities;
+import mod.pilot.entomophobia.entity.EntoEntities;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -73,8 +73,8 @@ public class HuntSwarmCaptainGoal extends Goal implements ISwarmOrder {
 
             List<LivingEntity> nearbyPrey = parent.getValidTargets();
             if (!nearbyPrey.isEmpty()){
-                if (!parent.isThereAPheromoneOfTypeXNearby(EntomoEntities.PREYHUNT.get())){
-                    EntoWorldManager.createNewEntityAt(EntomoEntities.PREYHUNT.get(), parent);
+                if (!parent.isThereAPheromoneOfTypeXNearby(EntoEntities.PREYHUNT.get())){
+                    EntoWorldManager.createNewEntityAt(EntoEntities.PREYHUNT.get(), parent);
                 }
             }
             else{

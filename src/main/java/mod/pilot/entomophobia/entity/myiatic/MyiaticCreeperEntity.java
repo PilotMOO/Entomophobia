@@ -2,7 +2,7 @@ package mod.pilot.entomophobia.entity.myiatic;
 
 import mod.pilot.entomophobia.entity.AI.AttackWithAnimationGoal;
 import mod.pilot.entomophobia.entity.AI.PheromoneExplodeGoal;
-import mod.pilot.entomophobia.entity.EntomoEntities;
+import mod.pilot.entomophobia.entity.EntoEntities;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -74,7 +74,7 @@ public class MyiaticCreeperEntity extends MyiaticBase{
 
     //Unique Methods
     public boolean WantsToExplode(int pheromoneSearchRange, int myiaticSearchRange, int targetSearchRange){
-        if (!isThereAPheromoneOfTypeXNearby(EntomoEntities.FRENZY.get(), pheromoneSearchRange)){
+        if (!isThereAPheromoneOfTypeXNearby(EntoEntities.FRENZY.get(), pheromoneSearchRange)){
             double healthPercent = (getHealth() / getAttributeValue(Attributes.MAX_HEALTH)) * 100;
             int NearbyMyiaticsCount = getNearbyMyiatics(myiaticSearchRange).size();
             int NearbyTargetsCount = getValidTargets(targetSearchRange).size();

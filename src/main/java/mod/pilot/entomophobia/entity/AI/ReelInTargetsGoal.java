@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.entity.AI;
 
-import mod.pilot.entomophobia.entity.EntomoEntities;
+import mod.pilot.entomophobia.entity.EntoEntities;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.projectile.AbstractGrappleProjectile;
 import net.minecraft.world.entity.Entity;
@@ -80,7 +80,7 @@ public class ReelInTargetsGoal extends Goal {
     protected void FireGrapple() {
         LivingEntity target = parent.getTarget();
         if (target != null){
-            grapple = EntomoEntities.STRING_GRAPPLE.get().create(parent.level());
+            grapple = EntoEntities.STRING_GRAPPLE.get().create(parent.level());
             parent.level().addFreshEntity(grapple);
             grapple.shoot(parent.getDirectionTo(target.position().add(0, target.getBbHeight() / 2, 0)), 2, 0, parent, ReelSpeed, ReelMaxTime);
         }

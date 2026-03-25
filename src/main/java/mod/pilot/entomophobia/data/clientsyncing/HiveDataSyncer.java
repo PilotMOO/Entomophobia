@@ -36,7 +36,7 @@ public class HiveDataSyncer {
      */
     public static void request(UUID id) {
         HiveDataSyncer.ClientRequestPacket requestPacket = new HiveDataSyncer.ClientRequestPacket(id);
-        EntomoPacketSyncer.sendToServer(requestPacket);
+        EntoPacketSyncer.sendToServer(requestPacket);
     }
 
     /**
@@ -47,7 +47,7 @@ public class HiveDataSyncer {
      */
     public static void pushClientChanges(HiveHeartEntity hh, boolean syncAllClients){
         HiveDataSyncer.ClientBoundSyncPacket boundSyncPacket = new ClientBoundSyncPacket(hh.getUUID(), hh.accessData(), syncAllClients);
-        EntomoPacketSyncer.sendToServer(boundSyncPacket);
+        EntoPacketSyncer.sendToServer(boundSyncPacket);
     }
 
     /**
@@ -57,7 +57,7 @@ public class HiveDataSyncer {
      */
     public static void sync(HiveHeartEntity hh, ServerPlayer player) {
         SyncPacket syncPacket = new SyncPacket(hh);
-        EntomoPacketSyncer.sendToClient(syncPacket, player);
+        EntoPacketSyncer.sendToClient(syncPacket, player);
     }
 
     /**

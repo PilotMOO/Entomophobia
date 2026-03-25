@@ -8,7 +8,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
-public class EntomoTags {
+public class EntoTags {
     public static class Blocks{
         private static TagKey<Block> tag(String name){
             return BlockTags.create(new ResourceLocation(Entomophobia.MOD_ID, name));

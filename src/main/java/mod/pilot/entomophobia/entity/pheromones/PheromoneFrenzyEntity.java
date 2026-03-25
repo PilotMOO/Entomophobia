@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.entity.pheromones;
 
-import mod.pilot.entomophobia.effects.EntomoMobEffects;
+import mod.pilot.entomophobia.effects.EntoMobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
@@ -11,7 +11,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class PheromoneFrenzyEntity extends PheromonesEntityBase implements GeoAnimatable {
     public PheromoneFrenzyEntity(EntityType<? extends Entity> pEntityType, Level pLevel) {
-        super(pEntityType, pLevel, null, EntomoMobEffects.FRENZY.get(),
+        super(pEntityType, pLevel, null, EntoMobEffects.FRENZY.get(),
                 32, 0, 400, 0, 2500, 2);
     }
 

@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.blocks.custom;
 
-import mod.pilot.entomophobia.blocks.EntomoBlocks;
+import mod.pilot.entomophobia.blocks.EntoBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -152,11 +152,11 @@ public class BloodwaxProtrusions extends DirectionalBlock {
         secondaryList.clear();
         ternaryList.clear();
 
-        primaryList.add(EntomoBlocks.WAXY_MYIATIC_FLESH.get().defaultBlockState());
-        primaryList.add(EntomoBlocks.BLOODWAX_COMB.get().defaultBlockState());
+        primaryList.add(EntoBlocks.WAXY_MYIATIC_FLESH.get().defaultBlockState());
+        primaryList.add(EntoBlocks.BLOODWAX_COMB.get().defaultBlockState());
 
-        secondaryList.add(EntomoBlocks.MYIATIC_FLESH.get().defaultBlockState());
-        secondaryList.add(EntomoBlocks.ROOTED_MYIATIC_FLESH.get().defaultBlockState());
-        secondaryList.add(EntomoBlocks.INFESTED_MYIATIC_FLESH.get().defaultBlockState());
+        secondaryList.add(EntoBlocks.MYIATIC_FLESH.get().defaultBlockState());
+        secondaryList.add(EntoBlocks.ROOTED_MYIATIC_FLESH.get().defaultBlockState());
+        secondaryList.add(EntoBlocks.INFESTED_MYIATIC_FLESH.get().defaultBlockState());
     }
 }

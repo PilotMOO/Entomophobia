@@ -2,12 +2,12 @@ package mod.pilot.entomophobia.event;
 
 import mod.pilot.entomophobia.ModConfig;
 import mod.pilot.entomophobia.Entomophobia;
-import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
+import mod.pilot.entomophobia.damagetypes.EntoDamageTypes;
 import mod.pilot.entomophobia.data.EntoDataManager;
 import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.data.worlddata.SwarmSaveData;
-import mod.pilot.entomophobia.effects.EntomoMobEffects;
+import mod.pilot.entomophobia.effects.EntoMobEffects;
 import mod.pilot.entomophobia.effects.IStackingEffect;
 import mod.pilot.entomophobia.entity.PestManager;
 import mod.pilot.entomophobia.entity.celestial.CelestialCarrionEntity;
@@ -15,7 +15,7 @@ import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticCowEntity;
 import mod.pilot.entomophobia.entity.truepest.PestBase;
-import mod.pilot.entomophobia.items.EntomoItems;
+import mod.pilot.entomophobia.items.EntoItems;
 import mod.pilot.entomophobia.data.worlddata.EntoGeneralSaveData;
 import mod.pilot.entomophobia.systems.nest.Nest;
 import mod.pilot.entomophobia.systems.nest.NestManager;
@@ -172,7 +172,7 @@ public class EntoForgeEvents {
         HiveSaveData.setActiveHiveData(server);
         SwarmSaveData.setActiveSwarmData(server);
 
-        EntomoDamageTypes.buildMultitranslatables(server);
+        EntoDamageTypes.buildMultitranslatables(server);
     }
     @SubscribeEvent
     public static void postServerCleanup(ServerStoppedEvent event){
@@ -231,7 +231,7 @@ public class EntoForgeEvents {
             if (player.getMainHandItem().is(Items.BUCKET)){
                 player.level().playSound(MCow, MCow.blockPosition(), SoundEvents.COW_MILK, SoundSource.PLAYERS, 1.0f, 1.0f);
                 player.getMainHandItem().shrink(1);
-                player.getInventory().add(new ItemStack(EntomoItems.POISONOUS_MILK.get()));
+                player.getInventory().add(new ItemStack(EntoItems.POISONOUS_MILK.get()));
             }
         }
     }
@@ -247,11 +247,11 @@ public class EntoForgeEvents {
                 int amountInfected = 0;
                 for (LivingEntity entity : nearbyInfectables){
                     if (amountInfected < nearbyInfectables.size() / 6){
-                        entity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), -1, 2));
+                        entity.addEffect(new MobEffectInstance(EntoMobEffects.MYIASIS.get(), -1, 2));
                         amountInfected++;
                     }
                     else if (player.getRandom().nextDouble() < 0.15){
-                        entity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), -1, 2));
+                        entity.addEffect(new MobEffectInstance(EntoMobEffects.MYIASIS.get(), -1, 2));
                         amountInfected++;
                     }
                 }
@@ -326,7 +326,7 @@ public class EntoForgeEvents {
                         player.displayClientMessage(Component.literal(print), false);
                         Level l = arguments.getSource().getLevel();
                         ItemEntity item = new ItemEntity(EntityType.ITEM, l);
-                        item.setItem(new ItemStack(EntomoItems.THANKS.get()));
+                        item.setItem(new ItemStack(EntoItems.THANKS.get()));
                         item.moveTo(player.position());
                         l.addFreshEntity(item);
                         return 1;

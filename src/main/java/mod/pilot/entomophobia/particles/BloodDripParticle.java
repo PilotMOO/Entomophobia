@@ -118,7 +118,7 @@ public class BloodDripParticle extends TextureSheetParticle {
         public Particle createParticle(@NotNull SimpleParticleType particleType, @NotNull ClientLevel level,
                                        double x, double y, double z,
                                        double dx, double dy, double dz) {
-            HangParticle toReturn = new HangParticle(level, x, y, z, EntomoParticles.BLOOD_FALL_PARTICLE.get(), sprites);
+            HangParticle toReturn = new HangParticle(level, x, y, z, EntoParticles.BLOOD_FALL_PARTICLE.get(), sprites);
             toReturn.setColor(0.25f, 0.03f, 0.03f);
             return toReturn;
         }
@@ -134,7 +134,7 @@ public class BloodDripParticle extends TextureSheetParticle {
         public Particle createParticle(@NotNull SimpleParticleType particleType, @NotNull ClientLevel level,
                                        double x, double y, double z,
                                        double dx, double dy, double dz) {
-            FallingParticle toReturn = new FallingParticle(level, x, y, z, EntomoParticles.BLOOD_LAND_PARTICLE.get(), sprites);
+            FallingParticle toReturn = new FallingParticle(level, x, y, z, EntoParticles.BLOOD_LAND_PARTICLE.get(), sprites);
             toReturn.setColor(0.25f, 0.03f, 0.03f);
             return toReturn;
         }

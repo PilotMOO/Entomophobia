@@ -25,12 +25,12 @@ public class ArteryClientSyncer {
 
     public static void request(UUID id) {
         ClientRequestPacket requestPacket = new ClientRequestPacket(id);
-        EntomoPacketSyncer.sendToServer(requestPacket);
+        EntoPacketSyncer.sendToServer(requestPacket);
     }
 
     public static void sync(HiveHeartEntity hh, ServerPlayer player) {
         ServerSyncPacket syncPacket = new ServerSyncPacket(hh);
-        EntomoPacketSyncer.sendToClient(syncPacket, player);
+        EntoPacketSyncer.sendToClient(syncPacket, player);
     }
 
     public record ServerSyncPacket(UUID id, ArrayList<HiveHeartEntity.Artery> arteries) {

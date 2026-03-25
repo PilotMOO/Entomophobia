@@ -1,7 +1,7 @@
 package mod.pilot.entomophobia.entity.AI.Flight;
 
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
-import mod.pilot.entomophobia.sound.EntomoSounds;
+import mod.pilot.entomophobia.sound.EntoSounds;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -238,7 +238,7 @@ public class FlyToGoal extends Goal {
         return HFlightSpeed * Mulitplier;
     }
     protected void playFlySound(){
-        parent.level().playSound(parent, parent.blockPosition(), EntomoSounds.MYIATIC_FLYING.get(), SoundSource.HOSTILE, 1.0f, 1.0f);
+        parent.level().playSound(parent, parent.blockPosition(), EntoSounds.MYIATIC_FLYING.get(), SoundSource.HOSTILE, 1.0f, 1.0f);
     }
     /**/
 }

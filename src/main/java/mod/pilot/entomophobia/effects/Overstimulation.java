@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.effects;
 
-import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
+import mod.pilot.entomophobia.damagetypes.EntoDamageTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -21,7 +21,7 @@ public class Overstimulation extends MobEffect implements IStackingEffect {
         }
 
         if (target.tickCount % 10 == 0){
-            target.hurt(EntomoDamageTypes.overstimulation(target), 2 + amp);
+            target.hurt(EntoDamageTypes.overstimulation(target), 2 + amp);
         }
 
         int duration = target.getEffect(this).getDuration();

@@ -1,7 +1,7 @@
 package mod.pilot.entomophobia.blocks.custom;
 
-import mod.pilot.entomophobia.blocks.EntomoBlockStateProperties;
-import mod.pilot.entomophobia.blocks.EntomoBlocks;
+import mod.pilot.entomophobia.blocks.EntoBlockStateProperties;
+import mod.pilot.entomophobia.blocks.EntoBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import org.jetbrains.annotations.NotNull;
 
 public class RootedMyiaticFleshBlock extends MyiaticFleshBlock{
-    public static final BooleanProperty ALIVE = EntomoBlockStateProperties.ALIVE;
+    public static final BooleanProperty ALIVE = EntoBlockStateProperties.ALIVE;
     public RootedMyiaticFleshBlock(Properties pProperties) {
         super(pProperties.randomTicks());
         this.registerDefaultState(this.stateDefinition.any().setValue(ALIVE, true));
@@ -33,7 +33,7 @@ public class RootedMyiaticFleshBlock extends MyiaticFleshBlock{
         BlockPos BelowPos = bPos.below();
         BlockState BelowState = server.getBlockState(BelowPos);
         if (BelowState.isAir()){
-            server.setBlock(BelowPos, EntomoBlocks.LUMINOUS_FLESH.get().defaultBlockState(), 3);
+            server.setBlock(BelowPos, EntoBlocks.LUMINOUS_FLESH.get().defaultBlockState(), 3);
         }
         server.setBlock(bPos, bState.setValue(ALIVE, false), 2);
     }

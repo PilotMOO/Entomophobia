@@ -5,7 +5,7 @@ import mod.pilot.entomophobia.data.clientsyncing.HiveDataSyncer;
 import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticPigEntity;
-import mod.pilot.entomophobia.sound.EntomoSounds;
+import mod.pilot.entomophobia.sound.EntoSounds;
 import mod.pilot.entomophobia.systems.nest.Nest;
 import mod.pilot.entomophobia.systems.nest.NestManager;
 import mod.pilot.entomophobia.systems.nest.hivenervoussystem.HiveNervousSystem;
@@ -289,8 +289,8 @@ public class HiveHeartEntity extends MyiaticBase implements GeoEntity {
                 .setSoundKeyframeHandler(event -> {
                     String soundID = event.getKeyframeData().getSound();
                     SoundEvent sound = null;
-                    if (soundID.equals("beat1")) sound = EntomoSounds.BEAT1.get();
-                    else if (soundID.equals("beat2")) sound = EntomoSounds.BEAT2.get();
+                    if (soundID.equals("beat1")) sound = EntoSounds.BEAT1.get();
+                    else if (soundID.equals("beat2")) sound = EntoSounds.BEAT2.get();
 
                     if (sound != null){
                         for (Player p : level().getEntitiesOfClass(Player.class,

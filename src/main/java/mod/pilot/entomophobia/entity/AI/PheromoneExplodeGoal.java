@@ -2,9 +2,9 @@ package mod.pilot.entomophobia.entity.AI;
 
 import mod.pilot.entomophobia.ModConfig;
 import mod.pilot.entomophobia.data.EntoWorldManager;
-import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
-import mod.pilot.entomophobia.effects.EntomoMobEffects;
-import mod.pilot.entomophobia.entity.EntomoEntities;
+import mod.pilot.entomophobia.damagetypes.EntoDamageTypes;
+import mod.pilot.entomophobia.effects.EntoMobEffects;
+import mod.pilot.entomophobia.entity.EntoEntities;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticCreeperEntity;
 import net.minecraft.sounds.SoundEvents;
@@ -53,7 +53,7 @@ public class PheromoneExplodeGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        return !parent.hasEffect(EntomoMobEffects.FRENZY.get()) && !parent.isThereAPheromoneOfTypeXNearby(EntomoEntities.FRENZY.get(), 128);
+        return !parent.hasEffect(EntoMobEffects.FRENZY.get()) && !parent.isThereAPheromoneOfTypeXNearby(EntoEntities.FRENZY.get(), 128);
     }
 
     @Override
@@ -105,9 +105,9 @@ public class PheromoneExplodeGoal extends Goal {
         FuseTimer++;
         parent.getNavigation().moveTo(parent, 0.0D);
         if (FuseTimer >= MaxFuseTimer){
-            parent.level().explode(parent, EntomoDamageTypes.myiatic_explode(parent), new ExplosionDamageCalculator(), parent.position(),
+            parent.level().explode(parent, EntoDamageTypes.myiatic_explode(parent), new ExplosionDamageCalculator(), parent.position(),
                     ModConfig.SERVER.myiatic_creeper_explode_radius.get(), false, Level.ExplosionInteraction.MOB);
-            EntoWorldManager.createNewEntityAt(EntomoEntities.FRENZY.get(), parent);
+            EntoWorldManager.createNewEntityAt(EntoEntities.FRENZY.get(), parent);
             parent.remove(Entity.RemovalReason.KILLED);
             stop();
         }

@@ -1,8 +1,7 @@
 package mod.pilot.entomophobia.entity.celestial;
 
 import mod.pilot.entomophobia.data.ParabolaCalculator;
-import mod.pilot.entomophobia.entity.EntomoEntities;
-import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
+import mod.pilot.entomophobia.entity.EntoEntities;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticChickenEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -14,7 +13,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
@@ -52,7 +50,7 @@ public class CarrioniteEntity extends LivingEntity implements GeoEntity {
         Vec3 pos = bPos.getCenter();
         Vec3 offset = pos.add(0.35, 0, -0.65);
 
-        CarrioniteEntity cE = EntomoEntities.CARRIONITE.get().create(server);
+        CarrioniteEntity cE = EntoEntities.CARRIONITE.get().create(server);
         assert cE != null;
         cE.orbitInit(pos, offset, defaultParabolaOffset);
         server.addFreshEntity(cE);

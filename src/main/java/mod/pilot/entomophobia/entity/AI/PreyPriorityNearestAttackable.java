@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.entity.AI;
 
-import mod.pilot.entomophobia.effects.EntomoMobEffects;
+import mod.pilot.entomophobia.effects.EntoMobEffects;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -16,7 +16,7 @@ public class PreyPriorityNearestAttackable extends NearestAttackableTargetGoal<L
     @Override
     public void tick() {
         super.tick();
-        if (wasPrey && !target.hasEffect(EntomoMobEffects.PREY.get())){
+        if (wasPrey && !target.hasEffect(EntoMobEffects.PREY.get())){
             findTarget();
             this.mob.setTarget(this.target);
         }
@@ -25,7 +25,7 @@ public class PreyPriorityNearestAttackable extends NearestAttackableTargetGoal<L
     @Override
     protected void findTarget() {
         LivingEntity prey = mob.getClosestPrey();
-        if (prey != null && mob.hasEffect(EntomoMobEffects.HUNT.get())){
+        if (prey != null && mob.hasEffect(EntoMobEffects.HUNT.get())){
             this.target = prey;
             wasPrey = true;
         }

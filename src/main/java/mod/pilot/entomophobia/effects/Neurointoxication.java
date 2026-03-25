@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.effects;
 
-import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
+import mod.pilot.entomophobia.damagetypes.EntoDamageTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
@@ -35,7 +35,7 @@ public class Neurointoxication extends MobEffect implements IStackingEffect {
     @Override
     public void applyEffectTick(LivingEntity target, int amp){
         if (target.tickCount % 20 == 0){
-            target.hurt(EntomoDamageTypes.neuro(target), amp * 2);
+            target.hurt(EntoDamageTypes.neuro(target), amp * 2);
         }
         if (target.getDeltaMovement().y > 0){
             target.setDeltaMovement(target.getDeltaMovement().multiply(0, 0.5, 0));

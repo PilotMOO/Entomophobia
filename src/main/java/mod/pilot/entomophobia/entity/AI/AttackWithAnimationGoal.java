@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.entity.AI;
 
-import mod.pilot.entomophobia.effects.EntomoMobEffects;
+import mod.pilot.entomophobia.effects.EntoMobEffects;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
@@ -70,7 +70,7 @@ public class AttackWithAnimationGoal extends MeleeAttackGoal {
 
     void FinalizeAttack(){
         AttackTicker = 0;
-        CD = mob.hasEffect(EntomoMobEffects.FRENZY.get()) ? MaxCD / 2 : MaxCD;
+        CD = mob.hasEffect(EntoMobEffects.FRENZY.get()) ? MaxCD / 2 : MaxCD;
         CurrentlyAttacking = false;
         mob.setAIState(MyiaticBase.state.idle.ordinal());
     }

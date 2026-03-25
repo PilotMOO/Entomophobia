@@ -1,8 +1,8 @@
 package mod.pilot.entomophobia.entity.myiatic;
 
-import mod.pilot.entomophobia.effects.EntomoMobEffects;
+import mod.pilot.entomophobia.effects.EntoMobEffects;
 import mod.pilot.entomophobia.entity.AI.AttackWithAnimationGoal;
-import mod.pilot.entomophobia.sound.EntomoSounds;
+import mod.pilot.entomophobia.sound.EntoSounds;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -17,7 +17,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
-import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
@@ -77,7 +76,7 @@ public class MyiaticCowEntity extends MyiaticBase{
     @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
-        return EntomoSounds.MYIATIC_COW_IDLE.get();
+        return EntoSounds.MYIATIC_COW_IDLE.get();
     }
     @Override
     protected SoundEvent getDeathSound() {
@@ -116,7 +115,7 @@ public class MyiaticCowEntity extends MyiaticBase{
             boolean flag = pEntity.hurt(getDamageSource(), f);
             if (flag) {
                 if (pEntity instanceof LivingEntity LEntity){
-                    LEntity.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 200));
+                    LEntity.addEffect(new MobEffectInstance(EntoMobEffects.MYIASIS.get(), 200));
                     int duration = 100;
                     int amp = 2;
                     if (LEntity.hasEffect(MobEffects.POISON)){

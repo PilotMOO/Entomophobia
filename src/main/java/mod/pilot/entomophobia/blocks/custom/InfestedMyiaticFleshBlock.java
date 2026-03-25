@@ -1,6 +1,6 @@
 package mod.pilot.entomophobia.blocks.custom;
 
-import mod.pilot.entomophobia.blocks.EntomoBlockStateProperties;
+import mod.pilot.entomophobia.blocks.EntoBlockStateProperties;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import org.jetbrains.annotations.NotNull;
 
 public class InfestedMyiaticFleshBlock extends MyiaticFleshBlock{
-    public static final BooleanProperty ALIVE = EntomoBlockStateProperties.ALIVE;
+    public static final BooleanProperty ALIVE = EntoBlockStateProperties.ALIVE;
     public InfestedMyiaticFleshBlock(Properties pProperties) {
         super(pProperties);
         this.registerDefaultState(this.stateDefinition.any().setValue(ALIVE, true));

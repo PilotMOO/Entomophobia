@@ -1,25 +1,23 @@
 package mod.pilot.entomophobia;
 
-import mod.pilot.entomophobia.blocks.EntomoBlocks;
+import mod.pilot.entomophobia.blocks.EntoBlocks;
 import mod.pilot.entomophobia.blocks.custom.BloodwaxProtrusions;
-import mod.pilot.entomophobia.data.clientsyncing.EntomoPacketSyncer;
+import mod.pilot.entomophobia.data.clientsyncing.EntoPacketSyncer;
 import mod.pilot.entomophobia.data.worlddata.HiveSaveData;
 import mod.pilot.entomophobia.data.worlddata.NestSaveData;
 import mod.pilot.entomophobia.data.worlddata.SwarmSaveData;
-import mod.pilot.entomophobia.effects.EntomoMobEffects;
+import mod.pilot.entomophobia.effects.EntoMobEffects;
 import mod.pilot.entomophobia.effects.Myiasis;
-import mod.pilot.entomophobia.entity.EntomoEntities;
+import mod.pilot.entomophobia.entity.EntoEntities;
 import mod.pilot.entomophobia.entity.PestManager;
 import mod.pilot.entomophobia.entity.celestial.CelestialCarrionEntity;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
-import mod.pilot.entomophobia.items.EntomoCreativeTabs;
-import mod.pilot.entomophobia.items.EntomoItems;
-import mod.pilot.entomophobia.particles.EntomoParticles;
-import mod.pilot.entomophobia.sound.EntomoSounds;
+import mod.pilot.entomophobia.items.EntoCreativeTabs;
+import mod.pilot.entomophobia.items.EntoItems;
+import mod.pilot.entomophobia.particles.EntoParticles;
+import mod.pilot.entomophobia.sound.EntoSounds;
 import mod.pilot.entomophobia.data.worlddata.EntoGeneralSaveData;
 import mod.pilot.entomophobia.systems.EventStart.EventStart;
-import mod.pilot.entomophobia.systems.GenericModelRegistry.GenericModelHub;
-import mod.pilot.entomophobia.systems.SkyboxModelRenderer.SkyboxModelManager;
 import mod.pilot.entomophobia.systems.nest.NestManager;
 import mod.pilot.entomophobia.systems.nest.features.FeatureManager;
 import mod.pilot.entomophobia.systems.nest.hivenervoussystem.HiveNervousSystem;
@@ -50,13 +48,13 @@ public class Entomophobia
         modEventBus.addListener(Entomophobia::FMLCommon);
         modEventBus.addListener(Entomophobia::FMLClient);
 
-        EntomoItems.register(modEventBus);
-        EntomoCreativeTabs.register(modEventBus);
-        EntomoBlocks.register(modEventBus);
-        EntomoSounds.register(modEventBus);
-        EntomoMobEffects.register(modEventBus);
-        EntomoEntities.register(modEventBus);
-        EntomoParticles.register(modEventBus);
+        EntoItems.register(modEventBus);
+        EntoCreativeTabs.register(modEventBus);
+        EntoBlocks.register(modEventBus);
+        EntoSounds.register(modEventBus);
+        EntoMobEffects.register(modEventBus);
+        EntoEntities.register(modEventBus);
+        EntoParticles.register(modEventBus);
 
         ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON, ModConfig.SERVER_SPEC, "entomo_common_config.toml");
         ModConfig.loadConfig(ModConfig.SERVER_SPEC, FMLPaths.CONFIGDIR.get().resolve("entomo_common_config.toml").toString());
@@ -68,7 +66,7 @@ public class Entomophobia
     @SubscribeEvent
     public static void FMLCommon(FMLCommonSetupEvent event){
         System.out.println("Hello from Ento FML Common!");
-        EntomoPacketSyncer.registerPackets();
+        EntoPacketSyncer.registerPackets();
 
         EventStart.Server.setup();
 

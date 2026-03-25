@@ -1,10 +1,10 @@
 package mod.pilot.entomophobia.entity.celestial;
 
 import com.google.common.collect.Lists;
-import mod.pilot.entomophobia.effects.EntomoMobEffects;
+import mod.pilot.entomophobia.effects.EntoMobEffects;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticBase;
 import mod.pilot.entomophobia.entity.myiatic.MyiaticPigEntity;
-import mod.pilot.entomophobia.sound.EntomoSounds;
+import mod.pilot.entomophobia.sound.EntoSounds;
 import mod.pilot.entomophobia.systems.screentextdisplay.PhantomTextInstance;
 import mod.pilot.entomophobia.systems.screentextdisplay.TextInstance;
 import mod.pilot.entomophobia.systems.screentextdisplay.TextOverlay;
@@ -132,14 +132,14 @@ public class CelestialCarrionEntity extends MyiaticBase implements GeoEntity {
             for (LivingEntity e : level().getEntitiesOfClass(LivingEntity.class,
                     AABB.ofSize(position(), InfatuationSpreadAOE, InfatuationSpreadAOE, InfatuationSpreadAOE))){
                 if (e instanceof MyiaticBase) continue;
-                e.addEffect(new MobEffectInstance(EntomoMobEffects.INFATUATION.get(), 1200));
+                e.addEffect(new MobEffectInstance(EntoMobEffects.INFATUATION.get(), 1200));
             }
         }
         if (tickCount % MyiasisSpread == 0){
             for (LivingEntity e : level().getEntitiesOfClass(LivingEntity.class,
                     AABB.ofSize(position(), MyiasisSpreadAOE, MyiasisSpreadAOE, MyiasisSpreadAOE))){
                 if (e instanceof MyiaticBase) continue;
-                e.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 600));
+                e.addEffect(new MobEffectInstance(EntoMobEffects.MYIASIS.get(), 600));
             }
         }
     }
@@ -148,8 +148,8 @@ public class CelestialCarrionEntity extends MyiaticBase implements GeoEntity {
     public void push(@NotNull Entity entity) {
         super.push(entity);
         if (entity instanceof LivingEntity le){
-            boolean flag = !le.hasEffect(EntomoMobEffects.MYIASIS.get()) || le.getEffect(EntomoMobEffects.MYIASIS.get()).getAmplifier() < 4;
-            if (flag) le.addEffect(new MobEffectInstance(EntomoMobEffects.MYIASIS.get(), 1200, 4));
+            boolean flag = !le.hasEffect(EntoMobEffects.MYIASIS.get()) || le.getEffect(EntoMobEffects.MYIASIS.get()).getAmplifier() < 4;
+            if (flag) le.addEffect(new MobEffectInstance(EntoMobEffects.MYIASIS.get(), 1200, 4));
         }
     }
 
@@ -241,7 +241,7 @@ public class CelestialCarrionEntity extends MyiaticBase implements GeoEntity {
                 float volume, pitch;
                 volume = _generateVoiceVolume(dist);
                 pitch = _generateVoicePitch(dist);
-                if (volume <= 0 || text == null || (event = EntomoSounds.getVoice(text)) == null) return;
+                if (volume <= 0 || text == null || (event = EntoSounds.getVoice(text)) == null) return;
                 cameraEntity.playSound(event, volume, pitch);
             }
             break;

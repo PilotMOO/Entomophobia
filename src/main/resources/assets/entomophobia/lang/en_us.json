@@ -101,10 +101,6 @@
   "death.attack.overstimulation2": "%1$s couldn't calm down",
   "death.attack.overstimulation3": "%1$s probably shouldn't have eaten that",
 
-  "death.attack.overstimulation1.player": "%1$s's heart gave out",
-  "death.attack.overstimulation2.player": "%1$s couldn't calm down",
-  "death.attack.overstimulation3.player": "%1$s probably shouldn't have eaten that",
-
   "death.attack.myiatic_explode": "%1$s was blown to smithereens by %2$s",
 
   "death.attack.lead": "%1$s died of lead poisoning. §d<3",

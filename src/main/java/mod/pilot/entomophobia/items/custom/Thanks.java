@@ -1,13 +1,10 @@
 package mod.pilot.entomophobia.items.custom;
 
-import mod.pilot.entomophobia.damagetypes.EntomoDamageTypes;
+import mod.pilot.entomophobia.damagetypes.EntoDamageTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -31,7 +28,7 @@ public class Thanks extends Item {
     @Override
     public @NotNull ItemStack finishUsingItem(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity target) {
         target.eat(level, stack);
-        target.hurt(EntomoDamageTypes.leadPoisoning(target), Float.MAX_VALUE);
+        target.hurt(EntoDamageTypes.leadPoisoning(target), Float.MAX_VALUE);
         return ItemStack.EMPTY;
     }
 

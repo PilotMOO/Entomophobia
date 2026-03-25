@@ -42,10 +42,10 @@ public class PestManager {
     }
 
     public static void registerAll(){
-        registerAsPest(EntomoEntities.SPIDER_PEST.get());
-        registerAsPest(EntomoEntities.GRUB_PEST.get());
-        registerAsPest(EntomoEntities.COCKROACH_PEST.get());
-        registerAsPest(EntomoEntities.CENTIPEDE_PEST.get());
+        registerAsPest(EntoEntities.SPIDER_PEST.get());
+        registerAsPest(EntoEntities.GRUB_PEST.get());
+        registerAsPest(EntoEntities.COCKROACH_PEST.get());
+        registerAsPest(EntoEntities.CENTIPEDE_PEST.get());
     }
     public static void flushList(){
         allPests.clear();
