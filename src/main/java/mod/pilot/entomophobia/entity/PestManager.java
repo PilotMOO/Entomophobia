@@ -21,6 +21,7 @@ public class PestManager {
     }
 
     public static EntityType<? extends PestBase> getRandomPestType(){
+        if (allPests.isEmpty()) return null;
         return getAllPestTypes().get(random.nextInt(allPests.size()));
     }
 

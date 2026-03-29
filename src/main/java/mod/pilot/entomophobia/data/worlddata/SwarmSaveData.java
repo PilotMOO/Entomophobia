@@ -194,7 +194,7 @@ public class SwarmSaveData extends SavedData {
                         return -1;
                     }
                     else{
-                        newUnit.ForceJoin(unpackedSwarm, true);
+                        newUnit.forceJoin(unpackedSwarm, true);
                         recruits.remove(uuid);
                         return 1;
                     }
@@ -226,7 +226,7 @@ public class SwarmSaveData extends SavedData {
                     if (CheckApplication(M.getUUID())){
                         System.out.println("Application for " + M + " was valid, recruiting...");
                         tracker++;
-                        M.ForceJoin(unpackedSwarm, true);
+                        M.forceJoin(unpackedSwarm, true);
                     }
                 }
                 awaitingApplication.clear();

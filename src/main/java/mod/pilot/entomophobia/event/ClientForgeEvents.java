@@ -35,6 +35,9 @@ public class ClientForgeEvents {
             "textures/gui/overstimulated_heart_overlay.png");
     private static final ResourceLocation NEURO_EFFECT_OVERLAY = new ResourceLocation(Entomophobia.MOD_ID,
             "textures/gui/neuro_heart_overlays.png");
+    private static final ResourceLocation ENVENOMED_EFFECT_OVERLAY = new ResourceLocation(Entomophobia.MOD_ID,
+            "textures/gui/envenomed_overlay.png");
+
     private static final NeuroHeartOverlayPackage[] overlays = new NeuroHeartOverlayPackage[10];
     public static void regenerateOverlayHashmap(){
         for (int i = 0; i < 10; i++){
@@ -47,7 +50,8 @@ public class ClientForgeEvents {
         if (event.getOverlay().id().equals(VanillaGuiOverlay.PLAYER_HEALTH.id())
                 && Minecraft.getInstance().gameMode.canHurtPlayer()
                 && Minecraft.getInstance().getCameraEntity() instanceof Player player
-                && player.hasEffect(EntoMobEffects.NEUROINTOXICATION.get())){
+                && (player.hasEffect(EntoMobEffects.NEUROINTOXICATION.get())
+                || player.hasEffect(EntoMobEffects.ENVENOMED.get()))){
             int leftHeight = 39;
             int width = event.getWindow().getGuiScaledWidth();
             int height = event.getWindow().getGuiScaledHeight();
@@ -178,6 +182,64 @@ public class ClientForgeEvents {
                             event.getGuiGraphics().blit(OVERSTIM_EFFECT_OVERLAY, x, y, 50, heartU, heartV, 9, 9, 32, 32);
                         } else if (i * 2 + 1 == health) {
                             event.getGuiGraphics().blit(OVERSTIM_EFFECT_OVERLAY, x, y, 50, heartU + 9, heartV, 9, 9, 32, 32);
+                        }
+                    }
+                }
+                event.getGuiGraphics().pose().popPose();
+            }
+            else if (player.hasEffect(EntoMobEffects.ENVENOMED.get())){
+                event.getGuiGraphics().disableScissor();
+
+                int leftHeight = 39;
+                int width = event.getWindow().getGuiScaledWidth();
+                int height = event.getWindow().getGuiScaledHeight();
+                int health = Mth.ceil(player.getHealth());
+                int forgeGuiTick = Minecraft.getInstance().gui instanceof ForgeGui forgeGui ? forgeGui.getGuiTicks() : 0;
+                AttributeInstance attrMaxHealth = player.getAttribute(Attributes.MAX_HEALTH);
+                float healthMax = (float) attrMaxHealth.getValue();
+                float absorb = (float) Math.ceil(player.getAbsorptionAmount());
+
+                int healthRows = Mth.ceil((healthMax + absorb) / 2.0F / 10.0F);
+                int rowHeight = Math.max(10 - (healthRows - 2), 3);
+
+                //ClientProxy.random.setSeed(forgeGuiTick * 312871L);
+                int left = width / 2 - 91;
+                int top = height - leftHeight;
+                int regen = -1;
+                if (player.hasEffect(MobEffects.REGENERATION)) {
+                    regen = forgeGuiTick % Mth.ceil(healthMax + 5.0F);
+                }
+                final int heartV = player.level().getLevelData().isHardcore() ? 9 : 0;
+                int heartU = 0;
+                float absorbRemaining = absorb;
+                event.getGuiGraphics().pose().pushPose();
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.setShader(GameRenderer::getPositionTexShader);
+                RenderSystem.setShaderTexture(0, ENVENOMED_EFFECT_OVERLAY);
+                for (int i = Mth.ceil((healthMax + absorb) / 2.0F) - 1; i >= 0; --i) {
+                    int row = Mth.ceil((float) (i + 1) / 10.0F) - 1;
+                    int x = left + i % 10 * 8;
+                    int y = top - row * rowHeight;
+                    if (health <= 4) {
+                        y += random.nextInt(2);
+                    }
+                    if (i == regen) {
+                        y -= 2;
+                    }
+                    event.getGuiGraphics().blit(ENVENOMED_EFFECT_OVERLAY, x, y, 50, heartU, heartV + 18, 9, 9, 32, 32);
+                    if (absorbRemaining > 0.0F) {
+                        if (absorbRemaining == absorb && absorb % 2.0F == 1.0F) {
+                            event.getGuiGraphics().blit(ENVENOMED_EFFECT_OVERLAY, x, y, 50, heartU + 9, heartV, 9, 9, 32, 32);
+                            absorbRemaining -= 1.0F;
+                        } else {
+                            event.getGuiGraphics().blit(ENVENOMED_EFFECT_OVERLAY, x, y, 50, heartU, heartV, 9, 9, 32, 32);
+                            absorbRemaining -= 2.0F;
+                        }
+                    } else {
+                        if (i * 2 + 1 < health) {
+                            event.getGuiGraphics().blit(ENVENOMED_EFFECT_OVERLAY, x, y, 50, heartU, heartV, 9, 9, 32, 32);
+                        } else if (i * 2 + 1 == health) {
+                            event.getGuiGraphics().blit(ENVENOMED_EFFECT_OVERLAY, x, y, 50, heartU + 9, heartV, 9, 9, 32, 32);
                         }
                     }
                 }

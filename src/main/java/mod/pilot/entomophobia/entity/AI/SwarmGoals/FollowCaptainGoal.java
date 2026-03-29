@@ -48,7 +48,7 @@ public class FollowCaptainGoal extends Goal implements ISwarmOrder {
 
     @Override
     public void stop() {
-        parent.LeaveSwarm(false);
+        parent.leaveSwarm(false);
     }
 
     @Override

@@ -29,6 +29,8 @@ public class EntoMobEffects {
                     .addAttributeModifier(Attributes.KNOCKBACK_RESISTANCE, "d03f01a2-c9fc-4a41-a101-f223b515fbe6", 0.5f, AttributeModifier.Operation.MULTIPLY_TOTAL));
     public static final RegistryObject<MobEffect> MYIASIS = MOB_EFFECTS.register("myiasis",
             Myiasis::new);
+    public static final RegistryObject<MobEffect> ENVENOMED = MOB_EFFECTS.register("envenomed",
+            Envenomed::new);
     public static final RegistryObject<MobEffect> NEUROINTOXICATION = MOB_EFFECTS.register("neurointoxication", () ->
             new Neurointoxication().addAttributeModifier(Attributes.MOVEMENT_SPEED, "99c9da36-345b-459b-83b1-81aa4f409756", -0.1f, AttributeModifier.Operation.MULTIPLY_TOTAL)
                     .addAttributeModifier(Attributes.ATTACK_SPEED, "aa1a1e37-3c7f-4f97-b709-92b5c0b2dd71", -0.1f, AttributeModifier.Operation.MULTIPLY_TOTAL)

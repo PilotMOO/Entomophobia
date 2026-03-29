@@ -129,12 +129,12 @@ public abstract class Swarm {
     }
     public void assignNewCaptain(@Nullable MyiaticBase newCaptain){
         if (getCaptain() != null){
-            getCaptain().LeaveSwarm(false);
+            getCaptain().leaveSwarm(false);
         }
         if (newCaptain != null){
             captain = newCaptain;
             newCaptain.addEffect(new MobEffectInstance(MobEffects.GLOWING, 200)); //THIS IS TEMPORARY
-            newCaptain.ForceJoin(this, true);
+            newCaptain.forceJoin(this, true);
         }
     }
     protected MyiaticBase decideCaptain(ArrayList<MyiaticBase> possibleCaptains) {
@@ -142,8 +142,8 @@ public abstract class Swarm {
         ArrayList<FesteredBase> festereds = new ArrayList<>();
 
         for (MyiaticBase M : possibleCaptains){
-            if (M instanceof FesteredBase){
-                festereds.add((FesteredBase)M);
+            if (M instanceof FesteredBase f){
+                festereds.add(f);
             }
             else{
                 myiatics.add(M);
@@ -295,11 +295,13 @@ public abstract class Swarm {
             }
         }
         addSwarmOrder(order);
-        if (order.captainOnly()){
-            getCaptain().queGoal(order.getPriority(), order.relay(getCaptain()));
+        MyiaticBase captain;
+        if (order.captainOnly() && (captain = getCaptain()) != null){
+            captain.queGoal(order.getPriority(), order.relay(captain));
             return;
         }
         for (MyiaticBase M : getUnits()){
+            if (M == null) continue;
             M.queGoal(order.getPriority(), order.relay(M));
         }
     }
@@ -307,12 +309,14 @@ public abstract class Swarm {
         boolean flag = removeSwarmOrder(order);
         if (flag){
             for (MyiaticBase M : getUnits()){
+                if (M == null) continue;
                 M.queRemoveGoal(order.relay(M));
             }
         }
     }
     public void discardPrimary() {
         for (MyiaticBase M : getUnits()){
+            if (M == null) continue;
             M.queRemoveGoal((Goal)getPrimaryOrderFor(M));
         }
         setPrimaryOrder(null);
@@ -352,7 +356,7 @@ public abstract class Swarm {
         return (int)getCaptain().getAttributeValue(Attributes.FOLLOW_RANGE);
     }
     protected boolean canRecruit(MyiaticBase recruit){
-        return recruit.isAlive() && recruit.canSwarm() && !recruit.isInSwarm() && getRecruitCount() < getMaxRecruits()
+        return recruit != null && recruit.isAlive() && recruit.canSwarm() && !recruit.isInSwarm() && getRecruitCount() < getMaxRecruits()
                 && this.distanceTo(recruit.position()) < recruitRange();
     }
 

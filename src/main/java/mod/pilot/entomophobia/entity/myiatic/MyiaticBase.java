@@ -81,64 +81,65 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         attacking,
         other
     }
+
+    public static final EntityDataAccessor<Integer> AIState = SynchedEntityData.defineId(MyiaticBase.class, EntityDataSerializers.INT);
     public int getAIState(){return entityData.get(AIState);}
     public void setAIState(Integer count) {entityData.set(AIState, count);}
     public void setAIState(state ordinal) {entityData.set(AIState, ordinal.ordinal());}
-    public static final EntityDataAccessor<Float> Reach = SynchedEntityData.defineId(MyiaticBase.class, EntityDataSerializers.FLOAT);
-    public float getReach(){return entityData.get(Reach);}
-    public void setReach(Float count) {entityData.set(Reach, count);}
-    public static final EntityDataAccessor<Boolean> EncouragedDespawn = SynchedEntityData.defineId(MyiaticBase.class, EntityDataSerializers.BOOLEAN);
-    public boolean getEncouragedDespawn(){return entityData.get(EncouragedDespawn);}
-    public void setEncouragedDespawn(boolean flag) {entityData.set(EncouragedDespawn, flag);}
-    public static final EntityDataAccessor<Integer> AIState = SynchedEntityData.defineId(MyiaticBase.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Float> reach = SynchedEntityData.defineId(MyiaticBase.class, EntityDataSerializers.FLOAT);
+    public float getReach(){return entityData.get(reach);}
+    public void setReach(Float count) {entityData.set(reach, count);}
+    public static final EntityDataAccessor<Boolean> encouragedDespawn = SynchedEntityData.defineId(MyiaticBase.class, EntityDataSerializers.BOOLEAN);
+    public boolean getEncouragedDespawn(){return entityData.get(encouragedDespawn);}
+    public void setEncouragedDespawn(boolean flag) {entityData.set(encouragedDespawn, flag);}
 
     @Override
     public void addAdditionalSaveData(@NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt("AIState", entityData.get(AIState));
-        tag.putFloat("Reach", entityData.get(Reach));
-        tag.putBoolean("EncouragedDespawn", entityData.get(EncouragedDespawn));
+        tag.putFloat("Reach", entityData.get(reach));
+        tag.putBoolean("EncouragedDespawn", entityData.get(encouragedDespawn));
     }
     @Override
     public void readAdditionalSaveData(@NotNull CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         entityData.set(AIState, tag.getInt("AIState"));
-        entityData.set(Reach, tag.getFloat("Reach"));
-        entityData.set(EncouragedDespawn, tag.getBoolean("EncouragedDespawn"));
+        entityData.set(reach, tag.getFloat("Reach"));
+        entityData.set(encouragedDespawn, tag.getBoolean("EncouragedDespawn"));
     }
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(AIState, 0);
-        this.entityData.define(Reach, 0f);
-        this.entityData.define(EncouragedDespawn, false);
+        this.entityData.define(reach, 0f);
+        this.entityData.define(encouragedDespawn, false);
     }
     /**/
 
     //Goals
-    protected ArrayList<Pair<Integer, Goal>> QueuedGoals = new ArrayList<>();
-    protected ArrayList<Goal> QueuedRemoveGoals = new ArrayList<>();
+    protected ArrayList<Pair<Integer, Goal>> queuedGoals = new ArrayList<>();
+    protected ArrayList<Goal> queuedRemoveGoals = new ArrayList<>();
     public void queGoal(int priority, Goal goal){
-        QueuedGoals.add(new Pair<>(priority, goal));
+        queuedGoals.add(new Pair<>(priority, goal));
     }
     public void queRemoveGoal(Goal goal){
-        QueuedRemoveGoals.add(goal);
+        queuedRemoveGoals.add(goal);
     }
     public void registerQueuedGoals(){
-        if (QueuedGoals.isEmpty()) return;
-        ArrayList<Pair<Integer, Goal>> toUnque = new ArrayList<>(QueuedGoals);
+        if (queuedGoals.isEmpty()) return;
+        ArrayList<Pair<Integer, Goal>> toUnque = new ArrayList<>(queuedGoals);
         for (Pair<Integer, Goal> queued : toUnque){
             this.goalSelector.addGoal(queued.getA(), queued.getB());
         }
-        QueuedGoals.clear();
+        queuedGoals.clear();
     }
     //I dont think this actually works smh
     public void clearQueuedRemovedGoals(){
-        if (QueuedRemoveGoals.isEmpty()) return;
-        ArrayList<Goal> toUnque = new ArrayList<>(QueuedRemoveGoals);
+        if (queuedRemoveGoals.isEmpty()) return;
+        ArrayList<Goal> toUnque = new ArrayList<>(queuedRemoveGoals);
         for (Goal queued : toUnque){
             this.goalSelector.removeGoal(queued);
         }
-        QueuedRemoveGoals.clear();
+        queuedRemoveGoals.clear();
     }
     @Override
     protected void registerGoals() {
@@ -272,7 +273,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     public void die(@NotNull DamageSource pDamageSource) {
         super.die(pDamageSource);
         if (isInSwarm()){
-            this.LeaveSwarm(false);
+            this.leaveSwarm(false);
         }
     }
 
@@ -297,7 +298,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
     }
 
     //Unused-- from old duct-taped climbing AI
-    public boolean ShouldBeCrawlingOnCeiling;
+    public boolean shouldBeCrawlingOnCeiling;
     private int lungeUpAge;
     public BlockPos hole;
 
@@ -627,7 +628,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
         return false;
     }
 
-    public void ForceJoin(@NotNull Swarm swarm, boolean ignoreCap){
+    public void forceJoin(@NotNull Swarm swarm, boolean ignoreCap){
         if (getSwarm() == swarm) return;
 
         if (ignoreCap || swarm.getRecruitCount() < swarm.getMaxRecruits()) {
@@ -636,7 +637,7 @@ public abstract class MyiaticBase extends Monster implements GeoEntity {
             currentSwarm = swarm;
         }
     }
-    public void LeaveSwarm(boolean disbandIfCaptain){
+    public void leaveSwarm(boolean disbandIfCaptain){
         if (getSwarm() != null){
             getSwarm().dropMember(this, disbandIfCaptain);
         }

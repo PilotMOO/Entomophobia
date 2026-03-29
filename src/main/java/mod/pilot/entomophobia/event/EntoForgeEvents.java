@@ -181,7 +181,7 @@ public class EntoForgeEvents {
         System.out.println("[SWARM MANAGER] Clearing out all swarms!");
         SwarmManager.purgeAllSwarms();
         System.out.println("[PEST MANAGER] Clearing out all registered pests!");
-        PestManager.flushList();
+        //PestManager.flushList();
     }
 
 

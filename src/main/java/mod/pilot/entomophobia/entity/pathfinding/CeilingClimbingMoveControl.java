@@ -14,7 +14,7 @@ public class CeilingClimbingMoveControl extends MoveControl {
         return (MyiaticBase)mob;
     }
     private boolean shouldClimbCeiling(){
-        return asMyiatic().ShouldBeCrawlingOnCeiling;
+        return asMyiatic().shouldBeCrawlingOnCeiling;
     }
     private float movementLerp;
     @Override
