@@ -5,9 +5,9 @@ import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.model.GeoModel;
 
 public class MyiaticCowModel extends GeoModel<MyiaticCowEntity> {
-    private static final ResourceLocation model = new ResourceLocation("entomophobia", "geo/entity/myiaticcow.geo.json");
-    private static final ResourceLocation texture = new ResourceLocation("entomophobia", "textures/entity/myiaticcow_texture.png");
-    private static final ResourceLocation animation = new ResourceLocation("entomophobia", "animations/entity/myiaticcow.animation.json");
+    private static final ResourceLocation model = new ResourceLocation("entomophobia", "geo/entity/myiatic_cow.geo.json");
+    private static final ResourceLocation texture = new ResourceLocation("entomophobia", "textures/entity/myiatic_cow_texture.png");
+    private static final ResourceLocation animation = new ResourceLocation("entomophobia", "animations/entity/myiatic_cow.animation.json");
 
     @Override
     public ResourceLocation getModelResource(MyiaticCowEntity animatable) {

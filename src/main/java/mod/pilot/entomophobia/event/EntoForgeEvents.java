@@ -188,6 +188,7 @@ public class EntoForgeEvents {
 
     @SubscribeEvent
     public static void stackingPotionApplication(MobEffectEvent.Added event){
+        if (!(event.getEntity().level() instanceof ServerLevel)){ return; }
         MobEffectInstance oldEffect = event.getOldEffectInstance();
         MobEffectInstance newEffect = event.getEffectInstance();
         if (oldEffect != null && oldEffect.getEffect() instanceof IStackingEffect stacking){
@@ -207,7 +208,6 @@ public class EntoForgeEvents {
                 cumulativeDuration = Math.min(stacking.getWrapAroundThreshold(),
                         Math.max(cumulativeDuration, stacking.getMinimumWrapDuration()));
             }
-
             target.removeEffect(oldEffect.getEffect());
             target.addEffect(new MobEffectInstance(oldEffect.getEffect(), cumulativeDuration, amp));
         }

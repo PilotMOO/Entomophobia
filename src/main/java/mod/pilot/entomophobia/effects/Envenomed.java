@@ -26,23 +26,23 @@ public class Envenomed extends MobEffect implements IStackingEffect {
 
     @Override
     public boolean isDurationEffectTick(int duration, int amp) {
-        int j = 50 >> amp;
-        return j == 0 || duration % j == 0;
+        int j = 30 >> amp;
+        return j == 0 || duration % (j + 2) == 0;
     }
 
     @Override
     public int getWrapAroundThreshold() {
-        return 60;
+        return 100;
     }
 
     @Override
     public int getMinimumWrapDuration() {
-        return 15;
+        return 10;
     }
 
     @Override
     public int getDegradeDuration() {
-        return IStackingEffect.super.getDegradeDuration();
+        return 60;
     }
 
     @Override
