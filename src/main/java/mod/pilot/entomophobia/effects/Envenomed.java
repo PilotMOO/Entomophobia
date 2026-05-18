@@ -32,7 +32,7 @@ public class Envenomed extends MobEffect implements IStackingEffect {
 
     @Override
     public int getWrapAroundThreshold() {
-        return 100;
+        return 80;
     }
 
     @Override
@@ -52,6 +52,6 @@ public class Envenomed extends MobEffect implements IStackingEffect {
 
     @Override
     public int getMaxCap() {
-        return 6;
+        return 4;
     }
 }

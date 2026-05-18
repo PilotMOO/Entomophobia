@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 public class MyiaticCowEntity extends MyiaticBase{
     public MyiaticCowEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
-        setReach(0.5f);
+        setReach(0.75f);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class MyiaticCowEntity extends MyiaticBase{
                 if (pEntity instanceof LivingEntity LEntity){
                     if (!level().isClientSide) {
                         LEntity.addEffect(new MobEffectInstance(EntoMobEffects.MYIASIS.get(), 200));
-                        LEntity.addEffect(new MobEffectInstance(EntoMobEffects.ENVENOMED.get(), 100, 0));
+                        LEntity.addEffect(new MobEffectInstance(EntoMobEffects.ENVENOMED.get(), 60, 2));
                     }
                     if (f1 > 0.0F) {
                         ((LivingEntity)pEntity).knockback((double)(f1 * 0.5F), (double) Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), (double)(-Mth.cos(this.getYRot() * ((float)Math.PI / 180F))));
