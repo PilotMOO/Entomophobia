@@ -9,6 +9,7 @@ import mod.pilot.entomophobia.entity.pheromones.PheromoneFrenzyEntity;
 import mod.pilot.entomophobia.entity.pheromones.PheromonePreyHuntEntity;
 import mod.pilot.entomophobia.entity.projectile.CongealedBloodProjectile;
 import mod.pilot.entomophobia.entity.projectile.StringGrappleProjectile;
+import mod.pilot.entomophobia.entity.testing.SkeletonPuppetTestEntity;
 import mod.pilot.entomophobia.entity.truepest.CentipedePestEntity;
 import mod.pilot.entomophobia.entity.truepest.CockroachPestEntity;
 import mod.pilot.entomophobia.entity.truepest.GrubPestEntity;
@@ -87,6 +88,11 @@ public class EntoEntities {
     public static final RegistryObject<EntityType<CongealedBloodProjectile>> CONGEALED_BLOOD =
             ENTITY_TYPES.register("congealed_blood", () -> EntityType.Builder.of(CongealedBloodProjectile::new, MobCategory.MISC)
                     .sized(0.5f, 0.5f).build("congealed_blood"));
+
+    //Testing/misc
+    public static final RegistryObject<EntityType<SkeletonPuppetTestEntity>> TEST_PUPPET =
+            ENTITY_TYPES.register("test_puppet", () -> EntityType.Builder.of(SkeletonPuppetTestEntity::new, MobCategory.MISC)
+                    .sized(0.75f, 2f).build("test_puppet"));
 
     public static void register(IEventBus eventBus){
         ENTITY_TYPES.register(eventBus);

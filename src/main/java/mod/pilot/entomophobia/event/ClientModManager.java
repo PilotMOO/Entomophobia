@@ -9,6 +9,7 @@ import mod.pilot.entomophobia.entity.client.myiatic.*;
 import mod.pilot.entomophobia.entity.client.pheromones.PheromoneFrenzyRenderer;
 import mod.pilot.entomophobia.entity.client.pheromones.PheromonePreyHuntRenderer;
 import mod.pilot.entomophobia.entity.client.projectile.StringGrappleRenderer;
+import mod.pilot.entomophobia.entity.client.testing.SkeletonPuppetTestRenderer;
 import mod.pilot.entomophobia.entity.client.truepest.CentipedePestRenderer;
 import mod.pilot.entomophobia.entity.client.truepest.CockroachPestRenderer;
 import mod.pilot.entomophobia.entity.client.truepest.GrubPestRenderer;
@@ -53,6 +54,8 @@ public class ClientModManager {
         event.registerEntityRenderer(EntoEntities.STRING_GRAPPLE.get(), StringGrappleRenderer::new);
 
         event.registerEntityRenderer(EntoEntities.CONGEALED_BLOOD.get(), ThrownItemRenderer::new);
+
+        event.registerEntityRenderer(EntoEntities.TEST_PUPPET.get(), SkeletonPuppetTestRenderer::new);
         /*
         event.registerBlockEntityRenderer(EntomoBlockEntities.EXAMPLE_BLOCK_ENTITY.get(),
                 (BlockEntityRendererProvider.Context rendererDispatcherIn) -> new ExampleBlockEntityRenderer());

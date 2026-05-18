@@ -6,6 +6,7 @@ import mod.pilot.entomophobia.entity.celestial.CarrioniteEntity;
 import mod.pilot.entomophobia.entity.celestial.CelestialCarrionEntity;
 import mod.pilot.entomophobia.entity.celestial.HiveHeartEntity;
 import mod.pilot.entomophobia.entity.myiatic.*;
+import mod.pilot.entomophobia.entity.testing.SkeletonPuppetTestEntity;
 import mod.pilot.entomophobia.entity.truepest.CentipedePestEntity;
 import mod.pilot.entomophobia.entity.truepest.CockroachPestEntity;
 import mod.pilot.entomophobia.entity.truepest.GrubPestEntity;
@@ -34,5 +35,7 @@ public class EntoEventBusEvents {
         event.put(EntoEntities.GRUB_PEST.get(), GrubPestEntity.createAttributes().build());
         event.put(EntoEntities.COCKROACH_PEST.get(), CockroachPestEntity.createAttributes().build());
         event.put(EntoEntities.CENTIPEDE_PEST.get(), CentipedePestEntity.createAttributes().build());
+
+        event.put(EntoEntities.TEST_PUPPET.get(), SkeletonPuppetTestEntity.createAttributes().build());
     }
 }
